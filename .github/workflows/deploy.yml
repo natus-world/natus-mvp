@@ -140,7 +140,7 @@ jobs:
         # domain later means changing this one line (or deleting it).
         env:
           VITE_BASE: /natus-mvp/
-          VITE_SITE_URL: https://tomasbalmer.github.io/natus-mvp/
+          VITE_SITE_URL: https://natus-world.github.io/natus-mvp/
           VITE_RELEASE: ${{ github.sha }}
           # Repository *variables*, not secrets. Both ship in the bundle by
           # design — the publishable key is a public identifier and is safe
