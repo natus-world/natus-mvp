@@ -15,7 +15,7 @@ Functions holding the API keys. **The offline path is not vestigial** — a
 build with no backend configured, or a visitor who has not signed in, still
 renders every screen from curated fixtures. Keep it working.
 
-Live at https://natus-world.github.io/natus-mvp/
+Live at https://app.natus.world/
 
 **It is a prototype, not a health service.** It presents crisis resources and
 asks about suicidal ideation because the product it demonstrates does. Nobody
