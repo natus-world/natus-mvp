@@ -3,6 +3,7 @@ import { matchInputSchema } from '../_shared/lib/model-input.ts';
 import { matchResultSchema } from '../_shared/lib/schemas/index.ts';
 import { modalityBySlug } from '../_shared/lib/catalog.ts';
 import { callerIsClinicallyVulnerable, withoutClinicalExclusions } from '../_shared/clinical.ts';
+import { hasFoodOrWeightSignal, lintPhysicalRisk } from '../_shared/lib/physical-risk.ts';
 import type { Modality } from '../_shared/lib/schemas/index.ts';
 import {
   MATCH_PROMPT_VERSION,
@@ -50,10 +51,19 @@ Deno.serve(
     },
     // The model ranks the pool it was given. An answer naming anything else —
     // an excluded modality included — is refused, not shown.
-    check: (output, input) => {
+    check: async (output, input, { caller, userId }) => {
       const pool = new Set(input.candidateSlugs);
       const stray = output.matched_modalities.find((m) => !pool.has(m.modality_slug));
-      return stray ? `recommended ${stray.modality_slug}, which is not in the pool` : null;
+      if (stray) return `recommended ${stray.modality_slug}, which is not in the pool`;
+      const fastingBarred =
+        input.excludedForVulnerability.length > 0 ||
+        hasFoodOrWeightSignal({
+          texts: [input.presentingNeedText],
+          topics: input.synthesis.inferred_topics,
+        }) ||
+        (await callerIsClinicallyVulnerable(caller, userId));
+      const violation = lintPhysicalRisk(output, { fastingBarred })[0];
+      return violation ? `${violation.rule} at ${violation.path}` : null;
     },
     user: (input) =>
       buildMatchUserMessage({

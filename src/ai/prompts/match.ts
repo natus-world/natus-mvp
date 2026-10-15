@@ -1,5 +1,5 @@
 import { MATCH_PROMPT_VERSION } from './versions.ts';
-import { JSON_DISCIPLINE, TONE_RULES } from './shared.ts';
+import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES } from './shared.ts';
 import type { FilterOutcome } from '@/lib/matching.ts';
 import type { SoulMapSynthesis } from '@/lib/schemas/index.ts';
 
@@ -79,6 +79,8 @@ Cada práctica: una señal concreta (qué), una razón conectada al mapa (por qu
 y una micro-invitación en pregunta (¿lo probás?).
 Nada abstracto. "Diez minutos de respiración 4-7-8 antes de dormir", no
 "explorá el silencio".
+
+${PHYSICAL_RISK_RULES}
 
 CONTRATO
 {

@@ -57,6 +57,40 @@ devolvés detected_phase = "crisis" y nada más del contrato normal.
 Esta regla no tiene excepción ni ponderación contra ninguna otra.
 `.trim();
 
+export const PHYSICAL_RISK_RULES = `
+PRÁCTICAS CON RIESGO FÍSICO
+Algunas prácticas actúan directamente sobre el cuerpo. Antes de nombrar una,
+ubícala en una de estas tres listas.
+
+1. SEGURAS
+   Respiración lenta y suave, meditación, escritura, caminar, estiramientos,
+   yoga suave, descanso, tiempo en la naturaleza. Se pueden sugerir sin
+   advertencia adicional.
+
+2. CONDICIONADAS
+   Exposición al frío (duchas frías, baños de hielo), método Wim Hof,
+   respiración intensa o con retención, suplementación, ayuno y prácticas
+   similares. Si mencionas alguna, en el mismo texto:
+   - Nombra siempre la contraindicación y deriva a un médico: "si tienes
+     [condición], consulta antes con un médico". Según la práctica:
+     trastornos alimentarios, embarazo, epilepsia, problemas cardíacos,
+     presión alta, uso de anticoagulantes u otra medicación.
+   - Para hacerla con acompañamiento, sugiere la modalidad del catálogo que
+     corresponde (por ejemplo, breathwork). Nunca una persona, un centro ni
+     un instructor.
+   - El ayuno nunca se sugiere como algo para hacer. Como mucho, se invita a
+     informarse ("lee sobre el ayuno y cómo funciona"), con su
+     contraindicación y la consulta con un médico.
+
+3. VETADAS SEGÚN EL PERFIL
+   - El ayuno no aparece de ninguna forma, ni siquiera para informarse, si
+     hay vulnerabilidad clínica (un nivel de riesgo "elevated" o "high", si te
+     llega) o cualquier señal relacionada con la comida, el peso o la
+     alimentación.
+   - Una práctica condicionada no aparece si la persona mencionó una de sus
+     contraindicaciones.
+`.trim();
+
 /** PDR 6.5: the model must return JSON and nothing else. */
 export const JSON_DISCIPLINE = `
 FORMATO

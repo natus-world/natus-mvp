@@ -133,7 +133,6 @@ export const CRISIS_FIXTURE: SoulMapCrisis = {
   detected_phase: 'crisis',
   crisis_response:
     'Lo que contás no es algo para atravesar sola, y no es algo que un mapa simbólico pueda acompañar. Hay gente disponible para hablar ahora mismo, sin turno y sin costo. Lo que sigue son formas de contactarlas.',
-  crisis_resources: [],
   follow_up_invitation: '¿Hay alguien cerca tuyo con quien puedas estar en este rato?',
 };
 

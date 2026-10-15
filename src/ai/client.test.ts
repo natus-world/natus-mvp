@@ -98,6 +98,27 @@ describe('runAi on the server path', () => {
     });
   });
 
+  it('refuses a crisis turn whose text carries a phone number', async () => {
+    mockClient(async () => ({
+      data: { result: { type: 'crisis', message_text: 'Llama al 0800 345 1435.' } },
+      error: null,
+    }));
+    const { runAi } = await import('./client');
+    await expect(
+      runAi({
+        ...call,
+        schema: z.object({ type: z.string(), message_text: z.string() }),
+        fixture: () => ({ type: 'reflection', message_text: 'fixture' }),
+      }),
+    ).rejects.toMatchObject({ kind: 'copy_violation' });
+  });
+
+  it('refuses a practice with physical risk named without its contraindication', async () => {
+    await expect(
+      run(async () => ({ data: { result: { text: 'Una ducha fría cada mañana.' } }, error: null })),
+    ).rejects.toMatchObject({ kind: 'copy_violation' });
+  });
+
   it('reads an aborted request as a timeout, and asks for one', async () => {
     let options: unknown;
     const abort = Object.assign(new Error('fetch failed'), {

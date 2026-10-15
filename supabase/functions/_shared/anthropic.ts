@@ -1,5 +1,6 @@
 import type { ZodType } from 'zod';
-import { lintDeep } from './lib/copy-lint.ts';
+import { lintCrisisText, lintDeep } from './lib/copy-lint.ts';
+import { lintPhysicalRisk } from './lib/physical-risk.ts';
 import { MalformedJson, parseJsonLoosely } from './lib/model-json.ts';
 import { addUsage, type Usage } from './lib/budget.ts';
 
@@ -189,7 +190,7 @@ function readJson(text: string): unknown {
 }
 
 function assertCleanCopy(value: unknown, spent?: Usage): void {
-  const violations = lintDeep(value);
+  const violations = [...lintDeep(value), ...lintCrisisText(value), ...lintPhysicalRisk(value)];
   if (violations.length === 0) return;
   const first = violations[0];
   throw new ModelError(

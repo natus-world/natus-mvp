@@ -11,6 +11,7 @@ import { resourcesForCountry } from '../_shared/lib/crisis-resources.ts';
 import { chatContextSchema, chatEnvelopeSchema } from '../_shared/lib/model-input.ts';
 import { MODEL, ModelError, generate, hasKey } from '../_shared/anthropic.ts';
 import { chatResponseSchema } from '../_shared/lib/schemas/index.ts';
+import { hasFoodOrWeightSignal, lintPhysicalRisk } from '../_shared/lib/physical-risk.ts';
 import {
   CHAT_PROMPT_VERSION,
   CHAT_SYSTEM_PROMPT,
@@ -205,6 +206,31 @@ Deno.serve(async (request) => {
       maxTokens: MAX_OUTPUT_TOKENS.chat,
     });
 
+    const fastingBarred =
+      vulnerable ||
+      risk !== 'none' ||
+      hasFoodOrWeightSignal({
+        texts: [
+          message,
+          ...context.data.history.filter((turn) => turn.role === 'user').map((turn) => turn.text),
+        ],
+        topics: context.data.synthesis.inferred_topics,
+      });
+    const violation = lintPhysicalRisk(generated.value, { fastingBarred })[0];
+    if (violation) {
+      throw new ModelError(
+        `Copy rule "${violation.rule}" broken at ${violation.path}`,
+        'copy_violation',
+        `lint:${violation.rule}`,
+        {
+          inputTokens: generated.inputTokens,
+          outputTokens: generated.outputTokens,
+          cacheWriteTokens: generated.cacheWriteTokens,
+          cacheReadTokens: generated.cacheReadTokens,
+        },
+      );
+    }
+
     // The model can classify a turn as crisis too, and that turn is free for
     // the same reason the deterministic one is.
     const charged = isChargeable(generated.value.type);
@@ -230,6 +256,7 @@ Deno.serve(async (request) => {
         ...generated.value,
         linked_modality_slugs: generated.value.linked_modality_slugs.filter((slug) => allowed.has(slug)),
       },
+      ...(generated.value.type === 'crisis' ? { resources: resourcesForCountry(country) } : {}),
       input_tokens: generated.inputTokens,
       output_tokens: generated.outputTokens,
       remaining: quota.remaining - (charged ? 1 : 0),

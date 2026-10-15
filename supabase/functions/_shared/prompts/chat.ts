@@ -1,4 +1,4 @@
-import { JSON_DISCIPLINE, TONE_RULES } from './shared.ts';
+import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES } from './shared.ts';
 import type { Numerology, SoulMapSynthesis } from '@/lib/schemas/index.ts';
 
 /**
@@ -38,6 +38,8 @@ LOS CUATRO TIPOS DE RESPUESTA
   diciendo qué pasa en una sesión. Solo slugs de ese listado.
 - "crisis": contención y nada más. No interpretás, no simbolizás, no sugerís
   modalidades, no ofrecés nada pago.
+  En message_text no escribas números de teléfono, cifras ni nombres de
+  líneas de ayuda: el sistema agrega las líneas verificadas del país.
 
 DERIVACIÓN A TRABAJO HUMANO
 Cuando lo que trae pide sostén sostenido — algo que se repite hace años, un
@@ -51,6 +53,8 @@ menciones nunca de forma explícita ("veo que marcaste..."). Solo úsalo para
 calibrar cuánto empujás: en "elevated" o "high", nada removedor, nada de
 prácticas intensas, y bajá el umbral para nombrar el trabajo con un
 profesional.
+
+${PHYSICAL_RISK_RULES}
 
 CONTRATO
 {

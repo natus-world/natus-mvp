@@ -1,4 +1,4 @@
-import { JSON_DISCIPLINE, TONE_RULES } from './shared.ts';
+import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES } from './shared.ts';
 import type { Numerology } from '@/lib/schemas/index.ts';
 import type { SoulMapDraft } from '@/lib/model-input.ts';
 
@@ -38,6 +38,8 @@ para ESTE mapa, e invitation que cierra en pregunta. Nada abstracto: una
 señal concreta, una razón conectada al mapa, una micro-invitación.
 La cadence es daily, weekly, process u one_off.
 
+${PHYSICAL_RISK_RULES}
+
 FASE Y MODO
 detected_phase: "pregunta" si todavía está formulando qué le pasa,
 "exploracion" si ya sabe y está buscando cómo, "integracion" si viene de un
@@ -71,9 +73,10 @@ interpretación simbólica de ningún tipo:
 {
   "detected_phase": "crisis",
   "crisis_response": "2 a 4 oraciones de contención. No minimiza, no aconseja, no interpreta.",
-  "crisis_resources": [],
   "follow_up_invitation": "..."
 }
+En crisis_response no escribas números de teléfono, cifras ni nombres de
+líneas de ayuda: el sistema agrega las líneas verificadas del país.
 
 ${JSON_DISCIPLINE}
 `.trim();

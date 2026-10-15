@@ -45,15 +45,6 @@ export type SoulMapSynthesis = z.infer<typeof soulMapSynthesisSchema>;
 export const soulMapCrisisSchema = z.object({
   detected_phase: z.literal('crisis'),
   crisis_response: z.string().min(1),
-  crisis_resources: z.array(
-    z.object({
-      type: z.enum(['hotline', 'emergency']),
-      country: z.string().length(2),
-      name: z.string().min(1),
-      contact: z.string().min(1),
-      note: z.string().nullable(),
-    }),
-  ),
   follow_up_invitation: z.string().min(1),
 });
 export type SoulMapCrisis = z.infer<typeof soulMapCrisisSchema>;

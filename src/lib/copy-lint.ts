@@ -115,6 +115,38 @@ export function lintDeep(value: unknown, path = '$'): (CopyViolation & { path: s
   return [];
 }
 
+const CRISIS_DIGITS: Rule = {
+  id: 'crisis-digits',
+  pattern: /\d(?:[\s().-]{0,2}\d){3,}/,
+  why: 'A digit run in crisis text. Help lines come from verified data, never from the model — S-02.',
+};
+
+export function lintCrisisResponse(text: string): CopyViolation[] {
+  const match = CRISIS_DIGITS.pattern.exec(text);
+  return match ? [{ rule: CRISIS_DIGITS.id, match: match[0], why: CRISIS_DIGITS.why }] : [];
+}
+
+export function lintCrisisText(value: unknown, path = '$'): (CopyViolation & { path: string })[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item, i) => lintCrisisText(item, `${path}[${i}]`));
+  }
+  if (!value || typeof value !== 'object') return [];
+  const record = value as Record<string, unknown>;
+  const own: (CopyViolation & { path: string })[] = [];
+  if (typeof record['crisis_response'] === 'string') {
+    own.push(
+      ...lintCrisisResponse(record['crisis_response']).map((v) => ({ ...v, path: `${path}.crisis_response` })),
+    );
+  }
+  if (record['type'] === 'crisis' && typeof record['message_text'] === 'string') {
+    own.push(...lintCrisisResponse(record['message_text']).map((v) => ({ ...v, path: `${path}.message_text` })));
+  }
+  const nested = Object.entries(record).flatMap(([key, item]) =>
+    item && typeof item === 'object' ? lintCrisisText(item, `${path}.${key}`) : [],
+  );
+  return [...own, ...nested];
+}
+
 /**
  * PDR 1.5 and 7.5: a tip closes on a micro-invitation phrased as a question.
  * Separate from the violation rules because it is a shape requirement rather

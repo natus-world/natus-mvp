@@ -1,5 +1,6 @@
 import type { ZodType } from 'zod';
-import { lintDeep } from '@/lib/copy-lint';
+import { lintCrisisText, lintDeep } from '@/lib/copy-lint';
+import { lintPhysicalRisk } from '@/lib/physical-risk';
 import type { CrisisCategory, CrisisSeverity } from '@/lib/safety';
 import { isBackendConfigured, isDemoMode, supabase } from '@/supabase/client';
 import { reportError } from '@/supabase/report-error';
@@ -200,7 +201,7 @@ function numberOrNull(value: unknown): number | null {
 }
 
 function assertCleanCopy(value: unknown): void {
-  const violations = lintDeep(value);
+  const violations = [...lintDeep(value), ...lintCrisisText(value), ...lintPhysicalRisk(value)];
   if (violations.length === 0) return;
   const first = violations[0];
   throw new AiError(

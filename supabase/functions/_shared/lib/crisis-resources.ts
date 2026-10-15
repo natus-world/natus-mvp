@@ -41,6 +41,24 @@ export function resourcesForCountry(country: string | undefined): CrisisResource
   };
 }
 
+export type ModelCrisisReply = {
+  type: 'crisis';
+  severity: 'high';
+  category: 'indirecto';
+  crisis_response: string;
+  resources: CrisisResourceSet;
+};
+
+export function modelCrisisReply(crisisResponse: string, country: string | undefined): ModelCrisisReply {
+  return {
+    type: 'crisis',
+    severity: 'high',
+    category: 'indirecto',
+    crisis_response: crisisResponse,
+    resources: resourcesForCountry(country),
+  };
+}
+
 /** `tel:` href with everything a dialler would choke on removed. */
 export function telHref(contact: string): string {
   return `tel:${contact.replace(/[^\d+]/g, '')}`;

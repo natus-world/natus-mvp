@@ -5,6 +5,7 @@ import { authenticate, Unauthorized } from './auth.ts';
 import { logCall, type CallRecord } from './log.ts';
 import { MODEL, ModelError, generate, hasKey } from './anthropic.ts';
 import { scanText } from './lib/safety.ts';
+import { modelCrisisReply } from './lib/crisis-resources.ts';
 import { MAX_OUTPUT_TOKENS } from './lib/budget.ts';
 import { refuseForSpend, reserveModelCall } from './spend.ts';
 
@@ -61,7 +62,12 @@ export type ModelRoute<I, O> = {
    * to reject, or null to accept. Rejection is logged as `copy_violation` —
    * the model held the contract and broke the product rule.
    */
-  check?: (output: O, input: I) => string | null;
+  check?: (
+    output: O,
+    input: I,
+    context: { caller: SupabaseClient; userId: string },
+  ) => string | null | Promise<string | null>;
+  crisis?: (output: O, input: I) => { response: string; country: string | undefined } | null;
   /** Operational counts to return beside the token usage. Never content. */
   meta?: (input: I) => Record<string, number>;
   effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
@@ -155,7 +161,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
         ...(route.effort ? { effort: route.effort } : {}),
       });
 
-      const rejection = route.check?.(generated.value, input);
+      const rejection = await route.check?.(generated.value, input, { caller: auth.caller, userId });
       if (rejection) throw new ModelError(rejection, 'copy_violation');
 
       await logCall(elevated, {
@@ -167,6 +173,9 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
         cacheReadTokens: generated.cacheReadTokens,
         latencyMs: Date.now() - started,
       }, reservedId);
+
+      const crisis = route.crisis?.(generated.value, input);
+      if (crisis) return json(request, modelCrisisReply(crisis.response, crisis.country));
 
       return json(request, {
         result: generated.value,
