@@ -93,7 +93,7 @@ export function SafetyLab() {
           onChange={(e) => setText(e.target.value)}
           rows={3}
           className="field w-full resize-none text-[length:var(--fs-body-14)] leading-5 placeholder:text-crema/55"
-          placeholder="Escribí algo…"
+          placeholder="Escribe algo…"
         />
 
         <div className="flex flex-wrap gap-1.5">

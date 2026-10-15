@@ -32,13 +32,8 @@ import {
  * one without changing the schema.
  */
 
-const KIND_LABEL: Record<string, string> = {
-  life_path: 'Camino de vida',
-  expression: 'Expresión',
-  soul_urge: 'Alma',
-  personality: 'Personalidad',
-  birthday: 'Cumpleaños',
-};
+const text = copy.comparison.result;
+const KIND_LABEL = text.kind;
 
 export function Result() {
   const { id = '' } = useParams();
@@ -66,7 +61,7 @@ export function Result() {
       const payload = buildComparisonPayload({
         scope: consent.scope,
         a: {
-          display_name: mine.draft.legal_birth_name.trim().split(/\s+/)[0] ?? 'Vos',
+          display_name: mine.draft.legal_birth_name.trim().split(/\s+/)[0] ?? text.selfFallback,
           numerology: synthesis.numerology,
           soul_map_themes: synthesis.synthesis.inferred_topics,
           chart: null,
@@ -106,7 +101,7 @@ export function Result() {
   }, [active, id, generate, generating, error, version]);
 
   if (!profile) {
-    return <Missing message="Esa persona ya no está cargada." />;
+    return <Missing message={text.missing} />;
   }
 
   if (!active) {
@@ -114,11 +109,11 @@ export function Result() {
       <Missing
         message={
           consent?.status === 'revoked'
-            ? 'El permiso fue retirado, así que este cruce ya no se puede leer.'
-            : 'Sin permiso vigente no se lee nada.'
+            ? text.revoked
+            : text.noConsent
         }
         to={`/comparacion/consentimiento/${id}`}
-        cta="Ver los permisos"
+        cta={text.viewPermissions}
       />
     );
   }
@@ -138,7 +133,7 @@ export function Result() {
             ) : (
               <>
                 <Ouroboros size={88} />
-                <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">Cruzando los mapas</p>
+                <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">{text.loading}</p>
               </>
             )}
           </div>
@@ -153,11 +148,11 @@ export function Result() {
     <ComparisonGate>
       <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content40}>
         <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-          <p className="eyebrow mb-3">El cruce</p>
+          <p className="eyebrow mb-3">{text.kicker}</p>
           <h1 className="mb-6 text-[length:var(--fs-title-26)] leading-[var(--lh-heading-1_18)] text-blanco">{result.headline}</h1>
 
           <section className="mb-6">
-            <h2 className="eyebrow mb-2.5">Los números, en diálogo</h2>
+            <h2 className="eyebrow mb-2.5">{text.numbers}</h2>
             <p className="mb-3 text-[length:var(--fs-body-13)] leading-relaxed text-blanco/85">
               {result.numerology_dialogue.summary}
             </p>
@@ -182,7 +177,7 @@ export function Result() {
           </section>
 
           <section className="mb-6">
-            <h2 className="eyebrow mb-2.5">La carta</h2>
+            <h2 className="eyebrow mb-2.5">{text.chart}</h2>
             <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/60">
               {result.astro_dialogue.summary}
             </p>
@@ -212,7 +207,7 @@ export function Result() {
           </section>
 
           <section className="mb-6">
-            <h2 className="eyebrow mb-2.5">Donde fluye</h2>
+            <h2 className="eyebrow mb-2.5">{text.flow}</h2>
             <ul className="flex list-none flex-col gap-2 p-0">
               {result.where_you_flow.map((line) => (
                 <li key={line} className="text-[length:var(--fs-body-12_5)] leading-relaxed text-blanco/85">
@@ -223,7 +218,7 @@ export function Result() {
           </section>
 
           <section className="mb-6">
-            <h2 className="eyebrow mb-2.5">Donde roza</h2>
+            <h2 className="eyebrow mb-2.5">{text.friction}</h2>
             <ul className="flex list-none flex-col gap-2 p-0">
               {result.where_you_friction.map((line) => (
                 <li key={line} className="text-[length:var(--fs-body-12_5)] leading-relaxed text-blanco/85">
@@ -237,7 +232,7 @@ export function Result() {
 
           {/* PDR 8.5 rule 4: it ends here, on questions. */}
           <section className="mb-6">
-            <h2 className="eyebrow mb-3">Para conversar</h2>
+            <h2 className="eyebrow mb-3">{text.questions}</h2>
             <div className="flex flex-col gap-3">
               {result.questions_to_explore.map((question) => (
                 <p key={question} className="font-serif text-[length:var(--fs-voice-16)] leading-snug text-crema italic">
@@ -248,7 +243,7 @@ export function Result() {
           </section>
 
           <p className="mb-6 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-3 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {result.disclaimer}
+            {text.disclaimer}
           </p>
 
           <div className="flex flex-col gap-2.5">
@@ -256,11 +251,11 @@ export function Result() {
               to={`/comparacion/consentimiento/${id}`}
               className="chip chip-p10 text-center text-crema/60 no-underline"
             >
-              Permisos y alcance
+              {text.permissions}
             </Link>
             {isDemoMode && (
               <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                {stored.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
+                {stored.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} ·{' '}
                 {stored.prompt_version}
               </p>
             )}
@@ -282,7 +277,7 @@ function numerologyOf(legalName: string, birthDate: string) {
   }
 }
 
-function Missing({ message, to = '/comparacion', cta = 'Volver' }: { message: string; to?: string; cta?: string }) {
+function Missing({ message, to = '/comparacion', cta = text.back }: { message: string; to?: string; cta?: string }) {
   return (
     <ComparisonGate>
       <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content45}>

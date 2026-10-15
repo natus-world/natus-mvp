@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { ComparisonGate } from './Gate';
 import { BIRTH_COUNTRIES } from '@/components/birth-countries';
 import {
@@ -28,12 +29,8 @@ const fieldClass =
   'field w-full text-[length:var(--fs-body-14)] leading-5 placeholder:text-crema/55 [color-scheme:dark]';
 const labelClass = 'mb-1.5 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase';
 
-const STATUS_LABEL = {
-  pending: 'Esperando respuesta',
-  granted: 'Con permiso',
-  denied: 'No dio permiso',
-  revoked: 'Permiso retirado',
-} as const;
+const text = copy.comparison.external;
+const STATUS_LABEL = text.status;
 
 export function ExternalProfile() {
   const navigate = useNavigate();
@@ -66,15 +63,13 @@ export function ExternalProfile() {
     <ComparisonGate>
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content40}>
         <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-          <p className="eyebrow mb-3">Comparar cartas</p>
+          <p className="eyebrow mb-3">{text.kicker}</p>
           <h1 className="mb-3 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-            Un vínculo,
-            <br />
-            desde los dos lados.
+            {text.titleLead}
+            <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
           </h1>
           <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-            Se puede leer el cruce entre tu mapa y el de otra persona. Nunca sale un veredicto
-            sobre la relación: sale material para conversar entre ustedes.
+            {text.helper}
           </p>
 
           {profiles.length > 0 && (
@@ -87,7 +82,7 @@ export function ExternalProfile() {
                     <div className="mb-1 flex items-baseline justify-between gap-3">
                       <h2 className="text-[length:var(--fs-heading-14)] text-blanco">{profile.display_name}</h2>
                       <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                        {consent ? STATUS_LABEL[consent.status] : 'Sin pedir'}
+                        {consent ? STATUS_LABEL[consent.status] : text.notAsked}
                       </span>
                     </div>
                     <p className="mb-3 text-[length:var(--fs-body-11_5)] text-crema/55">{profile.birth_date}</p>
@@ -103,14 +98,14 @@ export function ExternalProfile() {
                           }}
                           className="flex-1 rounded-full border border-error/40 px-3 py-2 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
                         >
-                          Borrar sus datos
+                          {text.deleteTheirData}
                         </button>
                         <button
                           type="button"
                           onClick={() => setConfirming(null)}
                           className="chip chip-p8 flex-1 text-crema/60"
                         >
-                          Mejor no
+                          {text.keep}
                         </button>
                       </div>
                     ) : (
@@ -123,14 +118,14 @@ export function ExternalProfile() {
                           }
                           className="chip chip-p8 flex-1 text-center text-crema/75 no-underline"
                         >
-                          {active ? 'Ver el cruce' : 'Permisos'}
+                          {active ? text.viewReading : text.permissions}
                         </Link>
                         <button
                           type="button"
                           onClick={() => setConfirming(profile.id)}
                           className="chip chip-p8 px-3.5 text-crema/55"
                         >
-                          Borrar
+                          {text.delete}
                         </button>
                       </div>
                     )}
@@ -142,39 +137,39 @@ export function ExternalProfile() {
 
           {!adding ? (
             <button type="button" className="cta" onClick={() => setAdding(true)}>
-              Cargar a alguien
+              {text.add}
             </button>
           ) : (
             <div className="flex flex-col gap-4">
               <div>
                 <label className={labelClass} htmlFor="external-name">
-                  ¿Cómo le decís?
+                  {text.nameLabel}
                 </label>
                 <input
                   id="external-name"
                   className={fieldClass}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Nico"
+                  placeholder={text.namePlaceholder}
                 />
               </div>
 
               <div>
                 <label className={labelClass} htmlFor="external-legal-name">
-                  Su nombre completo de nacimiento
+                  {text.legalNameLabel}
                 </label>
                 <input
                   id="external-legal-name"
                   className={fieldClass}
                   value={legalName}
                   onChange={(e) => setLegalName(e.target.value)}
-                  placeholder="Opcional"
+                  placeholder={text.optional}
                 />
               </div>
 
               <div>
                 <label className={labelClass} htmlFor="external-birth-date">
-                  Su fecha de nacimiento
+                  {text.birthDateLabel}
                 </label>
                 <input
                   id="external-birth-date"
@@ -194,7 +189,7 @@ export function ExternalProfile() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass} htmlFor="external-birth-time">
-                    Su hora
+                    {text.birthTimeLabel}
                   </label>
                   <input
                     id="external-birth-time"
@@ -206,21 +201,21 @@ export function ExternalProfile() {
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="external-birth-city">
-                    Su ciudad
+                    {text.birthCityLabel}
                   </label>
                   <input
                     id="external-birth-city"
                     className={fieldClass}
                     value={birthCity}
                     onChange={(e) => setBirthCity(e.target.value)}
-                    placeholder="Santiago"
+                    placeholder={text.birthCityPlaceholder}
                   />
                 </div>
               </div>
 
               <div>
                 <label className={labelClass} htmlFor="external-birth-country">
-                  Su país de nacimiento
+                  {text.birthCountryLabel}
                 </label>
                 <select
                   id="external-birth-country"
@@ -235,8 +230,7 @@ export function ExternalProfile() {
                   ))}
                 </select>
                 <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-                  Hora, ciudad y país sólo hacen falta si querés que el cruce mire las dos
-                  cartas. Sin los tres, se lee con los números y los temas.
+                  {text.birthHelper}
                 </p>
               </div>
 
@@ -246,23 +240,21 @@ export function ExternalProfile() {
                * is the only moment where saying this can change anything.
                */}
               <div className="rounded-[var(--radius-option)] border border-error/25 px-4 py-3.5">
-                <p className="eyebrow mb-1.5">Antes de guardar</p>
+                <p className="eyebrow mb-1.5">{text.warningKicker}</p>
                 <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/75">
-                  Estos son datos de otra persona. Cargalos solo si esa persona sabe que lo
-                  estás haciendo. El paso siguiente es pedirle permiso, y sin ese permiso no se
-                  lee nada.
+                  {text.warning}
                 </p>
               </div>
 
               <button type="button" className="cta" disabled={!canSave} onClick={save}>
-                Guardar y pedir permiso
+                {text.save}
               </button>
               <button
                 type="button"
                 onClick={() => setAdding(false)}
                 className="chip chip-p10 text-crema/60"
               >
-                Cancelar
+                {text.cancel}
               </button>
             </div>
           )}

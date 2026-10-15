@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { BED_TRACKS } from '@/lib/catalog';
 import { deleteMeditation, listMeditations } from '@/store/meditations';
 
@@ -15,12 +16,14 @@ import { deleteMeditation, listMeditations } from '@/store/meditations';
  * being true.
  */
 
+const text = copy.library;
+
 function bedName(id: string): string {
-  return BED_TRACKS.find((track) => track.id === id)?.name ?? 'Solo voz';
+  return BED_TRACKS.find((track) => track.id === id)?.name ?? text.voiceOnly;
 }
 
 function dayOf(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('es-AR', {
+  return new Date(timestamp).toLocaleDateString(text.locale, {
     day: 'numeric',
     month: 'long',
   });
@@ -33,21 +36,19 @@ export function Library() {
   return (
     <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content40}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-        <p className="eyebrow mb-3">Mis prácticas</p>
+        <p className="eyebrow mb-3">{text.kicker}</p>
         <h1 className="mb-6 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-          Lo que fuiste
-          <br />
-          armando.
+          {text.titleLead}
+          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
         </h1>
 
         {meditations.length === 0 ? (
           <>
             <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-              Todavía no armaste ninguna. Cada práctica sale de una intención concreta, así que
-              no hay un catálogo para elegir: se arma cuando la pedís.
+              {text.empty}
             </p>
             <Link to="/meditaciones" className="cta no-underline">
-              Armar una práctica
+              {text.create}
             </Link>
           </>
         ) : (
@@ -62,12 +63,12 @@ export function Library() {
                     {meditation.script.title}
                   </h2>
                   <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                    {meditation.estimated_minutes} min
+                    {copy.meditation.minutes(meditation.estimated_minutes)}
                   </span>
                 </div>
 
                 <p className="mb-1 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-                  “{meditation.intent}”
+                  «{meditation.intent}»
                 </p>
                 <p className="mb-3 text-[length:var(--fs-label-10_5)] tracking-wide text-crema/55 uppercase">
                   {dayOf(meditation.created_at)} · {bedName(meditation.script.bed_track_id)}
@@ -84,14 +85,14 @@ export function Library() {
                       }}
                       className="flex-1 rounded-full border border-error/40 px-3 py-2 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
                     >
-                      Borrar
+                      {text.delete}
                     </button>
                     <button
                       type="button"
                       onClick={() => setConfirming(null)}
                       className="chip chip-p8 flex-1 text-crema/60"
                     >
-                      Mejor no
+                      {text.keep}
                     </button>
                   </div>
                 ) : (
@@ -100,14 +101,14 @@ export function Library() {
                       to={`/meditaciones?id=${meditation.id}`}
                       className="chip chip-p8 flex-1 text-center text-crema/75 no-underline"
                     >
-                      Escuchar
+                      {text.listen}
                     </Link>
                     <button
                       type="button"
                       onClick={() => setConfirming(meditation.id)}
                       className="chip chip-p8 px-3.5 text-crema/55"
                     >
-                      Borrar
+                      {text.delete}
                     </button>
                   </div>
                 )}
@@ -115,7 +116,7 @@ export function Library() {
             ))}
 
             <Link to="/meditaciones" className="cta mt-4 no-underline">
-              Armar otra
+              {text.another}
             </Link>
           </div>
         )}

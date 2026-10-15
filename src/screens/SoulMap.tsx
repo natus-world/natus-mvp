@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { isDemoMode } from '@/supabase/client';
 import { PHOTO, Screen } from '@/design/Screen';
-import { NUMBER_LABELS } from '@/lib/numerology';
+import { copy } from '@/i18n';
 import { activeProfile, isSignedIn } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import type { Numerology } from '@/lib/schemas';
@@ -14,7 +14,9 @@ import type { Numerology } from '@/lib/schemas';
  * The person has already put in the time and now has something to lose.
  */
 
-const NUMBER_ORDER: (keyof typeof NUMBER_LABELS)[] = [
+const text = copy.soulMap;
+
+const NUMBER_ORDER: (keyof typeof copy.practice.numberLabels)[] = [
   'life_path',
   'expression',
   'soul_urge',
@@ -22,18 +24,7 @@ const NUMBER_ORDER: (keyof typeof NUMBER_LABELS)[] = [
   'birthday',
 ];
 
-const SECTION_TITLES = {
-  tu_camino: 'Tu camino',
-  lo_que_estas_trabajando: 'Lo que estás trabajando',
-  que_necesitas_ahora: 'Qué necesitás ahora',
-} as const;
-
-const CADENCE_LABEL = {
-  daily: 'cada día',
-  weekly: 'cada semana',
-  process: 'durante el proceso',
-  one_off: 'una vez',
-} as const;
+const SECTION_TITLES = text.sections;
 
 function Numbers({ numerology }: { numerology: Numerology }) {
   return (
@@ -44,7 +35,7 @@ function Numbers({ numerology }: { numerology: Numerology }) {
             key={key}
             className="surface surface-p12 flex items-center justify-between"
           >
-            <span className="text-[length:var(--fs-body-13)] text-blanco/85">{NUMBER_LABELS[key]}</span>
+            <span className="text-[length:var(--fs-body-13)] text-blanco/85">{copy.practice.numberLabels[key]}</span>
             <span className="font-serif text-[length:var(--fs-numeral-24)] leading-8 font-light text-crema">{numerology[key]}</span>
           </div>
         ))}
@@ -52,16 +43,14 @@ function Numbers({ numerology }: { numerology: Numerology }) {
 
       {numerology.master_numbers_present.length > 0 && (
         <p className="mt-4 px-1 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-          Aparecen números maestros en tu mapa:{' '}
-          <span className="text-crema">{numerology.master_numbers_present.join(', ')}</span>. En
-          la tradición pitagórica no se reducen, y se leen como una intensidad que pide más de
-          vos.
+          {text.masterNumbersLead}
+          <span className="text-crema">{numerology.master_numbers_present.join(', ')}</span>
+          {text.masterNumbersTail}
         </p>
       )}
 
       <p className="mt-3 px-1 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-        Calculados en tu navegador a partir de tu nombre de nacimiento y tu fecha. Son un
-        lenguaje simbólico para pensarte, no una medición.
+        {text.numbersNote}
       </p>
     </>
   );
@@ -77,10 +66,10 @@ export function SoulMap() {
       <Screen backdrop="palm" scrim="heavy" opacity={PHOTO.content45}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            Todavía no generamos tu mapa. Empezá por el principio y volvemos acá.
+            {text.empty}
           </p>
           <Link to="/onboarding" className="cta no-underline">
-            Empezar
+            {text.start}
           </Link>
         </div>
       </Screen>
@@ -92,20 +81,11 @@ export function SoulMap() {
   return (
     <Screen backdrop="palm" scrim="heavy" opacity={PHOTO.content45}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-        <p className="eyebrow mb-3">Tu mapa del alma</p>
+        <p className="eyebrow mb-3">{text.kicker}</p>
 
         <h1 className="mb-7 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {firstName ? (
-            <>
-              <span className="font-serif text-crema italic">{firstName}</span>,
-              <br />
-              esto es lo que
-              <br />
-              vemos.
-            </>
-          ) : (
-            'Esto es lo que vemos.'
-          )}
+          {firstName ? text.titleWithName(firstName) : text.titleWithoutName}
+          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
         </h1>
 
         <div className="flex flex-col gap-6">
@@ -121,14 +101,14 @@ export function SoulMap() {
 
         <div className="my-7 h-px w-10 bg-crema/25" />
 
-        <h2 className="eyebrow mb-3">Para probar</h2>
+        <h2 className="eyebrow mb-3">{text.toTry}</h2>
         <div className="flex flex-col gap-2.5">
           {synthesis.tips.map((tip) => (
             <article key={tip.title} className="surface surface-p14">
               <div className="mb-1.5 flex items-baseline justify-between gap-3">
                 <h3 className="text-[length:var(--fs-heading-13)] text-blanco">{tip.title}</h3>
                 <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                  {CADENCE_LABEL[tip.cadence]}
+                  {copy.practice.cadence[tip.cadence]}
                 </span>
               </div>
               <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{tip.body}</p>
@@ -143,12 +123,12 @@ export function SoulMap() {
 
         <div className="my-7 h-px w-10 bg-crema/25" />
 
-        <h2 className="eyebrow mb-3">Tus números</h2>
+        <h2 className="eyebrow mb-3">{text.numbers}</h2>
         {numerology ? (
           <Numbers numerology={numerology} />
         ) : (
           <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-            No pudimos calcular los números con el nombre que ingresaste.
+            {text.numbersFailed}
           </p>
         )}
 
@@ -158,7 +138,7 @@ export function SoulMap() {
 
         <div className="mt-auto flex flex-col gap-2.5 pt-4">
           <Link to="/caminos" className="cta no-underline">
-            Ver terapias sugeridas
+            {text.toPaths}
             <span aria-hidden="true">→</span>
           </Link>
 
@@ -170,13 +150,13 @@ export function SoulMap() {
               to="/registro"
               className="chip chip-p10 text-center text-crema/60 no-underline"
             >
-              Guardar mi mapa
+              {text.save}
             </Link>
           )}
 
           {isDemoMode && (
             <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-              {stored.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
+              {stored.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} ·{' '}
               {stored.prompt_version}
             </p>
           )}

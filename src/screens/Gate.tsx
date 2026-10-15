@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { AuthError, signInWithGoogle } from '@/supabase/session.ts';
 
 /**
@@ -14,6 +15,8 @@ import { AuthError, signInWithGoogle } from '@/supabase/session.ts';
  * It renders only when a backend is configured. Without one there is nothing
  * to protect and nothing to sign in to, and the fixture demo runs untouched.
  */
+const text = copy.gate;
+
 export function Gate() {
   const [error, setError] = useState<string | null>(null);
   const [going, setGoing] = useState(false);
@@ -25,8 +28,8 @@ export function Gate() {
       setGoing(false);
       setError(
         e instanceof AuthError
-          ? 'No pudimos abrir el ingreso con Google. Probá de nuevo en un momento.'
-          : 'Algo falló al intentar entrar.',
+          ? text.authFailed
+          : text.failed,
       );
     });
   };
@@ -39,21 +42,19 @@ export function Gate() {
           <span aria-hidden="true" className="font-serif text-[length:var(--fs-voice-22)] font-light tracking-wide text-crema">◯</span>
         </div>
 
-        <p className="brand mb-3">Natus</p>
+        <p className="brand mb-3">{text.brand}</p>
 
         <h1 className="mb-4 text-[length:var(--fs-display-sm)] leading-[var(--lh-heading-1_14)] text-blanco">
-          Esto todavía
-          <br />
-          <span className="font-serif text-crema italic">no está abierto.</span>
+          {text.titleLead}
+          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
         </h1>
 
         <p className="mb-8 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/60">
-          Es una versión temprana, con un grupo chico de personas invitadas. Entrá con la
-          dirección con la que te invitamos.
+          {text.helper}
         </p>
 
         <button type="button" className="cta w-full" onClick={enter} disabled={going}>
-          {going ? 'Abriendo…' : 'Entrar con Google'}
+          {going ? text.opening : text.enter}
         </button>
 
         {error && (
@@ -68,13 +69,11 @@ export function Gate() {
           somebody who was not expecting it reasonably reads it as a scam.
         */}
         <p className="mt-5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          Google va a avisarte que la aplicación no está verificada. Es esperable en esta
-          etapa: podés continuar.
+          {text.unverified}
         </p>
 
         <p className="mt-3 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          Si te invitamos y no podés entrar, escribinos: hay que agregar tu dirección a la
-          lista.
+          {text.notListed}
         </p>
       </div>
     </Screen>

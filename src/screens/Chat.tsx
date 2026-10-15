@@ -38,15 +38,11 @@ import {
  * runs out is a trap, and this product's whole claim is that it is not one.
  */
 
-const CONTAINMENT_TEXT =
-  'Voy a parar acá. Por lo que escribiste, esto no es algo para atravesar sola y no es algo que yo pueda acompañar. Hay personas disponibles ahora mismo para hablar con vos.';
+const text = copy.chat;
 
-const TYPE_LABEL: Record<NonNullable<StoredMessage['type']>, string> = {
-  reflection: 'Espejo',
-  recommendation: 'Un camino',
-  clarifying_question: 'Una pregunta',
-  crisis: 'Antes de seguir',
-};
+const CONTAINMENT_TEXT = text.containmentMessage;
+
+const TYPE_LABEL: Record<NonNullable<StoredMessage['type']>, string> = text.typeLabel;
 
 export function Chat() {
   const synthesis = currentSynthesis();
@@ -74,10 +70,10 @@ export function Chat() {
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content45}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            La conversación se apoya en tu mapa. Generalo primero y volvemos acá.
+            {text.empty_noMap}
           </p>
           <Link to="/onboarding" className="cta no-underline">
-            Empezar
+            {text.start}
           </Link>
         </div>
       </Screen>
@@ -172,7 +168,7 @@ export function Chat() {
 
       if (err instanceof AiError && err.kind === 'quota') {
         if (isSubscribed()) {
-          setError('Llegaste al máximo de preguntas de este mes. Lo que escribiste sigue acá.');
+          setError(text.subscribedLimit);
         } else {
           setShowPaywall(true);
         }
@@ -180,7 +176,7 @@ export function Chat() {
       }
       setError(
         err instanceof AiError && err.kind === 'spend_limit'
-          ? 'Por hoy no podemos responder más. Lo que escribiste sigue acá: probá más tarde.'
+          ? text.spendLimit
           : copy.chrome.aiError.message,
       );
     } finally {
@@ -191,18 +187,23 @@ export function Chat() {
   return (
     <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content40}>
       <div className="flex min-h-dvh flex-col px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0 sm:h-full">
-        <div className="mb-3 flex shrink-0 items-baseline justify-between gap-3">
-          <p className="eyebrow">Conversación</p>
-          <span className="badge shrink-0 px-3 text-crema/70">
-            {Number.isFinite(remaining) ? `${remaining} de ${FREE_QUESTIONS}` : 'Sin límite'}
-          </span>
+        <div className="mb-3 flex shrink-0 flex-col gap-2">
+          <p className="eyebrow">{text.kicker}</p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <h1 className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">{text.name}</h1>
+              <span className="badge shrink-0 px-2 text-crema/70">{text.aiLabel}</span>
+            </div>
+            {Number.isFinite(remaining) && (
+              <span className="shrink-0 text-[length:var(--fs-body-11)] text-crema/70">{text.remaining(remaining)}</span>
+            )}
+          </div>
         </div>
 
         <div className="-mx-1 flex-1 overflow-y-auto px-1">
           {messages.length === 0 && (
             <p className="mt-4 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-              Preguntale algo a tu mapa. Funciona mejor con una situación concreta que con una
-              pregunta grande.
+              {text.empty}
             </p>
           )}
 
@@ -252,7 +253,7 @@ export function Chat() {
 
             {thinking && (
               <p aria-live="polite" className="text-[length:var(--fs-body-12)] text-crema/55">
-                Pensando…
+                {text.thinking}
               </p>
             )}
           </div>
@@ -274,8 +275,7 @@ export function Chat() {
           {containment ? (
             <div className="rounded-[var(--radius-option)] border border-error/30 px-4 py-3.5">
               <p className="mb-2.5 text-[length:var(--fs-body-12)] leading-relaxed text-crema/75">
-                Dejamos la conversación acá por ahora. No es un castigo ni se borró nada: es
-                que esto se habla con alguien.
+                {text.containmentNote}
               </p>
               <button
                 type="button"
@@ -285,7 +285,7 @@ export function Chat() {
                 }}
                 className="text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
               >
-                Esto no aplica a mi caso
+                {text.notMyCase}
               </button>
             </div>
           ) : showPaywall ? (
@@ -312,15 +312,15 @@ export function Chat() {
                     void send();
                   }
                 }}
-                placeholder="Escribí lo que se te venga…"
-                aria-label="Tu mensaje"
+                placeholder={text.placeholder}
+                aria-label={text.messageLabel}
                 className="field max-h-28 min-h-[52px] flex-1 resize-none px-3.5 text-[length:var(--fs-body-12_5)] placeholder:text-crema/55"
               />
               <button
                 type="button"
                 onClick={() => void send()}
                 disabled={draft.trim() === '' || thinking}
-                aria-label="Enviar"
+                aria-label={text.send}
                 className="circle-chip flex size-11 shrink-0 items-center justify-center text-crema disabled:opacity-40"
               >
                 <span aria-hidden="true">→</span>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { SignupError, isSignedIn, signUp } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { isBackendConfigured } from '@/supabase/client.ts';
@@ -23,6 +24,8 @@ import { upgradeToEmail } from '@/supabase/session.ts';
  * password to protect that the anonymous session was not already holding.
  */
 
+const text = copy.signup;
+
 const fieldClass =
   'field w-full text-[length:var(--fs-body-14)] leading-5 placeholder:text-crema/55';
 
@@ -37,9 +40,9 @@ export function Signup() {
     return (
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">Tu cuenta ya está creada.</p>
+          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{text.alreadySignedIn}</p>
           <Link to="/hoy" className="cta no-underline">
-            Ir a mi espacio
+            {text.toHome}
           </Link>
         </div>
       </Screen>
@@ -51,11 +54,10 @@ export function Signup() {
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            Primero generamos tu mapa. La cuenta viene después, cuando ya tengas algo que
-            guardar.
+            {text.noMap}
           </p>
           <Link to="/onboarding" className="cta no-underline">
-            Empezar
+            {text.start}
           </Link>
         </div>
       </Screen>
@@ -70,8 +72,8 @@ export function Signup() {
     } catch (e) {
       setError(
         e instanceof SignupError
-          ? 'Revisá la dirección: parece que le falta algo.'
-          : 'No pudimos guardar la cuenta en este navegador.',
+          ? text.invalidEmail
+          : text.localFailed,
       );
       return;
     }
@@ -97,7 +99,7 @@ export function Signup() {
       .catch(() => {
         // The answers are saved either way. Only the confirmation failed, and
         // saying "no pudimos crear tu cuenta" here would be false.
-        setError('Guardamos todo, pero no pudimos enviarte el correo de confirmación.');
+        setError(text.mailFailed);
       })
       .finally(() => setSending(false));
   };
@@ -107,15 +109,15 @@ export function Signup() {
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            Te mandamos un correo a <span className="text-blanco">{email}</span>. Abrilo para
-            confirmar la dirección.
+            {text.sentLead}
+            <span className="text-blanco">{email}</span>
+            {text.sentTail}
           </p>
           <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            Tu mapa ya está guardado. Confirmar sirve para que puedas volver desde otro
-            dispositivo.
+            {text.sentNote}
           </p>
           <Link to="/hoy" className="cta no-underline">
-            Ir a mi espacio
+            {text.toHome}
           </Link>
         </div>
       </Screen>
@@ -125,22 +127,19 @@ export function Signup() {
   return (
     <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9 sm:min-h-0">
-        <p className="eyebrow mb-3">Guardar tu mapa</p>
+        <p className="eyebrow mb-3">{text.kicker}</p>
 
         <h1 className="mb-3 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
-          Para volver
-          <br />
-          <span className="font-serif text-crema italic">cuando quieras.</span>
+          {text.titleLead}
+          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
         </h1>
 
         <p className="mb-7 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          Tu mapa, tus caminos y tu rutina quedan asociados a esta dirección. Podés seguir sin
-          cuenta: en ese caso todo se guarda igual, pero solo en este navegador y por siete
-          días.
+          {text.helper}
         </p>
 
         <label className="mb-1.5 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase" htmlFor="email">
-          Tu correo
+          {text.emailLabel}
         </label>
         <input
           id="email"
@@ -149,7 +148,7 @@ export function Signup() {
           autoComplete="email"
           className={fieldClass}
           value={email}
-          placeholder="vos@ejemplo.com"
+          placeholder={text.emailPlaceholder}
           onChange={(e) => {
             setEmail(e.target.value);
             setError(null);
@@ -168,9 +167,7 @@ export function Signup() {
         )}
 
         <p id="email-note" className="mt-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          {isBackendConfigured
-            ? 'Te vamos a mandar un correo con un link para confirmar la dirección. No hay contraseña. Podés borrar todo en un clic desde Mi cuenta.'
-            : 'En esta demo no se envía ningún correo ni se crea ninguna cuenta en ningún servidor. La dirección queda escrita en este navegador y nada más. Podés borrar todo en un clic desde Mi cuenta.'}
+          {isBackendConfigured ? text.noteBackend : text.noteOffline}
         </p>
 
         <div className="mt-auto flex flex-col gap-2.5 pt-8">
@@ -180,14 +177,14 @@ export function Signup() {
             onClick={submit}
             disabled={email.trim() === '' || sending}
           >
-            {sending ? 'Guardando…' : 'Crear mi cuenta'}
+            {sending ? text.saving : text.create}
           </button>
 
           <Link
             to="/hoy"
             className="chip chip-p10 text-center text-crema/60 no-underline"
           >
-            Ahora no
+            {text.later}
           </Link>
         </div>
       </div>

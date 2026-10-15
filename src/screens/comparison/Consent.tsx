@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { ComparisonGate } from './Gate';
 import {
   CONSENT_TTL_MS,
@@ -27,15 +28,11 @@ import { isScopeUsable } from '@/lib/comparison-payload';
  * about what exists.
  */
 
-const SCOPE_LABELS: [keyof ComparisonScope, string, string][] = [
-  ['numerology', 'Los números', 'Camino de vida, expresión, alma, personalidad, cumpleaños.'],
-  [
-    'astro',
-    'La carta natal',
-    'Los aspectos entre las dos cartas, calculados por efeméride. Hace falta fecha, hora, ciudad y país de nacimiento de las dos partes.',
-  ],
-  ['soul_map_themes', 'Los temas del mapa', 'Los temas generales, nunca lo que escribió cada una.'],
-];
+const text = copy.comparison.consent;
+
+const SCOPE_LABELS: [keyof ComparisonScope, string, string][] = (
+  ['numerology', 'astro', 'soul_map_themes'] as const
+).map((key) => [key, text.scope[key][0], text.scope[key][1]]);
 
 function days(ms: number): number {
   return Math.ceil(ms / (24 * 60 * 60 * 1000));
@@ -55,9 +52,9 @@ export function Consent() {
       <ComparisonGate>
         <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content45}>
           <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
-            <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">Esa persona ya no está cargada.</p>
+            <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{text.missing}</p>
             <Link to="/comparacion" className="cta no-underline">
-              Volver
+              {text.back}
             </Link>
           </div>
         </Screen>
@@ -71,15 +68,13 @@ export function Consent() {
     <ComparisonGate>
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content40}>
         <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-          <p className="eyebrow mb-3">Permisos de {profile.display_name}</p>
+          <p className="eyebrow mb-3">{text.kicker(profile.display_name)}</p>
           <h1 className="mb-3 text-[length:var(--fs-title-27)] leading-[var(--lh-heading-1_15)] text-blanco">
-            Qué se puede
-            <br />
-            mirar, y hasta cuándo.
+            {text.titleLead}
+            <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
           </h1>
           <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-            Elegís el alcance y {profile.display_name} lo acepta o no. El permiso vence a los{' '}
-            {days(CONSENT_TTL_MS)} días y se puede retirar en cualquier momento.
+            {text.helper(profile.display_name, days(CONSENT_TTL_MS))}
           </p>
 
           <div className="mb-5 flex flex-col gap-2">
@@ -113,9 +108,7 @@ export function Consent() {
           </div>
 
           <p className="mb-6 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            Lo que ninguna de las dos partes puede compartir, aunque quiera: lo que escribió en
-            el onboarding y sus respuestas clínicas. No hay una casilla para eso porque no
-            existe el camino.
+            {text.neverShared}
           </p>
 
           {/*
@@ -123,10 +116,9 @@ export function Consent() {
            * was sent, and saying so is more useful than a convincing mime.
            */}
           <div className="rounded-[var(--radius-option)] border border-crema/15 px-4 py-4">
-            <p className="eyebrow mb-2">Del lado de {profile.display_name}</p>
+            <p className="eyebrow mb-2">{text.otherSide(profile.display_name)}</p>
             <p className="mb-3.5 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/55">
-              En el producto real esto llega por correo y lo responde la otra persona. Acá no se
-              envía ningún correo: respondés vos, desde este panel, para poder ver cómo sigue.
+              {text.simulation}
             </p>
 
             {!consent && (
@@ -136,7 +128,7 @@ export function Consent() {
                 disabled={!isScopeUsable(scope)}
                 onClick={() => setConsent(requestConsent({ externalProfileId: id, scope }))}
               >
-                Pedir permiso
+                {text.ask}
               </button>
             )}
 
@@ -150,7 +142,7 @@ export function Consent() {
                     setConsent(consentFor(id));
                   }}
                 >
-                  {profile.display_name} acepta
+                  {text.accepts(profile.display_name)}
                 </button>
                 <button
                   type="button"
@@ -160,7 +152,7 @@ export function Consent() {
                   }}
                   className="chip chip-p10 text-crema/60"
                 >
-                  {profile.display_name} no acepta
+                  {text.declines(profile.display_name)}
                 </button>
               </div>
             )}
@@ -169,12 +161,12 @@ export function Consent() {
               <div className="flex flex-col gap-2">
                 <p className="mb-1 text-[length:var(--fs-body-12)] leading-relaxed text-crema/75">
                   {active
-                    ? `Con permiso, hasta dentro de ${days(consent.expires_at - Date.now())} días.`
+                    ? text.activeUntil(days(consent.expires_at - Date.now()))
                     : consent.status === 'granted'
-                      ? 'El permiso venció.'
+                      ? text.expired
                       : consent.status === 'denied'
-                        ? 'No dio permiso. Podés volver a pedirlo con otro alcance.'
-                        : 'El permiso fue retirado.'}
+                        ? text.denied
+                        : text.revoked}
                 </p>
 
                 {active && (
@@ -184,7 +176,7 @@ export function Consent() {
                       className="cta"
                       onClick={() => navigate(`/comparacion/resultado/${id}`)}
                     >
-                      Ver el cruce
+                      {text.viewReading}
                     </button>
                     <button
                       type="button"
@@ -194,7 +186,7 @@ export function Consent() {
                       }}
                       className="rounded-full border border-error/40 px-3 py-2.5 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
                     >
-                      Retirar el permiso
+                      {text.revoke}
                     </button>
                   </>
                 )}
@@ -205,7 +197,7 @@ export function Consent() {
                     onClick={() => setConsent(requestConsent({ externalProfileId: id, scope }))}
                     className="chip chip-p10 text-crema/60"
                   >
-                    Volver a pedir
+                    {text.askAgain}
                   </button>
                 )}
               </div>
@@ -216,7 +208,7 @@ export function Consent() {
             to="/comparacion"
             className="chip chip-p10 mt-4 text-center text-crema/60 no-underline"
           >
-            Volver
+            {text.back}
           </Link>
         </div>
       </Screen>

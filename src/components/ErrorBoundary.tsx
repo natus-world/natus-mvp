@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { copy } from '@/i18n';
 import { CrisisResourceList } from '@/components/CrisisResourceList';
 import { activeHighSeverityEvent } from '@/store/crisis';
 import { activeProfile } from '@/store/account';
@@ -85,26 +86,25 @@ export class ErrorBoundary extends Component<Props, State> {
                   aria-hidden="true"
                   className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]"
                 />
-                <p className="eyebrow">Antes de seguir</p>
+                <p className="eyebrow">{copy.errorBoundary.crisisKicker}</p>
               </div>
               <h1 className="mb-4 text-[length:var(--fs-title-26)] leading-[var(--lh-heading-1_18)] text-blanco">
-                Se rompió la pantalla, no lo que te está pasando.
+                {copy.errorBoundary.crisisTitle}
               </h1>
               <p className="text-[length:var(--fs-body-13)] leading-relaxed text-crema/75">
-                Hay personas disponibles ahora mismo para hablar con vos.
+                {copy.errorBoundary.crisisBody}
               </p>
             </div>
             <CrisisResourceList country={country} />
           </>
         ) : (
           <div>
-            <p className="eyebrow mb-4">Algo salió mal</p>
+            <p className="eyebrow mb-4">{copy.errorBoundary.kicker}</p>
             <h1 className="mb-4 text-[length:var(--fs-title-26)] leading-[var(--lh-heading-1_18)] text-blanco">
-              Se rompió algo de este lado.
+              {copy.errorBoundary.title}
             </h1>
             <p className="text-[length:var(--fs-body-13)] leading-relaxed text-crema/70">
-              Es un problema nuestro, no algo que hayas hecho mal. Lo que ya
-              habías guardado sigue guardado.
+              {copy.errorBoundary.body}
             </p>
           </div>
         )}
@@ -118,14 +118,14 @@ export class ErrorBoundary extends Component<Props, State> {
             className="cta"
             onClick={this.props.atRoot ? reload : this.reset}
           >
-            Volver a intentar
+            {copy.errorBoundary.retry}
           </button>
           {!this.props.atRoot && (
             <a
               href={import.meta.env.BASE_URL}
               className="self-center text-[length:var(--fs-label-10_5)] tracking-wide text-crema/55 no-underline uppercase"
             >
-              Ir al inicio
+              {copy.errorBoundary.home}
             </a>
           )}
         </div>

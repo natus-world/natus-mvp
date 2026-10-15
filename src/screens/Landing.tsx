@@ -1,7 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { currentSynthesis } from '@/store/soulMap';
 import { restartOnboarding } from '@/store/session';
+
+const text = copy.landing;
 
 /** Screen 1 of PDR 6.1, built from mockup screen 01. */
 export function Landing() {
@@ -17,14 +20,15 @@ export function Landing() {
           <span aria-hidden="true" className="font-serif text-[length:var(--fs-voice-22)] font-light tracking-wide text-crema">◯</span>
         </div>
 
-        <p className="eyebrow mb-3">Te damos la bienvenida</p>
+        <p className="eyebrow mb-3">{text.kicker}</p>
 
         <h1 className="mb-3.5 text-[length:var(--fs-display)] leading-[var(--lh-heading-1_12)] text-blanco">
-          El Inicio
-          <br />
-          de Una
-          <br />
-          Nueva Vida
+          {text.titleLines.map((line, index) => (
+            <span key={line}>
+              {index > 0 && <br />}
+              {line}
+            </span>
+          ))}
         </h1>
 
         {/*
@@ -35,7 +39,7 @@ export function Landing() {
          * cannot make — it recommends modalities, not people.
          */}
         <p className="mb-8 max-w-[268px] text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-          Un espejo para lo que estás atravesando. Sin cuenta, sin diagnóstico.
+          {text.helper}
         </p>
 
         <button
@@ -43,7 +47,7 @@ export function Landing() {
           className="cta"
           onClick={() => navigate(returning ? '/hoy' : '/onboarding')}
         >
-          <span>{returning ? 'Volver a mi espacio' : 'Comenzar'}</span>
+          <span>{returning ? text.returning : text.start}</span>
           <span
             aria-hidden="true"
             className="flex size-7 items-center justify-center rounded-full bg-crema/15 text-[length:var(--fs-body-14)] leading-5"
@@ -61,7 +65,7 @@ export function Landing() {
             }}
             className="mt-3 px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
           >
-            Empezar de nuevo
+            {text.restart}
           </button>
         )}
       </div>

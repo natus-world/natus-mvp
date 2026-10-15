@@ -30,6 +30,7 @@ import { meditationById, saveMeditation, type StoredMeditation } from '@/store/m
  */
 
 const LENGTHS = [5, 10, 20];
+const text = copy.meditation;
 
 export function Meditation() {
   const navigate = useNavigate();
@@ -107,9 +108,9 @@ export function Meditation() {
     } catch (err) {
       setError(
         err instanceof AiError && err.kind === 'spend_limit'
-          ? 'Por hoy llegamos al límite de prácticas. Lo que escribiste sigue acá: probá más tarde.'
+          ? copy.meditation.spendLimit
           : err instanceof AiError && err.kind === 'crisis'
-            ? 'Por lo que escribiste, preferimos no armar una práctica automática. Si necesitás hablar con alguien, la ayuda sigue disponible desde el inicio.'
+            ? copy.meditation.crisis
             : copy.chrome.aiError.message,
       );
     } finally {
@@ -120,30 +121,28 @@ export function Meditation() {
   return (
     <Screen backdrop="palm" scrim="heavy" opacity={PHOTO.content40}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-        <p className="eyebrow mb-3">Meditaciones</p>
+        <p className="eyebrow mb-3">{text.kicker}</p>
         <h1 className="mb-3 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-          Una práctica,
-          <br />
-          armada para hoy.
+          {text.titleLead}
+          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
         </h1>
         <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          Contá con qué llegás. No hace falta que sea una intención elevada: "estoy podrida" es
-          una intención.
+          {text.helper}
         </p>
 
         <label className="mb-1.5 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase" htmlFor="intent">
-          ¿Con qué llegás?
+          {text.intentLabel}
         </label>
         <textarea
           id="intent"
           rows={3}
           value={intent}
           onChange={(e) => setIntent(e.target.value)}
-          placeholder="Escribí lo que se te venga…"
+          placeholder={text.placeholder}
           className="field w-full resize-none px-3.5 text-[length:var(--fs-body-13)] placeholder:text-crema/55"
         />
 
-        <p className="mt-5 mb-2 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">Cuánto tiempo</p>
+        <p className="mt-5 mb-2 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">{text.lengthLabel}</p>
         <div className="flex gap-2">
           {LENGTHS.map((length) => (
             <button
@@ -156,15 +155,14 @@ export function Meditation() {
                 minutes === length ? 'chip chip-on' : 'chip text-crema/60',
               ].join(' ')}
             >
-              {length} min
+              {text.minutes(length)}
             </button>
           ))}
         </div>
 
         {!isPlaybackAvailable() && (
           <p className="mt-4 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            Este navegador no tiene síntesis de voz, así que vas a poder leer el guion pero no
-            escucharlo.
+            {text.noSpeech}
           </p>
         )}
 
@@ -186,13 +184,13 @@ export function Meditation() {
             disabled={intent.trim() === '' || generating}
             onClick={() => void generate()}
           >
-            {generating ? 'Armando la práctica' : 'Armar mi práctica'}
+            {generating ? text.generating : text.generate}
           </button>
           <Link
             to="/biblioteca"
             className="chip chip-p10 text-center text-crema/60 no-underline"
           >
-            Mis prácticas guardadas
+            {text.saved}
           </Link>
         </div>
       </div>
@@ -243,10 +241,10 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
   return (
     <Screen backdrop="palm" scrim="heavy" opacity={PHOTO.content35}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-        <p className="eyebrow mb-3">{bedTrack?.name ?? 'Solo voz'}</p>
+        <p className="eyebrow mb-3">{bedTrack?.name ?? text.voiceOnly}</p>
         <h1 className="mb-1.5 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">{meditation.script.title}</h1>
         <p className="mb-5 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/55">
-          {meditation.estimated_minutes} min aproximados · pediste {meditation.requested_minutes}
+          {text.duration(meditation.estimated_minutes, meditation.requested_minutes)}
         </p>
 
         <div className="surface surface-p16 mb-4">
@@ -255,7 +253,7 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
             aria-valuenow={Math.round(progress * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="Avance de la práctica"
+            aria-label={text.progress}
             className="mb-4 h-px w-full bg-crema/15"
           >
             <div className="h-px bg-crema/70" style={{ width: `${progress * 100}%` }} />
@@ -266,13 +264,13 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
             className="cta"
             onClick={() => (state === 'playing' ? stop() : start())}
           >
-            {state === 'playing' ? 'Parar' : state === 'finished' ? 'Escuchar de nuevo' : 'Empezar'}
+            {state === 'playing' ? text.stop : state === 'finished' ? text.again : text.play}
           </button>
 
           <div className="mt-4 flex flex-col gap-3">
             <VolumeSlider
               id="voice-volume"
-              label="Voz"
+              label={text.voice}
               value={voice}
               onChange={(next) => {
                 setVoice(next);
@@ -282,7 +280,7 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
             />
             <VolumeSlider
               id="bed-volume"
-              label="Fondo"
+              label={text.bed}
               value={bed}
               onChange={(next) => {
                 setBed(next);
@@ -293,7 +291,7 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
           </div>
         </div>
 
-        <h2 className="eyebrow mb-2">El guion</h2>
+        <h2 className="eyebrow mb-2">{text.script}</h2>
         <p className="text-[length:var(--fs-body-12_5)] leading-relaxed whitespace-pre-line text-crema/65">
           {meditation.script.script_text}
         </p>
@@ -307,11 +305,11 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
             }}
             className="chip chip-p10 text-crema/60"
           >
-            Armar otra
+            {text.another}
           </button>
           {isDemoMode && (
             <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-              {meditation.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
+              {meditation.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} ·{' '}
               {meditation.prompt_version}
             </p>
           )}

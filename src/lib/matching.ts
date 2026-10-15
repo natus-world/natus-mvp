@@ -250,15 +250,11 @@ export function fallbackRanking(
  * with noise, and that the copy acknowledges there are few. Saying "these are
  * your matches" over two cards would be a small lie that costs trust.
  */
-export function poolFraming(outcome: FilterOutcome): string {
-  if (outcome.strategy === 'contemplative-fallback') {
-    return 'Con lo que nos contaste todavía no podemos afinar mucho. Estas son prácticas que suelen servir como punto de partida.';
-  }
-  if (outcome.strategy === 'relaxed') {
-    return 'Ampliamos la búsqueda más allá de los temas que reconocimos, para no dejarte con las manos vacías.';
-  }
-  if (outcome.candidates.length <= 2) {
-    return 'Son pocas, y las dejamos así. Preferimos mostrarte dos que tengan sentido antes que cinco para llenar la pantalla.';
-  }
-  return 'Caminos posibles, en el orden en que nos parece que tienen más que ver con lo que contaste.';
+export type PoolFraming = 'contemplative-fallback' | 'relaxed' | 'few' | 'ordered';
+
+export function poolFraming(outcome: FilterOutcome): PoolFraming {
+  if (outcome.strategy === 'contemplative-fallback') return 'contemplative-fallback';
+  if (outcome.strategy === 'relaxed') return 'relaxed';
+  if (outcome.candidates.length <= 2) return 'few';
+  return 'ordered';
 }

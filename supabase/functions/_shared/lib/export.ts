@@ -37,7 +37,7 @@ export type ExportDocument = {
 // was removed. The redaction below stays regardless: an export taken from a
 // browser that still holds an old bucket should not carry one out.
 const NOTICE =
-  'Todo lo que Natus guardó de vos, tal como está en este navegador. Si entraste con ' +
+  'Todo lo que Natus guardó sobre ti, tal como está en este navegador. Si entraste con ' +
   'tu cuenta, lo mismo está guardado ahí, y bajar este archivo no lo borra.';
 
 function redact(value: unknown): unknown {

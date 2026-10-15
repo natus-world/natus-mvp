@@ -1,3 +1,5 @@
+import { copy } from '@/i18n';
+
 /**
  * The countries the birth-place geocoding is offered for.
  *
@@ -10,27 +12,4 @@
  * diaspora is. `Open-Meteo` will geocode anywhere; this list is the product's
  * scope, not the provider's.
  */
-export const BIRTH_COUNTRIES: readonly (readonly [string, string])[] = [
-  ['', 'Elige un país'],
-  ['AR', 'Argentina'],
-  ['BO', 'Bolivia'],
-  ['BR', 'Brasil'],
-  ['CL', 'Chile'],
-  ['CO', 'Colombia'],
-  ['CR', 'Costa Rica'],
-  ['CU', 'Cuba'],
-  ['DO', 'República Dominicana'],
-  ['EC', 'Ecuador'],
-  ['SV', 'El Salvador'],
-  ['GT', 'Guatemala'],
-  ['HN', 'Honduras'],
-  ['MX', 'México'],
-  ['NI', 'Nicaragua'],
-  ['PA', 'Panamá'],
-  ['PY', 'Paraguay'],
-  ['PE', 'Perú'],
-  ['PR', 'Puerto Rico'],
-  ['UY', 'Uruguay'],
-  ['US', 'Estados Unidos'],
-  ['VE', 'Venezuela'],
-];
+export const BIRTH_COUNTRIES = copy.birthCountries;

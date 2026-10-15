@@ -1,3 +1,4 @@
+import { copy } from '@/i18n';
 import type { Modality } from '@/lib/schemas';
 import type { UserReaction } from '@/store/matches';
 
@@ -11,31 +12,16 @@ import type { UserReaction } from '@/store/matches';
  * facilitator; this is the same visual language making a different claim.
  */
 
-const FAMILY_LABEL: Record<Modality['family'], string> = {
-  psicologica: 'Psicológica',
-  corporal: 'Corporal',
-  energetica: 'Energética',
-  simbolica: 'Simbólica',
-  contemplativa: 'Contemplativa',
-};
+const FAMILY_LABEL: Record<Modality['family'], string> = copy.modalityCard.family;
 
 /**
  * PDR 5.3 calls this column the cheapest legal defence there is, and it only
  * works if the UI actually shows it. Wording is plain rather than euphemistic:
  * a tradition should read as a tradition.
  */
-const EVIDENCE_LABEL: Record<Modality['evidence_level'], string> = {
-  clinica: 'Con evidencia clínica',
-  emergente: 'Evidencia emergente',
-  tradicional: 'Práctica de tradición',
-};
+const EVIDENCE_LABEL: Record<Modality['evidence_level'], string> = copy.modalityCard.evidence;
 
-const HORIZON_LABEL: Record<Modality['typical_horizon'], string> = {
-  short: 'proceso corto',
-  medium: 'proceso de meses',
-  long: 'proceso largo',
-  flexible: 'sin plazo fijo',
-};
+const HORIZON_LABEL: Record<Modality['typical_horizon'], string> = copy.modalityCard.horizon;
 
 export function ModalityCard({
   modality,
@@ -98,7 +84,7 @@ export function ModalityCard({
           constelaciones involve. */}
       <details className="group mb-3">
         <summary className="cursor-pointer list-none text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase hover:text-crema/80">
-          Qué pasa en una sesión
+          {copy.modalityCard.whatHappens}
           <span aria-hidden="true" className="ml-1.5 group-open:hidden">
             +
           </span>
@@ -130,7 +116,7 @@ export function ModalityCard({
               : 'chip text-crema/70 hover:text-crema',
           ].join(' ')}
         >
-          {reaction === 'saved' ? 'Guardada' : 'Guardar'}
+          {reaction === 'saved' ? copy.modalityCard.saved : copy.modalityCard.save}
         </button>
         <button
           type="button"
@@ -138,7 +124,7 @@ export function ModalityCard({
           aria-pressed={dismissed}
           className="chip chip-p8 flex-1 text-crema/55 hover:text-crema"
         >
-          {dismissed ? 'Descartada' : 'No me hace sentido'}
+          {dismissed ? copy.modalityCard.dismissed : copy.modalityCard.dismiss}
         </button>
       </div>
     </article>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { CrisisResourceList } from '@/components/CrisisResourceList';
 import { useTakeover } from '@/components/takeover';
 
@@ -34,18 +35,16 @@ export function CrisisScreen({
       <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9 sm:min-h-0">
         <div className="mb-6 flex items-center gap-2.5">
           <span aria-hidden="true" className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]" />
-          <p className="eyebrow">Antes de seguir</p>
+          <p className="eyebrow">{copy.crisisScreen.kicker}</p>
         </div>
 
         <h1 className="mb-5 text-[length:var(--fs-title-30)] text-blanco">
-          Lo que estás
-          <br />
-          contando importa.
+          {copy.crisisScreen.titleLead}
+          <span className="font-serif text-crema italic">{copy.crisisScreen.titleEmphasis}</span>
         </h1>
 
         <p className="mb-8 text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">
-          {message ??
-            'Por lo que escribiste, esto no es algo para atravesar solo y no es algo que un mapa simbólico pueda acompañar. Hay personas disponibles ahora mismo para hablar con vos.'}
+          {message ?? copy.crisisScreen.message}
         </p>
 
         <CrisisResourceList country={country} />
@@ -53,7 +52,7 @@ export function CrisisScreen({
         <div className="mt-8 flex flex-col gap-3">
           {onBack && (
             <button type="button" className="cta" onClick={onBack}>
-              Volver
+              {copy.crisisScreen.back}
             </button>
           )}
 
@@ -69,7 +68,7 @@ export function CrisisScreen({
               onClick={onNotMyCase}
               className="self-center px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
             >
-              Esto no aplica a mi caso
+              {copy.crisisScreen.notMyCase}
             </button>
           )}
 
@@ -77,7 +76,7 @@ export function CrisisScreen({
             to="/perfil"
             className="self-center px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
           >
-            Descargar o borrar mis datos
+            {copy.crisisScreen.data}
           </Link>
         </div>
       </div>

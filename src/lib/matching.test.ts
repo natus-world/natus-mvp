@@ -359,7 +359,7 @@ describe('what the person is told about their pool', () => {
       inferredTopics: [],
       clinicallyVulnerable: false,
     });
-    expect(poolFraming(outcome)).toMatch(/punto de partida/i);
+    expect(poolFraming(outcome)).toBe('contemplative-fallback');
   });
 
   it('never claims certainty about the ranking', () => {
@@ -368,7 +368,7 @@ describe('what the person is told about their pool', () => {
       inferredTopics: ['ansiedad'],
       clinicallyVulnerable: false,
     });
-    expect(poolFraming(outcome)).toMatch(/posibles/i);
+    expect(poolFraming(outcome)).toBe('ordered');
   });
 });
 

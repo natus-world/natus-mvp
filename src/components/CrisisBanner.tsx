@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { copy } from '@/i18n';
 import { CrisisResourceList } from './CrisisResourceList';
 
 /**
@@ -27,7 +28,7 @@ export function CrisisBanner({ country }: { country: string | undefined }) {
           className="size-2 shrink-0 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]"
         />
         <span className="flex-1 text-[length:var(--fs-body-12)] leading-snug text-crema/80">
-          Si en algún momento se pone difícil, hay a quién llamar.
+          {copy.crisisBanner.label}
         </span>
         <span aria-hidden="true" className="shrink-0 text-[length:var(--fs-micro-12)] leading-4 text-crema/55">
           {open ? '−' : '+'}

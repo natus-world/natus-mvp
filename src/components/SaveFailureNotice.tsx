@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { copy } from '@/i18n';
 import { setWriteFailureHandler, type WriteFailure } from '@/store/hydrate.ts';
 
 /**
@@ -30,15 +31,14 @@ export function SaveFailureNotice({ offline = false }: { offline?: boolean }) {
         className="surface surface-p10 px-3.5 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema"
       >
         <p>
-          No pudimos conectar con tu cuenta. Lo que hagas ahora queda solo en este navegador y no se
-          guarda.
+          {copy.saveFailure.offline}
         </p>
         <button
           type="button"
           className="mt-1.5 text-[length:var(--fs-label-10_5)] tracking-wide text-crema/60 uppercase underline"
           onClick={() => setOfflineSeen(true)}
         >
-          Entendido
+          {copy.saveFailure.ok}
         </button>
       </div>
     );
@@ -52,15 +52,14 @@ export function SaveFailureNotice({ offline = false }: { offline?: boolean }) {
       className="surface surface-p10 px-3.5 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema"
     >
       <p>
-        No pudimos guardar lo último en tu cuenta. Sigue acá en este navegador, pero si lo cerrás
-        se pierde.
+        {copy.saveFailure.failed}
       </p>
       <button
         type="button"
         className="mt-1.5 text-[length:var(--fs-label-10_5)] tracking-wide text-crema/60 uppercase underline"
         onClick={() => setFailure(null)}
       >
-        Entendido
+        {copy.saveFailure.ok}
       </button>
     </div>
   );

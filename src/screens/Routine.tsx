@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { currentMatch, isCheckedToday, toggleCheckIn, totalCheckIns } from '@/store/matches';
 
 /**
@@ -17,12 +18,8 @@ import { currentMatch, isCheckedToday, toggleCheckIn, totalCheckIns } from '@/st
  * back.
  */
 
-const CADENCE_LABEL = {
-  daily: 'Cada día',
-  weekly: 'Cada semana',
-  process: 'Durante el proceso',
-  one_off: 'Una vez',
-} as const;
+const CADENCE_LABEL = copy.practice.cadence;
+const text = copy.routine;
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -38,10 +35,10 @@ export function Routine() {
       <Screen backdrop="forest" scrim="heavy" opacity={PHOTO.content45}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            Tu rutina sale de tus recomendaciones. Generalas primero.
+            {text.empty}
           </p>
           <Link to="/caminos" className="cta no-underline">
-            Ver terapias sugeridas
+            {text.toPaths}
           </Link>
         </div>
       </Screen>
@@ -51,15 +48,13 @@ export function Routine() {
   return (
     <Screen backdrop="forest" scrim="heavy" opacity={PHOTO.content45}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
-        <p className="eyebrow mb-3">Mi rutina</p>
+        <p className="eyebrow mb-3">{text.kicker}</p>
         <h1 className="mb-2 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-          Cosas concretas,
-          <br />
-          no consejos.
+          {text.titleLead}
+          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
         </h1>
         <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          Marcá lo que hiciste si te sirve tenerlo a la vista. Nadie te va a decir nada si
-          dejás de marcar.
+          {text.helper}
         </p>
 
         <div className="flex flex-col gap-2.5">
@@ -95,13 +90,13 @@ export function Routine() {
                       done ? 'chip chip-on' : 'chip text-crema/70 hover:text-crema',
                     ].join(' ')}
                   >
-                    {done ? 'Hecho hoy' : 'Marcar hoy'}
+                    {done ? text.doneToday : text.markToday}
                   </button>
 
                   {total > 0 && (
                     // A total, never a consecutive run. See the note above.
                     <span className="shrink-0 text-[length:var(--fs-body-11)] text-crema/55">
-                      {total} {total === 1 ? 'día' : 'días'} en total
+                      {copy.practice.totalDays(total)}
                     </span>
                   )}
                 </div>
@@ -112,7 +107,7 @@ export function Routine() {
 
         <div className="mt-7">
           <Link to="/caminos" className="cta no-underline">
-            Volver a las terapias
+            {text.backToPaths}
           </Link>
         </div>
       </div>

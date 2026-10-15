@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { copy } from '@/i18n';
 import { isBackendConfigured, isDemoMode } from '@/supabase/client';
 
 /**
@@ -36,8 +37,8 @@ export function DemoBanner() {
       >
         <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-tierra" />
         <span className="flex-1 truncate text-[length:var(--fs-body-11)] text-crema/75">
-          <span className="font-medium tracking-wide uppercase">Demo</span> — prototipo, no es
-          un servicio de salud
+          <span className="font-medium tracking-wide uppercase">{copy.demoBanner.tag}</span>
+          {copy.demoBanner.summary}
         </span>
         <span aria-hidden="true" className="shrink-0 text-[length:var(--fs-body-11)] text-crema/55">
           {open ? '−' : '+'}
@@ -48,10 +49,10 @@ export function DemoBanner() {
         <p className="px-3.5 pb-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/60">
           {isDemoMode
             ? isBackendConfigured
-              ? 'Si iniciaste sesión, lo que escribas se envía a los servidores de Natus y desde ahí a la API de Anthropic. Sin sesión, las respuestas vienen de guiones escritos a mano y nada sale de este navegador.'
-              : 'Las respuestas vienen de guiones escritos a mano. Lo que escribas queda en este navegador y no se envía a ningún servidor.'
-            : 'Lo que escribas se envía a los servidores de Natus y desde ahí a la API de Anthropic.'}{' '}
-          Los números de crisis todavía no fueron verificados uno por uno.
+              ? copy.demoBanner.demoWithBackend
+              : copy.demoBanner.demoOffline
+            : copy.demoBanner.live}{' '}
+          {copy.demoBanner.unverified}
         </p>
       )}
     </div>

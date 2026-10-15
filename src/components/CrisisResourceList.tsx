@@ -1,3 +1,4 @@
+import { copy } from '@/i18n';
 import { resourcesForCountry, telHref } from '@/lib/crisis-resources';
 
 /**
@@ -57,10 +58,9 @@ export function CrisisResourceList({
          * verifying the numbers is.
          */
         <p className="px-1 pt-1 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          Estos números están tomados de fuentes públicas y todavía no fueron
-          verificados uno por uno. Si alguno no responde, entrá a{' '}
-          <span className="text-crema/70">findahelpline.com</span> o llamá al número de
-          emergencias de tu país.
+          {copy.crisisResources.unverifiedLead}
+          <span className="text-crema/70">{copy.crisisResources.unverifiedSite}</span>
+          {copy.crisisResources.unverifiedTail}
         </p>
       )}
     </div>

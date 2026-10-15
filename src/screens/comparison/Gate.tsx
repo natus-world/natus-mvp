@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { markFalsePositive } from '@/store/crisis';
 import { useActiveCrisisId } from '@/components/takeover';
@@ -29,10 +30,10 @@ export function ComparisonGate({ children }: { children: ReactNode }) {
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content45}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            Para comparar hace falta tu mapa primero. El de la otra persona lo cargás después.
+            {copy.comparison.gate.noMap}
           </p>
           <Link to="/onboarding" className="cta no-underline">
-            Empezar
+            {copy.comparison.gate.start}
           </Link>
         </div>
       </Screen>
