@@ -65,7 +65,11 @@ describe('suppression — must not fire, and not vacuously', () => {
    * while exercising nothing.
    */
   const pairs: [string, string, string][] = [
-    ['negation', 'nunca quiero morirme, al contrario', 'quiero morirme'],
+    [
+      'a negated indirect marker',
+      'no estoy cansada de todo y no soy una carga',
+      'estoy cansada de todo y soy una carga',
+    ],
     ['a dream', 'sone que me corto el pelo y me desperte rara', 'me corto el pelo'],
     [
       'reported speech',
@@ -103,8 +107,40 @@ describe('a negation silences only what it negates (owner, 15 Oct 2026)', () => 
     expect(scanText('no doy mas y nada tiene sentido')).toMatchObject({ crisis: true, severity: 'low' });
   });
 
-  it('a denial right before the phrase is still a denial', () => {
-    expect(scanText('no quiero morirme, solo estoy cansada').crisis).toBe(false);
+  it('a denial right before a direct phrase fires too: better too many than too few', () => {
+    expect(scanText('no quiero morirme, solo estoy cansada')).toMatchObject({ crisis: true, severity: 'high' });
+    expect(scanText('nunca quiero morirme, al contrario')).toMatchObject({ crisis: true, severity: 'high' });
+  });
+});
+
+describe('the phrasings that slipped through on 15 Oct 2026', () => {
+  it.each([
+    'kiero morirme',
+    'quiero morime',
+    'quisiera estar muerta',
+    'ojala no despertar',
+    'ojala me muera',
+    'ya no quiero estar aca',
+    'me quiero suicidar',
+    'estaria mejor muerto',
+    'todos estarian mejor sin mi',
+    'quiero dormir y no despertar',
+    'tengo pastillas guardadas para eso',
+    'abusaron de mi',
+    'me lastimo cuando estoy mal',
+    'me qiero sucidar',
+  ])('"%s" fires', (text) => {
+    expect(scanText(text)).toMatchObject({ crisis: true, severity: 'high' });
+  });
+
+  it('"quiero desaparecer" is a marker, and two markers fire', () => {
+    expect(scanText('quiero desaparecer').crisis).toBe(false);
+    expect(scanText('quiero desaparecer, no le veo sentido')).toMatchObject({ crisis: true, severity: 'low' });
+  });
+
+  it('a typo does not turn a third person into the first', () => {
+    expect(scanText('mi amigo quiere matarse').crisis).toBe(false);
+    expect(scanText('Juan quiere morirse').crisis).toBe(false);
   });
 });
 

@@ -1,8 +1,8 @@
 {
   "$comment": "Layer 1 crisis keywords, PDR 6.4. The vault's lists were not available when this was written, so these are a draft in LATAM Spanish. PDR 6.4 says the vault's own lists are preliminary too and require review by a clinical psychologist before production - that review is a launch blocker, not a development one.",
-  "version": "crisis-keywords-v2",
+  "version": "crisis-keywords-v3",
   "status": "preliminary",
-  "$matching": "Terms are matched as whole token sequences on normalised text (lowercased, diacritics stripped). A match is discarded when a negation is the word right before it, or another suppressor appears in the four tokens before it. Two conventions keep the list usable: negated forms are written out in full ('no quiero vivir', never 'quiero vivir') so the leading 'no' belongs to the term rather than reading as a suppressor of it; and no term is a bare noun. 'suicidio' on its own fires on 'el suicidio de mi hermano', which locks a bereaved person out of the product - so every term is anchored to a first-person form.",
+  "$matching": "Terms are matched as whole token sequences on normalised text (lowercased, diacritics stripped). A match is discarded when another suppressor appears in the four tokens before it; a negation only discards an indirect marker it directly precedes. Chat spellings and single typos are read through (see spelling). Two conventions keep the list usable: negated forms are written out in full ('no quiero vivir', never 'quiero vivir') so the leading 'no' belongs to the term rather than reading as a suppressor of it; and no term is a bare noun. 'suicidio' on its own fires on 'el suicidio de mi hermano', which locks a bereaved person out of the product - so every term is anchored to a first-person form.",
   "categories": {
     "ideacion": {
       "severity": "high",
@@ -35,7 +35,39 @@
         "pense en quitarme la vida",
         "ganas de morirme",
         "ganas de no existir",
-        "planee como hacerlo"
+        "planee como hacerlo",
+        "me quiero suicidar",
+        "me voy a matar",
+        "quiero estar muerto",
+        "quiero estar muerta",
+        "quisiera morirme",
+        "quisiera estar muerto",
+        "quisiera estar muerta",
+        "quisiera no existir",
+        "no quiero existir",
+        "ojala me muera",
+        "ojala morirme",
+        "ojala no despertar",
+        "no despertar mas",
+        "dormir y no despertar",
+        "estaria mejor muerto",
+        "estaria mejor muerta",
+        "mejor me muero",
+        "estarian mejor sin mi",
+        "cansado de vivir",
+        "cansada de vivir",
+        "no quiero estar aca",
+        "no quiero estar aqui",
+        "no quiero estar mas aqui",
+        "quiero desaparecer para siempre",
+        "irme de este mundo",
+        "pienso en matarme",
+        "pienso en morirme",
+        "pienso en quitarme la vida",
+        "tengo pastillas guardadas",
+        "estoy juntando pastillas",
+        "junte pastillas",
+        "tomarme todas las pastillas"
       ]
     },
     "autolesion": {
@@ -57,7 +89,13 @@
         "me pego a mi mismo",
         "tome muchas pastillas",
         "tuve una sobredosis",
-        "me tome una sobredosis"
+        "me tome una sobredosis",
+        "me lastimo",
+        "me hago heridas",
+        "me rasguno hasta",
+        "me autolesiono",
+        "autolesionarme",
+        "me quemo con"
       ]
     },
     "abuso": {
@@ -85,7 +123,19 @@
         "me sigue hasta mi casa",
         "me sigue hasta el trabajo",
         "me espera afuera de mi casa",
-        "me espera en la puerta"
+        "me espera en la puerta",
+        "abusaron de mi",
+        "me abusaron",
+        "me abuso",
+        "me violaron",
+        "me pegan",
+        "me golpean",
+        "me maltrata",
+        "me maltratan",
+        "me toca sin mi permiso",
+        "me toco sin mi permiso",
+        "me forzo",
+        "me obligo a tener sexo"
       ]
     },
     "psicosis": {
@@ -99,7 +149,9 @@
         "me quieren envenenar",
         "me controlan la mente",
         "leen mis pensamientos",
-        "estoy en una mision divina"
+        "estoy en una mision divina",
+        "oigo voces",
+        "escucho una voz"
       ]
     },
     "panico": {
@@ -111,7 +163,16 @@
         "me falta el aire",
         "siento que me muero",
         "creo que me estoy muriendo",
-        "el corazon se me sale"
+        "el corazon se me sale",
+        "tengo un ataque de ansiedad",
+        "estoy teniendo un ataque de ansiedad",
+        "ataque de ansiedad",
+        "crisis de panico",
+        "crisis de angustia",
+        "siento que me ahogo",
+        "me estoy ahogando",
+        "siento que me voy a desmayar",
+        "no puedo parar de temblar"
       ]
     }
   },
@@ -128,7 +189,6 @@
       "estoy vacia",
       "me siento un peso",
       "soy una carga",
-      "estarian mejor sin mi",
       "nadie me va a extranar",
       "no le encuentro sentido",
       "nada tiene sentido",
@@ -144,14 +204,24 @@
       "no le veo futuro",
       "no quiero levantarme",
       "estoy solo en esto",
-      "estoy sola en esto"
+      "estoy sola en esto",
+      "quiero desaparecer",
+      "no le veo sentido",
+      "ya no puedo mas",
+      "no tiene sentido seguir"
     ]
   },
   "suppressors": {
     "window_tokens": 4,
     "negation": {
-      "$comment": "Suppresses only the term it negates: the word right before the match, joined by a space alone. 'no sirve, quiero morirme' fires; 'no quiero morirme' does not.",
-      "terms": ["no", "nunca", "jamas", "ni", "tampoco", "ojala"]
+      "$comment": "Suppresses an INDIRECT marker only, and only when it is the word right before it, joined by a space alone. A direct term is never silenced by a negation: 'no quiero morirme' opens the crisis screen, where the person can say it does not apply (owner, 15 Oct 2026: better too many than too few). 'ojala' is not a negation: 'ojala me muera' is a wish.",
+      "terms": [
+        "no",
+        "nunca",
+        "jamas",
+        "ni",
+        "tampoco"
+      ]
     },
     "reported_speech": {
       "$comment": "Always suppress. The words belong to fiction, a dream, a quotation, or a distant past being narrated rather than lived.",
@@ -195,6 +265,26 @@
         "el suicidio de",
         "la muerte de"
       ]
+    }
+  },
+  "spelling": {
+    "$comment": "Chat spellings read as the word they stand for, before any matching. On top of this, a term word of six letters or more also matches a word one typo away (a letter missing, extra, changed or swapped) when both start with the same letter and end with the same two: 'morime' is 'morirme', but 'matarse' is not 'matarme' and 'quiere' is not 'quiero', so a third person stays a third person.",
+    "map": {
+      "kiero": "quiero",
+      "kero": "quiero",
+      "qiero": "quiero",
+      "qero": "quiero",
+      "kisiera": "quisiera",
+      "kiere": "quiere",
+      "q": "que",
+      "k": "que",
+      "ke": "que",
+      "xq": "porque",
+      "pq": "porque",
+      "aki": "aqui",
+      "aka": "aca",
+      "toy": "estoy",
+      "toi": "estoy"
     }
   }
 }

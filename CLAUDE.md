@@ -144,11 +144,15 @@ What is left outside the code, in rough order of weight:
   day the Moon changed sign, the Moon's sign may be wrong. The fix is a
   second call (00:00 and 23:59) to tell whether it changed; left for later.
 - `crisis-keywords.json` is `"status": "preliminary"` and wants a clinician.
-  For that review: since 15 Oct 2026 a negation silences a phrase only when
-  it is the word right before it ("no quiero morirme" is a denial; "no
-  sirve, quiero morirme" fires). Before, any "no" in the four words before
-  did, and "no doy más y nada tiene sentido" never fired. The other
-  suppressors still read the whole window.
+  For that review, the owner's rule since 15 Oct 2026 is better too many
+  alerts than too few (v3): a negation never silences a direct term ("no
+  quiero morirme" fires, and so does "no quiero morirme sin conocer
+  Japón"), and silences an indirect marker only when it is the word right
+  before it; "ojalá" is not a negation; chat spellings ("kiero", "q") and
+  one typo per word are read through, never across a person ending
+  ("matarse" is not "matarme"). Fourteen phrasings that slipped through
+  were added. Known false alarms the clinician should weigh: "me pega el
+  sol", "no puedo respirar bien con la mascarilla", "no cortarme las uñas".
 - There is no privacy policy or terms page. Google's OAuth consent screen
   requires one before the door can close, and the app stores birth data and
   clinical answers. The text is the owner's.

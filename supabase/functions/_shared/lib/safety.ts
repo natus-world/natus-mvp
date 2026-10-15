@@ -81,12 +81,15 @@ type Token = { value: string; start: number; end: number };
  * word-boundary matching for free, and makes "the four tokens before the
  * match" a countable thing rather than a character guess.
  */
+const SPELLING: Readonly<Record<string, string>> = keywords.spelling.map;
+
 function tokenize(normalized: string): Token[] {
   const tokens: Token[] = [];
   for (const match of normalized.matchAll(/[\p{L}\p{N}]+/gu)) {
-    const value = match[0];
+    // Chat spellings ("kiero", "q") are read as the word they stand for.
+    const value = SPELLING[match[0]] ?? match[0];
     const start = match.index;
-    tokens.push({ value, start, end: start + value.length });
+    tokens.push({ value, start, end: start + match[0].length });
   }
   return tokens;
 }
@@ -103,12 +106,54 @@ function findPhrase(tokens: readonly Token[], phrase: readonly string[]): number
   return -1;
 }
 
+/**
+ * Whether a word of the text is a word of a term, allowing one typo.
+ *
+ * Only for term words of six letters or more, and only when the two words
+ * share their first letter and their last two: "morime" is "morirme", but
+ * "matarse" is not "matarme" and "quiere" is not "quiero". Spanish puts the
+ * person in those endings, and a third person must stay a third person.
+ */
+function sameWord(word: string, termWord: string): boolean {
+  if (word === termWord) return true;
+  if (termWord.length < 6 || word.length < 5) return false;
+  if (word[0] !== termWord[0] || word.slice(-2) !== termWord.slice(-2)) return false;
+  return withinOneEdit(word, termWord);
+}
+
+/** One letter missing, extra, changed, or two neighbours swapped. */
+function withinOneEdit(a: string, b: string): boolean {
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  if (a.length === b.length) {
+    if (a.slice(i + 1) === b.slice(i + 1)) return true;
+    return a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2);
+  }
+  return a.length > b.length ? a.slice(i + 1) === b.slice(i) : a.slice(i) === b.slice(i + 1);
+}
+
+/** Like findPhrase, for a term: every word may carry one typo. */
+function findTerm(tokens: readonly Token[], phrase: readonly string[]): number {
+  if (phrase.length === 0) return -1;
+  outer: for (let i = 0; i + phrase.length <= tokens.length; i++) {
+    for (let j = 0; j < phrase.length; j++) {
+      if (!sameWord(tokens[i + j]!.value, phrase[j]!)) continue outer;
+    }
+    return i;
+  }
+  return -1;
+}
+
 const WINDOW = keywords.suppressors.window_tokens;
 
 const toPhrases = (terms: readonly string[]) => terms.map((t) => normalize(t).split(' '));
 
 /**
- * A negation suppresses only the term it negates: it must be the word right
+ * A negation never silences a direct term: "no quiero morirme" opens the
+ * crisis screen, where the person can say it does not apply (owner, 15 Oct
+ * 2026: better too many than too few). It suppresses an indirect marker only,
+ * and only the one it negates: it must be the word right
  * before the match, with nothing but a space between them. "no quiero
  * morirme" is a denial; "no sirve, quiero morirme" is not, and neither is
  * "no doy más y nada tiene sentido" — there the "no" belongs to something
@@ -146,11 +191,12 @@ function isSuppressed(
   tokens: readonly Token[],
   matchIndex: number,
   phrase: readonly string[],
+  direct: boolean,
 ): boolean {
   const preceding = tokens.slice(Math.max(0, matchIndex - WINDOW), matchIndex);
   if (preceding.length === 0) return false;
 
-  if (NEGATION.some((s) => negates(normalized, tokens, matchIndex, s))) return true;
+  if (!direct && NEGATION.some((s) => negates(normalized, tokens, matchIndex, s))) return true;
   if (REPORTED_SPEECH.some((s) => findPhrase(preceding, s) !== -1)) return true;
   if (userIsObject(phrase)) return false;
   return OTHER_SUBJECT.some((s) => findPhrase(preceding, s) !== -1);
@@ -211,8 +257,8 @@ export function scanText(text: string): SafetyVerdict {
 
   for (const { category, terms } of DIRECT) {
     for (const term of terms) {
-      const at = findPhrase(tokens, term.phrase);
-      if (at === -1 || isSuppressed(normalized, tokens, at, term.phrase)) continue;
+      const at = findTerm(tokens, term.phrase);
+      if (at === -1 || isSuppressed(normalized, tokens, at, term.phrase, true)) continue;
       return {
         crisis: true,
         severity: 'high',
@@ -226,8 +272,8 @@ export function scanText(text: string): SafetyVerdict {
 
   const hits: { raw: string; at: number }[] = [];
   for (const term of INDIRECT) {
-    const at = findPhrase(tokens, term.phrase);
-    if (at === -1 || isSuppressed(normalized, tokens, at, term.phrase)) continue;
+    const at = findTerm(tokens, term.phrase);
+    if (at === -1 || isSuppressed(normalized, tokens, at, term.phrase, false)) continue;
     hits.push({ raw: term.raw, at });
   }
 
