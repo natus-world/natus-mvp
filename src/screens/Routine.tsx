@@ -57,10 +57,14 @@ export function Routine() {
     setGenerating(true);
     setFailed(false);
     try {
-      const modalitySlugs = match.result.matched_modalities
-        .map((m) => m.modality_slug)
-        .filter((slug) => match.reactions[slug]?.reaction !== 'dismissed');
-      const result = await generateRoutine({ synthesis: synthesis.synthesis, modalitySlugs });
+      const kept = match.result.matched_modalities.filter(
+        (m) => match.reactions[m.modality_slug]?.reaction !== 'dismissed',
+      );
+      const modalitySlugs = kept.map((m) => m.modality_slug);
+      // The why of each therapy travels with it, so the routine understands
+      // the choice and not only the therapy.
+      const reasons = Object.fromEntries(kept.map((m) => [m.modality_slug, m.reasoning]));
+      const result = await generateRoutine({ synthesis: synthesis.synthesis, modalitySlugs, reasons });
       saveRoutine(match.id, result.value);
     } catch {
       setFailed(true);

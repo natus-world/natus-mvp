@@ -10,10 +10,12 @@ import { routineResultSchema, type RoutineResult, type SoulMapSynthesis } from '
 export async function generateRoutine(input: {
   synthesis: SoulMapSynthesis;
   modalitySlugs: string[];
+  /** Why the match recommended each therapy, by slug. */
+  reasons: Record<string, string>;
 }): Promise<AiResult<RoutineResult>> {
   const result = await runAi({
     schema: routineResultSchema,
-    edge: { fn: 'routine', body: { synthesis: input.synthesis, modalitySlugs: input.modalitySlugs } },
+    edge: { fn: 'routine', body: { synthesis: input.synthesis, modalitySlugs: input.modalitySlugs, reasons: input.reasons } },
     fixture: () => buildRoutineFixture(),
   });
 

@@ -29,6 +29,8 @@ import { modalityBySlug } from './catalog.ts';
 
 const MAX_TURNS = 8;
 const MAX_TURN_CHARS = 4_000;
+/** A match reasoning is 2 to 4 sentences; this is room for that and no more. */
+const MAX_REASON_CHARS = 1_200;
 const MAX_PROSE = 8_000;
 /**
  * Astrologer's XML context.
@@ -158,15 +160,25 @@ export const matchInputSchema = z
  * v1.2 R-01: the routine, asked for once the therapies are chosen. The
  * therapies travel as slugs, rehydrated from the function's own catalogue, so
  * a caller cannot describe a therapy the model then quotes.
+ *
+ * `reasons` carries, per therapy, why the match recommended it to this
+ * person — its own reasoning, so the routine understands the choice and not
+ * only the therapy. Optional, keyed by a slug that was sent.
  */
 export const routineInputSchema = z
   .object({
     synthesis: soulMapSynthesisSchema,
     modalitySlugs: slugs.max(5).default([]),
+    reasons: z.record(slug, z.string().trim().min(1).max(MAX_REASON_CHARS)).default({}),
   })
   .superRefine((value, ctx) => {
     for (const slug of value.modalitySlugs) {
       if (!modalityBySlug(slug)) ctx.addIssue({ code: 'custom', message: `unknown modality: ${slug}` });
+    }
+    for (const slug of Object.keys(value.reasons)) {
+      if (!value.modalitySlugs.includes(slug)) {
+        ctx.addIssue({ code: 'custom', message: `a reason for ${slug}, which was not sent` });
+      }
     }
   });
 

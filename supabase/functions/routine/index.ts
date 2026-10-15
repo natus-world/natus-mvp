@@ -32,6 +32,7 @@ Deno.serve(
       buildRoutineUserMessage({
         synthesis: input.synthesis,
         modalities: input.modalitySlugs.map((slug) => modalityBySlug(slug) as Modality),
+        reasons: input.reasons,
         gender,
       }),
     check: async (output, input, { caller, userId }) => {

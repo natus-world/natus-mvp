@@ -134,7 +134,7 @@ const BODIES = {
     poolBeforeTruncation: MODALITIES.length,
   },
   meditation: { intent: 'quiero bajar la ansiedad antes de dormir', minutes: 8, synthesis: SYNTHESIS, risk: 'none' },
-  routine: { synthesis: SYNTHESIS, modalitySlugs: MODALITIES },
+  routine: { synthesis: SYNTHESIS, modalitySlugs: MODALITIES, reasons: { [MODALITIES[0]]: 'Mencionas que el cuerpo no afloja; aquí se trabaja desde la sensación física.' } },
   comparison: { friendship_id: FRIENDSHIP },
 };
 
@@ -332,6 +332,8 @@ for (const [label, ideation] of [
 // ── the routine names only the therapies it was sent (v1.2 R-01) ───────────
 const unknownTherapy = await call('routine', { synthesis: SYNTHESIS, modalitySlugs: ['no-existe'] });
 check('routine: a therapy that is not in the catalogue is refused', unknownTherapy.status === 400, `status=${unknownTherapy.status}`);
+const strayReason = await call('routine', { synthesis: SYNTHESIS, modalitySlugs: MODALITIES, reasons: { 'no-enviada': 'Un porqué suelto.' } });
+check('routine: a reason for a therapy that was not sent is refused', strayReason.status === 400, `status=${strayReason.status}`);
 
 // ── the chart by whole sign, rebuilt from what is stored (v1.2 A-01) ───────
 //

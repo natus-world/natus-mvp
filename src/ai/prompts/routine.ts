@@ -35,6 +35,12 @@ CADA PRÁCTICA
 - connects_to: { "soul_map": true si se apoya en su mapa, "modality_slug": el
   slug de la terapia con la que conversa, o null }. Al menos uno de los dos.
   Solo slugs de la lista de terapias que te llega.
+
+POR QUÉ SE LE RECOMENDÓ CADA TERAPIA
+Cada terapia puede traer el porqué con que se le recomendó a esta persona.
+Úsalo: una práctica que conversa con una terapia trabaja lo mismo que llevó a
+recomendarla, no la terapia en general. Ese porqué es contexto para ti; no lo
+copies ni lo repitas en el body.
 Nada abstracto. "Diez minutos de respiración 4-7-8 antes de dormir", no
 "explora el silencio". Una práctica no reemplaza a la terapia: la prepara o la
 acompaña.
@@ -61,6 +67,8 @@ ${JSON_DISCIPLINE}
 export function buildRoutineUserMessage(input: {
   synthesis: SoulMapSynthesis;
   modalities: readonly Modality[];
+  /** Why the match recommended each therapy to this person, by slug. */
+  reasons: Readonly<Record<string, string>>;
   gender: GrammaticalGender;
 }): string {
   const therapies = input.modalities
@@ -70,7 +78,10 @@ export function buildRoutineUserMessage(input: {
         `nombre: ${m.name_es}`,
         `qué pasa en una sesión: ${m.what_happens}`,
         `formato: ${m.typical_format} · intensidad: ${m.intensity}/5`,
-      ].join('\n'),
+        input.reasons[m.slug] ? `por qué se le recomendó a esta persona: ${input.reasons[m.slug]}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
     )
     .join('\n---\n');
 
