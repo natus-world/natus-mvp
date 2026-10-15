@@ -3,10 +3,12 @@ import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 import { json, preflight } from './cors.ts';
 import { authenticate, Unauthorized } from './auth.ts';
 import { logCall, type CallRecord } from './log.ts';
-import { MODEL, ModelError, generate, hasKey } from './anthropic.ts';
+import { ModelError, generate, hasKey } from './anthropic.ts';
+import { callerGrammaticalGender } from './address.ts';
+import type { GrammaticalGender } from './lib/model-input.ts';
 import { scanText } from './lib/safety.ts';
 import { modelCrisisReply } from './lib/crisis-resources.ts';
-import { MAX_OUTPUT_TOKENS } from './lib/budget.ts';
+import { MAX_OUTPUT_TOKENS, modelFor } from './lib/budget.ts';
 import { refuseForSpend, reserveModelCall } from './spend.ts';
 
 /**
@@ -33,7 +35,8 @@ export type ModelRoute<I, O> = {
   /** What the model must answer with. */
   output: ZodType<O>;
   system: string;
-  user: (input: I) => string;
+  user: (input: I, person: { gender: GrammaticalGender }) => string;
+  model?: (input: I) => string;
   /**
    * Free prose the person typed, if this surface has any.
    *
@@ -89,13 +92,6 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
 
     const { userId, elevated } = auth;
     const started = Date.now();
-    const record = {
-      userId,
-      purpose: route.purpose,
-      promptVersion: route.promptVersion,
-      model: MODEL,
-      mode: 'server' as const,
-    };
 
     let body: unknown;
     try {
@@ -106,6 +102,15 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
 
     const parsed = route.input.safeParse(body);
     if (!parsed.success) return json(request, { error: 'invalid_body' }, 400);
+
+    const model = route.model ? route.model(parsed.data) : modelFor(route.purpose);
+    const record = {
+      userId,
+      purpose: route.purpose,
+      promptVersion: route.promptVersion,
+      model,
+      mode: 'server' as const,
+    };
 
     // Before the key check, not after: a deployment without a model still must
     // not be the thing that decides whether somebody in crisis is noticed.
@@ -143,7 +148,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
 
     let reservedId: string | null;
     try {
-      reservedId = await reserveModelCall(elevated, userId, route.purpose, route.promptVersion, MODEL);
+      reservedId = await reserveModelCall(elevated, userId, route.purpose, route.promptVersion, model);
     } catch {
       return json(request, { error: 'quota_unavailable' }, 500);
     }
@@ -153,9 +158,11 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
       const input = route.enrich
         ? await route.enrich(parsed.data, { caller: auth.caller, userId })
         : parsed.data;
+      const gender = await callerGrammaticalGender(auth.caller, userId);
       const generated = await generate({
+        model,
         system: route.system,
-        user: route.user(input),
+        user: route.user(input, { gender }),
         schema: route.output,
         maxTokens: MAX_OUTPUT_TOKENS[route.purpose],
         ...(route.effort ? { effort: route.effort } : {}),
@@ -179,6 +186,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
 
       return json(request, {
         result: generated.value,
+        model,
         input_tokens: generated.inputTokens,
         output_tokens: generated.outputTokens,
         ...(route.meta ? route.meta(input) : {}),

@@ -1,6 +1,6 @@
-import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES } from './shared.ts';
+import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES, addressLine, personText } from './shared.ts';
 import type { Numerology } from '@/lib/schemas/index.ts';
-import type { SoulMapDraft } from '@/lib/model-input.ts';
+import type { GrammaticalGender, SoulMapDraft } from '@/lib/model-input.ts';
 
 /**
  * The Soul Map prompt. PDR 6.5.
@@ -15,17 +15,33 @@ import type { SoulMapDraft } from '@/lib/model-input.ts';
 
 export { SOUL_MAP_PROMPT_VERSION } from './versions.ts';
 
+export const SOUL_MAP_CRISIS_EXAMPLES = [
+  {
+    detected_phase: 'crisis',
+    crisis_response:
+      'Lo que cuentas pesa mucho, y no es algo para sostener sin compañía. Ahora mismo hay personas preparadas para escucharte, sin turno y sin costo. Justo debajo están las formas de contactarlas.',
+    follow_up_invitation: '¿Hay alguien cerca con quien puedas estar en este momento?',
+  },
+  {
+    detected_phase: 'crisis',
+    crisis_response:
+      'Gracias por escribirlo. Lo que describes merece que hoy te escuche una persona, no una lectura simbólica. Hay líneas de ayuda disponibles para hablar ahora mismo, y aparecen a continuación.',
+    follow_up_invitation: '¿Puedes buscar un lugar donde estar con alguien de confianza mientras haces esa llamada?',
+  },
+] as const;
+
 export const SOUL_MAP_SYSTEM_PROMPT = `
 ${TONE_RULES}
 
 TAREA
-Recibís cuatro bloques sobre una persona: datos básicos, numerología ya
-calculada, carta natal (si la hay) y contexto vital. Devolvés una síntesis
+Recibes cuatro bloques sobre una persona: datos básicos, numerología ya
+calculada, carta natal (si la hay) y contexto vital. Devuelves una síntesis
 narrativa en tres secciones, entre tres y cinco invitaciones concretas, y los
-temas que inferís de lo que contó.
+temas que infieres de lo que contó.
 
 LAS TRES SECCIONES
-- tu_camino: 3 a 5 oraciones. Lo que se repite, lo que la trajo hasta acá.
+- tu_camino: 3 a 5 oraciones. Lo que se repite, lo que trajo a la persona
+  hasta aquí.
   Se apoya en la numerología y la carta como lenguaje, no como prueba.
 - lo_que_estas_trabajando: 3 a 5 oraciones. La tensión viva ahora mismo,
   dicha con las palabras que usó la persona, no con las tuyas.
@@ -44,11 +60,11 @@ FASE Y MODO
 detected_phase: "pregunta" si todavía está formulando qué le pasa,
 "exploracion" si ya sabe y está buscando cómo, "integracion" si viene de un
 proceso y está asentando. Sin tildes.
-detected_mode: "objetivo" si trae una meta concreta, "exploracion" si viene
-abierta.
+detected_mode: "objetivo" si trae una meta concreta, "abierto" si llega sin
+una meta definida.
 
 TEMAS INFERIDOS
-inferred_topics: slugs del catálogo que reconocés en lo que contó. Solo de
+inferred_topics: slugs del catálogo que reconoces en lo que contó. Solo de
 esta lista, sin inventar: ansiedad, depresion, duelo, pareja, sexualidad,
 familia, trauma, autoestima, proposito, transiciones, espiritualidad,
 adicciones, alimentacion, desarrollo-profesional, identidad.
@@ -56,7 +72,7 @@ adicciones, alimentacion, desarrollo-profesional, identidad.
 CONTRATO NORMAL
 {
   "detected_phase": "pregunta | exploracion | integracion",
-  "detected_mode": "objetivo | exploracion",
+  "detected_mode": "objetivo | abierto",
   "soul_map_synthesis": {
     "tu_camino": "...",
     "lo_que_estas_trabajando": "...",
@@ -68,7 +84,7 @@ CONTRATO NORMAL
 }
 
 CONTRATO DE CRISIS
-Si detectás riesgo, devolvés SOLO esto. Sin tips, sin síntesis, sin
+Si detectas riesgo, devuelves SOLO esto. Sin tips, sin síntesis, sin
 interpretación simbólica de ningún tipo:
 {
   "detected_phase": "crisis",
@@ -78,6 +94,9 @@ interpretación simbólica de ningún tipo:
 En crisis_response no escribas números de teléfono, cifras ni nombres de
 líneas de ayuda: el sistema agrega las líneas verificadas del país.
 
+Dos ejemplos completos del contrato de crisis:
+${SOUL_MAP_CRISIS_EXAMPLES.map((example) => JSON.stringify(example, null, 2)).join('\n')}
+
 ${JSON_DISCIPLINE}
 `.trim();
 
@@ -85,23 +104,24 @@ ${JSON_DISCIPLINE}
 export function buildSoulMapUserMessage(input: {
   draft: SoulMapDraft;
   numerology: Numerology | null;
+  gender: GrammaticalGender;
 }): string {
   const { draft, numerology } = input;
 
-  const blocks: string[] = [];
+  const blocks: string[] = [addressLine(input.gender)];
 
   blocks.push(
-    ['DATOS BÁSICOS', `Nombre de nacimiento: ${draft.legal_birth_name}`, `Fecha: ${draft.birth_date}`]
-      .concat(draft.birth_time ? [`Hora: ${draft.birth_time}`] : [])
-      .concat(draft.birth_city ? [`Ciudad: ${draft.birth_city}`] : [])
-      .concat([`País de residencia: ${draft.country}`])
+    ['DATOS BÁSICOS', `Nombre de nacimiento: ${personText(draft.legal_birth_name)}`, `Fecha: ${personText(draft.birth_date)}`]
+      .concat(draft.birth_time ? [`Hora: ${personText(draft.birth_time)}`] : [])
+      .concat(draft.birth_city ? [`Ciudad: ${personText(draft.birth_city)}`] : [])
+      .concat([`País de residencia: ${personText(draft.country)}`])
       .join('\n'),
   );
 
   blocks.push(
     numerology
       ? [
-          'NUMEROLOGÍA (ya calculada, tratala como dada)',
+          'NUMEROLOGÍA (ya calculada, trátala como dada)',
           `Camino de vida: ${numerology.life_path}`,
           `Expresión: ${numerology.expression}`,
           `Alma: ${numerology.soul_urge}`,
@@ -120,26 +140,26 @@ export function buildSoulMapUserMessage(input: {
   blocks.push(
     draft.natal_chart && draft.natal_chart.parse_status === 'parsed'
       ? [
-          'CARTA NATAL (calculada por Astrologer; tratala como datos simbólicos, no como prueba)',
+          'CARTA NATAL (calculada por Astrologer; trátala como datos simbólicos, no como prueba)',
           draft.natal_chart.context,
         ].join('\n')
       : [
           'CARTA NATAL',
-          'No hay carta disponible. Trabajá con la numerología y el contexto.',
+          'No hay carta disponible. Trabaja con la numerología y el contexto.',
           'No menciones Ascendente, casas ni posiciones. No inventes ninguna.',
         ].join('\n'),
   );
 
   const needs = draft.presenting_need_slugs.length
-    ? `Eligió también: ${draft.presenting_need_slugs.join(', ')}`
+    ? `Eligió también: ${personText(draft.presenting_need_slugs.join(', '))}`
     : '';
 
   blocks.push(
     [
       'CONTEXTO VITAL',
-      `Lo que se está preguntando: ${draft.presenting_need_text || '(no escribió texto libre)'}`,
+      `Lo que se está preguntando: ${draft.presenting_need_text ? personText(draft.presenting_need_text) : '(no escribió texto libre)'}`,
       needs,
-      `Apertura a tipos de trabajo: ${draft.openness_to_modalities.join(', ') || 'sin preferencia'}`,
+      `Apertura a tipos de trabajo: ${draft.openness_to_modalities.length ? personText(draft.openness_to_modalities.join(', ')) : 'sin preferencia'}`,
     ]
       .filter(Boolean)
       .join('\n'),

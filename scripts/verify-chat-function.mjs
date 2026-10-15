@@ -81,7 +81,7 @@ const authed = { Authorization: `Bearer ${token}` };
 // keyed branch below would never be reached.
 const SYNTHESIS = {
   detected_phase: 'exploracion',
-  detected_mode: 'exploracion',
+  detected_mode: 'abierto',
   soul_map_synthesis: {
     tu_camino: 'Venís de un tiempo de mucho movimiento.',
     lo_que_estas_trabajando: 'Sostener algo sin necesitar que se resuelva ya.',

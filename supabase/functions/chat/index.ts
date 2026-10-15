@@ -2,14 +2,15 @@ import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
 import { currentQuota, overSubscribedLimit, reserveChatTurn } from '../_shared/quota.ts';
 import { overDeploymentBudget } from '../_shared/spend.ts';
-import { MAX_OUTPUT_TOKENS } from '../_shared/lib/budget.ts';
+import { MAX_OUTPUT_TOKENS, modelFor } from '../_shared/lib/budget.ts';
 import { isChargeable } from '../_shared/lib/quota.ts';
 import { logCall } from '../_shared/log.ts';
 import { scanText } from '../_shared/lib/safety.ts';
 import { callerIsClinicallyVulnerable, withoutClinicalExclusions } from '../_shared/clinical.ts';
 import { resourcesForCountry } from '../_shared/lib/crisis-resources.ts';
 import { chatContextSchema, chatEnvelopeSchema } from '../_shared/lib/model-input.ts';
-import { MODEL, ModelError, generate, hasKey } from '../_shared/anthropic.ts';
+import { ModelError, generate, hasKey } from '../_shared/anthropic.ts';
+import { callerGrammaticalGender } from '../_shared/address.ts';
 import { chatResponseSchema } from '../_shared/lib/schemas/index.ts';
 import { hasFoodOrWeightSignal, lintPhysicalRisk } from '../_shared/lib/physical-risk.ts';
 import {
@@ -47,6 +48,7 @@ import {
  * prompt, and the ledger is what says which prompt produced which cost.
  */
 const PROMPT_VERSION = CHAT_PROMPT_VERSION;
+const MODEL = modelFor('chat');
 
 Deno.serve(async (request) => {
   const cors = preflight(request);
@@ -171,7 +173,10 @@ Deno.serve(async (request) => {
   const context = chatContextSchema.safeParse(body);
   if (!context.success) return json(request, { error: 'invalid_context' }, 400);
 
-  const vulnerable = await callerIsClinicallyVulnerable(caller, userId);
+  const [vulnerable, gender] = await Promise.all([
+    callerIsClinicallyVulnerable(caller, userId),
+    callerGrammaticalGender(caller, userId),
+  ]);
   const recommendedSlugs = withoutClinicalExclusions(context.data.recommendedSlugs, vulnerable).kept;
   const risk = vulnerable && context.data.risk === 'none' ? 'elevated' : context.data.risk;
 
@@ -193,6 +198,7 @@ Deno.serve(async (request) => {
 
   try {
     const generated = await generate({
+      model: MODEL,
       system: CHAT_SYSTEM_PROMPT,
       user: buildChatUserMessage({
         question: message,
@@ -201,6 +207,7 @@ Deno.serve(async (request) => {
         risk,
         recommendedSlugs,
         history: context.data.history,
+        gender,
       }),
       schema: chatResponseSchema,
       maxTokens: MAX_OUTPUT_TOKENS.chat,

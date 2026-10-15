@@ -113,10 +113,10 @@ describe('the six rules of PDR 8.5', () => {
     // The person asking is the only one reading this. A sentence about one of
     // them alone is a weapon handed over in the voice of a mirror.
     for (const pair of result.numerology_dialogue.pairs) {
-      expect(pair.reading).toMatch(/\b(los dos|las dos|cada una|ustedes|de un lado)\b/i);
+      expect(pair.reading).toMatch(/\b(ambas partes|ambos|cada persona|ustedes|de un lado|en ambos lados)\b/i);
     }
     for (const line of [...result.where_you_flow, ...result.where_you_friction]) {
-      expect(line).toMatch(/\b(los dos|las dos|cada una|ustedes|comparten|ninguna)\b/i);
+      expect(line).toMatch(/\b(ambas partes|cada persona|cada lado|ustedes|comparten|ninguna|un lado)\b/i);
     }
   });
 
@@ -129,7 +129,7 @@ describe('the six rules of PDR 8.5', () => {
     // longer a chart somebody failed to upload, it is a calculation a fixture
     // cannot make. What must not change is that the section says so.
     expect(result.astro_dialogue.summary).toMatch(/sin contenido/i);
-    expect(result.astro_dialogue.summary).toMatch(/no se completa|nada acá se completa/i);
+    expect(result.astro_dialogue.summary).toMatch(/no se completa|nada aquí se completa/i);
   });
 
   it('carries neither subject’s private material', () => {

@@ -46,6 +46,7 @@ export type AiResult<T> = {
   latencyMs: number;
   inputTokens: number | null;
   outputTokens: number | null;
+  model: string | null;
 };
 
 export type AiErrorKind =
@@ -100,6 +101,7 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiResult<T>> {
     latencyMs: performance.now() - started,
     inputTokens: null,
     outputTokens: null,
+    model: null,
   };
 }
 
@@ -183,6 +185,7 @@ async function runOnEdge<T>(call: AiCall<T>, started: number): Promise<AiResult<
     latencyMs: performance.now() - started,
     inputTokens: numberOrNull(data?.['input_tokens']),
     outputTokens: numberOrNull(data?.['output_tokens']),
+    model: typeof data?.['model'] === 'string' ? data['model'] : null,
   };
 }
 

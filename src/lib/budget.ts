@@ -1,3 +1,5 @@
+import type { SynthesisTrigger } from './model-input.ts';
+
 /**
  * What a deployment is willing to spend, and what one person is allowed to
  * cost it.
@@ -21,23 +23,39 @@
 
 export type Purpose = 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison';
 
+export const OPUS = 'claude-opus-5-5';
+export const SONNET = 'claude-sonnet-5-5';
+export type Model = typeof OPUS | typeof SONNET;
+
+export function modelFor(purpose: Purpose, trigger?: SynthesisTrigger): Model {
+  if (purpose !== 'soul_map') return SONNET;
+  return trigger === undefined || trigger === 'onboarding' || trigger === 'base_data_changed' ? OPUS : SONNET;
+}
+
 /**
- * Claude Opus 5, US dollars per million tokens. Kept beside the ceiling it
- * feeds so a model change and a budget change are one edit.
+ * US dollars per million tokens, per model. Kept beside the ceiling it feeds
+ * so a model change and a budget change are one edit.
  *
  * Four rates, not two. Writing to the prompt cache costs 1.25× the input
- * rate and reading from it costs 0.1×, and both were being counted as zero:
- * the response carries `cache_creation_input_tokens` and
+ * rate and reading from it is billed at its own rate, and both were being
+ * counted as zero: the response carries `cache_creation_input_tokens` and
  * `cache_read_input_tokens` alongside `input_tokens`, and only the last was
  * being read. Every call therefore under-reported, which means the ceiling
  * below would have fired later than it was set to.
  */
-export const PRICE_PER_MTOK = {
-  input: 5,
-  output: 25,
-  cacheWrite: 6.25,
-  cacheRead: 0.5,
-} as const;
+export type Prices = { input: number; output: number; cacheWrite: number; cacheRead: number };
+
+export const PRICE_PER_MTOK: Record<string, Prices> = {
+  [OPUS]: { input: 4, output: 20, cacheWrite: 5, cacheRead: 0.2 },
+  [SONNET]: { input: 2, output: 10, cacheWrite: 2.5, cacheRead: 0.2 },
+  'claude-opus-5': { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 },
+};
+
+const UNKNOWN_MODEL_PRICES: Prices = { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
+
+export function pricesFor(model: string | null | undefined): Prices {
+  return (model ? PRICE_PER_MTOK[model] : undefined) ?? UNKNOWN_MODEL_PRICES;
+}
 
 /**
  * The four counts a call is billed on. Nullable because a call that never
@@ -53,12 +71,13 @@ export type Usage = {
   cacheReadTokens?: number | null;
 };
 
-export function costUsd(usage: Usage): number {
+export function costUsd(usage: Usage, model: string | null | undefined): number {
+  const prices = pricesFor(model);
   return (
-    ((usage.inputTokens ?? 0) * PRICE_PER_MTOK.input +
-      (usage.outputTokens ?? 0) * PRICE_PER_MTOK.output +
-      (usage.cacheWriteTokens ?? 0) * PRICE_PER_MTOK.cacheWrite +
-      (usage.cacheReadTokens ?? 0) * PRICE_PER_MTOK.cacheRead) /
+    ((usage.inputTokens ?? 0) * prices.input +
+      (usage.outputTokens ?? 0) * prices.output +
+      (usage.cacheWriteTokens ?? 0) * prices.cacheWrite +
+      (usage.cacheReadTokens ?? 0) * prices.cacheRead) /
     1_000_000
   );
 }

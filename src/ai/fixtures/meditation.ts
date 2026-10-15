@@ -21,15 +21,15 @@ type Move = { say: string; pauseSeconds: number };
 
 const ARRIVAL: Move[] = [
   {
-    say: 'Quedate como estés. No hace falta que cambies de postura ni que cierres los ojos si no estás en un lugar donde te sirva hacerlo.',
+    say: 'Quédate como estés. No hace falta que cambies de postura ni que cierres los ojos si no estás en un lugar donde te sirva hacerlo.',
     pauseSeconds: 3,
   },
   {
-    say: 'Notá el peso de tu cuerpo sobre lo que te esté sosteniendo. La silla, el piso, la cama. Algo te está sosteniendo ahora mismo y no estás haciendo nada para que eso pase.',
+    say: 'Nota el peso de tu cuerpo sobre lo que te esté sosteniendo. La silla, el piso, la cama. Algo te está sosteniendo ahora mismo y no estás haciendo nada para que eso pase.',
     pauseSeconds: 4,
   },
   {
-    say: 'Escuchá lo que suena alrededor sin ir a buscar nada en particular. Los sonidos llegan solos.',
+    say: 'Escucha lo que suena alrededor sin ir a buscar nada en particular. Los sonidos llegan solos.',
     pauseSeconds: 4,
   },
 ];
@@ -37,11 +37,11 @@ const ARRIVAL: Move[] = [
 /** The body scan. Walked once, twice or three times depending on the length. */
 const DEEPENING: Move[] = [
   {
-    say: 'Llevá la atención a la planta de los pies. Si hay contacto con el piso, notá la temperatura antes que la forma.',
+    say: 'Lleva la atención a la planta de los pies. Si hay contacto con el suelo, nota la temperatura antes que la forma.',
     pauseSeconds: 4,
   },
   {
-    say: 'Subí a las piernas. No hace falta relajarlas: alcanza con registrar cómo están en este momento.',
+    say: 'Sube a las piernas. No hace falta relajarlas: alcanza con registrar cómo están en este momento.',
     pauseSeconds: 4,
   },
   {
@@ -49,23 +49,23 @@ const DEEPENING: Move[] = [
     pauseSeconds: 4,
   },
   {
-    say: 'Los hombros. Fijate si están más arriba de donde vos creías que estaban.',
+    say: 'Los hombros. Fíjate si están más arriba de donde creías que estaban.',
     pauseSeconds: 4,
   },
   {
-    say: 'Las manos. Si están cerradas, podés dejar que se abran un poco. Si ya estaban abiertas, dejalas donde están.',
+    say: 'Las manos. Si están cerradas, puedes dejar que se abran un poco. Si ya estaban abiertas, déjalas donde están.',
     pauseSeconds: 4,
   },
   {
-    say: 'La mandíbula. Separá apenas los dientes de arriba de los de abajo y notá qué cambia en la cara.',
+    say: 'La mandíbula. Separa apenas los dientes de arriba de los de abajo y nota qué cambia en la cara.',
     pauseSeconds: 5,
   },
   {
-    say: 'Ahora la respiración, sin corregirla. Solamente mirá por dónde entra y por dónde sale.',
+    say: 'Ahora la respiración, sin corregirla. Solamente observa por dónde entra y por dónde sale.',
     pauseSeconds: 5,
   },
   {
-    say: 'Si te sirve, alargá la exhalación un poco más que la inhalación. Tres o cuatro veces, y después dejala volver a su ritmo.',
+    say: 'Si te sirve, alarga la exhalación un poco más que la inhalación. Tres o cuatro veces, y después déjala volver a su ritmo.',
     pauseSeconds: 5,
   },
 ];
@@ -84,11 +84,11 @@ const DEEPENING: Move[] = [
  * minute whether it is written as one tag or twelve.
  */
 const RESTS: string[] = [
-  'Quedate acá un rato. No hay nada que hacer con esto.',
-  'Seguí un momento más. Si la cabeza se va, volvé al aire y ya está.',
+  'Quédate aquí un rato. No hay nada que hacer con esto.',
+  'Sigue un momento más. Si la cabeza se va, vuelve al aire y ya está.',
   'Otro rato en silencio. No hace falta que pase nada.',
   'Un último rato así, sin buscar nada.',
-  'Quedate el tiempo que te sirva.',
+  'Quédate el tiempo que te sirva.',
 ];
 
 const REST_UNIT_SECONDS = 5;
@@ -109,15 +109,15 @@ const BRIDGES: Move[] = [
 
 const CLOSING: Move[] = [
   {
-    say: 'Empezá a traer la atención de vuelta a la habitación donde estás.',
+    say: 'Empieza a traer la atención de vuelta a la habitación donde estás.',
     pauseSeconds: 3,
   },
   {
-    say: 'Movés los dedos de las manos, después los de los pies. Un movimiento chico alcanza.',
+    say: 'Mueve los dedos de las manos, después los de los pies. Un movimiento pequeño alcanza.',
     pauseSeconds: 3,
   },
   {
-    say: 'Cuando quieras, abrí los ojos si los tenías cerrados. Lo que apareció acá se puede escribir después, si te sirve tenerlo.',
+    say: 'Cuando quieras, abre los ojos si los tenías cerrados. Lo que apareció aquí se puede escribir después, si te sirve tenerlo.',
     pauseSeconds: 2,
   },
 ];
@@ -127,19 +127,19 @@ type Core = { key: string; title: string; moves: Move[]; bed: string };
 const CORES: Core[] = [
   {
     key: 'calma',
-    title: 'Bajar un cambio',
+    title: 'Bajar el ritmo',
     bed: 'cuencos-432',
     moves: [
       {
-        say: 'Traé a la cabeza eso que venís sosteniendo. No para resolverlo ahora: solamente para saber dónde está mientras respirás.',
+        say: 'Trae a la mente eso que vienes sosteniendo. No para resolverlo ahora: solamente para saber dónde está mientras respiras.',
         pauseSeconds: 5,
       },
       {
-        say: 'Fijate en qué parte del cuerpo aparece cuando lo pensás. Casi siempre aparece en algún lado.',
+        say: 'Fíjate en qué parte del cuerpo aparece cuando lo piensas. Casi siempre aparece en algún lado.',
         pauseSeconds: 5,
       },
       {
-        say: 'Dejalo ahí. No hace falta empujarlo ni entenderlo. Que esté, mientras el aire sigue entrando y saliendo.',
+        say: 'Déjalo ahí. No hace falta empujarlo ni entenderlo. Que esté, mientras el aire sigue entrando y saliendo.',
         pauseSeconds: 5,
       },
     ],
@@ -154,11 +154,11 @@ const CORES: Core[] = [
         pauseSeconds: 5,
       },
       {
-        say: 'Si aparece una lista, dejala pasar como pasa un auto por la calle. No hace falta subirse.',
+        say: 'Si aparece una lista, déjala pasar como pasan las nubes. No hace falta seguirla.',
         pauseSeconds: 5,
       },
       {
-        say: 'Notá el peso de la cabeza sobre la almohada. Es un peso que no estás sosteniendo vos.',
+        say: 'Nota el peso de la cabeza sobre la almohada. Es un peso que no te toca sostener.',
         pauseSeconds: 5,
       },
     ],
@@ -169,15 +169,15 @@ const CORES: Core[] = [
     bed: 'drone-grave',
     moves: [
       {
-        say: 'Traé la escena que te dejó así. Sin discutirla otra vez adentro: solamente mirala a distancia, como quien mira una foto.',
+        say: 'Trae la escena que te dejó así. Sin discutirla otra vez por dentro: solamente mírala a distancia, como quien mira una foto.',
         pauseSeconds: 5,
       },
       {
-        say: 'El enojo suele apoyarse en algún lado del cuerpo: el pecho, la garganta, las manos. Fijate dónde se apoya el tuyo.',
+        say: 'El enojo suele apoyarse en algún lado del cuerpo: el pecho, la garganta, las manos. Fíjate dónde se apoya el tuyo.',
         pauseSeconds: 5,
       },
       {
-        say: 'No hace falta que se vaya. Alcanza con que tenga un lugar donde estar mientras respirás alrededor.',
+        say: 'No hace falta que se vaya. Alcanza con que tenga un lugar donde estar mientras respiras alrededor.',
         pauseSeconds: 5,
       },
     ],
@@ -188,11 +188,11 @@ const CORES: Core[] = [
     bed: 'drone-528',
     moves: [
       {
-        say: 'Nombrá en silencio la decisión que tenés adelante. Una frase corta alcanza.',
+        say: 'Nombra en silencio la decisión que tienes delante. Una frase corta alcanza.',
         pauseSeconds: 4,
       },
       {
-        say: 'Imaginá que ya elegiste una de las opciones y quedate ahí un momento. Registrá qué pasa en el cuerpo, no qué pensás.',
+        say: 'Imagina que ya elegiste una de las opciones y quédate ahí un momento. Registra qué pasa en el cuerpo, no qué piensas.',
         pauseSeconds: 5,
       },
       {
@@ -203,15 +203,15 @@ const CORES: Core[] = [
   },
   {
     key: 'presencia',
-    title: 'Volver acá',
+    title: 'Volver aquí',
     bed: 'drone-528',
     moves: [
       {
-        say: 'Traé la intención con la que empezaste esto. La frase con la que la escribiste, tal cual la escribiste.',
+        say: 'Trae la intención con la que empezaste esto. La frase con la que la escribiste, tal cual la escribiste.',
         pauseSeconds: 5,
       },
       {
-        say: 'No hagas nada con ella. Solamente dejala al lado de la respiración y mirá si cambia de forma.',
+        say: 'No hagas nada con ella. Solamente déjala al lado de la respiración y observa si cambia de forma.',
         pauseSeconds: 5,
       },
       {

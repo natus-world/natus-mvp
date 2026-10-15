@@ -42,10 +42,10 @@ describe("the PDR's own anti-patterns must fail", () => {
 describe('the PDR\'s own model examples must pass', () => {
   const good = [
     // Quoted verbatim from PDR 7.5 as the example to imitate.
-    'Tu carta y lo que contás resuenan con prácticas de regulación nerviosa nocturna. ¿Te hace sentido probar 10 minutos de respiración 4-7-8 antes de dormir esta semana? Observá qué se mueve.',
-    'Mencionás que el enojo se te queda en el cuerpo; la terapia somática trabaja exactamente ahí, con atención a la sensación física antes que al relato.',
+    'Tu carta y lo que cuentas resuenan con prácticas de regulación nerviosa nocturna. ¿Te hace sentido probar 10 minutos de respiración 4-7-8 antes de dormir esta semana? Observa qué se mueve.',
+    'Mencionas que el enojo se te queda en el cuerpo; la terapia somática trabaja exactamente ahí, con atención a la sensación física antes que al relato.',
     'Esta modalidad suele acompañar procesos parecidos al que estás describiendo.',
-    'Tu carta sugiere una tensión entre lo que mostrás y lo que necesitás.',
+    'Tu carta sugiere una tensión entre lo que muestras y lo que necesitas.',
   ];
 
   it.each(good)('passes: %s', (text) => {
@@ -55,10 +55,10 @@ describe('the PDR\'s own model examples must pass', () => {
 
 describe('ordinary copy is not caught by accident', () => {
   const innocuous = [
-    'Contame un poco más sobre eso.',
+    'Cuéntame un poco más sobre eso.',
     'Hay algo que se repite y todavía no tiene nombre.',
     'La terapia gestalt trabaja con lo que aparece en la sesión.',
-    'Podés dejar de venir cuando quieras.',
+    'Puedes dejar de venir cuando quieras.',
     // "deb" appears inside "debilidad" but is not the imperative.
     'Nombrar una debilidad no es lo mismo que tener un problema.',
   ];
@@ -93,11 +93,11 @@ describe('markup is not copy', () => {
     // This is not hypothetical: every meditation carries a prosody rate, and
     // linting the tag failed all of them — in the fixtures and in `runAi`
     // alike, so a live generation would have been rejected as well.
-    expect(lintCopy('<prosody rate="82%">Quedate como estés.</prosody>')).toEqual([]);
+    expect(lintCopy('<prosody rate="82%">Quédate como estés.</prosody>')).toEqual([]);
   });
 
   it('still lints the words inside the tags', () => {
-    expect(lintCopy('<speak>Debés meditar diez minutos.</speak>').map((v) => v.rule)).toEqual([
+    expect(lintCopy('<speak>Debes meditar diez minutos.</speak>').map((v) => v.rule)).toEqual([
       'command',
     ]);
   });
@@ -145,4 +145,68 @@ describe('missing accents', () => {
     expect(lintCopy('exploracion')).toEqual([]);
     expect(lintCopy('integracion')).toEqual([]);
   });
+});
+
+describe('voseo', () => {
+  it.each([
+    'Podés probarlo esta semana.',
+    '¿Querés que lo miremos?',
+    'Tenés tiempo para esto.',
+    'Lo que sentís tiene sentido.',
+    'Decís que algo tiene que cambiar.',
+    'Lo que contás se repite.',
+    'Probá diez minutos antes de dormir.',
+    'Elegí una situación chica.',
+    'Escribí la pregunta a mano.',
+    'Mostrame dónde aparece.',
+    'Contanos qué pasó.',
+    'Fijate si los hombros están arriba.',
+    'Quedate un rato más.',
+    'Esto es para vos.',
+    'Sos alguien que sostiene mucho.',
+    'Si tenes un rato, sigue leyendo.',
+    'Lo que mirás cambia.',
+    'Respirá despacio.',
+  ])('flags: %s', (text) => {
+    expect(rulesFor(text)).toContain('voseo');
+  });
+
+  it.each([
+    'Puedes probarlo esta semana.',
+    '¿Quieres que lo miremos?',
+    'Tienes tiempo para esto, y sabes cuándo parar.',
+    'Si sabes lo que quieres, elige con calma.',
+    'Lo que sientes tiene sentido.',
+    'Dices que algo tiene que cambiar.',
+    'Prueba diez minutos antes de dormir.',
+    'Escribe la pregunta a mano y mira qué aparece.',
+    'Muéstrame dónde aparece.',
+    'Cuéntanos qué pasó.',
+    'Fíjate si los hombros están arriba.',
+    'Quédate un rato más, que estés donde estés.',
+    'Esto es para ti.',
+    'Eres alguien que sostiene mucho.',
+    'Estás en un buen momento, más que antes, y después podrás verlo.',
+    'Tendrás tiempo además de las ganas; quizás lo veas a través de otro país.',
+    'El estrés y el interés no son lo mismo en inglés ni en francés.',
+    'Aquí, así, ahí: está bien, será distinto, y eso ya es algo.',
+    'La línea SOS atiende todo el día.',
+    'Solamente mira, nota y deja que pase.',
+    'Llorarás o no; respirarás igual.',
+  ])('passes neutral Spanish: %s', (text) => {
+    expect(rulesFor(text)).not.toContain('voseo');
+  });
+});
+
+describe('regional idioms', () => {
+  it.each(['Che, mirá esto.', 'Estoy podrida del laburo.', 'Eso está re bien.'])('flags: %s', (text) => {
+    expect(rulesFor(text)).toContain('regional-idiom');
+  });
+
+  it.each(['Revisa la cena.', 'Hay mucho trabajo esta semana.', 'Representa algo distinto.'])(
+    'passes: %s',
+    (text) => {
+      expect(rulesFor(text)).not.toContain('regional-idiom');
+    },
+  );
 });

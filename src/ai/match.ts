@@ -54,6 +54,7 @@ export async function matchModalities(input: {
       latencyMs: 0,
       inputTokens: null,
       outputTokens: null,
+      model: null,
       usedFallback: true,
     };
   }

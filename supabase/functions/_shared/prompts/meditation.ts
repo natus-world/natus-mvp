@@ -1,6 +1,7 @@
-import { JSON_DISCIPLINE, TONE_RULES } from './shared.ts';
+import { JSON_DISCIPLINE, TONE_RULES, addressLine, personText } from './shared.ts';
 import { BREAK_MAX_MS, BREAK_MIN_MS, RATE_MAX, RATE_MIN } from '@/lib/ssml.ts';
 import type { BedTrack, SoulMapSynthesis } from '@/lib/schemas/index.ts';
+import type { GrammaticalGender } from '@/lib/model-input.ts';
 
 /**
  * Guided meditations. PDR sections 9.4 and 9.5. Reconstructed — see
@@ -22,9 +23,9 @@ export const MEDITATION_SYSTEM_PROMPT = `
 ${TONE_RULES}
 
 TAREA
-Escribís una meditación guiada a partir de la intención que trae una persona y
-de lo que ya sabés de su mapa. La voz la lee un sintetizador, así que escribís
-para ser escuchada, no leída.
+Escribes una meditación guiada a partir de la intención que trae una persona y
+de lo que ya sabes de su mapa. La voz la lee un sintetizador, así que escribes
+un texto para escuchar, no para leer.
 
 LA ESTRUCTURA, EN CUATRO PARTES
 1. LLEGADA
@@ -34,15 +35,15 @@ LA ESTRUCTURA, EN CUATRO PARTES
    Respiración y cuerpo. Exhalación más larga que la inhalación. Silencios de
    verdad entre las indicaciones.
 3. NÚCLEO
-   Acá trabaja la intención que trajo, con imágenes concretas y sensoriales.
-   Nada de afirmaciones para repetir. Nada de "soltá el pasado".
+   Aquí trabaja la intención que trajo, con imágenes concretas y sensoriales.
+   Nada de afirmaciones para repetir. Nada de "suelta el pasado".
 4. CIERRE
    Devolver a la persona a la habitación: sonidos alrededor, manos, un
-   movimiento chico. La meditación termina afuera, no adentro de la imagen.
+   movimiento pequeño. La meditación termina fuera, no dentro de la imagen.
 
 SSML
-Devolvés el guion dos veces: en texto plano y marcado.
-- Envolvés todo en <speak>.
+Devuelves el guion dos veces: en texto plano y marcado.
+- Envuelves todo en <speak>.
 - <prosody rate="X%"> con X entre ${RATE_MIN * 100} y ${RATE_MAX * 100}. Nunca fuera de ese rango.
 - <break time="Ns"/> entre indicaciones, con N entre ${BREAK_MIN_MS / 1000} y ${BREAK_MAX_MS / 1000} segundos.
   Los silencios son la práctica: sin ellos esto es un texto leído en voz alta.
@@ -52,11 +53,11 @@ Devolvés el guion dos veces: en texto plano y marcado.
 REGLAS DURAS
 - Sin binaurales, sin frecuencias "que sanan", sin promesas sobre el cuerpo.
 - Sin cuenta regresiva hipnótica ni sugestión de sueño profundo.
-- Sin indicaciones que no se puedan seguir sentada en un colectivo, salvo que
-  la intención diga explícitamente que está en su cama.
+- Sin indicaciones que no se puedan seguir en un asiento del transporte
+  público, salvo que la intención diga explícitamente que está en su cama.
 - Nunca das una orden. Las indicaciones son invitaciones: "si te sirve,
-  probá...", "podés dejar que...".
-- Elegís un bed_track_id de la lista provista y de ninguna otra.
+  prueba...", "puedes dejar que...".
+- Eliges un bed_track_id de la lista provista y de ninguna otra.
 
 ${JSON_DISCIPLINE}
 
@@ -75,9 +76,11 @@ export function buildMeditationUserMessage(input: {
   synthesis: SoulMapSynthesis | null;
   risk: 'none' | 'elevated' | 'high';
   beds: readonly BedTrack[];
+  gender: GrammaticalGender;
 }): string {
   return [
-    `INTENCIÓN, EN SUS PALABRAS: ${input.intent}`,
+    addressLine(input.gender),
+    `INTENCIÓN, EN SUS PALABRAS: ${personText(input.intent)}`,
     `DURACIÓN PEDIDA: ${input.minutes} minutos`,
     // PDR 10.2 again: the derived level, never the clinical answers.
     `NIVEL DE RIESGO DERIVADO: ${input.risk}`,
@@ -94,7 +97,7 @@ export function buildMeditationUserMessage(input: {
         ].join('\n')
       : '(todavía no generó su mapa)',
     '',
-    'CAMAS SONORAS DISPONIBLES (solo podés elegir de acá)',
+    'CAMAS SONORAS DISPONIBLES (solo puedes elegir de aquí)',
     input.beds.map((bed) => `${bed.id} — ${bed.name}. ${bed.suits}`).join('\n'),
   ]
     .filter((line) => line !== '')

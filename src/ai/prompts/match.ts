@@ -1,6 +1,7 @@
 import { MATCH_PROMPT_VERSION } from './versions.ts';
-import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES } from './shared.ts';
+import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES, addressLine, personText } from './shared.ts';
 import type { FilterOutcome } from '@/lib/matching.ts';
+import type { GrammaticalGender } from '@/lib/model-input.ts';
 import type { SoulMapSynthesis } from '@/lib/schemas/index.ts';
 
 /**
@@ -27,9 +28,9 @@ export const MATCH_SYSTEM_PROMPT = `
 ${TONE_RULES}
 
 TAREA
-Recibís la síntesis del mapa de una persona y un catálogo acotado de
-modalidades candidatas. Ordenás entre 3 y 5, y escribís por qué cada una tiene
-que ver con lo que esa persona contó. Después proponés entre 3 y 5 prácticas
+Recibes la síntesis del mapa de una persona y un catálogo acotado de
+modalidades candidatas. Ordenas entre 3 y 5, y escribes por qué cada una tiene
+que ver con lo que esa persona contó. Después propones entre 3 y 5 prácticas
 de rutina.
 
 LAS CUATRO DIMENSIONES, EN ESTE ORDEN DE PRIORIDAD
@@ -41,8 +42,8 @@ No las promedies ni les pongas pesos. Es un orden, no una cuenta.
 
 2. AJUSTE A LA APERTURA Y AL ESTILO
    Su apertura declarada y el registro de su lenguaje contra family e
-   intensity. Alguien que escribe concreto y racional probablemente no arranca
-   por constelaciones, aunque el tema encaje.
+   intensity. Alguien que escribe de forma concreta y racional probablemente no
+   empieza por constelaciones, aunque el tema encaje.
 
 3. AJUSTE AL MOMENTO Y AL HORIZONTE
    La fase detectada contra typical_horizon y typical_format.
@@ -52,33 +53,39 @@ No las promedies ni les pongas pesos. Es un orden, no una cuenta.
 4. RESONANCIA SIMBÓLICA
    Numerología y carta contra el lenguaje de la modalidad.
    Es desempate, nunca criterio de selección. Si los datos son pobres — texto
-   genérico, sin carta — bajá su peso a cero y apoyate en 1 y 2.
+   genérico, sin carta — baja su peso a cero y apóyate en el ajuste al tema
+   y en el ajuste a la apertura y al estilo.
 
 REGLAS DURAS
-- Solo podés devolver slugs de la lista provista. No inventes modalidades ni
+- Solo puedes devolver slugs de la lista provista. No inventes modalidades ni
   slugs, aunque se te ocurra una que encajaría mejor.
 - Ninguna modalidad es "la correcta" ni "la ideal". Son caminos posibles.
-- Si una modalidad tiene requires_clinical_support y igual la incluís, el
+- Si una modalidad tiene requires_clinical_support y aun así la incluyes, el
   caution_note es obligatorio y concreto.
 - Nunca porcentajes, nunca scores, nunca "98% de compatibilidad".
 
 EL REASONING
 - Entre 2 y 4 oraciones. Ni más ni menos.
-- Conectá específico con específico: algo textual que la persona dijo contra
-  algo concreto que pasa en esa modalidad.
-  Ejemplo del tono: "Mencionás que el enojo se te queda en el cuerpo; la
+- Conecta lo específico con lo específico: algo textual que la persona dijo
+  contra algo concreto que pasa en esa modalidad.
+  Ejemplo del tono: "Mencionas que el enojo se te queda en el cuerpo; la
   terapia somática trabaja exactamente ahí, con atención a la sensación física
   antes que al relato."
+  Ejemplo del tono con una modalidad clínica: "Mencionas un recuerdo que
+  sigue doliendo igual que el primer día. En EMDR se vuelve a ese recuerdo en
+  tandas cortas mientras sigues con la mirada un movimiento de lado a lado,
+  sin tener que contarlo en detalle; suele acompañar procesos parecidos cuando
+  lo vivido no bajó con el tiempo."
 - Lenguaje de posibilidad: "puede dialogar con", "suele acompañar procesos
-  parecidos", "resuena con lo que contás".
-- Decí qué pasa realmente en una sesión. La gente no sabe qué es EMDR ni
+  parecidos", "resuena con lo que cuentas".
+- Di qué pasa realmente en una sesión. La gente no sabe qué es EMDR ni
   constelaciones. Sin eso la recomendación no sirve para nada.
 
 LA RUTINA
 Cada práctica: una señal concreta (qué), una razón conectada al mapa (por qué)
-y una micro-invitación en pregunta (¿lo probás?).
+y una micro-invitación en pregunta (¿lo pruebas?).
 Nada abstracto. "Diez minutos de respiración 4-7-8 antes de dormir", no
-"explorá el silencio".
+"explora el silencio".
 
 ${PHYSICAL_RISK_RULES}
 
@@ -100,6 +107,7 @@ export function buildMatchUserMessage(input: {
   synthesis: SoulMapSynthesis;
   outcome: FilterOutcome;
   presentingNeedText: string;
+  gender: GrammaticalGender;
 }): string {
   const catalogue = input.outcome.candidates
     .map((m) =>
@@ -120,9 +128,11 @@ export function buildMatchUserMessage(input: {
     .join('\n---\n');
 
   return [
+    addressLine(input.gender),
+    '',
     'LA PERSONA',
     `Fase detectada: ${input.synthesis.detected_phase} · modo: ${input.synthesis.detected_mode}`,
-    `Lo que se está preguntando, en sus palabras: ${input.presentingNeedText || '(no escribió texto libre)'}`,
+    `Lo que se está preguntando, en sus palabras: ${input.presentingNeedText ? personText(input.presentingNeedText) : '(no escribió texto libre)'}`,
     '',
     'SÍNTESIS VIGENTE',
     input.synthesis.soul_map_synthesis.tu_camino,
@@ -136,7 +146,7 @@ export function buildMatchUserMessage(input: {
     // topically matched one.
     `CÓMO SE ARMÓ ESTE POOL: ${describeStrategy(input.outcome)}`,
     '',
-    'MODALIDADES CANDIDATAS (solo podés elegir de acá)',
+    'MODALIDADES CANDIDATAS (solo puedes elegir de aquí)',
     catalogue,
   ].join('\n');
 }
@@ -144,10 +154,10 @@ export function buildMatchUserMessage(input: {
 function describeStrategy(outcome: FilterOutcome): string {
   switch (outcome.strategy) {
     case 'topical':
-      return 'filtrado por temas en común. Podés hablar con confianza normal.';
+      return 'filtrado por temas en común. Puedes hablar con confianza normal.';
     case 'relaxed':
       return 'ningún tema coincidió, así que se amplió. Sé más prudente: no afirmes que encaja con un tema puntual.';
     case 'contemplative-fallback':
-      return 'no quedó nada tras los filtros. Son prácticas de punto de partida. Decilo con honestidad en el reasoning.';
+      return 'no quedó nada tras los filtros. Son prácticas de punto de partida. Dilo con honestidad en el reasoning.';
   }
 }

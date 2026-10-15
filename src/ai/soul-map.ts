@@ -1,7 +1,7 @@
 import { runAi, type AiResult } from './client';
 import { selectSoulMapFixture } from './fixtures/soul-map';
 import { soulMapSynthesisSchema, type Numerology, type SoulMapSynthesis } from '@/lib/schemas';
-import { soulMapDraftSchema } from '@/lib/model-input';
+import { soulMapDraftSchema, type SynthesisTrigger } from '@/lib/model-input';
 import type { OnboardingDraft } from '@/store/session';
 
 /**
@@ -12,6 +12,7 @@ import type { OnboardingDraft } from '@/store/session';
 export async function generateSoulMap(input: {
   draft: OnboardingDraft;
   numerology: Numerology | null;
+  trigger?: SynthesisTrigger;
 }): Promise<AiResult<SoulMapSynthesis>> {
   return runAi({
     schema: soulMapSynthesisSchema,
@@ -21,7 +22,11 @@ export async function generateSoulMap(input: {
     // remember. The prompt never read it either — see `soulMapDraftSchema`.
     edge: {
       fn: 'soul-map',
-      body: { draft: soulMapDraftSchema.parse(input.draft), numerology: input.numerology },
+      body: {
+        draft: soulMapDraftSchema.parse(input.draft),
+        numerology: input.numerology,
+        trigger: input.trigger ?? 'onboarding',
+      },
     },
     fixture: () => selectSoulMapFixture(input.draft),
   });

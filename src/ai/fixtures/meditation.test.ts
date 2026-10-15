@@ -60,13 +60,13 @@ describe('the four parts of PDR 9.4', () => {
   });
 
   it('works the intention after the body, not before it', () => {
-    expect(text.indexOf('planta de los pies')).toBeLessThan(text.indexOf('venís sosteniendo'));
+    expect(text.indexOf('planta de los pies')).toBeLessThan(text.indexOf('vienes sosteniendo'));
   });
 
   it('ends outside the imagery, back in the room', () => {
     // A script that ends inside the image leaves someone standing up from a
     // floor they were told they were lying on.
-    expect(text.trimEnd()).toMatch(/abrí los ojos.*$/s);
+    expect(text.trimEnd()).toMatch(/abre los ojos.*$/s);
   });
 });
 

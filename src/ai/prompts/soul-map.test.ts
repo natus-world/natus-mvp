@@ -19,6 +19,7 @@ describe('Soul Map astrological context', () => {
         },
       }),
       numerology: null,
+      gender: 'neutro',
     });
 
     expect(message).toContain('<planet name="Sun" sign="Gemini" />');
@@ -29,6 +30,7 @@ describe('Soul Map astrological context', () => {
     const message = buildSoulMapUserMessage({
       draft: soulMapDraftSchema.parse(emptyDraft()),
       numerology: null,
+      gender: 'neutro',
     });
     expect(message).toContain('No hay carta disponible');
     expect(message).toContain('No inventes ninguna');

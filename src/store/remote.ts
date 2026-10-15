@@ -337,6 +337,8 @@ const syntheses: Adapter<StoredSynthesis[]> = {
       numerology: asShape<StoredSynthesis['numerology']>(r.numerology),
       mode: enumerated<StoredSynthesis['mode']>(r.mode),
       latency_ms: r.latency_ms,
+      model: r.model,
+      trigger: enumerated<StoredSynthesis['trigger']>(r.trigger),
       created_at: ms(r.created_at),
       is_current: r.is_current,
     }));
@@ -364,6 +366,8 @@ const syntheses: Adapter<StoredSynthesis[]> = {
         numerology: s.numerology,
         mode: s.mode,
         latency_ms: whole(s.latency_ms),
+        model: s.model ?? null,
+        trigger: s.trigger ?? 'onboarding',
         created_at: iso(s.created_at),
         is_current: s.is_current,
       })),

@@ -23,11 +23,11 @@ const KINDS = ['life_path', 'expression', 'soul_urge', 'personality', 'birthday'
 type Kind = (typeof KINDS)[number];
 
 const KIND_SUBJECT: Record<Kind, string> = {
-  life_path: 'el camino que cada una viene caminando',
-  expression: 'la forma en que cada una se muestra',
-  soul_urge: 'lo que cada una busca por debajo',
-  personality: 'lo primero que la otra ve',
-  birthday: 'el gesto con el que cada una se maneja',
+  life_path: 'el camino que cada persona viene recorriendo',
+  expression: 'la forma en que cada persona se muestra',
+  soul_urge: 'lo que cada persona busca por debajo',
+  personality: 'lo primero que se ve de cada persona',
+  birthday: 'el gesto con el que cada persona se maneja',
 };
 
 const MASTERS = new Set([11, 22, 33]);
@@ -36,7 +36,7 @@ function reading(kind: Kind, a: number, b: number): string {
   const subject = KIND_SUBJECT[kind];
 
   if (a === b) {
-    return `Coinciden en ${subject}: los dos traen ${a}. Lo compartido suele ser cómodo y también difícil de ver, porque nadie hace de espejo de lo que los dos dan por sentado.`;
+    return `Coinciden en ${subject}: ambos números son ${a}. Lo compartido suele ser cómodo y también difícil de ver, porque nadie hace de espejo de lo que ambas partes dan por sentado.`;
   }
 
   if (MASTERS.has(a) !== MASTERS.has(b)) {
@@ -46,10 +46,10 @@ function reading(kind: Kind, a: number, b: number): string {
 
   const distance = Math.abs(a - b);
   if (distance <= 2) {
-    return `En ${subject} hay ${a} y ${b}, que están cerca. Se parecen lo suficiente como para entenderse rápido y como para repetir los dos el mismo punto ciego.`;
+    return `En ${subject} hay ${a} y ${b}, que están cerca. Se parecen lo suficiente como para entenderse rápido y como para repetir en ambos lados el mismo punto ciego.`;
   }
 
-  return `En ${subject} hay ${a} de un lado y ${b} del otro. Son lenguajes distintos: lo que a una le resulta obvio, a la otra le lleva un paso más, y al revés también.`;
+  return `En ${subject} hay ${a} de un lado y ${b} del otro. Son lenguajes distintos: lo que de un lado resulta obvio, del otro lleva un paso más, y al revés también.`;
 }
 
 function themeOverlap(payload: ComparisonPayload): { shared: string[]; onlyOne: string[] } {
@@ -84,27 +84,27 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
     flow.push(
       matches > 0
         ? `Comparten ${matches} de los cinco números, y eso suele mostrarse como entenderse sin explicar demasiado.`
-        : 'No comparten ninguno de los cinco números, lo que suele traducirse en que cada una aporta algo que a la otra no se le habría ocurrido.',
+        : 'No comparten ninguno de los cinco números, lo que suele traducirse en que cada persona aporta algo que del otro lado no habría aparecido.',
     );
     friction.push(
       matches >= 3
-        ? 'Tanto parecido tiene su costo: cuando algo se les escapa, se les escapa a las dos al mismo tiempo.'
-        : 'Los ritmos distintos se notan más en los días apurados, donde cada una resuelve como sabe y la otra lo lee como desinterés.',
+        ? 'Tanto parecido tiene su costo: cuando algo se les escapa, se les escapa a ambas partes al mismo tiempo.'
+        : 'Los ritmos distintos se notan más en los días de prisa, cuando cada persona resuelve como sabe y del otro lado se lee como desinterés.',
     );
   }
 
   if (themes.shared.length > 0) {
     flow.push(
-      `Las dos están mirando ${themes.shared.map(topicName).join(' y ')}. Tener el mismo tema abierto hace que las conversaciones lleguen rápido a algo real.`,
+      `Ambas partes están mirando ${themes.shared.map(topicName).join(' y ')}. Tener el mismo tema abierto hace que las conversaciones lleguen rápido a algo real.`,
     );
     friction.push(
-      `El mismo tema abierto en las dos también significa que ninguna llega descansada a ese lugar cuando la otra lo necesita.`,
+      `El mismo tema abierto en ambas partes también significa que nadie llega con descanso a ese lugar cuando del otro lado hace falta.`,
     );
   }
 
   if (themes.onlyOne.length > 0) {
     flow.push(
-      `Hay temas que aparecen en una de las dos y no en la otra —${themes.onlyOne.map(topicName).join(', ')}—, y eso da lugar a que una sostenga mientras la otra atraviesa.`,
+      `Hay temas que aparecen en un lado y no en el otro —${themes.onlyOne.map(topicName).join(', ')}—, y eso da lugar a que una persona sostenga mientras la otra atraviesa.`,
     );
   }
 
@@ -113,12 +113,12 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
   // is about the reading itself rather than about them, which is the honest
   // thing to say when the scope left almost nothing to read.
   const FLOW_FILLER = [
-    'Lo que ustedes dejaron entrar acá alcanza para un primer cruce y no para mucho más, lo que ya dice algo: hay bastante que todavía no se contaron.',
-    'Que ninguna de las dos haya abierto demasiado también es un punto de partida parejo.',
+    'Lo que ustedes dejaron entrar aquí alcanza para un primer cruce y no para mucho más, lo que ya dice algo: hay bastante que todavía no se contaron.',
+    'Que ninguna de las partes haya abierto demasiado también es un punto de partida parejo.',
   ];
   const FRICTION_FILLER = [
-    'Con este alcance queda afuera casi todo lo que suele rozar entre dos personas, así que lo que no aparece acá no es lo que no existe entre ustedes.',
-    'Leer tan poco de las dos deja lugar a que cada una complete el resto por su cuenta, que es justo donde se arman los malentendidos.',
+    'Con este alcance queda fuera casi todo lo que suele rozar entre dos personas, así que lo que no aparece aquí no es lo que no existe entre ustedes.',
+    'Leer tan poco de cada lado deja espacio para que cada persona complete el resto por su cuenta, que es justo donde se arman los malentendidos.',
   ];
 
   for (const line of FLOW_FILLER) if (flow.length < 2) flow.push(line);
@@ -126,7 +126,7 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
 
   return {
     prompt_version: COMPARISON_PROMPT_VERSION,
-    headline: `${a.display_name} y ${b.display_name}, puestos uno al lado del otro`,
+    headline: `${a.display_name} y ${b.display_name}, lado a lado`,
     numerology_dialogue: {
       summary:
         pairs.length > 0
@@ -144,14 +144,14 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
     astro_dialogue: {
       available: false,
       summary:
-        'El cruce de las dos cartas se calcula por efeméride y esta lectura no la tiene, así que esta sección queda sin contenido. Nada acá se completa por aproximación.',
+        'El cruce de las dos cartas se calcula por efeméride y esta lectura no la tiene, así que esta sección queda sin contenido. Nada aquí se completa por aproximación.',
       aspects: [],
     },
     where_you_flow: flow.slice(0, 4),
     where_you_friction: friction.slice(0, 4),
     questions_to_explore: [
       '¿En qué momento de la semana pasada se sintieron más lejos, y qué estaba pasando?',
-      '¿Qué es lo que cada una da por sentado que la otra ya sabe?',
+      '¿Qué da por sentado cada persona que la otra ya sabe?',
       '¿Qué de esto que leyeron les suena, y qué no les suena para nada?',
     ],
     disclaimer:

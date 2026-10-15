@@ -3,6 +3,7 @@ import { soulMapInputSchema } from '../_shared/lib/model-input.ts';
 import { soulMapResultSchema } from '../_shared/lib/schemas/index.ts';
 import { hasFoodOrWeightSignal, lintPhysicalRisk } from '../_shared/lib/physical-risk.ts';
 import { callerIsClinicallyVulnerable } from '../_shared/clinical.ts';
+import { modelFor } from '../_shared/lib/budget.ts';
 import {
   SOUL_MAP_PROMPT_VERSION,
   SOUL_MAP_SYSTEM_PROMPT,
@@ -23,7 +24,8 @@ Deno.serve(
     input: soulMapInputSchema,
     output: soulMapResultSchema,
     system: SOUL_MAP_SYSTEM_PROMPT,
-    user: (input) => buildSoulMapUserMessage(input),
+    model: (input) => modelFor('soul_map', input.trigger),
+    user: (input, { gender }) => buildSoulMapUserMessage({ ...input, gender }),
     prose: (input) => input.draft.presenting_need_text,
     check: async (output, input, { caller, userId }) => {
       if (output.detected_phase === 'crisis') return null;

@@ -65,10 +65,11 @@ Deno.serve(
       const violation = lintPhysicalRisk(output, { fastingBarred })[0];
       return violation ? `${violation.rule} at ${violation.path}` : null;
     },
-    user: (input) =>
+    user: (input, { gender }) =>
       buildMatchUserMessage({
         synthesis: input.synthesis,
         presentingNeedText: input.presentingNeedText,
+        gender,
         outcome: {
           candidates: input.candidateSlugs.map((slug) => modalityBySlug(slug) as Modality),
           strategy: input.strategy,

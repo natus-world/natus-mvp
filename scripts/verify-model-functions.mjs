@@ -48,7 +48,7 @@ const call = (fn, body, headers = authed) =>
 
 const SYNTHESIS = {
   detected_phase: 'exploracion',
-  detected_mode: 'exploracion',
+  detected_mode: 'abierto',
   soul_map_synthesis: {
     tu_camino: 'Venís de un tiempo de mucho movimiento.',
     lo_que_estas_trabajando: 'Sostener algo sin necesitar que se resuelva ya.',
@@ -271,7 +271,7 @@ if (keyed) {
       user_id: userId,
       purpose: 'soul_map',
       prompt_version: 'v1',
-      model: 'claude-opus-5',
+      model: 'claude-opus-5-5',
       mode: 'server',
       outcome: 'ok',
       input_tokens: 3000,

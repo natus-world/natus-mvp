@@ -10,7 +10,10 @@ import { z } from 'zod';
  */
 
 export const soulPhaseSchema = z.enum(['pregunta', 'exploracion', 'integracion', 'crisis']);
-export const soulModeSchema = z.enum(['objetivo', 'exploracion']);
+export const soulModeSchema = z.preprocess(
+  (value) => (value === 'exploracion' ? 'abierto' : value),
+  z.enum(['objetivo', 'abierto']),
+);
 
 export const cadenceSchema = z.enum(['daily', 'weekly', 'process', 'one_off']);
 

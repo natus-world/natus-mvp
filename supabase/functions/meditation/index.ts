@@ -30,7 +30,7 @@ Deno.serve(
     input: meditationInputSchema,
     output: meditationScriptSchema,
     system: MEDITATION_SYSTEM_PROMPT,
-    user: (input) => buildMeditationUserMessage({ ...input, beds: ACTIVE_BEDS }),
+    user: (input, { gender }) => buildMeditationUserMessage({ ...input, beds: ACTIVE_BEDS, gender }),
     prose: (input) => input.intent,
   }),
 );

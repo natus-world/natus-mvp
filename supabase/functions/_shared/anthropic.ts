@@ -18,12 +18,6 @@ import { addUsage, type Usage } from './lib/budget.ts';
  * copies of either drift.
  */
 
-/**
- * Kept identical to `src/ai/client.ts`. Somebody on their own key and somebody
- * on the server should be reading the same product, not two products that
- * happen to share a prompt.
- */
-export const MODEL = 'claude-opus-5';
 
 const ENDPOINT = 'https://api.anthropic.com/v1/messages';
 /**
@@ -113,6 +107,7 @@ export async function generate<T>(call: {
    * document, and the limit had to fit the document.
    */
   maxTokens: number;
+  model: string;
 }): Promise<Generation<T>> {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) throw new ModelError('No key is configured.', 'api_error');
@@ -121,7 +116,7 @@ export async function generate<T>(call: {
   let billed: Usage | undefined;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const response = await post(call.system, call.user, call.effort ?? 'medium', call.maxTokens, apiKey);
+      const response = await post(call.model, call.system, call.user, call.effort ?? 'medium', call.maxTokens, apiKey);
       const json = readJson(response.text);
 
       // Parsed separately from the JSON read so the two failures stop being
@@ -202,6 +197,7 @@ function assertCleanCopy(value: unknown, spent?: Usage): void {
 }
 
 async function post(
+  model: string,
   system: string,
   user: string,
   effort: string,
@@ -227,7 +223,7 @@ async function post(
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         max_tokens: maxTokens,
         // Adaptive is the default on this model; stating it keeps the next
         // reader from assuming the omission means thinking is off.

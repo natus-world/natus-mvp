@@ -91,6 +91,8 @@ export function Generating({
           promptVersion: SOUL_MAP_PROMPT_VERSION,
           mode: result.mode,
           latencyMs: result.latencyMs,
+          model: result.model,
+          trigger: 'onboarding',
         });
         // Both records point at the synthesis, so a signup that happens after
         // this carries the map with it — and one that happened before still

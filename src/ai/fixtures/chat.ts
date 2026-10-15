@@ -40,14 +40,14 @@ export function detectIntent(question: string): ChatIntent {
 }
 
 const REFLECTIONS = [
-  'Lo que traés vuelve sobre lo mismo que aparece en tu mapa: el registro del otro llega antes que el propio. Nombrarlo no lo desarma, pero cambia el lugar desde donde lo mirás. Suele ayudar más ubicar el momento exacto en que la atención se te va hacia el otro que entender la escena entera. ¿Qué había pasado justo antes, la última vez?',
-  'Eso que contás tiene la forma de algo viejo con ropa nueva. No es que no lo entiendas: lo entendés mientras está pasando y aun así sigue, que es una experiencia distinta y bastante más cansadora. Ese punto, entender sin poder frenar, es de los que piden alguien enfrente y no una explicación mejor.',
-  'Hay una diferencia entre estar cansada de hacer y estar cansada de sostener. Por cómo lo escribís, se parece más a lo segundo, y tu mapa venía insistiendo en eso mismo desde otro lado. Lo que se sostiene mucho tiempo rara vez se suelta de una decisión; se suelta de a poco y con testigos.',
-  'Fijate que en lo que escribiste no aparece nada sobre vos, salvo como reacción a otro. Eso puede ser el recorte de un mensaje corto, o puede ser el patrón. Vale la pena mirar cuál de las dos cosas es antes de sacar conclusiones.',
+  'Lo que traes vuelve sobre lo mismo que aparece en tu mapa: el registro de los demás llega antes que el propio. Nombrarlo no lo desarma, pero cambia el lugar desde donde lo miras. Suele ayudar más ubicar el momento exacto en que la atención se te va hacia la otra persona que entender la escena entera. ¿Qué había pasado justo antes, la última vez?',
+  'Eso que cuentas tiene la forma de algo viejo con otra apariencia. No es que no lo entiendas: lo entiendes mientras está pasando y aun así sigue, que es una experiencia distinta y bastante más agotadora. Ese punto, entender sin poder frenar, es de los que piden alguien enfrente y no una explicación mejor.',
+  'Hay una diferencia entre el cansancio de hacer y el cansancio de sostener. Por cómo lo escribes, se parece más a lo segundo, y tu mapa venía insistiendo en eso mismo desde otro lado. Lo que se sostiene mucho tiempo rara vez se suelta de una decisión; se suelta de a poco y con testigos.',
+  'Fíjate que en lo que escribiste no aparece nada sobre ti, salvo como reacción a otra persona. Eso puede ser el recorte de un mensaje corto, o puede ser el patrón. Vale la pena mirar cuál de las dos cosas es antes de sacar conclusiones.',
 ];
 
 const CLARIFYING = [
-  'Con eso solo no llego a decirte algo que sirva de verdad. ¿Podés contarme una situación concreta de la última semana donde te haya pasado?',
+  'Con eso solo no llego a decirte algo que sirva de verdad. ¿Puedes contarme una situación concreta de la última semana en la que te haya pasado?',
   'Me falta el borde de la escena para no inventarte una lectura. ¿Con quién estabas y qué se dijo justo antes?',
   'Puedo devolverte algo genérico o puedo esperar a entender. Prefiero lo segundo: ¿qué fue lo primero que notaste en el cuerpo cuando pasó?',
 ];
@@ -63,7 +63,7 @@ function recommendationFor(slugs: readonly string[]): ChatResponse {
     return {
       type: 'reflection',
       message_text:
-        'Todavía no tengo tus caminos sugeridos a mano, así que cualquier nombre que te tire ahora sería un nombre suelto. Si generás tus terapias sugeridas, lo que hablemos acá puede apoyarse en eso. Mientras tanto, seguí contándome.',
+        'Todavía no tengo tus caminos sugeridos a mano, así que cualquier nombre que te dé ahora sería un nombre suelto. Si generas tus terapias sugeridas, lo que hablemos aquí puede apoyarse en eso. Mientras tanto, sigue contándome.',
       linked_modality_slugs: [],
     };
   }
@@ -72,7 +72,7 @@ function recommendationFor(slugs: readonly string[]): ChatResponse {
 
   return {
     type: 'recommendation',
-    message_text: `De lo que ya te apareció, ${modality.name_es.toLowerCase()} es la que más tiene que ver con esto que estás preguntando. ${first} No es la respuesta a lo que traés: es un lugar donde eso se puede trabajar con alguien, que es distinto. ¿Querés que mire con vos qué más quedó en tu lista?`,
+    message_text: `De lo que ya te apareció, ${modality.name_es.toLowerCase()} es la que más tiene que ver con esto que estás preguntando. ${first} No es la respuesta a lo que traes: es un lugar donde eso se puede trabajar con alguien, que es distinto. ¿Quieres que miremos qué más quedó en tu lista?`,
     linked_modality_slugs: [modality.slug],
   };
 }

@@ -73,7 +73,7 @@ Deno.serve(
     input: comparisonInputSchema,
     output: comparisonResultSchema,
     system: COMPARISON_SYSTEM_PROMPT,
-    user: (payload) => buildComparisonUserMessage(payload),
+    user: (payload, { gender }) => buildComparisonUserMessage(payload, { a: gender, b: 'neutro' }),
     enrich: withAspects,
 
     /**

@@ -44,6 +44,23 @@ const MAX_CHART = 40_000;
 const slug = z.string().trim().min(1).max(80);
 const slugs = z.array(slug).max(60);
 
+export const grammaticalGenderSchema = z.enum(['femenino', 'masculino', 'neutro']);
+export type GrammaticalGender = z.infer<typeof grammaticalGenderSchema>;
+
+export function readGrammaticalGender(value: unknown): GrammaticalGender {
+  const parsed = grammaticalGenderSchema.safeParse(value);
+  return parsed.success ? parsed.data : 'neutro';
+}
+
+export const synthesisTriggerSchema = z.enum([
+  'onboarding',
+  'base_data_changed',
+  'memory_shift',
+  'monthly',
+  'admin',
+]);
+export type SynthesisTrigger = z.infer<typeof synthesisTriggerSchema>;
+
 /**
  * Split in two, and the split is the safety ordering.
  *
@@ -103,6 +120,7 @@ export type SoulMapDraft = z.infer<typeof soulMapDraftSchema>;
 export const soulMapInputSchema = z.object({
   draft: soulMapDraftSchema,
   numerology: numerologySchema.nullable().default(null),
+  trigger: synthesisTriggerSchema.default('onboarding'),
 });
 
 /**

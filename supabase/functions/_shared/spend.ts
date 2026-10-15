@@ -79,24 +79,31 @@ export async function overDeploymentBudget(elevated: SupabaseClient): Promise<bo
     // Summed in Postgres. Selecting the rows and adding them here stopped at
     // PostgREST's 1,000-row page, so the ceiling undercounted exactly when
     // traffic was high enough for it to matter.
-    const { data, error } = await elevated
-      .rpc('deployment_token_totals', { since })
-      .single();
+    const { data, error } = await elevated.rpc('deployment_token_totals', { since });
 
     if (error || !data) return false;
 
-    const totals = data as {
+    const rows = data as {
+      model: string | null;
       input_tokens: number;
       output_tokens: number;
       cache_write_tokens: number;
       cache_read_tokens: number;
-    };
-    const spent = costUsd({
-      inputTokens: totals.input_tokens,
-      outputTokens: totals.output_tokens,
-      cacheWriteTokens: totals.cache_write_tokens,
-      cacheReadTokens: totals.cache_read_tokens,
-    });
+    }[];
+    const spent = rows.reduce(
+      (total, row) =>
+        total +
+        costUsd(
+          {
+            inputTokens: row.input_tokens,
+            outputTokens: row.output_tokens,
+            cacheWriteTokens: row.cache_write_tokens,
+            cacheReadTokens: row.cache_read_tokens,
+          },
+          row.model,
+        ),
+      0,
+    );
     return spent >= budget;
   } catch {
     return false;

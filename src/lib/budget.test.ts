@@ -1,21 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_MONTHLY_BUDGET_USD,
+  OPUS,
+  SONNET,
   addUsage,
   MAX_OUTPUT_TOKENS,
   PURPOSE_LIMITS,
-  costUsd,
+  costUsd as priced,
+  modelFor,
   monthlyBudgetUsd,
   type Purpose,
+  type Usage,
 } from './budget.ts';
 import { FREE_QUESTIONS, SUBSCRIBED_QUESTIONS, SUBSCRIBED_WINDOW_HOURS } from './quota.ts';
 
 const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison'];
 
+const costUsd = (usage: Usage) => priced(usage, OPUS);
+
 describe('what a call costs', () => {
   it('prices input and output separately', () => {
     // A Soul Map with a real natal chart: about 3k in, 1.2k out.
-    expect(costUsd({ inputTokens: 3_000, outputTokens: 1_200 })).toBeCloseTo(0.045, 3);
+    expect(costUsd({ inputTokens: 3_000, outputTokens: 1_200 })).toBeCloseTo(0.036, 3);
   });
 
   it('is dominated by output, which is why the ceilings are on output', () => {
@@ -93,7 +99,7 @@ describe('adding two attempts', () => {
       { inputTokens: 288, outputTokens: 4_300 },
       { inputTokens: 288, outputTokens: 4_300 },
     );
-    expect(costUsd(failed ?? {})).toBeGreaterThan(0.2);
+    expect(priced(failed ?? {}, modelFor('comparison'))).toBeGreaterThan(0.05);
   });
 });
 
@@ -121,7 +127,7 @@ describe('every purpose has a ceiling on what one answer can cost', () => {
     // The bound that matters: whatever the model does, one call cannot run
     // away. Input is bounded separately by the schemas in `model-input.ts`.
     for (const purpose of PURPOSES) {
-      expect(costUsd({ inputTokens: 0, outputTokens: MAX_OUTPUT_TOKENS[purpose] })).toBeLessThan(1);
+      expect(priced({ inputTokens: 0, outputTokens: MAX_OUTPUT_TOKENS[purpose] }, modelFor(purpose))).toBeLessThan(1);
     }
   });
 
@@ -167,7 +173,10 @@ describe('per-person limits', () => {
       (total, [purpose, limit]) =>
         total +
         limit.calls *
-          costUsd({ inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS[purpose as Purpose] }),
+          priced(
+            { inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS[purpose as Purpose] },
+            purpose === 'soul_map' ? OPUS : modelFor(purpose as Purpose),
+          ),
       0,
     );
     // The chat was left out of this sum on the reasoning that FREE_QUESTIONS
@@ -175,7 +184,7 @@ describe('per-person limits', () => {
     // away on the paywall, made it unbounded. Both counts are in now.
     const chat =
       (FREE_QUESTIONS + SUBSCRIBED_QUESTIONS) *
-      costUsd({ inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS.chat });
+      priced({ inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS.chat }, modelFor('chat'));
     expect(worst + chat).toBeLessThan(DEFAULT_MONTHLY_BUDGET_USD / 3);
   });
 
@@ -183,10 +192,35 @@ describe('per-person limits', () => {
     // What ordinary use actually costs: one Soul Map with a chart, one match,
     // a couple of meditations and the three free chat questions.
     const perPerson =
-      costUsd({ inputTokens: 3_000, outputTokens: 1_200 }) +
-      costUsd({ inputTokens: 2_000, outputTokens: 900 }) +
-      2 * costUsd({ inputTokens: 1_200, outputTokens: 1_500 }) +
-      3 * costUsd({ inputTokens: 1_500, outputTokens: 400 });
+      priced({ inputTokens: 3_000, outputTokens: 1_200 }, modelFor('soul_map', 'onboarding')) +
+      priced({ inputTokens: 2_000, outputTokens: 900 }, modelFor('match')) +
+      2 * priced({ inputTokens: 1_200, outputTokens: 1_500 }, modelFor('meditation')) +
+      3 * priced({ inputTokens: 1_500, outputTokens: 400 }, modelFor('chat'));
     expect(perPerson * 50).toBeLessThan(DEFAULT_MONTHLY_BUDGET_USD / 2);
+  });
+});
+
+describe('which model answers', () => {
+  it('writes the Soul Map with Opus on onboarding and when base data changes', () => {
+    expect(modelFor('soul_map', 'onboarding')).toBe(OPUS);
+    expect(modelFor('soul_map', 'base_data_changed')).toBe(OPUS);
+    expect(modelFor('soul_map')).toBe(OPUS);
+  });
+
+  it('regenerates monthly, on a memory shift or by an admin with Sonnet', () => {
+    expect(modelFor('soul_map', 'monthly')).toBe(SONNET);
+    expect(modelFor('soul_map', 'memory_shift')).toBe(SONNET);
+    expect(modelFor('soul_map', 'admin')).toBe(SONNET);
+  });
+
+  it.each(['match', 'chat', 'meditation', 'comparison'] as const)('answers %s with Sonnet', (purpose) => {
+    expect(modelFor(purpose)).toBe(SONNET);
+  });
+
+  it('prices Sonnet below Opus and an unknown model at the dearest known rate', () => {
+    const usage = { inputTokens: 1_000, outputTokens: 1_000 };
+    expect(priced(usage, SONNET)).toBeLessThan(priced(usage, OPUS));
+    expect(priced(usage, 'claude-unknown')).toBeGreaterThanOrEqual(priced(usage, OPUS));
+    expect(priced(usage, null)).toBeGreaterThanOrEqual(priced(usage, OPUS));
   });
 });

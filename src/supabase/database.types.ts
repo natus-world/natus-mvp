@@ -819,9 +819,11 @@ export type Database = {
           is_current: boolean
           latency_ms: number
           mode: string
+          model: string | null
           numerology: Json | null
           prompt_version: string
           synthesis: Json
+          trigger: string
           user_id: string
         }
         Insert: {
@@ -830,9 +832,11 @@ export type Database = {
           is_current?: boolean
           latency_ms?: number
           mode: string
+          model?: string | null
           numerology?: Json | null
           prompt_version: string
           synthesis: Json
+          trigger?: string
           user_id: string
         }
         Update: {
@@ -841,9 +845,11 @@ export type Database = {
           is_current?: boolean
           latency_ms?: number
           mode?: string
+          model?: string | null
           numerology?: Json | null
           prompt_version?: string
           synthesis?: Json
+          trigger?: string
           user_id?: string
         }
         Relationships: []
@@ -895,6 +901,7 @@ export type Database = {
           cache_read_tokens: number
           cache_write_tokens: number
           input_tokens: number
+          model: string
           output_tokens: number
         }[]
       }
