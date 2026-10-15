@@ -2,9 +2,15 @@ export const CHAT_PROMPT_VERSION = 'chat-v1.3';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.3';
 export const COMPARISON_PROMPT_VERSION = 'comparison-v1.2';
-export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.3';
+export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.4';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'soul-map-v2.4',
+    date: '2026-10-15',
+    change:
+      'A chart without the hour of birth: one line telling the model there is no Ascendant and there are no houses (v1.2 A-01, PDR US-1.2 CA2). The chart itself arrives already stripped of them.',
+  },
   {
     version: 'soul-map-v2.3',
     date: '2026-10-14',

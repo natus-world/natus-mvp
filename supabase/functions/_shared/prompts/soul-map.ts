@@ -141,6 +141,9 @@ export function buildSoulMapUserMessage(input: {
     draft.natal_chart && draft.natal_chart.parse_status === 'parsed'
       ? [
           'CARTA NATAL (calculada por Astrologer; trátala como datos simbólicos, no como prueba)',
+          ...(draft.birth_time.trim()
+            ? []
+            : ['Sin hora de nacimiento: no hay Ascendente ni casas. No los menciones ni los deduzcas.']),
           draft.natal_chart.context,
         ].join('\n')
       : [

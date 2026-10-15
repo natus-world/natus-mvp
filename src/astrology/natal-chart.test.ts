@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { emptyDraft } from '@/store/session';
-import { hasNatalChartInput, NatalChartError, natalChartInput } from './natal-chart';
+import { hasBirthTime, hasNatalChartInput, NatalChartError, natalChartInput } from './natal-chart';
 import { parseAstrologerSubject } from '@/lib/astrology';
 
 describe('Astrologer natal chart input', () => {
@@ -26,9 +26,24 @@ describe('Astrologer natal chart input', () => {
     });
   });
 
+  it('calculates at local noon when the hour is unknown (PDR US-1.2)', () => {
+    const draft = {
+      ...emptyDraft(),
+      legal_birth_name: 'Ana Pérez',
+      birth_date: '1990-06-04',
+      birth_time: '',
+      birth_city: 'Santiago',
+      birth_country: 'CL',
+    };
+    expect(natalChartInput(draft)).toMatchObject({ hour: 12, minute: 0 });
+    expect(hasNatalChartInput(draft)).toBe(true);
+    expect(hasBirthTime(draft)).toBe(false);
+    expect(hasBirthTime({ ...draft, birth_time: '08:05' })).toBe(true);
+  });
+
   it.each([
     { legal_birth_name: '' },
-    { birth_time: '' },
+    { birth_date: '' },
     { birth_city: '  ' },
     { birth_country: '' },
     { birth_country: 'Chile' },

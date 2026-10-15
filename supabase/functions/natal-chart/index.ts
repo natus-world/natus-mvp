@@ -1,6 +1,7 @@
 import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
 import { parseAstrologerSubject, resolveLocation } from '../_shared/astrology.ts';
+import { withoutBirthTime } from '../_shared/lib/astrology.ts';
 
 const ENDPOINT = 'https://astrologer.p.rapidapi.com/api/v6/context/birth-chart';
 const HOST = 'astrologer.p.rapidapi.com';
@@ -34,6 +35,9 @@ Deno.serve(async (request) => {
 
   const subject = parseAstrologerSubject(isRecord(body) ? body.subject : null);
   if (!subject) return json(request, { error: 'invalid_birth_data' }, 400);
+  // Without the hour the browser sends local noon, and says so. Anything else
+  // is treated as a known hour: the stripping below only ever removes.
+  const timeKnown = !(isRecord(body) && body.time_known === false);
 
   const rapidApiKey = Deno.env.get('RAPIDAPI_KEY');
   if (!rapidApiKey) {
@@ -76,12 +80,15 @@ Deno.serve(async (request) => {
       return json(request, { error: 'astrologer_error' }, 502);
     }
 
-    const context = payload.context;
-    if (typeof context !== 'string' || context.trim() === '' || context.length > 250_000) {
+    const raw = payload.context;
+    if (typeof raw !== 'string' || raw.trim() === '' || raw.length > 250_000) {
       return json(request, { error: 'invalid_astrologer_response' }, 502);
     }
+    // v1.2 A-01: without the hour there is no Ascendant and there are no
+    // houses. Removed here, before the chart is stored anywhere.
+    const context = timeKnown ? raw : withoutBirthTime(raw);
 
-    return json(request, { status: 'OK', api_version: 'v6', context });
+    return json(request, { status: 'OK', api_version: 'v6', context, time_known: timeKnown });
   } catch (error) {
     return json(
       request,

@@ -11,14 +11,14 @@ export class NatalChartError extends Error {}
 
 export function natalChartInput(draft: OnboardingDraft) {
   const date = /^(\d{4})-(\d{2})-(\d{2})$/.exec(draft.birth_date);
-  const time = /^(\d{2}):(\d{2})$/.exec(draft.birth_time);
+  const time = /^(\d{2}):(\d{2})$/.exec(draft.birth_time.trim());
   const nation = draft.birth_country.trim().toUpperCase();
   const city = draft.birth_city.trim();
   const name = draft.legal_birth_name.trim();
 
-  if (!date || !time || !name || !city || !/^[A-Z]{2}$/.test(nation)) {
+  if (!date || !name || !city || !/^[A-Z]{2}$/.test(nation)) {
     throw new NatalChartError(
-      'Revisá la fecha, la hora, la ciudad y el país de nacimiento antes de calcular tu carta.',
+      'Revisa la fecha, la ciudad y el país de nacimiento antes de calcular tu carta.',
     );
   }
 
@@ -27,8 +27,11 @@ export function natalChartInput(draft: OnboardingDraft) {
     year: Number(date[1]),
     month: Number(date[2]),
     day: Number(date[3]),
-    hour: Number(time[1]),
-    minute: Number(time[2]),
+    // The hour is optional (PDR US-1.2). Without it the chart is calculated at
+    // local noon and the server removes what noon would invent: Ascendant
+    // and houses (v1.2 A-01). See `withoutBirthTime`.
+    hour: time ? Number(time[1]) : 12,
+    minute: time ? Number(time[2]) : 0,
     city,
     nation,
   };
@@ -44,18 +47,23 @@ export function hasNatalChartInput(draft: OnboardingDraft): boolean {
   }
 }
 
+/** Whether the person gave an hour of birth the chart can rely on. */
+export function hasBirthTime(draft: OnboardingDraft): boolean {
+  return /^\d{2}:\d{2}$/.test(draft.birth_time.trim());
+}
+
 export async function calculateNatalChart(draft: OnboardingDraft): Promise<NatalChartDraft> {
   const subject = natalChartInput(draft);
   if (!isBackendConfigured || !supabase) {
     throw new NatalChartError(
-      'El cálculo de la carta necesita conexión con el servicio. Podés seguir sin ella en esta demo.',
+      'El cálculo de la carta necesita conexión con el servicio. Puedes seguir sin ella en esta demo.',
     );
   }
 
   let response;
   try {
     response = await supabase.functions.invoke<NatalChartResponse>('natal-chart', {
-      body: { subject },
+      body: { subject, time_known: hasBirthTime(draft) },
     });
   } catch {
     throw new NatalChartError(
@@ -67,7 +75,7 @@ export async function calculateNatalChart(draft: OnboardingDraft): Promise<Natal
 
   if (error || typeof data?.context !== 'string' || data.context.trim() === '') {
     throw new NatalChartError(
-      'No pudimos calcular tu carta con ese lugar. Revisá la ciudad y el país, o seguí sin ella.',
+      'No pudimos calcular tu carta con ese lugar. Revisa la ciudad y el país, o sigue sin ella.',
     );
   }
 

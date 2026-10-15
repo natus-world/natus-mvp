@@ -26,6 +26,28 @@ describe('Soul Map astrological context', () => {
     expect(message).not.toContain('No hay carta disponible');
   });
 
+  it('tells the model there is no Ascendant or house when the hour is unknown', () => {
+    const chart = {
+      provider: 'astrologer' as const,
+      api_version: 'v6',
+      context: '<chart_analysis><point name="Sun" sign="Gemini" /></chart_analysis>',
+      calculated_at: 1,
+      parse_status: 'parsed' as const,
+    };
+    const without = buildSoulMapUserMessage({
+      draft: soulMapDraftSchema.parse({ ...emptyDraft(), birth_time: '', natal_chart: chart }),
+      numerology: null,
+      gender: 'neutro',
+    });
+    const withHour = buildSoulMapUserMessage({
+      draft: soulMapDraftSchema.parse({ ...emptyDraft(), birth_time: '08:05', natal_chart: chart }),
+      numerology: null,
+      gender: 'neutro',
+    });
+    expect(without).toContain('Sin hora de nacimiento: no hay Ascendente ni casas.');
+    expect(withHour).not.toContain('Sin hora de nacimiento');
+  });
+
   it('forbids invented placements when there is no chart', () => {
     const message = buildSoulMapUserMessage({
       draft: soulMapDraftSchema.parse(emptyDraft()),
