@@ -102,6 +102,13 @@ What is left outside the code, in rough order of weight:
   `src/ai/prompts` by `pnpm sync:shared`, with a parity test to catch drift.
   It works. It is still duplication held together by tooling, and the fix is
   a pnpm workspace package — the shape `waterplan-frontend` already uses.
+- **A protocol for a panic or anxiety attack — the owner calls it of the
+  highest importance (15 Oct 2026).** To be designed, nothing built yet. Today
+  the detector has a `panico` category in `crisis-keywords.json` and routes it
+  like any other crisis; there is no dedicated in-the-moment response.
+- A chart without the hour is calculated at noon, so for somebody born on a
+  day the Moon changed sign, the Moon's sign may be wrong. The fix is a
+  second call (00:00 and 23:59) to tell whether it changed; left for later.
 - `crisis-keywords.json` is `"status": "preliminary"` and wants a clinician.
   One thing for that review: a negated indirect term suppresses the next one
   in its window, so "no doy más y nada tiene sentido" does not fire.
