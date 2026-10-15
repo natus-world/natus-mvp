@@ -89,6 +89,25 @@ describe('suppression — must not fire, and not vacuously', () => {
   });
 });
 
+describe('a negation silences only what it negates (owner, 15 Oct 2026)', () => {
+  it.each([
+    ['a negated complaint before a comma', 'no sirve, quiero morirme'],
+    ['a negated complaint without punctuation', 'la practica no sirve y quiero morirme'],
+    ['a "no" closed by a full stop', 'no. quiero morirme'],
+    ['a "nunca" two words back', 'nunca duermo y quiero morirme'],
+  ])('%s still fires', (_name, text) => {
+    expect(scanText(text)).toMatchObject({ crisis: true, severity: 'high' });
+  });
+
+  it('two indirect markers fire even when the first carries its own "no"', () => {
+    expect(scanText('no doy mas y nada tiene sentido')).toMatchObject({ crisis: true, severity: 'low' });
+  });
+
+  it('a denial right before the phrase is still a denial', () => {
+    expect(scanText('no quiero morirme, solo estoy cansada').crisis).toBe(false);
+  });
+});
+
 describe('must not fire — and not because of suppression', () => {
   /**
    * These stay silent because the term list is written to be specific, not

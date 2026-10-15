@@ -144,10 +144,11 @@ What is left outside the code, in rough order of weight:
   day the Moon changed sign, the Moon's sign may be wrong. The fix is a
   second call (00:00 and 23:59) to tell whether it changed; left for later.
 - `crisis-keywords.json` is `"status": "preliminary"` and wants a clinician.
-  One thing for that review: a negated indirect term suppresses the next one
-  in its window, so "no doy más y nada tiene sentido" does not fire. The same
-  reaches a direct term across a comma: "no sirve, quiero morirme" does not
-  fire either (found 15 Oct 2026, on a practice comment).
+  For that review: since 15 Oct 2026 a negation silences a phrase only when
+  it is the word right before it ("no quiero morirme" is a denial; "no
+  sirve, quiero morirme" fires). Before, any "no" in the four words before
+  did, and "no doy más y nada tiene sentido" never fired. The other
+  suppressors still read the whole window.
 - There is no privacy policy or terms page. Google's OAuth consent screen
   requires one before the door can close, and the app stores birth data and
   clinical answers. The text is the owner's.

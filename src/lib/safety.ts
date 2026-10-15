@@ -107,12 +107,19 @@ const WINDOW = keywords.suppressors.window_tokens;
 
 const toPhrases = (terms: readonly string[]) => terms.map((t) => normalize(t).split(' '));
 
-/** Always suppress: the person is denying it, or quoting fiction, a dream or
- *  a distant past. */
-const ALWAYS_SUPPRESS = [
-  ...toPhrases(keywords.suppressors.negation.terms),
-  ...toPhrases(keywords.suppressors.reported_speech.terms),
-];
+/**
+ * A negation suppresses only the term it negates: it must be the word right
+ * before the match, with nothing but a space between them. "no quiero
+ * morirme" is a denial; "no sirve, quiero morirme" is not, and neither is
+ * "no doy más y nada tiene sentido" — there the "no" belongs to something
+ * else. Read across the whole window, as it once was, a "no" anywhere in the
+ * four words before silenced the phrase the detector exists to catch (owner,
+ * 15 Oct 2026).
+ */
+const NEGATION = toPhrases(keywords.suppressors.negation.terms);
+
+/** Suppress anywhere in the window: fiction, a dream, a quotation, a distant past. */
+const REPORTED_SPEECH = toPhrases(keywords.suppressors.reported_speech.terms);
 
 /** Suppress only when the user is not the object of the matched term. */
 const OTHER_SUBJECT = toPhrases(keywords.suppressors.other_subject.terms);
@@ -135,6 +142,7 @@ function userIsObject(phrase: readonly string[]): boolean {
  * the phrases the detector exists to catch.
  */
 function isSuppressed(
+  normalized: string,
   tokens: readonly Token[],
   matchIndex: number,
   phrase: readonly string[],
@@ -142,9 +150,26 @@ function isSuppressed(
   const preceding = tokens.slice(Math.max(0, matchIndex - WINDOW), matchIndex);
   if (preceding.length === 0) return false;
 
-  if (ALWAYS_SUPPRESS.some((s) => findPhrase(preceding, s) !== -1)) return true;
+  if (NEGATION.some((s) => negates(normalized, tokens, matchIndex, s))) return true;
+  if (REPORTED_SPEECH.some((s) => findPhrase(preceding, s) !== -1)) return true;
   if (userIsObject(phrase)) return false;
   return OTHER_SUBJECT.some((s) => findPhrase(preceding, s) !== -1);
+}
+
+/** Whether `negation` ends on the word right before the match, joined by a space alone. */
+function negates(
+  normalized: string,
+  tokens: readonly Token[],
+  matchIndex: number,
+  negation: readonly string[],
+): boolean {
+  const from = matchIndex - negation.length;
+  if (from < 0) return false;
+  for (let j = 0; j < negation.length; j++) {
+    if (tokens[from + j]?.value !== negation[j]) return false;
+  }
+  const gap = normalized.slice(tokens[matchIndex - 1]!.end, tokens[matchIndex]!.start);
+  return /^ *$/.test(gap);
 }
 
 function excerptAround(normalized: string, token: Token | undefined): string {
@@ -187,7 +212,7 @@ export function scanText(text: string): SafetyVerdict {
   for (const { category, terms } of DIRECT) {
     for (const term of terms) {
       const at = findPhrase(tokens, term.phrase);
-      if (at === -1 || isSuppressed(tokens, at, term.phrase)) continue;
+      if (at === -1 || isSuppressed(normalized, tokens, at, term.phrase)) continue;
       return {
         crisis: true,
         severity: 'high',
@@ -202,7 +227,7 @@ export function scanText(text: string): SafetyVerdict {
   const hits: { raw: string; at: number }[] = [];
   for (const term of INDIRECT) {
     const at = findPhrase(tokens, term.phrase);
-    if (at === -1 || isSuppressed(tokens, at, term.phrase)) continue;
+    if (at === -1 || isSuppressed(normalized, tokens, at, term.phrase)) continue;
     hits.push({ raw: term.raw, at });
   }
 

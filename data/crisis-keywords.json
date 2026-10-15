@@ -2,7 +2,7 @@
   "$comment": "Layer 1 crisis keywords, PDR 6.4. The vault's lists were not available when this was written, so these are a draft in LATAM Spanish. PDR 6.4 says the vault's own lists are preliminary too and require review by a clinical psychologist before production - that review is a launch blocker, not a development one.",
   "version": "crisis-keywords-v2",
   "status": "preliminary",
-  "$matching": "Terms are matched as whole token sequences on normalised text (lowercased, diacritics stripped). A match is discarded when a suppressor appears in the four tokens before it. Two conventions keep the list usable: negated forms are written out in full ('no quiero vivir', never 'quiero vivir') so the leading 'no' belongs to the term rather than reading as a suppressor of it; and no term is a bare noun. 'suicidio' on its own fires on 'el suicidio de mi hermano', which locks a bereaved person out of the product - so every term is anchored to a first-person form.",
+  "$matching": "Terms are matched as whole token sequences on normalised text (lowercased, diacritics stripped). A match is discarded when a negation is the word right before it, or another suppressor appears in the four tokens before it. Two conventions keep the list usable: negated forms are written out in full ('no quiero vivir', never 'quiero vivir') so the leading 'no' belongs to the term rather than reading as a suppressor of it; and no term is a bare noun. 'suicidio' on its own fires on 'el suicidio de mi hermano', which locks a bereaved person out of the product - so every term is anchored to a first-person form.",
   "categories": {
     "ideacion": {
       "severity": "high",
@@ -150,7 +150,7 @@
   "suppressors": {
     "window_tokens": 4,
     "negation": {
-      "$comment": "Always suppress. The person is denying the thing.",
+      "$comment": "Suppresses only the term it negates: the word right before the match, joined by a space alone. 'no sirve, quiero morirme' fires; 'no quiero morirme' does not.",
       "terms": ["no", "nunca", "jamas", "ni", "tampoco", "ojala"]
     },
     "reported_speech": {
