@@ -4,7 +4,7 @@ import { Ouroboros } from '@/design/Ouroboros';
 import { generateSoulMap } from '@/ai/soul-map';
 import {
   calculateNatalChart,
-  hasNatalChartInput,
+  shouldCalculateNatalChart,
   NatalChartError,
 } from '@/astrology/natal-chart';
 import { saveSynthesis } from '@/store/soulMap';
@@ -71,7 +71,7 @@ export function Generating({
           // birth data, calculate it here and persist it for every later use.
           // The chart remains optional: provider or network failure falls
           // back to the existing numerology-and-context path.
-          if (!draft.natal_chart && hasNatalChartInput(draft)) {
+          if (!draft.natal_chart && shouldCalculateNatalChart(draft)) {
             try {
               const chart = await calculateNatalChart(draft);
               updateDraft({ natal_chart: chart });

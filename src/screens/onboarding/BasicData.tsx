@@ -2,6 +2,7 @@ import { StepBody } from '@/components/onboarding/StepChrome';
 import { BIRTH_COUNTRIES } from '@/components/birth-countries';
 import type { OnboardingDraft } from '@/store/session';
 import { copy } from '@/i18n';
+import { hasBirthTime, hasNatalChartInput } from '@/astrology/natal-chart';
 
 const text = copy.onboarding.basicData;
 
@@ -21,8 +22,13 @@ export function BasicData({
   onChange: (patch: Partial<OnboardingDraft>) => void;
   onNext: () => void;
 }) {
+  // Without the hour, and only when there is enough to calculate a chart at
+  // all, the person decides whether to calculate it. Nothing is preselected.
+  const askWithoutTime = !hasBirthTime(draft) && hasNatalChartInput(draft);
   const canContinue =
-    draft.legal_birth_name.trim().length > 1 && /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date);
+    draft.legal_birth_name.trim().length > 1 &&
+    /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date) &&
+    (!askWithoutTime || draft.chart_without_time !== undefined);
 
   return (
     <StepBody
@@ -166,6 +172,32 @@ export function BasicData({
             ))}
           </div>
         </fieldset>
+
+        {askWithoutTime && (
+          <fieldset className="border-0 p-0">
+            <legend className={labelClass}>{text.withoutTimeLabel}</legend>
+            <div className="grid grid-cols-1 gap-2" role="radiogroup" aria-label={text.withoutTimeLabel}>
+              {text.withoutTimeOptions.map(([value, label]) => {
+                const checked = draft.chart_without_time === (value === 'yes');
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    onClick={() => onChange({ chart_without_time: value === 'yes', natal_chart: null })}
+                    className={[
+                      'chip chip-p10 text-center text-[length:var(--fs-body-13)]',
+                      checked ? 'border-tierra/50 bg-verde/60 text-crema' : 'text-blanco/85',
+                    ].join(' ')}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        )}
 
         <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">{text.notice}</p>
       </div>

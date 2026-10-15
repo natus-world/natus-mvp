@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { emptyDraft } from '@/store/session';
-import { hasBirthTime, hasNatalChartInput, NatalChartError, natalChartInput } from './natal-chart';
+import {
+  hasBirthTime,
+  hasNatalChartInput,
+  NatalChartError,
+  natalChartInput,
+  shouldCalculateNatalChart,
+} from './natal-chart';
 import { parseAstrologerSubject } from '@/lib/astrology';
 
 describe('Astrologer natal chart input', () => {
@@ -39,6 +45,21 @@ describe('Astrologer natal chart input', () => {
     expect(hasNatalChartInput(draft)).toBe(true);
     expect(hasBirthTime(draft)).toBe(false);
     expect(hasBirthTime({ ...draft, birth_time: '08:05' })).toBe(true);
+  });
+
+  it('without the hour, calculates only if the person said yes', () => {
+    const draft = {
+      ...emptyDraft(),
+      legal_birth_name: 'Ana Pérez',
+      birth_date: '1990-06-04',
+      birth_city: 'Santiago',
+      birth_country: 'CL',
+    };
+    expect(shouldCalculateNatalChart(draft)).toBe(false);
+    expect(shouldCalculateNatalChart({ ...draft, chart_without_time: false })).toBe(false);
+    expect(shouldCalculateNatalChart({ ...draft, chart_without_time: true })).toBe(true);
+    expect(shouldCalculateNatalChart({ ...draft, birth_time: '08:05' })).toBe(true);
+    expect(shouldCalculateNatalChart({ ...draft, birth_city: '', chart_without_time: true })).toBe(false);
   });
 
   it.each([

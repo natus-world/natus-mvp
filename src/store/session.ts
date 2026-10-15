@@ -41,6 +41,10 @@ export type OnboardingDraft = {
   openness_to_modalities: string[];
   clinical_basics: ClinicalBasics;
   natal_chart: NatalChartDraft | null;
+  /** Without the hour of birth the person decides whether the chart is
+   *  calculated (Nico, 15 Oct 2026). Undefined until they are asked. Kept in
+   *  the draft only: it is read once, when the map is generated. */
+  chart_without_time?: boolean;
 };
 
 export type AnonymousSession = {

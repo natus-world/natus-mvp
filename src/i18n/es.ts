@@ -40,6 +40,11 @@ export const es = {
         ['XX', 'Otro país'],
       ] as [string, string][],
       notice: 'Sin hora exacta no hablamos de Ascendente ni de casas.',
+      withoutTimeLabel: 'Sin la hora, ¿calculamos tu carta?',
+      withoutTimeOptions: [
+        ['yes', 'Sí, sin Ascendente ni casas'],
+        ['no', 'No, solo mis números'],
+      ] as ['yes' | 'no', string][],
     },
     presentingNeed: {
       placeholder: 'Escribe lo que se te ocurra…',

@@ -52,6 +52,17 @@ export function hasBirthTime(draft: OnboardingDraft): boolean {
   return /^\d{2}:\d{2}$/.test(draft.birth_time.trim());
 }
 
+/**
+ * Whether the chart should be calculated for this draft. With the hour, always
+ * when the birth data is complete. Without it, only if the person said yes:
+ * a chart without the hour has no Ascendant and no houses, and it is theirs to
+ * decide whether that is worth having (Nico, 15 Oct 2026).
+ */
+export function shouldCalculateNatalChart(draft: OnboardingDraft): boolean {
+  if (!hasNatalChartInput(draft)) return false;
+  return hasBirthTime(draft) || draft.chart_without_time === true;
+}
+
 export async function calculateNatalChart(draft: OnboardingDraft): Promise<NatalChartDraft> {
   const subject = natalChartInput(draft);
   if (!isBackendConfigured || !supabase) {
