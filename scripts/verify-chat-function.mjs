@@ -251,15 +251,16 @@ if (ordinary.status === 200) {
   );
 }
 
-// ── a simulated subscription is past the paywall, not past the budget ──────
+// ── a subscription is past the paywall, not past the budget ────────────────
 //
-// A second person, so the refusals above keep their exact counts. The paywall
-// button writes this row as the person; nothing stops them, by design.
+// A second person, so the refusals above keep their exact counts. Only the
+// server can make anybody premium (v1.2 P-01), so the row is written with the
+// service role; the person's own write is refused by policy and by grant.
 const subscriber = createClient(API, ANON, { auth: { persistSession: false } });
 const { data: subAuth } = await subscriber.auth.signInAnonymously();
 const subId = subAuth.session.user.id;
 const subHeaders = { Authorization: `Bearer ${subAuth.session.access_token}` };
-await subscriber
+await elevated
   .from('subscriptions')
   .upsert({ user_id: subId, status: 'active', activated_at: new Date().toISOString() });
 await elevated.from('claude_api_calls').insert(

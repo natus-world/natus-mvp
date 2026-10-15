@@ -16,7 +16,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(24);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Two people who have never met
@@ -258,6 +258,48 @@ select is(
   (select count(*)::int from public.comparison_consents),
   0,
   'Bob cannot see that Alice ever asked anyone for consent'
+);
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 2b. Only the server decides who is premium (v1.2 P-01)
+-- ═══════════════════════════════════════════════════════════════════════════
+
+select pg_temp.act_as_owner();
+
+insert into public.subscriptions (user_id, status)
+values ('aaaaaaaa-0000-4000-8000-000000000001', 'none');
+
+select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
+
+select is(
+  (select count(*)::int from public.subscriptions),
+  1,
+  'CONTROL: Alice can read her own subscription'
+);
+
+select throws_ok(
+  $$update public.subscriptions set status = 'active'
+    where user_id = 'aaaaaaaa-0000-4000-8000-000000000001'$$,
+  '42501',
+  null,
+  'Alice cannot make herself premium by updating her row'
+);
+
+select throws_ok(
+  $$insert into public.subscriptions (user_id, status)
+    values ('aaaaaaaa-0000-4000-8000-000000000001', 'active')
+    on conflict (user_id) do update set status = 'active'$$,
+  '42501',
+  null,
+  'Alice cannot make herself premium with an upsert either'
+);
+
+select pg_temp.act_as('bbbbbbbb-0000-4000-8000-000000000002');
+
+select is(
+  (select count(*)::int from public.subscriptions),
+  0,
+  'Bob cannot see whether Alice pays'
 );
 
 -- ═══════════════════════════════════════════════════════════════════════════

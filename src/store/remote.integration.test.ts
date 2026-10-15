@@ -319,11 +319,21 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
     expect(rowsOwnedBy(userId)['clients']).toBe(1);
   });
 
+  it('a person cannot make themselves premium (v1.2 P-01)', async () => {
+    const { client, userId } = await person();
+    const { error } = await client.from('subscriptions').upsert({ user_id: userId, status: 'active' });
+    expect(error).not.toBeNull();
+
+    const { data } = await admin().from('subscriptions').select('status').eq('user_id', userId).maybeSingle();
+    expect(data?.status ?? 'none').toBe('none');
+  });
+
   it('deleting the account leaves no row behind', async () => {
     const { client, userId } = await person();
     const p = profile();
     await ADAPTERS.preferences.save(client, userId, { locale: 'es', voice_volume: 1, bed_volume: 0.45 });
-    await ADAPTERS.subscription.save(client, userId, { status: 'active', activated_at: NOW });
+    // The person cannot write their own subscription (v1.2 P-01); the server can.
+    await admin().from('subscriptions').insert({ user_id: userId, status: 'active' });
     await ADAPTERS.external_profiles.save(client, userId, [p]);
     const c = grantedConsent(p.id);
     await ADAPTERS.comparison_consents.save(client, userId, [c]);

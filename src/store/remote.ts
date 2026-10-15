@@ -242,14 +242,10 @@ const subscription: Adapter<Subscription> = {
       ? { status: 'active', activated_at: msOrNull(data.activated_at) }
       : { status: 'none', activated_at: null };
   },
-  async save(client, userId, value) {
-    const { error } = await client.from('subscriptions').upsert({
-      user_id: userId,
-      status: value.status,
-      activated_at: value.activated_at === null ? null : iso(value.activated_at),
-    });
-    if (error) throw new Error(`subscriptions: ${error.message}`);
-  },
+  // Read-only from the browser (v1.2 P-01): the person cannot write this row,
+  // by policy and by grant. Who is premium is set by the server — by hand at
+  // first, by the payment webhook later — and arrives here on the next load.
+  async save() {},
 };
 
 const anonymousSession: Adapter<AnonymousSession | null> = {

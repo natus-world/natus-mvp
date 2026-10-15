@@ -295,9 +295,8 @@ export const es = {
     kicker: 'Hasta aquí llega lo incluido',
     title: (used: number) => `Usaste tus ${used} preguntas.`,
     body: 'Lo que escribiste sigue guardado en el cuadro de abajo. Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
-    simulate: 'Simular acceso completo',
-    simulateNote:
-      'Esto no cobra nada. Todavía no hay pagos: el botón solo cambia el estado para que puedas ver cómo sigue.',
+    soonTitle: 'Premium llega pronto',
+    soonBody: 'Costará US$7 al mes. Todavía no se puede contratar.',
     back: 'Volver',
   },
   meditation: {

@@ -11,19 +11,12 @@ const text = copy.paywall;
  * in the box behind it, still theirs, and comes back untouched if they close
  * this.
  *
- * Nothing is charged. Saying so on the button itself is the honest version of
- * a simulated paywall — a demo that mimics a checkout teaches whoever is
- * watching something false about what was built.
+ * There is nothing to buy yet. Payments arrive with dLocal Go (v1.2 P-01), and
+ * only the server can make anybody premium, so this shows the reference price
+ * and says plainly that Premium cannot be taken out yet. The simulated
+ * subscription it used to offer is gone: it changed nothing on the server.
  */
-export function Paywall({
-  used,
-  onSimulate,
-  onDismiss,
-}: {
-  used: number;
-  onSimulate: () => void;
-  onDismiss: () => void;
-}) {
+export function Paywall({ used, onDismiss }: { used: number; onDismiss: () => void }) {
   return (
     <div
       role="dialog"
@@ -38,21 +31,20 @@ export function Paywall({
         {text.body}
       </p>
 
-      <div className="flex flex-col gap-2">
-        <button type="button" className="cta" onClick={onSimulate}>
-          {text.simulate}
-        </button>
-        <p className="px-1 text-[length:var(--fs-body-10_5)] leading-relaxed text-crema/55">
-          {text.simulateNote}
+      <div className="mb-3.5 border-t border-crema/15 pt-3">
+        <p className="text-[length:var(--fs-body-13)] text-blanco">{text.soonTitle}</p>
+        <p className="mt-1 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
+          {text.soonBody}
         </p>
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="chip chip-p10 text-crema/60"
-        >
-          {text.back}
-        </button>
       </div>
+
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="chip chip-p10 w-full text-crema/60"
+      >
+        {text.back}
+      </button>
     </div>
   );
 }

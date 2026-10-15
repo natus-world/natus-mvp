@@ -12,7 +12,7 @@ import { activeProfile } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { currentMatchFor } from '@/store/matches';
 import { activeHighSeverityEvent, hadCrisisWithin30Days, markFalsePositive, recordCrisisEvent } from '@/store/crisis';
-import { isSubscribed, simulateSubscribe } from '@/store/subscription';
+import { isSubscribed } from '@/store/subscription';
 import {
   FREE_QUESTIONS,
   appendAssistantMessage,
@@ -112,8 +112,8 @@ export function Chat() {
     }
 
     // Read the quota now rather than trusting the value this render closed
-    // over: simulating a subscription and sending straight away is exactly the
-    // path where a stale zero would bounce the person back to the paywall.
+    // over: a subscription the server activated arrives with the next load,
+    // and a stale zero would bounce the person back to the paywall.
     if (remainingQuestions() <= 0) {
       // The draft is deliberately left where it is.
       setShowPaywall(true);
@@ -292,11 +292,6 @@ export function Chat() {
             <Paywall
               used={FREE_QUESTIONS}
               onDismiss={() => setShowPaywall(false)}
-              onSimulate={() => {
-                simulateSubscribe();
-                setShowPaywall(false);
-                void send();
-              }}
             />
           ) : null}
 
