@@ -2,6 +2,8 @@ import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
 import { parseAstrologerSubject, resolveLocation } from '../_shared/astrology.ts';
 import { withoutBirthTime } from '../_shared/lib/astrology.ts';
+import { buildNatalChart, ChartParseError } from '../_shared/lib/natal-chart.ts';
+import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
 const ENDPOINT = 'https://astrologer.p.rapidapi.com/api/v6/context/birth-chart';
 const HOST = 'astrologer.p.rapidapi.com';
@@ -10,6 +12,55 @@ const CALLS_PER_DAY = 5;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * The chart read by whole sign (v1.2 A-01, A-02), kept in `natal_charts`.
+ * Derived from the provider's text with no further call, so a stored chart
+ * can be rebuilt for free. A failure here never fails the request: the text
+ * the Soul Map reads is already in hand.
+ */
+async function keepWholeSignChart(
+  elevated: SupabaseClient,
+  userId: string,
+  context: string,
+  hasBirthTime: boolean,
+): Promise<boolean> {
+  try {
+    const chart = buildNatalChart(context, hasBirthTime);
+    const { error } = await elevated.from('natal_charts').upsert({
+      user_id: userId,
+      has_birth_time: chart.has_birth_time,
+      chart,
+      calculated_at: new Date().toISOString(),
+    });
+    if (error) console.error('natal_chart_store_failed', error.code);
+    return !error;
+  } catch (error) {
+    if (!(error instanceof ChartParseError)) console.error('natal_chart_parse_failed');
+    return false;
+  }
+}
+
+/**
+ * Rebuild the whole-sign chart from what is already stored (A-01: "regenerar
+ * las cartas ya guardadas"). Read as the person, under RLS — the account
+ * first, then the anonymous session, as activeProfile does — and no call to
+ * the provider: the positions are in the stored text.
+ */
+async function rebuild(caller: SupabaseClient, elevated: SupabaseClient, userId: string): Promise<boolean> {
+  for (const table of ['clients', 'anonymous_sessions'] as const) {
+    const { data } = await caller
+      .from(table)
+      .select('natal_chart, birth_time')
+      .eq('user_id', userId)
+      .maybeSingle();
+    const stored = isRecord(data) && isRecord(data.natal_chart) ? data.natal_chart : null;
+    if (stored && typeof stored.context === 'string' && stored.context.trim() !== '') {
+      return keepWholeSignChart(elevated, userId, stored.context, data?.birth_time != null);
+    }
+  }
+  return false;
 }
 
 Deno.serve(async (request) => {
@@ -31,6 +82,11 @@ Deno.serve(async (request) => {
     body = await request.json();
   } catch {
     return json(request, { error: 'invalid_body' }, 400);
+  }
+
+  if (isRecord(body) && body.rebuild === true) {
+    const rebuilt = await rebuild(auth.caller, elevated, userId);
+    return json(request, rebuilt ? { status: 'OK', rebuilt: true } : { error: 'no_stored_chart' }, rebuilt ? 200 : 404);
   }
 
   const subject = parseAstrologerSubject(isRecord(body) ? body.subject : null);
@@ -87,6 +143,7 @@ Deno.serve(async (request) => {
     // v1.2 A-01: without the hour there is no Ascendant and there are no
     // houses. Removed here, before the chart is stored anywhere.
     const context = timeKnown ? raw : withoutBirthTime(raw);
+    await keepWholeSignChart(elevated, userId, context, timeKnown);
 
     return json(request, { status: 'OK', api_version: 'v6', context, time_known: timeKnown });
   } catch (error) {

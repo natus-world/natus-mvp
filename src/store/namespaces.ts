@@ -21,7 +21,9 @@ export type Namespace =
   /** A friend invitation opened before signing up, kept until it is answered. */
   | 'pending_invite'
   /** Where this browser first came from (utm_source, utm_campaign), if the link said. */
-  | 'first_touch';
+  | 'first_touch'
+  /** Which stored chart was last rebuilt by whole sign (v1.2 A-01). */
+  | 'whole_sign_chart';
 
 /**
  * `ai_mode` used to live at the end of that union and held a pasted Anthropic

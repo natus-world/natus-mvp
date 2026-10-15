@@ -773,6 +773,33 @@ export type Database = {
         }
         Relationships: []
       }
+      natal_charts: {
+        Row: {
+          calculated_at: string
+          chart: Json
+          has_birth_time: boolean
+          house_system: string
+          provider: string
+          user_id: string
+        }
+        Insert: {
+          calculated_at?: string
+          chart: Json
+          has_birth_time: boolean
+          house_system?: string
+          provider?: string
+          user_id: string
+        }
+        Update: {
+          calculated_at?: string
+          chart?: Json
+          has_birth_time?: boolean
+          house_system?: string
+          provider?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       preferences: {
         Row: {
           bed_volume: number

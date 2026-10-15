@@ -328,6 +328,36 @@ for (const [label, ideation] of [
   );
 }
 
+// ── the chart by whole sign, rebuilt from what is stored (v1.2 A-01) ───────
+//
+// No provider call: the positions are in the stored text, so this runs here
+// without RAPIDAPI_KEY.
+{
+  const nothing = await call('natal-chart', { rebuild: true });
+  check('natal-chart: nothing stored, nothing to rebuild', nothing.status === 404, `status=${nothing.status}`);
+
+  const CONTEXT = `<chart_analysis><planets>
+<point name="Sun" position="13.50" sign="Gemini" abs_pos="73.50" house="Tenth House" motion="direct" />
+<point name="Mercury" position="28.00" sign="Taurus" abs_pos="58.00" house="Ninth House" motion="retrograde" />
+</planets><axes>
+<point name="Ascendant" position="20.00" sign="Virgo" abs_pos="170.00" house="First House" motion="direct" />
+</axes></chart_analysis>`;
+  await client
+    .from('clients')
+    .update({ natal_chart: { provider: 'astrologer', api_version: 'v6', context: CONTEXT, calculated_at: 1, parse_status: 'parsed' } })
+    .eq('user_id', userId);
+  const rebuilt = await call('natal-chart', { rebuild: true });
+  check('natal-chart: a stored chart is rebuilt', rebuilt.status === 200, `status=${rebuilt.status}`);
+
+  const { data: stored } = await client.from('natal_charts').select('house_system, chart').eq('user_id', userId).maybeSingle();
+  const sun = stored?.chart?.points?.find((p) => p.name === 'Sun');
+  check(
+    'natal-chart: houses by whole sign, the ruler of the Ascendant and the sect, calculated',
+    stored?.house_system === 'whole_sign' && sun?.house === 10 && stored?.chart?.ascendant_ruler?.planet === 'Mercury' && stored?.chart?.sect?.kind === 'diurna',
+    JSON.stringify({ house: sun?.house, ruler: stored?.chart?.ascendant_ruler, sect: stored?.chart?.sect }),
+  );
+}
+
 const failed = results.filter((r) => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);
 process.exit(failed.length === 0 ? 0 : 1);
