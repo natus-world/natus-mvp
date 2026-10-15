@@ -272,7 +272,7 @@ version behind for this reason.
 
 ## Language
 
-Product copy is Spanish (rioplatense, voseo) because the UI is Spanish.
+Product copy is neutral Spanish, addressed with tú, no voseo and no country idioms (G-01). It lives in `src/i18n/es.ts`, never inside a component, and the copy lint fails on voseo.
 Everything else — code, comments, commits, docs, this file — is English.
 
 ## Deploying

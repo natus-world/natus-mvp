@@ -16,18 +16,18 @@ Every image is a centred 9:16 crop, encoded AVIF. One photograph per screen
 
 | File | Bank name | Screen | Shipped | Size |
 |------|-----------|--------|---------|------|
-| `hero.avif` | Hoja (hero) | Landing | 627 x 1116 | 52 KB |
-| `sala.avif` | La sala | Onboarding, Generating — capture «Empezar» | 762 x 1355 | 67 KB |
+| `hero.avif` | Hoja (hero) | Landing | 626 x 1112 | 56 KB |
+| `sala.avif` | La sala | Onboarding, Generating — capture «Empezar» | 760 x 1352 | 60 KB |
 | `ella.avif` | Ella | «Para cuidarte» | 902 x 1604 | 61 KB |
 | `mar.avif` | El mar | Carta — capture «Carta» | 1080 x 1920 | 184 KB |
 | `canon.avif` | El cañón | Caminos — capture «Caminos» | 1080 x 1920 | 181 KB |
-| `hoja.avif` | Hoja | Recorrido — capture «Recorrido» | 627 x 1116 | 50 KB |
+| `hoja.avif` | Hoja | Recorrido — capture «Recorrido» | 626 x 1112 | 56 KB |
 | `luz.avif` | La luz | Hoy | 1080 x 1920 | 120 KB |
 | `ojo.avif` | El ojo | Chat | 576 x 1024 | 31 KB |
-| `plumas.avif` | Las plumas | Meditaciones, Mis prácticas | 1080 x 1920 | 152 KB |
+| `plumas.avif` | Las plumas | Meditaciones, Mis prácticas | 1080 x 1920 | 210 KB |
 | `cruce.avif` | El cruce | Comparar cartas | 1080 x 1920 | 360 KB |
 | `montana.avif` | La montaña | Perfil, shown in black and white (§9.10) | 1080 x 1920 | 57 KB |
-| `rio.avif` | El río | Crisis | 627 x 1116 | 36 KB |
+| `rio.avif` | El río | Crisis | 626 x 1112 | 38 KB |
 | `nebulosa.avif` | Nebulosa | Gate, Signup, 404 | 1080 x 1920 | 208 KB |
 
 The assignments beyond the four captures are a proposal awaiting the owner's
@@ -47,7 +47,7 @@ Perfil's monochrome is a CSS filter on the photo layer only (`mono` on
 ```bash
 curl -s https://natus.world/usuarios/bote2.webp --output source.webp
 sips -s format png source.webp --out source.png
-sips --cropToHeightWidth <h> <h*9/16> source.png      # centred 9:16
+sips --cropToHeightWidth <h> <w> source.png            # centred ~9:16, both sides EVEN
 sips --resampleHeight 1920 source.png                  # only if taller
 sips -s format avif -s formatOptions 62 source.png --out mar.avif
 ```
