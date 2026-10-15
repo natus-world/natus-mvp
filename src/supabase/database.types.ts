@@ -48,8 +48,8 @@ export type Database = {
           country: string
           created_at: string
           expires_at: string
-          id: string
           grammatical_gender: string
+          id: string
           legal_birth_name: string
           locale: string
           natal_chart: Json | null
@@ -73,8 +73,8 @@ export type Database = {
           country?: string
           created_at?: string
           expires_at?: string
-          id?: string
           grammatical_gender?: string
+          id?: string
           legal_birth_name?: string
           locale?: string
           natal_chart?: Json | null
@@ -98,8 +98,8 @@ export type Database = {
           country?: string
           created_at?: string
           expires_at?: string
-          id?: string
           grammatical_gender?: string
+          id?: string
           legal_birth_name?: string
           locale?: string
           natal_chart?: Json | null
@@ -294,8 +294,8 @@ export type Database = {
           country: string
           created_at: string
           email: string | null
-          id: string
           grammatical_gender: string
+          id: string
           legal_birth_name: string
           locale: string
           natal_chart: Json | null
@@ -318,8 +318,8 @@ export type Database = {
           country?: string
           created_at?: string
           email?: string | null
-          id?: string
           grammatical_gender?: string
+          id?: string
           legal_birth_name?: string
           locale?: string
           natal_chart?: Json | null
@@ -342,8 +342,8 @@ export type Database = {
           country?: string
           created_at?: string
           email?: string | null
-          id?: string
           grammatical_gender?: string
+          id?: string
           legal_birth_name?: string
           locale?: string
           natal_chart?: Json | null
