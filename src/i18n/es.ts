@@ -412,16 +412,6 @@ export const es = {
     unverifiedSite: 'findahelpline.com',
     unverifiedTail: ' o llama al número de emergencias de tu país.',
   },
-  demoBanner: {
-    tag: 'Demo',
-    summary: ' — prototipo, no es un servicio de salud',
-    demoWithBackend:
-      'Si iniciaste sesión, lo que escribas se envía a los servidores de Natus y desde ahí a la API de Anthropic. Sin sesión, las respuestas vienen de guiones escritos a mano y nada sale de este navegador.',
-    demoOffline:
-      'Las respuestas vienen de guiones escritos a mano. Lo que escribas queda en este navegador y no se envía a ningún servidor.',
-    live: 'Lo que escribas se envía a los servidores de Natus y desde ahí a la API de Anthropic.',
-    unverified: 'Los números de crisis todavía no se verificaron uno por uno.',
-  },
   saveFailure: {
     offline: 'No pudimos conectar con tu cuenta. Lo que hagas ahora queda solo en este navegador y no se guarda.',
     failed: 'No pudimos guardar lo último en tu cuenta. Sigue aquí, en este navegador, pero si lo cierras se pierde.',

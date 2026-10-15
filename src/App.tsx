@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { PhoneFrame } from '@/components/PhoneFrame';
-import { DemoBanner } from '@/components/DemoBanner';
 import { SaveFailureNotice } from '@/components/SaveFailureNotice';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { BottomNav } from '@/components/BottomNav';
@@ -133,9 +132,7 @@ export function App() {
     <PhoneFrame>
       <div className="fixed inset-x-0 top-0 z-50 flex flex-col gap-1.5 p-2 sm:absolute">
         <div className="flex items-start gap-1.5">
-          <div className="min-w-0 flex-1">
-            <DemoBanner />
-          </div>
+          <div className="min-w-0 flex-1" />
           <HelpNowButton onOpen={openHelp} />
           {showsProfile(pathname, takeoverShown) && <ProfileButton />}
         </div>
