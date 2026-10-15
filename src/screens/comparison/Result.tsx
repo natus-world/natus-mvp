@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { isDemoMode } from '@/supabase/client';
 import { Link, useParams } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { Ouroboros } from '@/design/Ouroboros';
+import { copy } from '@/i18n';
 import { ComparisonGate } from './Gate';
 import { computeNumerology, NumerologyInputError } from '@/lib/numerology';
 import { buildComparisonPayload, toComparisonBirth } from '@/lib/comparison-payload';
@@ -92,7 +94,7 @@ export function Result() {
       });
       setVersion((v) => v + 1);
     } catch {
-      setError('No pudimos armar el cruce esta vez.');
+      setError(copy.chrome.aiError.message);
     } finally {
       setGenerating(false);
     }
@@ -130,16 +132,13 @@ export function Result() {
               <>
                 <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{error}</p>
                 <button type="button" className="cta" onClick={() => void generate()}>
-                  Reintentar
+                  {copy.chrome.aiError.retry}
                 </button>
               </>
             ) : (
               <>
-                <div className="relative flex size-24 items-center justify-center">
-                  <span className="orb-pulse" aria-hidden="true" />
-                  <span className="circle relative z-10 size-14" />
-                </div>
-                <p className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">Cruzando los mapas</p>
+                <Ouroboros size={88} />
+                <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">Cruzando los mapas</p>
               </>
             )}
           </div>

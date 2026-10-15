@@ -97,7 +97,7 @@ export function Consent() {
                   aria-hidden="true"
                   className={[
                     'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-sm border text-[length:var(--fs-micro-10)]',
-                    scope[key] ? 'border-crema bg-crema text-negro' : 'border-crema/30 text-transparent',
+                    scope[key] ? 'border-crema bg-crema text-noche' : 'border-crema/30 text-transparent',
                   ].join(' ')}
                 >
                   ✓
@@ -192,7 +192,7 @@ export function Consent() {
                         revokeConsent(consent.id);
                         setConsent(consentFor(id));
                       }}
-                      className="rounded-full border border-alerta/40 px-3 py-2.5 text-[length:var(--fs-label-11)] tracking-wide text-alerta uppercase"
+                      className="rounded-full border border-error/40 px-3 py-2.5 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
                     >
                       Retirar el permiso
                     </button>

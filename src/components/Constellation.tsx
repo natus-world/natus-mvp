@@ -53,7 +53,7 @@ export function Constellation({ modalities }: { modalities: Modality[] }) {
                 position.size,
                 position.text,
                 isCentre
-                  ? 'border-crema/35 bg-verde/45 text-crema shadow-[0_0_40px_rgb(28_56_41/0.35)]'
+                  ? 'border-crema/35 bg-verde/45 text-crema shadow-[0_0_40px_rgb(30_58_43/0.35)]'
                   : 'node-glass border-crema/20 text-crema/70',
               ].join(' ')}
             >

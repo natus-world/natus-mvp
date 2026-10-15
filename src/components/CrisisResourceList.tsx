@@ -22,10 +22,12 @@ export function CrisisResourceList({
           className="surface surface-p12 flex items-center gap-3 no-underline"
         >
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[length:var(--fs-body-14)] leading-5 text-blanco">{r.name}</p>
-            {r.note && <p className="truncate text-[length:var(--fs-body-11)] text-crema/55">{r.note}</p>}
+            <p className="text-[length:var(--fs-body-14)] leading-5 break-words text-blanco">{r.name}</p>
+            {r.note && <p className="text-[length:var(--fs-body-11)] leading-snug break-words text-crema/75">{r.note}</p>}
           </div>
-          <span className="shrink-0 font-serif text-[length:var(--fs-numeral-18)] leading-7 text-crema">{r.contact}</span>
+          <span className="shrink-0 font-sans text-[length:var(--fs-numeral-18)] leading-7 font-medium whitespace-nowrap text-blanco tabular-nums">
+            {r.contact}
+          </span>
         </a>
       ))}
 
@@ -38,8 +40,8 @@ export function CrisisResourceList({
         className="surface surface-p12 flex items-center gap-3 no-underline"
       >
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[length:var(--fs-body-14)] leading-5 text-blanco">{set.fallback.name}</p>
-          <p className="truncate text-[length:var(--fs-body-11)] text-crema/55">{set.fallback.note}</p>
+          <p className="text-[length:var(--fs-body-14)] leading-5 break-words text-blanco">{set.fallback.name}</p>
+          <p className="text-[length:var(--fs-body-11)] leading-snug break-words text-crema/75">{set.fallback.note}</p>
         </div>
         <span aria-hidden="true" className="shrink-0 text-crema/60">
           ↗

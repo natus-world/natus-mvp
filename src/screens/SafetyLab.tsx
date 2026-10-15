@@ -40,7 +40,7 @@ function Verdict({ verdict }: { verdict: SafetyVerdict }) {
       <div className="mb-2 flex items-center gap-2">
         <span
           aria-hidden="true"
-          className="size-2 rounded-full bg-alerta shadow-[0_0_8px_var(--natus-alerta)]"
+          className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]"
         />
         <p className="text-[length:var(--fs-body-14)] leading-5 text-blanco">
           Severidad {verdict.severity} · {verdict.category}

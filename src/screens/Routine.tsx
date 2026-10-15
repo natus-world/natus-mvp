@@ -92,7 +92,7 @@ export function Routine() {
                     aria-pressed={done}
                     className={[
                       'chip-p8 flex-1 transition-colors',
-                      done ? 'chip-bare bg-verde text-crema' : 'chip text-crema/70 hover:text-crema',
+                      done ? 'chip chip-on' : 'chip text-crema/70 hover:text-crema',
                     ].join(' ')}
                   >
                     {done ? 'Hecho hoy' : 'Marcar hoy'}

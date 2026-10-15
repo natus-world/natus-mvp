@@ -41,14 +41,17 @@
  * project's own vocabulary: text-crema, bg-verde, font-serif.
  */
 @theme {
+  --color-noche: var(--natus-noche);
   --color-verde: var(--natus-verde);
-  --color-azul: var(--natus-azul);
-  --color-negro: var(--natus-negro);
   --color-crema: var(--natus-crema);
-  --color-blanco: var(--natus-blanco);
+  --color-blanco: var(--natus-blanco-calido);
+  --color-dorado: var(--natus-dorado);
   --color-tierra: var(--natus-tierra);
-  --color-fondo: var(--natus-fondo);
-  --color-alerta: var(--natus-alerta);
+  --color-error: var(--natus-error);
+  --color-tinta: var(--natus-tinta);
+
+  --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-natus: cubic-bezier(0.16, 1, 0.3, 1);
 
   --font-serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
   --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -65,7 +68,7 @@
 
   body {
     margin: 0;
-    background: var(--natus-fondo);
+    background: var(--natus-noche);
     color: var(--text-primary);
     font-family: var(--font-sans);
     font-weight: 400;
@@ -82,12 +85,22 @@
     line-height: 1.15;
   }
 
-  /* Focus must stay visible against photography, where a default outline
-     disappears. Accessibility criterion of Phase 10. */
   :focus-visible {
-    outline: 2px solid var(--natus-crema);
+    outline: 2px solid var(--natus-dorado);
     outline-offset: 3px;
     border-radius: 4px;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-serif {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  select option {
+    background-color: var(--natus-noche);
+    color: var(--natus-tinta);
   }
 
   button {

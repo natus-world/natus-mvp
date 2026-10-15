@@ -165,7 +165,7 @@ export function App() {
         </ErrorBoundary>
       </main>
       {showsNav(pathname, takeoverShown) && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 p-3">
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 p-3 sm:absolute">
           <BottomNav />
         </div>
       )}

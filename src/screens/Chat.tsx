@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { Paywall } from '@/components/Paywall';
 import { CrisisResourceList } from '@/components/CrisisResourceList';
 import { modalityBySlug } from '@/lib/catalog';
@@ -180,7 +181,7 @@ export function Chat() {
       setError(
         err instanceof AiError && err.kind === 'spend_limit'
           ? 'Por hoy no podemos responder más. Lo que escribiste sigue acá: probá más tarde.'
-          : 'No pudimos responder esta vez. Lo que escribiste sigue acá.',
+          : copy.chrome.aiError.message,
       );
     } finally {
       setThinking(false);
@@ -219,7 +220,7 @@ export function Chat() {
                   key={message.id}
                   className={[
                     message.type === 'crisis'
-                      ? 'bubble-bare border border-alerta/30'
+                      ? 'bubble-bare border border-error/30'
                       : 'bubble rounded-bl-sm',
                   ].join(' ')}
                 >
@@ -259,14 +260,19 @@ export function Chat() {
         </div>
 
         {error && (
-          <p role="alert" className="shrink-0 pt-2 text-[length:var(--fs-body-11_5)] leading-relaxed text-alerta">
-            {error}
-          </p>
+          <div role="alert" className="flex shrink-0 items-center gap-3 pt-2">
+            <p className="flex-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-error">{error}</p>
+            {error === copy.chrome.aiError.message && (
+              <button type="button" onClick={() => void send()} className="chip shrink-0 text-crema/75">
+                {copy.chrome.aiError.retry}
+              </button>
+            )}
+          </div>
         )}
 
         <div className="shrink-0 pt-3">
           {containment ? (
-            <div className="rounded-[var(--radius-option)] border border-alerta/30 px-4 py-3.5">
+            <div className="rounded-[var(--radius-option)] border border-error/30 px-4 py-3.5">
               <p className="mb-2.5 text-[length:var(--fs-body-12)] leading-relaxed text-crema/75">
                 Dejamos la conversación acá por ahora. No es un castigo ni se borró nada: es
                 que esto se habla con alguien.

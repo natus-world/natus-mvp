@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { Ouroboros } from '@/design/Ouroboros';
+import { copy } from '@/i18n';
 import { Constellation } from '@/components/Constellation';
 import { ModalityCard } from '@/components/ModalityCard';
 import { modalityBySlug } from '@/lib/catalog';
@@ -90,7 +92,7 @@ export function Recommendations() {
           ? 'Por hoy llegamos al límite de búsquedas. Nada se perdió: inténtalo de nuevo más tarde.'
           : err instanceof AiError && err.kind === 'crisis'
             ? 'Por lo que contaste, preferimos no sugerir caminos de forma automática. Si necesitas hablar con alguien, la ayuda sigue disponible desde el inicio.'
-            : 'No pudimos buscar tus caminos esta vez. Nada se perdió: puedes reintentar.',
+            : copy.chrome.aiError.message,
       );
       setLoading(false);
       return;
@@ -141,7 +143,7 @@ export function Recommendations() {
             {error}
           </p>
           <button type="button" className="cta" onClick={() => void run()}>
-            Reintentar
+            {copy.chrome.aiError.retry}
           </button>
         </div>
       </Screen>
@@ -152,11 +154,8 @@ export function Recommendations() {
     return (
       <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content40}>
         <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-8 text-center sm:min-h-0 sm:flex-1">
-          <div className="relative flex size-24 items-center justify-center">
-            <span className="orb-pulse" aria-hidden="true" />
-            <span className="circle relative z-10 size-14" />
-          </div>
-          <p className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">Buscando caminos</p>
+          <Ouroboros size={88} />
+          <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">Buscando caminos</p>
         </div>
       </Screen>
     );

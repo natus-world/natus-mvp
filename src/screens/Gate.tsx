@@ -39,7 +39,7 @@ export function Gate() {
           <span aria-hidden="true" className="font-serif text-[length:var(--fs-voice-22)] font-light tracking-wide text-crema">◯</span>
         </div>
 
-        <p className="eyebrow mb-3">Natus</p>
+        <p className="brand mb-3">Natus</p>
 
         <h1 className="mb-4 text-[length:var(--fs-display-sm)] leading-[var(--lh-heading-1_14)] text-blanco">
           Esto todavía
@@ -57,7 +57,7 @@ export function Gate() {
         </button>
 
         {error && (
-          <p role="alert" className="mt-3 text-[length:var(--fs-body-12)] leading-relaxed text-alerta">
+          <p role="alert" className="mt-3 text-[length:var(--fs-body-12)] leading-relaxed text-error">
             {error}
           </p>
         )}

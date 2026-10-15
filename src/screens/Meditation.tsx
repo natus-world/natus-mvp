@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { isDemoMode } from '@/supabase/client';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { copy } from '@/i18n';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { BED_TRACKS } from '@/lib/catalog';
 import { detectCrisis, riskLevel } from '@/lib/safety';
@@ -109,7 +110,7 @@ export function Meditation() {
           ? 'Por hoy llegamos al límite de prácticas. Lo que escribiste sigue acá: probá más tarde.'
           : err instanceof AiError && err.kind === 'crisis'
             ? 'Por lo que escribiste, preferimos no armar una práctica automática. Si necesitás hablar con alguien, la ayuda sigue disponible desde el inicio.'
-            : 'No pudimos armar la práctica esta vez. Lo que escribiste sigue acá.',
+            : copy.chrome.aiError.message,
       );
     } finally {
       setGenerating(false);
@@ -152,7 +153,7 @@ export function Meditation() {
               onClick={() => setMinutes(length)}
               className={[
                 'chip-p10 flex-1 transition-colors',
-                minutes === length ? 'chip-bare bg-verde text-crema' : 'chip text-crema/60',
+                minutes === length ? 'chip chip-on' : 'chip text-crema/60',
               ].join(' ')}
             >
               {length} min
@@ -168,9 +169,14 @@ export function Meditation() {
         )}
 
         {error && (
-          <p role="alert" className="mt-4 text-[length:var(--fs-body-11_5)] leading-relaxed text-alerta">
-            {error}
-          </p>
+          <div role="alert" className="mt-4 flex items-center gap-3">
+            <p className="flex-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-error">{error}</p>
+            {error === copy.chrome.aiError.message && (
+              <button type="button" onClick={() => void generate()} className="chip shrink-0 text-crema/75">
+                {copy.chrome.aiError.retry}
+              </button>
+            )}
+          </div>
         )}
 
         <div className="mt-7 flex flex-col gap-2.5">

@@ -39,7 +39,7 @@ describe('text over photography meets WCAG AA', () => {
 
   it.each(files)('%s sets no text below the contrast floor', (file) => {
     const source = readFileSync(file, 'utf8');
-    const tooFaint = [...source.matchAll(/text-(?:crema|blanco)\/(\d+)\b/g)]
+    const tooFaint = [...source.matchAll(/text-(?:crema|blanco|tinta)\/(\d+)\b/g)]
       .map((match) => Number(match[1]))
       .filter((alpha) => alpha < MINIMUM_TEXT_ALPHA);
 

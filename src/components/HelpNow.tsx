@@ -9,12 +9,9 @@ export function HelpNowButton({ onOpen }: { onOpen: () => void }) {
       onClick={onOpen}
       aria-haspopup="dialog"
       aria-label="Necesito ayuda ahora"
-      className="banner flex shrink-0 items-center gap-2 px-3 py-2 text-left"
+      className="help-pill shrink-0"
     >
-      <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-alerta" />
-      <span className="text-[length:var(--fs-body-11)] font-medium whitespace-nowrap text-crema">
-        Necesito ayuda
-      </span>
+      Necesito ayuda
     </button>
   );
 }
@@ -37,10 +34,10 @@ export function HelpNowPanel({ onClose }: { onClose: () => void }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="help-now-title"
-      className="fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-fondo px-6 pt-8 pb-9 sm:absolute"
+      className="fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-noche px-6 pt-8 pb-9 sm:absolute"
     >
       <div className="mb-6 flex items-center gap-2.5">
-        <span aria-hidden="true" className="size-2 rounded-full bg-alerta shadow-[0_0_8px_var(--natus-alerta)]" />
+        <span aria-hidden="true" className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]" />
         <p className="eyebrow">Necesito ayuda ahora</p>
       </div>
 

@@ -82,7 +82,7 @@ export function Library() {
                         setMeditations(listMeditations());
                         setConfirming(null);
                       }}
-                      className="flex-1 rounded-full border border-alerta/40 px-3 py-2 text-[length:var(--fs-label-11)] tracking-wide text-alerta uppercase"
+                      className="flex-1 rounded-full border border-error/40 px-3 py-2 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
                     >
                       Borrar
                     </button>

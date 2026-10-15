@@ -101,7 +101,7 @@ export function ExternalProfile() {
                             setProfiles(listExternalProfiles());
                             setConfirming(null);
                           }}
-                          className="flex-1 rounded-full border border-alerta/40 px-3 py-2 text-[length:var(--fs-label-11)] tracking-wide text-alerta uppercase"
+                          className="flex-1 rounded-full border border-error/40 px-3 py-2 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
                         >
                           Borrar sus datos
                         </button>
@@ -229,7 +229,7 @@ export function ExternalProfile() {
                   onChange={(e) => setBirthCountry(e.target.value)}
                 >
                   {BIRTH_COUNTRIES.map(([code, label]) => (
-                    <option key={code || 'empty'} value={code} className="bg-negro">
+                    <option key={code || 'empty'} value={code} className="bg-noche">
                       {label}
                     </option>
                   ))}
@@ -245,7 +245,7 @@ export function ExternalProfile() {
                * person is about to type someone else's date of birth — which
                * is the only moment where saying this can change anything.
                */}
-              <div className="rounded-[var(--radius-option)] border border-alerta/25 px-4 py-3.5">
+              <div className="rounded-[var(--radius-option)] border border-error/25 px-4 py-3.5">
                 <p className="eyebrow mb-1.5">Antes de guardar</p>
                 <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/75">
                   Estos son datos de otra persona. Cargalos solo si esa persona sabe que lo

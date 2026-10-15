@@ -17,12 +17,12 @@ const IMAGES: Record<Exclude<Backdrop, 'none'>, string> = {
  */
 const SCRIMS = {
   bottom:
-    'linear-gradient(to bottom, rgb(0 0 0/0.15) 0%, rgb(0 0 0/0.05) 25%, rgb(0 0 0/0.35) 55%, rgb(0 0 0/0.82) 78%, rgb(0 0 0/0.96) 100%)',
-  even: 'linear-gradient(to bottom, rgb(0 0 0/0.55) 0%, rgb(0 0 0/0.45) 50%, rgb(0 0 0/0.78) 100%)',
+    'linear-gradient(to bottom, rgb(11 18 14/0.15) 0%, rgb(11 18 14/0.05) 25%, rgb(11 18 14/0.35) 55%, rgb(11 18 14/0.82) 78%, rgb(11 18 14/0.96) 100%)',
+  even: 'linear-gradient(to bottom, rgb(11 18 14/0.55) 0%, rgb(11 18 14/0.45) 50%, rgb(11 18 14/0.78) 100%)',
   diagonal:
-    'linear-gradient(160deg, rgb(0 0 0/0.72) 0%, rgb(0 0 0/0.60) 60%, rgb(0 0 0/0.80) 100%)',
+    'linear-gradient(160deg, rgb(11 18 14/0.72) 0%, rgb(11 18 14/0.60) 60%, rgb(11 18 14/0.80) 100%)',
   heavy:
-    'linear-gradient(to bottom, rgb(0 0 0/0.45) 0%, rgb(0 0 0/0.35) 40%, rgb(0 0 0/0.75) 70%, rgb(0 0 0/0.94) 100%)',
+    'linear-gradient(to bottom, rgb(11 18 14/0.45) 0%, rgb(11 18 14/0.35) 40%, rgb(11 18 14/0.75) 70%, rgb(11 18 14/0.94) 100%)',
 } as const;
 
 export type Scrim = keyof typeof SCRIMS;
@@ -86,7 +86,7 @@ export function Screen({
         };
 
   return (
-    <div className="relative h-full min-h-dvh w-full overflow-hidden bg-black sm:min-h-0">
+    <div className="relative h-full min-h-dvh w-full overflow-hidden bg-noche sm:min-h-0">
       {photoStyle && <div className="photo-layer" style={photoStyle} aria-hidden="true" />}
       <div className="photo-scrim" style={{ background: SCRIMS[scrim] }} aria-hidden="true" />
       <div className="relative flex h-full min-h-dvh flex-col sm:min-h-0">{children}</div>

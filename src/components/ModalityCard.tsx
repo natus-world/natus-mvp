@@ -112,8 +112,8 @@ export function ModalityCard({
       </details>
 
       {cautionNote && (
-        <div className="mb-3 flex gap-2.5 rounded-[10px] border border-alerta/25 bg-alerta/8 px-3 py-2.5">
-          <span aria-hidden="true" className="mt-[5px] size-1.5 shrink-0 rounded-full bg-alerta" />
+        <div className="mb-3 flex gap-2.5 rounded-[10px] border border-error/25 bg-error/8 px-3 py-2.5">
+          <span aria-hidden="true" className="mt-[5px] size-1.5 shrink-0 rounded-full bg-error" />
           <p className="text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/75">{cautionNote}</p>
         </div>
       )}
@@ -126,7 +126,7 @@ export function ModalityCard({
           className={[
             'chip-p8 flex-1 transition-colors',
             reaction === 'saved'
-              ? 'chip-bare bg-verde text-crema'
+              ? 'chip chip-on'
               : 'chip text-crema/70 hover:text-crema',
           ].join(' ')}
         >

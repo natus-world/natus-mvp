@@ -40,4 +40,10 @@ export const es = {
       ] as [string, string][],
     },
   },
+  chrome: {
+    aiError: {
+      message: 'Esto está tardando más de lo normal. ¿Reintentamos?',
+      retry: 'Reintentar',
+    },
+  },
 };

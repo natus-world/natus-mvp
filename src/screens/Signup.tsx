@@ -162,7 +162,7 @@ export function Signup() {
         />
 
         {error && (
-          <p role="alert" className="mt-2 text-[length:var(--fs-body-12)] leading-relaxed text-alerta">
+          <p role="alert" className="mt-2 text-[length:var(--fs-body-12)] leading-relaxed text-error">
             {error}
           </p>
         )}

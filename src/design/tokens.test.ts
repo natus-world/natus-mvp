@@ -1,21 +1,18 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-/**
- * The mockups are the visual source of truth. `tokens.css` claims to
- * transcribe them verbatim, which is only true if something enforces it.
- *
- * These values are read off `natus-mockups.html`'s `:root` block. If a token
- * is "improved" in the CSS without the mockup moving too, this fails.
- */
 const MOCKUP_PALETTE = {
-  '--natus-verde': '#1c3829',
-  '--natus-azul': '#0d2137',
-  '--natus-negro': '#1a1a1e',
+  '--natus-noche': '#0b120e',
+  '--natus-verde': '#1e3a2b',
   '--natus-crema': '#e8dcc8',
-  '--natus-blanco': '#fafaf8',
+  '--natus-blanco-calido': '#f5efe6',
+  '--natus-dorado': '#c9a876',
   '--natus-tierra': '#8b6f52',
-  '--natus-fondo': '#0e0e0e',
+  '--natus-error': '#e2b393',
+  '--natus-tinta': '#ece2d0',
+  '--natus-tinta-2': 'rgb(236 226 208 / 0.65)',
+  '--natus-tinta-3': 'rgb(236 226 208 / 0.45)',
 } as const;
 
 /** Mockup: rgba(255,255,255,0.08 / 0.15 / 0.13). Alpha is what matters. */
@@ -31,6 +28,16 @@ const MOCKUP_GEOMETRY = {
   '--radius-option': '14px',
   '--h-cta': '54px',
   '--h-option': '52px',
+  '--radius-card': '24px',
+  '--h-pill': '36px',
+  '--h-tab-bar': '74px',
+  '--tab-bar-gap': '12px',
+  '--touch': '44px',
+  '--glass-blur-card': '24px',
+  '--glass-blur-bar': '20px',
+  '--glass-saturate': '1.4',
+  '--glass-bar': 'rgb(16 20 18 / 0.72)',
+  '--ease': 'cubic-bezier(0.16, 1, 0.3, 1)',
 } as const;
 
 /**
@@ -39,7 +46,7 @@ const MOCKUP_GEOMETRY = {
  */
 const DEMO_CHROME = {
   '--top-inset': '62px',
-  '--bottom-inset': '80px',
+  '--bottom-inset': '98px',
 } as const;
 
 function readTokens(): Map<string, string> {
@@ -52,7 +59,7 @@ function readTokens(): Map<string, string> {
   return tokens;
 }
 
-describe('design tokens match the mockup', () => {
+describe('design tokens match the interface guide', () => {
   const tokens = readTokens();
 
   it.each(Object.entries(MOCKUP_PALETTE))('%s is %s', (name, expected) => {
@@ -75,11 +82,21 @@ describe('design tokens match the mockup', () => {
     expect(tokens.get(name)).toBe(expected);
   });
 
-  it('defines a crisis colour outside the calm palette', () => {
-    // Crisis must not read as part of the brand language. Asserting only that
-    // it exists and is not one of the brand colours.
-    const alert = tokens.get('--natus-alerta');
-    expect(alert).toBeDefined();
-    expect(Object.values(MOCKUP_PALETTE)).not.toContain(alert);
+  it('has no red: errors are warm', () => {
+    const found: string[] = [];
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (/\.(tsx?|css)$/.test(entry.name) && !entry.name.includes('.test.')) {
+          const text = readFileSync(full, 'utf8');
+          for (const hit of text.matchAll(/\balerta\b|#e05a5a|\b(?:text|bg|border)-red-\d+/gi)) {
+            found.push(`${full}: ${hit[0]}`);
+          }
+        }
+      }
+    };
+    walk(join(__dirname, '..'));
+    expect(found).toEqual([]);
   });
 });

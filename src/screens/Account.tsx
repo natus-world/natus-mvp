@@ -152,7 +152,7 @@ export function Account() {
                 onClick={() => setStoredLocale(setLocale(code).locale)}
                 className={[
                   'chip-p6 px-3.5 transition-colors',
-                  locale === code ? 'chip-bare bg-verde text-crema' : 'chip text-crema/60',
+                  locale === code ? 'chip chip-on' : 'chip text-crema/60',
                 ].join(' ')}
               >
                 {label}
@@ -185,7 +185,7 @@ export function Account() {
           )}
         </section>
 
-        <section className="mb-3 rounded-[var(--radius-option)] border border-alerta/25 px-4 py-3.5">
+        <section className="mb-3 rounded-[var(--radius-option)] border border-error/25 px-4 py-3.5">
           <p className="eyebrow mb-1.5">Borrar todo</p>
           <p className="mb-3 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/55">
             Se va tu cuenta, tu mapa, tus caminos, tu rutina y cualquier archivo guardado. No
@@ -196,7 +196,7 @@ export function Account() {
             <button
               type="button"
               onClick={() => setConfirming(true)}
-              className="w-full rounded-full border border-alerta/40 px-3 py-2.5 text-[length:var(--fs-label-11)] tracking-wide text-alerta uppercase"
+              className="w-full rounded-full border border-error/40 px-3 py-2.5 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
             >
               Borrar todo
             </button>
@@ -211,7 +211,7 @@ export function Account() {
                 onClick={() => void deleteEverything()}
                 // Solid, not 85%: dark text over the faded red measured 3.8:1,
                 // under the 4.5 this 11px label needs.
-                className="w-full rounded-full bg-alerta px-3 py-2.5 text-[length:var(--fs-label-11)] tracking-wide text-negro uppercase disabled:opacity-50"
+                className="w-full rounded-full bg-error px-3 py-2.5 text-[length:var(--fs-label-11)] tracking-wide text-noche uppercase disabled:opacity-50"
               >
                 {busy ? 'Borrando' : 'Sí, borrar todo'}
               </button>
@@ -225,7 +225,7 @@ export function Account() {
               {failed && (
                 <p
                   role="alert"
-                  className="text-[length:var(--fs-body-11_5)] leading-relaxed text-alerta"
+                  className="text-[length:var(--fs-body-11_5)] leading-relaxed text-error"
                 >
                   No pudimos borrar lo que está guardado en tu cuenta, así que tampoco borramos
                   nada de este navegador. Sigue todo como estaba y podés volver a intentar.

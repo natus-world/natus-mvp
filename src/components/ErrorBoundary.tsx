@@ -75,7 +75,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <div
         role="alert"
-        className="flex min-h-dvh flex-col justify-center gap-6 bg-fondo px-6 py-10 sm:h-full sm:min-h-0"
+        className="flex min-h-dvh flex-col justify-center gap-6 bg-noche px-6 py-10 sm:h-full sm:min-h-0"
       >
         {active ? (
           <>
@@ -83,7 +83,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="mb-5 flex items-center gap-2.5">
                 <span
                   aria-hidden="true"
-                  className="size-2 rounded-full bg-alerta shadow-[0_0_8px_var(--natus-alerta)]"
+                  className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]"
                 />
                 <p className="eyebrow">Antes de seguir</p>
               </div>

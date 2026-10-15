@@ -1,37 +1,31 @@
 /*
- * Design tokens recovered from natus-mockups.html.
- *
- * These are the visual source of truth. Values are transcribed verbatim from
- * the mockup so the demo and the mockup cannot drift. Do not "improve" a
- * number here without changing the mockup too.
+ * Design tokens, from the interface guide (natus-guia-interfaz-app.md, §5–§7).
+ * The guide governs everything visual; the mockup is no longer the source.
  */
 
 :root {
-  /* Brand palette */
-  --natus-verde: #1c3829;
-  --natus-azul: #0d2137;
-  --natus-negro: #1a1a1e;
+  --natus-noche: #0b120e;
+  --natus-verde: #1e3a2b;
   --natus-crema: #e8dcc8;
-  --natus-blanco: #fafaf8;
+  --natus-blanco-calido: #f5efe6;
+  --natus-dorado: #c9a876;
   --natus-tierra: #8b6f52;
+  --natus-error: #e2b393;
 
-  /* Page ground, behind the photographic layer */
-  --natus-fondo: #0e0e0e;
+  --natus-tinta: #ece2d0;
+  --natus-tinta-2: rgb(236 226 208 / 0.65);
+  --natus-tinta-3: rgb(236 226 208 / 0.45);
 
-  /* Crisis is the one place the palette breaks on purpose: it must not read
-     as part of the calm brand language. */
-  --natus-alerta: #e05a5a;
-
-  /* Glassmorphism */
   --glass-bg: rgb(255 255 255 / 0.08);
   --glass-border: rgb(255 255 255 / 0.15);
   --glass-hover: rgb(255 255 255 / 0.13);
+  --glass-bar: rgb(16 20 18 / 0.72);
+  --glass-tab-active: rgb(255 255 255 / 0.1);
+  --glass-rule: rgb(236 226 208 / 0.1);
+  --glass-saturate: 1.4;
   --glass-blur-chip: 12px;
-  --glass-blur-card: 20px;
-  /* Third blur, and until the design layer was isolated it had no name: the
-     constellation nodes carried `blur(16px)` inline. Named at its value like
-     the rest of the drift, not resolved into one of the other two — which of
-     the three is right is a design decision. */
+  --glass-blur-card: 24px;
+  --glass-blur-bar: 20px;
   --glass-blur-node: 16px;
 
   /*
@@ -48,20 +42,29 @@
    * "faint" is a design decision, and deleting the vocabulary would quietly
    * settle it as "neither".
    */
-  --text-primary: var(--natus-blanco);
+  --text-primary: var(--natus-blanco-calido);
   --text-accent: var(--natus-crema);
-  --text-muted: rgb(232 220 200 / 0.65);
-  --text-faint: rgb(232 220 200 / 0.45);
-  --text-eyebrow: rgb(232 220 200 / 0.55);
+  --text-muted: var(--natus-tinta-2);
+  --text-faint: var(--natus-tinta-3);
+  --text-eyebrow: var(--natus-tinta-2);
 
   /* Geometry */
   --radius-frame: 48px;
   --radius-cta: 27px;
   --radius-option: 14px;
   --radius-pill: 23px;
+  --radius-card: 24px;
+  --radius-tab-bar: 28px;
+  --radius-tab: 20px;
 
   --h-cta: 54px;
   --h-option: 52px;
+  --h-pill: 36px;
+  --h-tab-bar: 74px;
+  --tab-bar-gap: 12px;
+  --touch: 44px;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
 
   /* Clearance for the demo banner, which floats over every screen. Screens
@@ -71,7 +74,7 @@
   /* Clearance for the bottom navigation, which floats over the screens that
      carry it. Same reasoning as `--top-inset`: one number, not a guess per
      screen. */
-  --bottom-inset: 80px;
+  --bottom-inset: 98px;
 
   /* Type scale */
   --font-serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
@@ -158,6 +161,9 @@
   --fs-numeral-24: 24px; /* ×1 */
   --fs-numeral-18: 18px; /* ×1 */
 
+  --fs-cta: 15px;
+  --fs-brand: 17px;
+
   /* Marks and numerals inside chips, checkboxes and badges. */
   --fs-micro-12: 12px; /* ×1 */
   --fs-micro-10: 10px; /* ×2 */
@@ -182,6 +188,7 @@
   --lh-heading-1_15: 1.15; /* ×11 */
   --lh-heading-1_18: 1.18; /* ×4 */
 
-  --track-eyebrow: 0.22em;
+  --track-eyebrow: 0.2em;
+  --track-brand: 0.15em;
   --track-cta: 0.12em;
 }

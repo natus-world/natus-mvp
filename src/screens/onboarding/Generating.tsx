@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { PHOTO, Screen } from '@/design/Screen';
+import { Ouroboros } from '@/design/Ouroboros';
 import { generateSoulMap } from '@/ai/soul-map';
 import {
   calculateNatalChart,
@@ -17,7 +18,7 @@ import { SOUL_MAP_PROMPT_VERSION } from '@/ai/prompts/versions';
 /**
  * PDR 6.1 screen 7 and PDR 6.5.
  *
- * The orb and its pulse rings come from mockup screen 03. The stages are
+ * The serpent turns while the map is written. The stages are
  * named rather than shown as a spinner because they are true — the numbers
  * really are computed locally before anything is sent — and saying so is part
  * of the product's claim about itself.
@@ -113,21 +114,7 @@ export function Generating({
   return (
     <Screen backdrop="surf" scrim="diagonal" opacity={PHOTO.veil70}>
       <div className="flex min-h-dvh flex-col items-center justify-center gap-9 px-8 text-center sm:min-h-0 sm:flex-1">
-        <div className="relative flex size-30 items-center justify-center">
-          <span className="orb-pulse" aria-hidden="true" />
-          <span className="orb-pulse orb-pulse-2" aria-hidden="true" />
-          <span className="circle relative z-10 flex size-18 items-center justify-center shadow-[0_0_40px_rgb(28_56_41/0.4)]">
-            <span className="flex items-center gap-[3px]" aria-hidden="true">
-              {[10, 18, 24, 18, 10].map((h, i) => (
-                <span
-                  key={i}
-                  className="wave-bar w-[3px] rounded-sm bg-crema"
-                  style={{ height: `${h}px`, animationDelay: `${i * 0.15}s` }}
-                />
-              ))}
-            </span>
-          </span>
-        </div>
+        <Ouroboros size={112} />
 
         <div aria-live="polite" className="min-h-12">
           <p className="font-serif text-[length:var(--fs-voice-22)] leading-snug font-light text-blanco">
