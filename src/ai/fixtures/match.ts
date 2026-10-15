@@ -71,33 +71,6 @@ const CAUTIONS: Record<string, string> = {
   emdr: 'Pide cierta estabilidad previa: no se empieza en medio de una crisis aguda. Busca a alguien con formación acreditada en el protocolo.',
 };
 
-const ROUTINES: MatchResult['routine'] = [
-  {
-    title: 'Respiración 4-7-8 antes de dormir',
-    body: 'Inhalas cuatro tiempos, sostienes siete, exhalas ocho, cuatro veces. Es de lo más directo para bajar la activación nocturna, y funciona incluso los días en que nada más funcionó.',
-    invitation: '¿Te hace sentido probarla esta semana y ver qué se mueve?',
-    cadence: 'daily',
-  },
-  {
-    title: 'Caminata de veinte minutos sin teléfono',
-    body: 'Sin podcast, sin destino. Cuando el cuerpo se mueve y la cabeza no tiene tarea aparecen frases que en reposo no aparecen.',
-    invitation: '¿La sumas como experimento esta semana?',
-    cadence: 'weekly',
-  },
-  {
-    title: 'Anotar el momento anterior',
-    body: 'Cuando el patrón empiece, escribe lo que pasó en los cinco minutos previos. El disparador casi nunca está en el momento fuerte, sino un rato antes.',
-    invitation: '¿Lo registras las próximas tres veces que pase?',
-    cadence: 'process',
-  },
-  {
-    title: 'Una conversación que vienes postergando',
-    body: 'Elige la más pequeña de las que estás evitando, no la más importante. Las conversaciones grandes se sostienen sobre la evidencia de que las pequeñas no rompieron nada.',
-    invitation: '¿Cuál sería la más pequeña que se te ocurre?',
-    cadence: 'one_off',
-  },
-];
-
 /**
  * Assemble a match from the pool the hard filter actually produced.
  *
@@ -123,9 +96,7 @@ export function buildMatchFixture(input: {
         ? (CAUTIONS[entry.modality.slug] ?? entry.modality.contraindications.join(' '))
         : null,
     })),
-    routine: ROUTINES.slice(0, 4),
   };
 }
 
 export const CURATED_REASONING_SLUGS = Object.keys(REASONINGS);
-export const CURATED_ROUTINES = ROUTINES;

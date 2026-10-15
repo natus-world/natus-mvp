@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ALL_SOUL_MAP_FIXTURES, CRISIS_FIXTURE, selectSoulMapFixture } from './soul-map';
 import { soulMapCrisisSchema, soulMapSynthesisSchema } from '@/lib/schemas';
-import { countSentences, isInvitation, lintDeep } from '@/lib/copy-lint';
+import { countSentences, lintDeep } from '@/lib/copy-lint';
 import { emptyDraft } from '@/store/session';
 import { TOPICS } from '@/lib/catalog';
 
@@ -36,17 +36,6 @@ describe('every fixture obeys the copy rules', () => {
   it('the crisis response passes too, and offers no interpretation', () => {
     expect(lintDeep(CRISIS_FIXTURE)).toEqual([]);
   });
-
-  it.each(ALL_SOUL_MAP_FIXTURES.map((f) => [f.detected_phase, f] as const))(
-    '%s closes every tip on a question',
-    (_phase, fixture) => {
-      // PDR 1.5: recommendations are invitations. A tip that ends in a full
-      // stop has become an instruction.
-      for (const tip of fixture.tips) {
-        expect(isInvitation(tip.invitation), `"${tip.invitation}"`).toBe(true);
-      }
-    },
-  );
 
   it.each(ALL_SOUL_MAP_FIXTURES.map((f) => [f.detected_phase, f] as const))(
     '%s keeps the synthesis within its sentence budget',

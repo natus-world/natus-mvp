@@ -29,7 +29,7 @@ export type CallOutcome =
 
 export type CallRecord = {
   userId: string;
-  purpose: 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison';
+  purpose: 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison' | 'routine';
   promptVersion: string;
   model: string;
   mode: 'fixture' | 'server';

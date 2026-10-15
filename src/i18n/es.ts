@@ -232,6 +232,8 @@ export const es = {
       que_necesitas_ahora: 'Qué necesitas ahora',
     },
     toTry: 'Para probar',
+    toTryEmpty: 'Las prácticas aparecen cuando tengas tu rutina.',
+    toTryCta: 'Ver mi rutina',
     numbers: 'Tus números',
     masterNumbersLead: 'Aparecen números maestros en tu mapa: ',
     masterNumbersTail:
@@ -307,6 +309,10 @@ export const es = {
     empty: 'Tu rutina sale de tus caminos. Empieza por verlos.',
     toPaths: 'Ver mis caminos',
     backToPaths: 'Volver a los caminos',
+    generating: 'Armando tu rutina',
+    connectsMap: 'Conversa con tu mapa',
+    connectsTherapy: (therapy: string) => `Conversa con ${therapy}`,
+    connectsBoth: (therapy: string) => `Conversa con tu mapa y con ${therapy}`,
   },
   chat: {
     kicker: 'Chat',

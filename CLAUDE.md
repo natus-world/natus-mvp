@@ -66,7 +66,9 @@ real generation, all walked on the deployed site.
 
 **v1.2 is being implemented, and most of it is not built yet:** the journal,
 memory, today's sky, notifications, payments, the full chart. Friends and the
-comparison between them (C-01, C-02) are built. Decided and not built: the
+comparison between them (C-01, C-02) are built, and so is the routine
+(R-01): written after the therapies, by its own function, each practice
+saying what it converses with and keeping its origin in `routine_practices`. Decided and not built: the
 chat may talk over a comparison with a friend, receiving only its result and
 only while the friendship lasts; and Davraz redirects requests to do work
 (a thesis, code) back to how the person is living it. The
@@ -219,7 +221,8 @@ src/styles/  Wiring, not design: the Tailwind import, the `@theme` mapping,
 data/        Seed JSON: modalities, topics, crisis resources, bed tracks.
 
 supabase/functions/
-             soul-map · match · chat · meditation · comparison · natal-chart
+             soul-map · match · routine · chat · meditation · comparison
+             · natal-chart
              One directory, URL and worker each. Four share the sequence in
              _shared/serve-model.ts; chat has a quota to consult mid-flow.
 ```

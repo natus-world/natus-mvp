@@ -1,10 +1,27 @@
 export const CHAT_PROMPT_VERSION = 'chat-v1.3';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
-export const MATCH_PROMPT_VERSION = 'match-v1.3';
+export const MATCH_PROMPT_VERSION = 'match-v1.4';
+export const ROUTINE_PROMPT_VERSION = 'routine-v1.0';
 export const COMPARISON_PROMPT_VERSION = 'comparison-v2.0';
-export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.4';
+export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.5';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'routine-v1.0',
+    date: '2026-10-15',
+    change:
+      'New (v1.2 R-01): one routine, written after the therapies, seeing the map and those therapies; every practice declares connects_to { soul_map, modality_slug }. Carries the physical-risk rules.',
+  },
+  {
+    version: 'match-v1.4',
+    date: '2026-10-15',
+    change: 'v1.2 R-01: therapies only. The routine moved to its own call, made after the therapies are chosen.',
+  },
+  {
+    version: 'soul-map-v2.5',
+    date: '2026-10-15',
+    change: 'v1.2 R-01: the narrative synthesis only. The tips are gone; the routine is written after the therapies.',
+  },
   {
     version: 'comparison-v2.0',
     date: '2026-10-15',

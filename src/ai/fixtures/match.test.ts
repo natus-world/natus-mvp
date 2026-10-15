@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { CURATED_REASONING_SLUGS, CURATED_ROUTINES, buildMatchFixture } from './match';
+import { CURATED_REASONING_SLUGS, buildMatchFixture } from './match';
 import { matchResultSchema } from '@/lib/schemas';
-import { countSentences, isInvitation, lintDeep } from '@/lib/copy-lint';
+import { countSentences, lintDeep } from '@/lib/copy-lint';
 import { filterModalities } from '@/lib/matching';
 import { ACTIVE_MODALITIES, modalityBySlug } from '@/lib/catalog';
 import { ALL_SOUL_MAP_FIXTURES } from './soul-map';
@@ -72,10 +72,8 @@ describe('the copy rules apply to the fixture too', () => {
     }
   });
 
-  it('closes every routine practice on a question', () => {
-    for (const practice of CURATED_ROUTINES) {
-      expect(isInvitation(practice.invitation), practice.title).toBe(true);
-    }
+  it('proposes no practices: the routine comes after (v1.2 R-01)', () => {
+    expect(build().result).not.toHaveProperty('routine');
   });
 
   it('never shows a percentage anywhere', () => {

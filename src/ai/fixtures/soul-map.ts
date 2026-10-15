@@ -23,26 +23,6 @@ const PREGUNTA: SoulMapSynthesis = {
     que_necesitas_ahora:
       'Este momento pide menos respuesta y más precisión en la pregunta. Antes de decidir qué cambiar, hace falta saber qué se está gastando. Un espacio donde pensar en voz alta, sin tener que llegar a una conclusión.',
   },
-  tips: [
-    {
-      title: 'Anotar la hora en que se apaga',
-      body: 'Durante una semana, escribe a qué hora del día se te cae la energía y qué estabas haciendo justo antes. No busques explicarlo. Lo que aparece dos o tres veces suele ser más informativo que lo que se te ocurre pensando.',
-      invitation: '¿Lo pruebas una semana y después lo miras?',
-      cadence: 'daily',
-    },
-    {
-      title: 'Una caminata sin destino',
-      body: 'Veinte minutos, sin teléfono, sin podcast, sin llegar a ningún lado. Cuando el cuerpo se mueve y la cabeza no tiene una tarea, aparecen frases que en el escritorio no aparecen.',
-      invitation: '¿La sumas como experimento esta semana?',
-      cadence: 'weekly',
-    },
-    {
-      title: 'La pregunta escrita a mano',
-      body: 'Escribe en un papel, a mano, la pregunta que te estás haciendo. Después reescríbela tres veces, cada vez más corta. La versión de cinco palabras suele ser bastante más honesta que la primera.',
-      invitation: '¿Te animas a la versión de cinco palabras?',
-      cadence: 'one_off',
-    },
-  ],
   follow_up_invitation: '¿Qué fue lo último que te sacó de esa sensación, aunque haya durado poco?',
   inferred_topics: ['proposito', 'transiciones'],
 };
@@ -58,32 +38,6 @@ const EXPLORACION: SoulMapSynthesis = {
     que_necesitas_ahora:
       'Entender el patrón ya no está alcanzando, y eso no es un déficit tuyo. Lo que se repite suele estar sostenido en el cuerpo y en el vínculo, no solo en la comprensión. Este momento pide un espacio donde el patrón pueda aparecer con alguien delante.',
   },
-  tips: [
-    {
-      title: 'Registrar el momento anterior',
-      body: 'Cuando el patrón empiece, anota lo que pasó en los cinco minutos previos: dónde estabas, con quién, qué se dijo. El disparador casi nunca está en el momento fuerte, sino un rato antes.',
-      invitation: '¿Lo registras las próximas tres veces que pase?',
-      cadence: 'process',
-    },
-    {
-      title: 'Respiración larga antes de responder',
-      body: 'Cuando notes que se activa, alarga la exhalación al doble de la inhalación durante un minuto antes de contestar. No cambia el conflicto; cambia desde qué estado lo estás abordando.',
-      invitation: '¿Pruebas un minuto la próxima vez?',
-      cadence: 'daily',
-    },
-    {
-      title: 'La frase que no dijiste',
-      body: 'Después de cada episodio, escribe la frase que te quedó dentro. No para enviarla. Reunir cinco o seis de esas frases suele mostrar un reclamo que es siempre el mismo con distinta forma.',
-      invitation: '¿Reúnes unas cuantas y las lees todas juntas?',
-      cadence: 'process',
-    },
-    {
-      title: 'Un límite pequeño y verificable',
-      body: 'Elige una situación menor en la que practicar decir que no. Pequeña de verdad: un mensaje que no respondes al instante. Los límites grandes se sostienen sobre la evidencia de que los pequeños no rompieron nada.',
-      invitation: '¿Cuál sería el más pequeño que se te ocurre?',
-      cadence: 'weekly',
-    },
-  ],
   follow_up_invitation: '¿Cuándo fue la primera vez que recuerdas haber hecho esto mismo?',
   inferred_topics: ['pareja', 'autoestima', 'familia'],
 };
@@ -99,26 +53,6 @@ const INTEGRACION: SoulMapSynthesis = {
     que_necesitas_ahora:
       'Este tramo pide horizonte corto y práctica propia más que proceso largo con otro. Sostener lo que ya sabes, en formatos que puedas mantener por tu cuenta.',
   },
-  tips: [
-    {
-      title: 'Diez minutos fijos, mismo horario',
-      body: 'Elige un momento del día y sostén ahí una práctica corta de atención. Lo que la hace funcionar en esta etapa no es la duración sino que el horario no se negocie cada mañana.',
-      invitation: '¿Qué horario sería el más difícil de perder?',
-      cadence: 'daily',
-    },
-    {
-      title: 'Escribir lo que ya no volvió',
-      body: 'Haz una lista de cosas que antes te pasaban y hace meses que no. Los cambios de esta etapa son sustracciones, y las sustracciones son casi invisibles si no se anotan.',
-      invitation: '¿Armas la lista y la relees en un mes?',
-      cadence: 'one_off',
-    },
-    {
-      title: 'Una conversación por mes',
-      body: 'Una conversación mensual con alguien que te conozca de antes y de ahora. En integración no hace falta frecuencia alta; hace falta un espejo que registre el contraste.',
-      invitation: '¿Quién sería esa persona?',
-      cadence: 'weekly',
-    },
-  ],
   follow_up_invitation: '¿Qué de todo esto te gustaría que siga estando dentro de un año?',
   inferred_topics: ['transiciones', 'espiritualidad', 'proposito'],
 };

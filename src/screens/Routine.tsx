@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
+import { Ouroboros } from '@/design/Ouroboros';
 import { copy } from '@/i18n';
+import { modalityBySlug } from '@/lib/catalog';
+import type { Practice } from '@/lib/schemas';
+import { generateRoutine } from '@/ai/routine';
 import { currentMatch, isCheckedToday, toggleCheckIn, totalCheckIns } from '@/store/matches';
+import { routineFor, saveRoutine } from '@/store/routine';
+import { currentSynthesis } from '@/store/soulMap';
 
 /**
  * US-6.3. Practices with an explicit cadence and a check-in.
@@ -25,10 +31,48 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** What a practice converses with, in words (guide 9.7). */
+export function connectsLabel(practice: Practice): string {
+  const therapy = practice.connects_to.modality_slug
+    ? (modalityBySlug(practice.connects_to.modality_slug)?.name_es ?? null)
+    : null;
+  if (therapy && practice.connects_to.soul_map) return text.connectsBoth(therapy);
+  if (therapy) return text.connectsTherapy(therapy);
+  return text.connectsMap;
+}
+
 export function Routine() {
   const match = currentMatch();
   const [, force] = useState(0);
+  const [generating, setGenerating] = useState(false);
+  const [failed, setFailed] = useState(false);
   const date = today();
+  const practices = routineFor(match);
+
+  // v1.2 R-01: the routine is written after the therapies, the first time the
+  // person comes to see it, so it sees which ones they set aside.
+  const generate = useCallback(async () => {
+    const synthesis = currentSynthesis();
+    if (!match || !synthesis) return;
+    setGenerating(true);
+    setFailed(false);
+    try {
+      const modalitySlugs = match.result.matched_modalities
+        .map((m) => m.modality_slug)
+        .filter((slug) => match.reactions[slug]?.reaction !== 'dismissed');
+      const result = await generateRoutine({ synthesis: synthesis.synthesis, modalitySlugs });
+      saveRoutine(match.id, result.value);
+    } catch {
+      setFailed(true);
+    } finally {
+      setGenerating(false);
+    }
+  }, [match]);
+
+  const needsRoutine = Boolean(match) && practices.length === 0;
+  useEffect(() => {
+    if (needsRoutine && !generating && !failed) void generate();
+  }, [needsRoutine, generating, failed, generate]);
 
   if (!match) {
     return (
@@ -40,6 +84,30 @@ export function Routine() {
           <Link to="/caminos" className="cta no-underline">
             {text.toPaths}
           </Link>
+        </div>
+      </Screen>
+    );
+  }
+
+  if (practices.length === 0) {
+    return (
+      <Screen backdrop="hoja" scrim="heavy" opacity={PHOTO.content45}>
+        <div className="flex min-h-dvh flex-col items-center justify-center gap-5 px-8 text-center sm:min-h-0 sm:flex-1">
+          {failed ? (
+            <>
+              <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{copy.chrome.aiError.message}</p>
+              <button type="button" className="cta" onClick={() => void generate()}>
+                {copy.chrome.aiError.retry}
+              </button>
+            </>
+          ) : (
+            <>
+              <Ouroboros size={88} />
+              <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">
+                {text.generating}
+              </p>
+            </>
+          )}
         </div>
       </Screen>
     );
@@ -58,7 +126,7 @@ export function Routine() {
         </p>
 
         <div className="flex flex-col gap-2.5">
-          {match.result.routine.map((practice) => {
+          {practices.map((practice) => {
             const done = isCheckedToday(practice.title, date);
             const total = totalCheckIns(practice.title);
 
@@ -71,6 +139,9 @@ export function Routine() {
                   </span>
                 </div>
 
+                <p className="mb-2 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
+                  {connectsLabel(practice)}
+                </p>
                 <p className="mb-3 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{practice.body}</p>
 
                 <p className="mb-3.5 font-serif text-[length:var(--fs-voice-15)] leading-snug text-crema italic">

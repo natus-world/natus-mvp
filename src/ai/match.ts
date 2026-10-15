@@ -3,7 +3,6 @@ import { MATCH_PROMPT_VERSION } from './prompts/versions';
 import { buildMatchFixture } from './fixtures/match';
 import { fallbackRanking, type FilterOutcome } from '@/lib/matching';
 import { matchResultSchema, type MatchResult, type SoulMapSynthesis } from '@/lib/schemas';
-import { CURATED_ROUTINES } from './fixtures/match';
 import { isDemoMode } from '@/supabase/client';
 
 /** PDR 7.4, as a separate call from the Soul Map so therapies can be
@@ -75,6 +74,5 @@ function deterministicMatch(input: {
         ? entry.modality.contraindications.join(' ')
         : null,
     })),
-    routine: CURATED_ROUTINES.slice(0, 3),
   };
 }

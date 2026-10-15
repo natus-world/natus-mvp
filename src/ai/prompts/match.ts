@@ -1,5 +1,5 @@
 import { MATCH_PROMPT_VERSION } from './versions.ts';
-import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES, addressLine, personText } from './shared.ts';
+import { JSON_DISCIPLINE, TONE_RULES, addressLine, personText } from './shared.ts';
 import type { FilterOutcome } from '@/lib/matching.ts';
 import type { GrammaticalGender } from '@/lib/model-input.ts';
 import type { SoulMapSynthesis } from '@/lib/schemas/index.ts';
@@ -30,8 +30,8 @@ ${TONE_RULES}
 TAREA
 Recibes la síntesis del mapa de una persona y un catálogo acotado de
 modalidades candidatas. Ordenas entre 3 y 5, y escribes por qué cada una tiene
-que ver con lo que esa persona contó. Después propones entre 3 y 5 prácticas
-de rutina.
+que ver con lo que esa persona contó. No propones prácticas: la rutina se
+arma después, viendo las terapias que elijas.
 
 LAS CUATRO DIMENSIONES, EN ESTE ORDEN DE PRIORIDAD
 No las promedies ni les pongas pesos. Es un orden, no una cuenta.
@@ -81,22 +81,11 @@ EL REASONING
 - Di qué pasa realmente en una sesión. La gente no sabe qué es EMDR ni
   constelaciones. Sin eso la recomendación no sirve para nada.
 
-LA RUTINA
-Cada práctica: una señal concreta (qué), una razón conectada al mapa (por qué)
-y una micro-invitación en pregunta (¿lo pruebas?).
-Nada abstracto. "Diez minutos de respiración 4-7-8 antes de dormir", no
-"explora el silencio".
-
-${PHYSICAL_RISK_RULES}
-
 CONTRATO
 {
   "prompt_version": "${MATCH_PROMPT_VERSION}",
   "matched_modalities": [
     { "modality_slug": "...", "rank": 1, "reasoning": "...", "caution_note": null }
-  ],
-  "routine": [
-    { "title": "...", "body": "...", "invitation": "¿...?", "cadence": "daily|weekly|process|one_off" }
   ]
 }
 

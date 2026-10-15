@@ -14,7 +14,7 @@ import {
 } from './budget.ts';
 import { FREE_QUESTIONS, SUBSCRIBED_QUESTIONS, SUBSCRIBED_WINDOW_HOURS } from './quota.ts';
 
-const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison'];
+const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison', 'routine'];
 
 const costUsd = (usage: Usage) => priced(usage, OPUS);
 
@@ -142,7 +142,7 @@ describe('per-person limits', () => {
     // The chat's limit is FREE_QUESTIONS and lives in `quota.ts`. Two numbers
     // answering the same question is how they come to disagree.
     const covered = Object.keys(PURPOSE_LIMITS).sort();
-    expect(covered).toEqual(['comparison', 'match', 'meditation', 'soul_map']);
+    expect(covered).toEqual(['comparison', 'match', 'meditation', 'routine', 'soul_map']);
   });
 
   it('sits far enough above ordinary use to mean something went wrong', () => {

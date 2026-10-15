@@ -13,6 +13,7 @@ import { useActiveCrisisId } from '@/components/takeover';
 import { copy } from '@/i18n';
 import { comparisonWithheld } from '@/screens/comparison/Gate';
 import { pendingInvite } from '@/store/friends';
+import { routineFor } from '@/store/routine';
 
 const t = copy.today;
 
@@ -43,7 +44,7 @@ export function Today() {
     );
   }
 
-  const practices = match?.result.routine ?? [];
+  const practices = routineFor(match);
   const today = new Date().toISOString().slice(0, 10);
   const doneToday = practices.filter((p) => isCheckedToday(p.title, today)).length;
   const name = firstNameOf(profile.draft.legal_birth_name);

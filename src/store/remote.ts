@@ -9,6 +9,7 @@ import type { StoredSynthesis } from './soulMap.ts';
 import type { CheckIn, StoredMatch } from './matches.ts';
 import type { Conversation, StoredMessage } from './chat.ts';
 import type { StoredMeditation } from './meditations.ts';
+import type { StoredPractice } from './routine.ts';
 import type { CrisisEvent } from './crisis.ts';
 import type { Preferences } from './preferences.ts';
 import type { Subscription } from './subscription.ts';
@@ -571,6 +572,48 @@ const meditations: Adapter<StoredMeditation[]> = {
     ),
 };
 
+const practices: Adapter<StoredPractice[]> = {
+  async load(client, userId) {
+    return (await selectAll(client, 'routine_practices', userId)).map((r) => ({
+      id: r.id,
+      match_id: r.match_id,
+      title: r.title,
+      body: r.body,
+      invitation: r.invitation,
+      cadence: enumerated<StoredPractice['cadence']>(r.cadence),
+      connects_to: { soul_map: r.connects_soul_map, modality_slug: r.connects_modality },
+      origin: enumerated<StoredPractice['origin']>(r.origin),
+      prompt_version: r.prompt_version,
+      is_active: r.is_active,
+      created_at: ms(r.created_at),
+    }));
+  },
+  save: (client, userId, value) =>
+    replaceRows(
+      client,
+      'routine_practices',
+      userId,
+      // Only what this browser may write: the model's practices.
+      value
+        .filter((p) => p.origin === 'ia')
+        .map((p) => ({
+          id: p.id,
+          user_id: userId,
+          match_id: p.match_id,
+          title: p.title,
+          body: p.body,
+          invitation: p.invitation,
+          cadence: p.cadence,
+          connects_soul_map: p.connects_to.soul_map,
+          connects_modality: p.connects_to.modality_slug,
+          origin: p.origin,
+          prompt_version: p.prompt_version,
+          is_active: p.is_active,
+          created_at: iso(p.created_at),
+        })),
+    ),
+};
+
 const crisisEvents: Adapter<CrisisEvent[]> = {
   async load(client, userId) {
     return (await selectAll(client, 'crisis_events', userId)).map((r) => {
@@ -623,6 +666,7 @@ export const ADAPTERS: Record<RemoteNamespace, Adapter<any>> = {
   conversations,
   messages,
   meditations,
+  routine_practices: practices,
   crisis_events: crisisEvents,
   subscription,
   preferences,

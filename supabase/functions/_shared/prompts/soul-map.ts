@@ -1,4 +1,4 @@
-import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES, addressLine, personText } from './shared.ts';
+import { JSON_DISCIPLINE, TONE_RULES, addressLine, personText } from './shared.ts';
 import type { Numerology } from '@/lib/schemas/index.ts';
 import type { GrammaticalGender, SoulMapDraft } from '@/lib/model-input.ts';
 
@@ -36,8 +36,9 @@ ${TONE_RULES}
 TAREA
 Recibes cuatro bloques sobre una persona: datos básicos, numerología ya
 calculada, carta natal (si la hay) y contexto vital. Devuelves una síntesis
-narrativa en tres secciones, entre tres y cinco invitaciones concretas, y los
-temas que infieres de lo que contó.
+narrativa en tres secciones y los temas que infieres de lo que contó.
+No propones prácticas: la rutina se arma después, cuando ya se eligieron las
+terapias.
 
 LAS TRES SECCIONES
 - tu_camino: 3 a 5 oraciones. Lo que se repite, lo que trajo a la persona
@@ -47,14 +48,6 @@ LAS TRES SECCIONES
   dicha con las palabras que usó la persona, no con las tuyas.
 - que_necesitas_ahora: 2 a 4 oraciones. Qué pide este momento. Nunca una
   indicación clínica.
-
-LAS INVITACIONES (tips)
-Cada una tiene: title corto, body que explica por qué esta práctica y no otra
-para ESTE mapa, e invitation que cierra en pregunta. Nada abstracto: una
-señal concreta, una razón conectada al mapa, una micro-invitación.
-La cadence es daily, weekly, process u one_off.
-
-${PHYSICAL_RISK_RULES}
 
 FASE Y MODO
 detected_phase: "pregunta" si todavía está formulando qué le pasa,
@@ -78,13 +71,12 @@ CONTRATO NORMAL
     "lo_que_estas_trabajando": "...",
     "que_necesitas_ahora": "..."
   },
-  "tips": [ { "title": "...", "body": "...", "invitation": "¿...?", "cadence": "daily|weekly|process|one_off" } ],
   "follow_up_invitation": "...",
   "inferred_topics": ["..."]
 }
 
 CONTRATO DE CRISIS
-Si detectas riesgo, devuelves SOLO esto. Sin tips, sin síntesis, sin
+Si detectas riesgo, devuelves SOLO esto. Sin síntesis, sin
 interpretación simbólica de ningún tipo:
 {
   "detected_phase": "crisis",

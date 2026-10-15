@@ -4,6 +4,9 @@ import { PHOTO, Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { activeProfile, isSignedIn } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
+import { currentMatchFor } from '@/store/matches';
+import { routineFor } from '@/store/routine';
+import { PATHS } from '@/components/routes';
 import type { Numerology } from '@/lib/schemas';
 
 /**
@@ -77,6 +80,7 @@ export function SoulMap() {
   }
 
   const { synthesis, numerology } = stored;
+  const toTry = routineFor(currentMatchFor(stored.id)).filter((p) => p.connects_to.soul_map);
 
   return (
     <Screen backdrop="mar" scrim="heavy" opacity={PHOTO.content45}>
@@ -102,24 +106,34 @@ export function SoulMap() {
         <div className="my-7 h-px w-10 bg-crema/25" />
 
         <h2 className="eyebrow mb-3">{text.toTry}</h2>
-        <div className="flex flex-col gap-2.5">
-          {synthesis.tips.map((tip) => (
-            <article key={tip.title} className="surface surface-p14">
-              <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                <h3 className="text-[length:var(--fs-heading-13)] text-blanco">{tip.title}</h3>
-                <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                  {copy.practice.cadence[tip.cadence]}
-                </span>
-              </div>
-              <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{tip.body}</p>
-              {/* PDR 1.5: every tip closes on a micro-invitation. It is set in
-                  the serif italic so it reads as a question, not a step. */}
-              <p className="mt-2.5 font-serif text-[length:var(--fs-voice-15)] leading-snug text-crema italic">
-                {tip.invitation}
-              </p>
-            </article>
-          ))}
-        </div>
+        {/* v1.2 O-07: the same routine, seen from the chart — the practices that
+            converse with the map. Not a second list. */}
+        {toTry.length > 0 ? (
+          <div className="flex flex-col gap-2.5">
+            {toTry.map((practice) => (
+              <article key={practice.title} className="surface surface-p14">
+                <div className="mb-1.5 flex items-baseline justify-between gap-3">
+                  <h3 className="text-[length:var(--fs-heading-13)] text-blanco">{practice.title}</h3>
+                  <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
+                    {copy.practice.cadence[practice.cadence]}
+                  </span>
+                </div>
+                <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{practice.body}</p>
+                {/* PDR 1.5: every practice closes on a micro-invitation. */}
+                <p className="mt-2.5 font-serif text-[length:var(--fs-voice-15)] leading-snug text-crema italic">
+                  {practice.invitation}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-start gap-2.5">
+            <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/60">{text.toTryEmpty}</p>
+            <Link to={PATHS.journey} className="chip chip-p6 px-3 text-crema/75 no-underline">
+              {text.toTryCta}
+            </Link>
+          </div>
+        )}
 
         <div className="my-7 h-px w-10 bg-crema/25" />
 

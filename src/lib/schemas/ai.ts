@@ -35,7 +35,6 @@ export const soulMapSynthesisSchema = z.object({
     lo_que_estas_trabajando: z.string().min(1),
     que_necesitas_ahora: z.string().min(1),
   }),
-  tips: z.array(tipSchema).min(3).max(5),
   follow_up_invitation: z.string().min(1),
   /** PDR 7.2: feeds $inferred_topics in the hard filter. */
   inferred_topics: z.array(z.string().min(1)),
@@ -85,9 +84,27 @@ export const matchResultSchema = z.object({
     )
     .min(1)
     .max(5),
-  routine: z.array(tipSchema).min(3).max(5),
 });
 export type MatchResult = z.infer<typeof matchResultSchema>;
+
+/**
+ * v1.2 R-01: one routine, generated after the therapies are chosen, seeing the
+ * map and those therapies. Every practice says what it converses with: the
+ * map, a recommended therapy, or both.
+ */
+export const practiceSchema = tipSchema.extend({
+  connects_to: z.object({
+    soul_map: z.boolean(),
+    modality_slug: z.string().min(1).nullable(),
+  }),
+});
+export type Practice = z.infer<typeof practiceSchema>;
+
+export const routineResultSchema = z.object({
+  prompt_version: z.string().min(1),
+  practices: z.array(practiceSchema).min(3).max(5),
+});
+export type RoutineResult = z.infer<typeof routineResultSchema>;
 
 /** PDR 10.3. */
 export const chatResponseSchema = z.object({

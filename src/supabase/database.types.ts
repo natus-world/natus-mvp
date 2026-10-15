@@ -842,6 +842,62 @@ export type Database = {
         }
         Relationships: []
       }
+      routine_practices: {
+        Row: {
+          body: string
+          cadence: string
+          connects_modality: string | null
+          connects_soul_map: boolean
+          created_at: string
+          id: string
+          invitation: string
+          is_active: boolean
+          match_id: string | null
+          origin: string
+          prompt_version: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          cadence: string
+          connects_modality?: string | null
+          connects_soul_map?: boolean
+          created_at?: string
+          id?: string
+          invitation: string
+          is_active?: boolean
+          match_id?: string | null
+          origin?: string
+          prompt_version?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          cadence?: string
+          connects_modality?: string | null
+          connects_soul_map?: boolean
+          created_at?: string
+          id?: string
+          invitation?: string
+          is_active?: boolean
+          match_id?: string | null
+          origin?: string
+          prompt_version?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routine_practices_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "modality_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       soul_map_syntheses: {
         Row: {
           created_at: string

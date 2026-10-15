@@ -154,6 +154,22 @@ export const matchInputSchema = z
     }
   });
 
+/**
+ * v1.2 R-01: the routine, asked for once the therapies are chosen. The
+ * therapies travel as slugs, rehydrated from the function's own catalogue, so
+ * a caller cannot describe a therapy the model then quotes.
+ */
+export const routineInputSchema = z
+  .object({
+    synthesis: soulMapSynthesisSchema,
+    modalitySlugs: slugs.max(5).default([]),
+  })
+  .superRefine((value, ctx) => {
+    for (const slug of value.modalitySlugs) {
+      if (!modalityBySlug(slug)) ctx.addIssue({ code: 'custom', message: `unknown modality: ${slug}` });
+    }
+  });
+
 /** The bed catalogue is not in here either: the function reads its own. */
 export const meditationInputSchema = z.object({
   intent: z.string().trim().min(1).max(MAX_TURN_CHARS),

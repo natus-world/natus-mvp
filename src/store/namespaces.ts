@@ -12,6 +12,7 @@ export type Namespace =
   | 'soul_map_synthesis'
   | 'recommendation_checkins'
   | 'modality_matches'
+  | 'routine_practices'
   | 'conversations'
   | 'messages'
   | 'meditations'
@@ -41,6 +42,7 @@ export const REMOTE_NAMESPACES = [
   'soul_map_synthesis',
   'recommendation_checkins',
   'modality_matches',
+  'routine_practices',
   'conversations',
   'messages',
   'meditations',

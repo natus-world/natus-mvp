@@ -21,7 +21,7 @@ import type { SynthesisTrigger } from './model-input.ts';
  * and nothing a client can write.
  */
 
-export type Purpose = 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison';
+export type Purpose = 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison' | 'routine';
 
 export const OPUS = 'claude-opus-5-5';
 export const SONNET = 'claude-sonnet-5-5';
@@ -135,6 +135,8 @@ export const PURPOSE_LIMITS: Record<Exclude<Purpose, 'chat'>, PurposeLimit> = {
   match: { calls: 20, windowHours: 720 },
   meditation: { calls: 40, windowHours: 720 },
   comparison: { calls: 20, windowHours: 720 },
+  // One routine per match, so the same order as the match.
+  routine: { calls: 20, windowHours: 720 },
 };
 
 /**
@@ -179,4 +181,5 @@ export const MAX_OUTPUT_TOKENS: Record<Purpose, number> = {
   // cut off mid-object. Too low does not save money: it spends the whole call
   // and returns nothing parseable.
   comparison: 8000,
+  routine: 4000,
 };
