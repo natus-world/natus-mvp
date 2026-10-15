@@ -128,11 +128,8 @@ describe('coverage of the catalogue', () => {
   });
 });
 
-describe('a small pool is shown as it is', () => {
-  it('produces one card from a pool of one, without padding', () => {
-    // PDR 7.2 edge case 2: "se muestran igual, sin rellenar con ruido". This
-    // is the case that forced the schema's lower bound down from the 3 stated
-    // in 7.4 — the two sections contradict each other and this one wins.
+describe('a small pool is topped up before ranking (O-03)', () => {
+  it('produces at least three cards when the person chose a single modality', () => {
     const outcome = filterModalities({
       openness: ['numerologia'],
       inferredTopics: [],
@@ -140,20 +137,24 @@ describe('a small pool is shown as it is', () => {
     });
     const result = buildMatchFixture({ outcome, synthesis });
 
-    expect(outcome.candidates).toHaveLength(1);
-    expect(result.matched_modalities).toHaveLength(1);
+    expect(outcome.candidates.length).toBeGreaterThanOrEqual(5);
+    expect(result.matched_modalities.length).toBeGreaterThanOrEqual(3);
     expect(() => matchResultSchema.parse(result)).not.toThrow();
   });
 
-  it('produces two cards from a pool of two', () => {
+  it('keeps the floor clear of removing modalities for a vulnerable person', () => {
     const outcome = filterModalities({
       openness: ['terapia-somatica', 'biodanza'],
       inferredTopics: [],
-      clinicallyVulnerable: false,
+      clinicallyVulnerable: true,
     });
     const result = buildMatchFixture({ outcome, synthesis });
 
-    expect(result.matched_modalities).toHaveLength(2);
+    for (const match of result.matched_modalities) {
+      expect(modalityBySlug(match.modality_slug)?.requires_clinical_support, match.modality_slug).toBe(
+        false,
+      );
+    }
     expect(() => matchResultSchema.parse(result)).not.toThrow();
   });
 });

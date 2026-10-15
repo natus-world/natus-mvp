@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StepBody } from '@/components/onboarding/StepChrome';
 import { OptionItem } from '@/components/onboarding/OptionItem';
-import { expandOpenness, opennessFile } from '@/lib/catalog';
+import { expandOpenness, opennessFile, opennessOptionsFor } from '@/lib/catalog';
 import type { OnboardingDraft } from '@/store/session';
 
 /**
@@ -20,12 +20,9 @@ export function Openness({
   onNext: () => void;
 }) {
   // Family selection is screen state; the draft holds the expansion.
-  const [families, setFamilies] = useState<string[]>(() => {
-    if (draft.openness_to_modalities.includes('me_da_lo_mismo')) return ['me_da_lo_mismo'];
-    return opennessFile.options
-      .filter((o) => o.expands_to.some((slug) => draft.openness_to_modalities.includes(slug)))
-      .map((o) => o.slug);
-  });
+  const [families, setFamilies] = useState<string[]>(() =>
+    opennessOptionsFor(draft.openness_to_modalities),
+  );
   const [other, setOther] = useState('');
 
   const apply = (next: string[], freeText = other) => {

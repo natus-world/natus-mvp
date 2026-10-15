@@ -25,6 +25,8 @@ const REASONINGS: Record<string, string> = {
     'Hay un patrón que reconocés en el momento en que sucede, y ese reconocimiento todavía no alcanza para interrumpirlo. La práctica de atención entrena justamente ese instante: notar que la cabeza se fue y volver, sin castigo. Es de lo más estudiado de esta lista y se sostiene en diez minutos diarios.',
   breathwork:
     'Mencionás una activación que aparece rápido y se va lenta. La respiración pautada cambia el estado del cuerpo en cuestión de minutos, alargando la exhalación o contando tiempos. Es de lo más fácil de llevarse a casa y de usar justo cuando hace falta.',
+  'breathwork-holotropico':
+    'Aparece en lo que cuentas algo que pide más que entenderlo con la cabeza. El breathwork holotrópico es un taller largo y guiado donde una respiración rápida y sostenida abre un estado poco habitual, y desde ahí suelen aparecer emociones o recuerdos con mucha fuerza. Es de lo más intenso de esta lista, y lo que se mueve ahí suele necesitar acompañamiento en los días siguientes.',
   'sound-healing':
     'Cuando cuesta parar, una práctica que no pide hacer nada puede entrar mejor que una que pide esfuerzo. En sound healing te acostás y escuchás cuencos o gongs durante unos cuarenta minutos. La mayoría se duerme, y ese descanso profundo suele ser el valor real.',
   'psicologia-clinica':
@@ -64,6 +66,8 @@ const CAUTIONS: Record<string, string> = {
     'Está contraindicada con antecedentes psicóticos, bipolaridad o medicación psiquiátrica activa, y las plantas tienen interacciones graves con antidepresivos. El marco legal varía según el país.',
   hipnosis:
     'Requiere un profesional formado y está desaconsejada en cuadros psicóticos o disociativos. Preguntá por la formación específica antes de empezar.',
+  'breathwork-holotropico':
+    'La respiración sostenida está contraindicada en embarazo, epilepsia, glaucoma, hipertensión o problemas cardíacos: ante cualquiera de ellos, consulta antes con un médico. También se desaconseja con antecedentes psicóticos, bipolaridad o medicación psiquiátrica activa, y conviene contar con un espacio terapéutico para integrar lo que aparezca.',
   emdr: 'Pide cierta estabilidad previa: no se empieza en medio de una crisis aguda. Buscá a alguien con formación acreditada en el protocolo.',
 };
 

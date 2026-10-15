@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ACTIVE_MODALITIES } from './catalog.ts';
+import { ACTIVE_MODALITIES, opennessFile, opennessOptionsFor } from './catalog.ts';
 import type { Modality } from './schemas/index.ts';
 
 /**
@@ -26,6 +26,8 @@ import type { Modality } from './schemas/index.ts';
 
 export const MAX_POOL = 12;
 
+export const MIN_POOL = 5;
+
 /**
  * Written as a schema and the type derived from it, because the strategy now
  * crosses to the server in a request body and a second hand-written union
@@ -51,6 +53,7 @@ export type FilterOutcome = {
   /** How many were cut by the size cap, and never silently. */
   droppedForSize: number;
   poolBeforeTruncation: number;
+  addedForFloor?: string[];
 };
 
 export type FilterInput = {
@@ -131,6 +134,12 @@ export function filterModalities(input: FilterInput): FilterOutcome {
     );
   }
 
+  const addedForFloor = closestOutside(pool, input, dismissed, MIN_POOL - pool.length);
+  if (addedForFloor.length > 0) {
+    const added = new Set(addedForFloor);
+    pool = [...pool, ...ACTIVE_MODALITIES.filter((m) => added.has(m.slug))];
+  }
+
   const poolBeforeTruncation = pool.length;
   const { kept, dropped } = truncate(pool);
 
@@ -141,7 +150,69 @@ export function filterModalities(input: FilterInput): FilterOutcome {
     excludedForDismissal,
     droppedForSize: dropped,
     poolBeforeTruncation,
+    addedForFloor,
   };
+}
+
+export function optionDistances(seedSlugs: readonly string[]): Map<string, number> {
+  const options = opennessFile.options;
+  const everything = seedSlugs.includes('me_da_lo_mismo');
+  const chosen = new Set(opennessOptionsFor(seedSlugs));
+  const covered = new Set(options.filter((o) => chosen.has(o.slug)).flatMap((o) => o.expands_to));
+  const loose = new Set(seedSlugs.filter((s) => !covered.has(s)));
+  const distance = new Map<string, number>();
+  let frontier = options.filter(
+    (o) => everything || chosen.has(o.slug) || o.expands_to.some((s) => loose.has(s)),
+  );
+  for (let step = 0; frontier.length > 0; step++) {
+    for (const option of frontier) distance.set(option.slug, step);
+    const reached = new Set(frontier.flatMap((o) => o.expands_to));
+    frontier = options.filter(
+      (o) => !distance.has(o.slug) && o.expands_to.some((s) => reached.has(s)),
+    );
+  }
+  return distance;
+}
+
+export function modalityDistance(slug: string, distances: Map<string, number>): number {
+  let best = Number.POSITIVE_INFINITY;
+  for (const option of opennessFile.options) {
+    const d = distances.get(option.slug);
+    if (d !== undefined && d < best && option.expands_to.includes(slug)) best = d;
+  }
+  return best;
+}
+
+function closestOutside(
+  pool: readonly Modality[],
+  input: FilterInput,
+  dismissed: ReadonlySet<string>,
+  missing: number,
+): string[] {
+  if (missing <= 0) return [];
+  const inPool = new Set(pool.map((m) => m.slug));
+  const distances = optionDistances([...input.openness, ...inPool]);
+  return ACTIVE_MODALITIES.filter(
+    (m) =>
+      !inPool.has(m.slug) &&
+      !dismissed.has(m.slug) &&
+      !(input.clinicallyVulnerable && m.requires_clinical_support),
+  )
+    .map((m) => ({
+      m,
+      distance: modalityDistance(m.slug, distances),
+      overlap: m.works_well_for.filter((t) => input.inferredTopics.includes(t)).length,
+    }))
+    .sort(
+      (a, b) =>
+        a.distance - b.distance ||
+        Number(a.m.requires_clinical_support) - Number(b.m.requires_clinical_support) ||
+        b.overlap - a.overlap ||
+        a.m.intensity - b.m.intensity ||
+        a.m.slug.localeCompare(b.m.slug),
+    )
+    .slice(0, missing)
+    .map(({ m }) => m.slug);
 }
 
 /**

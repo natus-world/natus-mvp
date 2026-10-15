@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_POOL, fallbackRanking, filterModalities, poolFraming } from './matching.ts';
-import { ACTIVE_MODALITIES, modalityBySlug } from './catalog.ts';
+import {
+  MAX_POOL,
+  MIN_POOL,
+  fallbackRanking,
+  filterModalities,
+  modalityDistance,
+  optionDistances,
+  poolFraming,
+} from './matching.ts';
+import { ACTIVE_MODALITIES, expandOpenness, modalityBySlug } from './catalog.ts';
 
 /** Every slug, as the "me da lo mismo" case produces. */
 const ANY = ['me_da_lo_mismo'];
@@ -16,12 +24,21 @@ describe('the three predicates of PDR 7.2', () => {
   });
 
   it('keeps only what the person is open to', () => {
-    const { candidates } = filterModalities({
-      openness: ['terapia-somatica', 'biodanza'],
+    const openness = [
+      'terapia-somatica',
+      'biodanza',
+      'yoga-terapeutico',
+      'breathwork',
+      'sound-healing',
+      'reiki',
+    ];
+    const { candidates, addedForFloor } = filterModalities({
+      openness,
       inferredTopics: [],
       clinicallyVulnerable: false,
     });
-    expect(candidates.map((m) => m.slug).sort()).toEqual(['biodanza', 'terapia-somatica']);
+    expect(candidates.map((m) => m.slug).sort()).toEqual([...openness].sort());
+    expect(addedForFloor).toEqual([]);
   });
 
   it('keeps only what shares a topic with what was inferred', () => {
@@ -82,8 +99,10 @@ describe('edge case 1 — an empty pool', () => {
       clinicallyVulnerable: false,
     });
     expect(outcome.strategy).toBe('contemplative-fallback');
-    expect(outcome.candidates.length).toBeGreaterThan(0);
-    expect(outcome.candidates.every((m) => m.family === 'contemplativa')).toBe(true);
+    const added = new Set(outcome.addedForFloor);
+    const fallback = outcome.candidates.filter((m) => !added.has(m.slug));
+    expect(fallback.length).toBeGreaterThan(0);
+    expect(fallback.every((m) => m.family === 'contemplativa')).toBe(true);
   });
 
   it('keeps the fallback safe for the person it just protected', () => {
@@ -99,24 +118,142 @@ describe('edge case 1 — an empty pool', () => {
   });
 });
 
-describe('edge case 2 — a pool of one or two', () => {
-  it('shows them as they are, without padding', () => {
+describe('O-03 — the minimum candidate floor', () => {
+  const corporal = expandOpenness(['corporal']);
+
+  it('tops a pool of fewer than five up to five', () => {
     const outcome = filterModalities({
       openness: ['numerologia'],
       inferredTopics: [],
       clinicallyVulnerable: false,
     });
-    expect(outcome.candidates).toHaveLength(1);
+    expect(outcome.candidates).toHaveLength(MIN_POOL);
+    expect(outcome.candidates.map((m) => m.slug)).toContain('numerologia');
+    expect(outcome.addedForFloor).toHaveLength(MIN_POOL - 1);
     expect(outcome.strategy).toBe('topical');
   });
 
-  it('frames a small pool honestly instead of overselling it', () => {
+  it('leaves a pool of five or more alone', () => {
+    const outcome = filterModalities({
+      openness: corporal,
+      inferredTopics: [],
+      clinicallyVulnerable: false,
+    });
+    expect(outcome.addedForFloor).toEqual([]);
+    expect(outcome.candidates.map((m) => m.slug).sort()).toEqual([...corporal].sort());
+  });
+
+  it('never re-admits a clinically excluded modality', () => {
+    const removing = ACTIVE_MODALITIES.filter((m) => m.requires_clinical_support).map((m) => m.slug);
+    for (const openness of [['constelaciones-familiares'], corporal, ['numerologia'], ['emdr', 'tcc']]) {
+      const outcome = filterModalities({ openness, inferredTopics: [], clinicallyVulnerable: true });
+      expect(outcome.candidates.length, openness.join()).toBeGreaterThanOrEqual(MIN_POOL);
+      for (const slug of outcome.addedForFloor ?? []) {
+        expect(removing, slug).not.toContain(slug);
+      }
+      expect(outcome.candidates.every((m) => !m.requires_clinical_support), openness.join()).toBe(
+        true,
+      );
+    }
+  });
+
+  it('never re-admits a dismissed modality', () => {
+    const outcome = filterModalities({
+      openness: ['numerologia'],
+      inferredTopics: [],
+      clinicallyVulnerable: false,
+      dismissedSlugs: ['astrologia-psicologica', 'tarot-terapeutico'],
+    });
+    const slugs = outcome.candidates.map((m) => m.slug);
+    expect(slugs).not.toContain('astrologia-psicologica');
+    expect(slugs).not.toContain('tarot-terapeutico');
+    expect(slugs).toHaveLength(MIN_POOL);
+  });
+
+  it('takes the rest of the chosen group first', () => {
     const outcome = filterModalities({
       openness: ['numerologia'],
       inferredTopics: [],
       clinicallyVulnerable: false,
     });
-    expect(poolFraming(outcome)).toMatch(/pocas/i);
+    expect(outcome.addedForFloor!.slice(0, 2).sort()).toEqual(
+      ['astrologia-psicologica', 'tarot-terapeutico'].sort(),
+    );
+  });
+
+  it('reaches into the neighbouring group before unrelated ones', () => {
+    const outcome = filterModalities({
+      openness: corporal,
+      inferredTopics: [],
+      clinicallyVulnerable: true,
+    });
+    expect(outcome.excludedForVulnerability).toContain('breathwork-holotropico');
+    expect(outcome.addedForFloor).toEqual(['sound-healing']);
+  });
+
+  it('measures closeness as steps between options that share a modality', () => {
+    const distances = optionDistances(expandOpenness(['corporal']));
+    expect(distances.get('corporal')).toBe(0);
+    expect(distances.get('contemplativa')).toBe(1);
+    expect(distances.get('energetica')).toBe(2);
+    expect(distances.has('simbolica')).toBe(false);
+    expect(modalityDistance('mindfulness-meditacion', distances)).toBe(1);
+    expect(modalityDistance('reiki', distances)).toBe(2);
+    expect(modalityDistance('numerologia', distances)).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it('prefers what shares a topic with what was inferred, among equally close ones', () => {
+    const outcome = filterModalities({
+      openness: ['numerologia'],
+      inferredTopics: ['pareja'],
+      clinicallyVulnerable: false,
+    });
+    expect(outcome.strategy).toBe('relaxed');
+    expect(outcome.addedForFloor![0]).toBe('tarot-terapeutico');
+    expect(modalityBySlug('tarot-terapeutico')!.works_well_for).toContain('pareja');
+    expect(modalityBySlug('astrologia-psicologica')!.works_well_for).not.toContain('pareja');
+  });
+
+  it('is deterministic', () => {
+    const input = { openness: ['numerologia'], inferredTopics: ['duelo'], clinicallyVulnerable: false };
+    expect(filterModalities(input).addedForFloor).toEqual(filterModalities(input).addedForFloor);
+  });
+});
+
+describe('O-03 — "solo cuerpo" is no longer a pool of two', () => {
+  it('yields at least five candidates from that option alone', () => {
+    for (const clinicallyVulnerable of [false, true]) {
+      const outcome = filterModalities({
+        openness: expandOpenness(['corporal']),
+        inferredTopics: [],
+        clinicallyVulnerable,
+      });
+      expect(outcome.candidates.length, String(clinicallyVulnerable)).toBeGreaterThanOrEqual(5);
+      expect(outcome.candidates.map((m) => m.slug)).toContain('biodanza');
+    }
+  });
+});
+
+describe('O-04 — holotropic breathwork', () => {
+  it('is excluded under clinical vulnerability while conscious breathing stays', () => {
+    const outcome = filterModalities({
+      openness: expandOpenness(['corporal']),
+      inferredTopics: [],
+      clinicallyVulnerable: true,
+    });
+    const slugs = outcome.candidates.map((m) => m.slug);
+    expect(slugs).not.toContain('breathwork-holotropico');
+    expect(slugs).toContain('breathwork');
+    expect(outcome.excludedForVulnerability).toContain('breathwork-holotropico');
+  });
+
+  it('is offered when the person is not vulnerable', () => {
+    const outcome = filterModalities({
+      openness: expandOpenness(['corporal']),
+      inferredTopics: [],
+      clinicallyVulnerable: false,
+    });
+    expect(outcome.candidates.map((m) => m.slug)).toContain('breathwork-holotropico');
   });
 });
 

@@ -7,7 +7,7 @@
     {
       "slug": "psicologica",
       "label_es": "Hablar con un profesional",
-      "hint_es": "Terapia conversada, con formación clínica detrás.",
+      "hint_es": "Hablar con alguien que te acompañe",
       "expands_to": [
         "psicologia-clinica",
         "terapia-gestalt",
@@ -23,7 +23,13 @@
       "slug": "corporal",
       "label_es": "Trabajar desde el cuerpo",
       "hint_es": "Movimiento, respiración y sensación antes que explicación.",
-      "expands_to": ["terapia-somatica", "biodanza"]
+      "expands_to": [
+        "terapia-somatica",
+        "biodanza",
+        "yoga-terapeutico",
+        "breathwork",
+        "breathwork-holotropico"
+      ]
     },
     {
       "slug": "contemplativa",
@@ -46,7 +52,7 @@
       "slug": "energetica",
       "label_es": "Trabajo energético y tradiciones",
       "hint_es": "Prácticas de tradición, sin respaldo clínico.",
-      "expands_to": ["reiki", "flores-de-bach", "medicina-ancestral"]
+      "expands_to": ["reiki", "flores-de-bach", "medicina-ancestral", "sound-healing"]
     }
   ],
   "special": [

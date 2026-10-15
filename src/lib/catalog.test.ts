@@ -10,6 +10,7 @@ import {
   hasUnverifiedResources,
   modalityBySlug,
   opennessFile,
+  opennessOptionsFor,
 } from './catalog.ts';
 
 /**
@@ -22,8 +23,8 @@ import {
 const MVP_COUNTRIES = ['CL', 'MX', 'CO', 'AR', 'PE'] as const;
 
 describe('modalities', () => {
-  it('holds the 21 modalities of PDR 5.3', () => {
-    expect(MODALITIES).toHaveLength(21);
+  it('holds the 21 modalities of PDR 5.3 plus the holotropic split of O-04', () => {
+    expect(MODALITIES).toHaveLength(22);
   });
 
   it('has unique slugs', () => {
@@ -45,10 +46,24 @@ describe('modalities', () => {
     // list — the PDR says "breathwork holotrópico", and the seed describes the
     // general practice, whose intense variants are called out in
     // contraindications instead.
-    const removing = ['constelaciones-familiares', 'medicina-ancestral', 'hipnosis', 'emdr'];
+    const removing = [
+      'constelaciones-familiares',
+      'medicina-ancestral',
+      'hipnosis',
+      'emdr',
+      'breathwork-holotropico',
+    ];
     for (const slug of removing) {
       expect(modalityBySlug(slug)?.requires_clinical_support, slug).toBe(true);
     }
+  });
+
+  it('splits breathwork into conscious and holotropic, as O-04 decides', () => {
+    expect(modalityBySlug('breathwork')?.requires_clinical_support).toBe(false);
+    const holotropic = modalityBySlug('breathwork-holotropico');
+    expect(holotropic?.requires_clinical_support).toBe(true);
+    expect(holotropic?.intensity).toBeGreaterThanOrEqual(4);
+    expect(holotropic?.is_active).toBe(true);
   });
 
   it('gives every modality flagged for clinical support a contraindication to show', () => {
@@ -109,16 +124,63 @@ describe('openness options', () => {
     }
   });
 
-  it('assigns each modality to exactly one option', () => {
-    const seen = new Map<string, string>();
+  it('applies the O-03 distribution, where a modality may sit in more than one option', () => {
+    const groups = Object.fromEntries(
+      opennessFile.options.map((o) => [o.slug, [...o.expands_to].sort()]),
+    );
+    expect(groups.corporal).toEqual(
+      [
+        'terapia-somatica',
+        'biodanza',
+        'yoga-terapeutico',
+        'breathwork',
+        'breathwork-holotropico',
+      ].sort(),
+    );
+    expect(groups.contemplativa).toEqual(
+      ['yoga-terapeutico', 'mindfulness-meditacion', 'sound-healing', 'breathwork'].sort(),
+    );
+    expect(groups.energetica).toEqual(
+      ['reiki', 'flores-de-bach', 'medicina-ancestral', 'sound-healing'].sort(),
+    );
+    expect(groups.simbolica).toEqual(
+      [
+        'constelaciones-familiares',
+        'astrologia-psicologica',
+        'numerologia',
+        'tarot-terapeutico',
+      ].sort(),
+    );
+    expect(groups.psicologica).toHaveLength(8);
+  });
+
+  it('never lists a modality twice within one option', () => {
     for (const option of opennessFile.options) {
-      for (const slug of option.expands_to) {
-        expect(seen.has(slug), `"${slug}" appears in ${seen.get(slug)} and ${option.slug}`).toBe(
-          false,
-        );
-        seen.set(slug, option.slug);
-      }
+      expect(new Set(option.expands_to).size, option.slug).toBe(option.expands_to.length);
     }
+  });
+
+  it('describes the professional option as company rather than a credential', () => {
+    const option = opennessFile.options.find((o) => o.slug === 'psicologica');
+    expect(option?.hint_es).toBe('Hablar con alguien que te acompañe');
+  });
+
+  it('restores exactly the options that were chosen, despite the overlap', () => {
+    expect(opennessOptionsFor(expandOpenness(['corporal']))).toEqual(['corporal']);
+    expect(opennessOptionsFor(expandOpenness(['contemplativa']))).toEqual(['contemplativa']);
+    expect(opennessOptionsFor(expandOpenness(['energetica']))).toEqual(['energetica']);
+    expect(opennessOptionsFor(expandOpenness(['corporal', 'energetica']))).toEqual([
+      'corporal',
+      'energetica',
+    ]);
+    expect(opennessOptionsFor(['me_da_lo_mismo'])).toEqual(['me_da_lo_mismo']);
+  });
+
+  it('still recognises a selection stored under the previous distribution', () => {
+    expect(opennessOptionsFor(['terapia-somatica', 'biodanza'])).toEqual(['corporal']);
+    expect(
+      opennessOptionsFor(['yoga-terapeutico', 'mindfulness-meditacion', 'sound-healing', 'breathwork']),
+    ).toEqual(['contemplativa']);
   });
 
   it('lets "me da lo mismo" bypass the restriction entirely', () => {
@@ -126,7 +188,13 @@ describe('openness options', () => {
   });
 
   it('expands a family choice to its member slugs', () => {
-    expect(expandOpenness(['corporal'])).toEqual(['terapia-somatica', 'biodanza']);
+    expect(expandOpenness(['corporal'])).toEqual([
+      'terapia-somatica',
+      'biodanza',
+      'yoga-terapeutico',
+      'breathwork',
+      'breathwork-holotropico',
+    ]);
   });
 
   it('ignores free-text entries without restricting the pool', () => {

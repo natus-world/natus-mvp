@@ -72,6 +72,21 @@ export function expandOpenness(selected: readonly string[]): string[] {
   return [...slugs];
 }
 
+export function opennessOptionsFor(slugs: readonly string[]): string[] {
+  if (slugs.includes('me_da_lo_mismo')) return ['me_da_lo_mismo'];
+  const stored = new Set(slugs);
+  return opennessFile.options
+    .filter((option) => {
+      const own = option.expands_to.filter(
+        (slug) => !opennessFile.options.some((o) => o !== option && o.expands_to.includes(slug)),
+      );
+      return own.length > 0
+        ? own.some((slug) => stored.has(slug))
+        : option.expands_to.every((slug) => stored.has(slug));
+    })
+    .map((option) => option.slug);
+}
+
 /**
  * Whether any crisis resource for a country is still unverified.
  *
