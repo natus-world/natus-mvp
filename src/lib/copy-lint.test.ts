@@ -121,3 +121,28 @@ describe('shape requirements', () => {
     expect(countSentences('Sin puntuación final')).toBe(1);
   });
 });
+
+describe('missing accents', () => {
+  it.each([
+    'Decis que hay mucha tension en el cuerpo y que te cuesta descansar.',
+    'Si tenes hipertension, consulta antes con un medico.',
+    'Es de lo mas facil de llevarse a casa y suele acompañar momentos de transicion.',
+    'Diez minutos cada dia, despues de cenar.',
+  ])('flags free text written without accents: %s', (text) => {
+    expect(lintCopy(text).map((v) => v.rule)).toContain('missing-accent');
+  });
+
+  it.each([
+    'Decís que hay mucha tensión en el cuerpo y que te cuesta descansar.',
+    'Si tienes hipertensión, consulta antes con un médico.',
+    'Diez minutos cada día, después de cenar. Una sesión por semana.',
+    'Relacionado con lo que contaste: la atención vuelve al cuerpo.',
+  ])('passes correctly accented text: %s', (text) => {
+    expect(lintCopy(text).map((v) => v.rule)).not.toContain('missing-accent');
+  });
+
+  it('leaves single-token enum values alone', () => {
+    expect(lintCopy('exploracion')).toEqual([]);
+    expect(lintCopy('integracion')).toEqual([]);
+  });
+});

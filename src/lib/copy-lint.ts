@@ -70,6 +70,12 @@ const RULES: Rule[] = [
     why: 'A diagnosis. The AI is a mirror, never a clinician — PDR 1.2.',
   },
   {
+    id: 'missing-accent',
+    pattern:
+      /(?<![\p{L}])(?:[a-zñ]+(?:ci|si|xi)on|tambien|despues|dificil|facil|medic[oa]s?|dias?|segun|todavia|ademas|ultim[oa]s?|practicas)(?![\p{L}])/iu,
+    why: 'A word that always carries an accent arrived without it. Free text is written with full Spanish orthography; only enum values go without accents.',
+  },
+  {
     id: 'first-person-emotion',
     // PDR 1.2: the AI never speaks in the first person with emotions.
     pattern: /\b(?:me\s+(?:emociona|entristece|alegra|conmueve|duele)|siento\s+mucho\s+que)\b/i,
@@ -95,6 +101,7 @@ export function lintCopy(text: string): CopyViolation[] {
   const subject = prose(text);
   const violations: CopyViolation[] = [];
   for (const rule of RULES) {
+    if (rule.id === 'missing-accent' && !/\s/.test(subject.trim())) continue;
     const match = rule.pattern.exec(subject);
     if (match) violations.push({ rule: rule.id, match: match[0], why: rule.why });
   }

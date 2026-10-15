@@ -96,5 +96,7 @@ export const JSON_DISCIPLINE = `
 FORMATO
 Respondé únicamente con un objeto JSON válido. Sin markdown, sin bloques de
 código, sin texto antes ni después. Las claves son exactamente las del
-contrato, en el idioma del contrato, sin tildes en los valores de enum.
+contrato, en el idioma del contrato. Los valores de enum van sin tildes; todo
+el texto libre (lecturas, razones, advertencias, títulos) va con ortografía
+completa, con todas sus tildes.
 `.trim();
