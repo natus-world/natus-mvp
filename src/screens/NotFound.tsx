@@ -4,7 +4,7 @@ import { copy } from '@/i18n';
 
 export function NotFound() {
   return (
-    <Screen backdrop="forest" scrim="heavy" opacity={PHOTO.content45}>
+    <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content45}>
       <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
         <h1 className="font-serif text-[length:var(--fs-voice-22)] leading-snug font-light text-blanco">
           {copy.notFound.title}

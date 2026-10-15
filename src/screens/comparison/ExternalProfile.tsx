@@ -61,7 +61,7 @@ export function ExternalProfile() {
 
   return (
     <ComparisonGate>
-      <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content40}>
+      <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content40}>
         <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
           <p className="eyebrow mb-3">{text.kicker}</p>
           <h1 className="mb-3 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">

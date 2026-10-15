@@ -13,7 +13,7 @@ export function Landing() {
   const returning = currentSynthesis() !== undefined;
 
   return (
-    <Screen backdrop="forest" scrim="bottom" opacity={PHOTO.hero} focus="center 20%">
+    <Screen backdrop="hero" scrim="bottom" opacity={PHOTO.hero} focus="center 20%">
       <div className="mt-auto flex flex-col items-center px-7 pb-13 text-center">
         <div className="relative mb-5 flex size-16 items-center justify-center rounded-full border border-crema/35">
           <span aria-hidden="true" className="absolute inset-1.5 rounded-full border border-crema/15" />

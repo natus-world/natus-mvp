@@ -63,7 +63,7 @@ export function SoulMap() {
 
   if (!stored) {
     return (
-      <Screen backdrop="palm" scrim="heavy" opacity={PHOTO.content45}>
+      <Screen backdrop="mar" scrim="heavy" opacity={PHOTO.content45}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             {text.empty}
@@ -79,7 +79,7 @@ export function SoulMap() {
   const { synthesis, numerology } = stored;
 
   return (
-    <Screen backdrop="palm" scrim="heavy" opacity={PHOTO.content45}>
+    <Screen backdrop="mar" scrim="heavy" opacity={PHOTO.content45}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
         <p className="eyebrow mb-3">{text.kicker}</p>
 

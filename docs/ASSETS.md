@@ -2,50 +2,59 @@
 
 ## Photography
 
-Four background photographs, extracted from `natus-mockups.html` where they
-were embedded as base64 JPEG data URIs.
+Thirteen backgrounds from the approved photo bank in the owner's package
+(`natus-paquete-tomas/assets/fotos/`, interface guide §11). The package ships
+them at 900px; these are cut from the full-size originals published on
+natus.world, which the package names as the source of the originals.
 
-**Origin: AI-generated.** No third-party licence applies and no attribution is
-required. Recorded here so the question does not have to be re-litigated when
-the repository changes owner.
+**Origin: the owner's approved bank.** Nebulosa is a Hubble image (NASA/ESA,
+public domain, credit appreciated). Licensing of the rest is the owner's and
+is recorded in the package, not here — ask before reusing any outside the app.
 
-| File | Screen | Source dimensions | Shipped | Size |
-|------|--------|-------------------|---------|------|
-| `public/img/forest.avif` | Landing | 1125 x 2000 | 1080 x 1920 | 80 KB |
-| `public/img/surf.avif` | Onboarding, Generating | 1080 x 1920 | 1080 x 1920 | 232 KB |
-| `public/img/palm.avif` | Soul Map, Meditations | 736 x 1308 | 736 x 1308 | 104 KB |
-| `public/img/grass.avif` | Recommendations | 1000 x 2000 | 1000 x 2000 | 36 KB |
+Every image is a centred 9:16 crop, encoded AVIF. One photograph per screen
+(guide §7); the four fixed by the approved captures are marked.
 
-Total 452 KB, down from 1.18 MB of inline JPEG in the mockup.
+| File | Bank name | Screen | Shipped | Size |
+|------|-----------|--------|---------|------|
+| `hero.avif` | Hoja (hero) | Landing | 627 x 1116 | 52 KB |
+| `sala.avif` | La sala | Onboarding, Generating — capture «Empezar» | 762 x 1355 | 67 KB |
+| `ella.avif` | Ella | «Para cuidarte» | 902 x 1604 | 61 KB |
+| `mar.avif` | El mar | Carta — capture «Carta» | 1080 x 1920 | 184 KB |
+| `canon.avif` | El cañón | Caminos — capture «Caminos» | 1080 x 1920 | 181 KB |
+| `hoja.avif` | Hoja | Recorrido — capture «Recorrido» | 627 x 1116 | 50 KB |
+| `luz.avif` | La luz | Hoy | 1080 x 1920 | 120 KB |
+| `ojo.avif` | El ojo | Chat | 576 x 1024 | 31 KB |
+| `plumas.avif` | Las plumas | Meditaciones, Mis prácticas | 1080 x 1920 | 152 KB |
+| `cruce.avif` | El cruce | Comparar cartas | 1080 x 1920 | 360 KB |
+| `montana.avif` | La montaña | Perfil, shown in black and white (§9.10) | 1080 x 1920 | 57 KB |
+| `rio.avif` | El río | Crisis | 627 x 1116 | 36 KB |
+| `nebulosa.avif` | Nebulosa | Gate, Signup, 404 | 1080 x 1920 | 208 KB |
 
-`palm` and `grass` ship at their native resolution rather than the planned
-1080px width. Upscaling them added weight without adding detail — `palm` grew
-to 156 KB when stretched to 1080 and dropped to 104 KB at its native 736.
+The assignments beyond the four captures are a proposal awaiting the owner's
+sign-off. The approved «Empezar» capture shows a curtained room that is not in
+the bank; La sala is the bank's only room.
 
 ### Format
 
-AVIF, quality 68. The plan called for WebP; the `sips` build on macOS reads
-WebP but cannot write it, and no `cwebp` or ImageMagick is installed. AVIF is
-supported by every browser that supports WebP, compresses better on this kind
-of low-contrast photographic content, and avoided adding a native toolchain
-dependency to the project.
-
-If a fallback ever becomes necessary, regenerate JPEG siblings and use
-`<picture>` — the components reference the images through CSS custom
-properties, so it is a change in one place.
+AVIF: quality 62, and 45 for the five heaviest (mar, luz, plumas, cruce,
+nebulosa). `sips` on macOS reads WebP but cannot write it; AVIF is supported
+everywhere WebP is and compresses better on this low-contrast photography.
+Perfil's monochrome is a CSS filter on the photo layer only (`mono` on
+`Screen`), so no second file ships.
 
 ### Regenerating
 
-The originals live only in the mockup file. To re-extract:
-
 ```bash
-# lines 114, 242, 402, 634 of natus-mockups.html hold the data URIs
-sed -n '114p' natus-mockups.html \
-  | grep -o 'base64,[^)"]*' | sed 's/^base64,//' | tr -d '\n' \
-  | base64 -d > forest-source.jpg
-
-sips -s format avif -s formatOptions 68 forest-source.jpg --out forest.avif
+curl -s https://natus.world/usuarios/bote2.webp --output source.webp
+sips -s format png source.webp --out source.png
+sips --cropToHeightWidth <h> <h*9/16> source.png      # centred 9:16
+sips --resampleHeight 1920 source.png                  # only if taller
+sips -s format avif -s formatOptions 62 source.png --out mar.avif
 ```
+
+Originals: `usuarios/{sala.jpg,bote2.webp,canon3.webp,plumas-hd.webp}`,
+`terapeutas/{hoja,selva-luz,camino-hd,montana}.webp`, `hero.jpg`, `ojo.webp`,
+`usuario.jpg`, `ella-abiertos.webp`, `nebulosa.jpg`, all under natus.world.
 
 ### Link preview
 

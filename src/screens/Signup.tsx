@@ -38,7 +38,7 @@ export function Signup() {
 
   if (isSignedIn()) {
     return (
-      <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
+      <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{text.alreadySignedIn}</p>
           <Link to="/hoy" className="cta no-underline">
@@ -51,7 +51,7 @@ export function Signup() {
 
   if (!currentSynthesis()) {
     return (
-      <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
+      <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             {text.noMap}
@@ -106,7 +106,7 @@ export function Signup() {
 
   if (sent) {
     return (
-      <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
+      <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             {text.sentLead}
@@ -125,7 +125,7 @@ export function Signup() {
   }
 
   return (
-    <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
+    <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9 sm:min-h-0">
         <p className="eyebrow mb-3">{text.kicker}</p>
 

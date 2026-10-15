@@ -121,7 +121,7 @@ export function Result() {
   if (generating || !stored) {
     return (
       <ComparisonGate>
-        <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content40}>
+        <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content40}>
           <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-8 text-center sm:min-h-0 sm:flex-1">
             {error ? (
               <>
@@ -146,7 +146,7 @@ export function Result() {
 
   return (
     <ComparisonGate>
-      <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content40}>
+      <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content40}>
         <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
           <p className="eyebrow mb-3">{text.kicker}</p>
           <h1 className="mb-6 text-[length:var(--fs-title-26)] leading-[var(--lh-heading-1_18)] text-blanco">{result.headline}</h1>
@@ -280,7 +280,7 @@ function numerologyOf(legalName: string, birthDate: string) {
 function Missing({ message, to = '/comparacion', cta = text.back }: { message: string; to?: string; cta?: string }) {
   return (
     <ComparisonGate>
-      <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content45}>
+      <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content45}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{message}</p>
           <Link to={to} className="cta no-underline">

@@ -1,12 +1,35 @@
 import type { CSSProperties, ReactNode } from 'react';
 
-export type Backdrop = 'forest' | 'surf' | 'palm' | 'grass' | 'none';
+export type Backdrop =
+  | 'hero'
+  | 'sala'
+  | 'ella'
+  | 'mar'
+  | 'canon'
+  | 'hoja'
+  | 'luz'
+  | 'ojo'
+  | 'plumas'
+  | 'cruce'
+  | 'montana'
+  | 'rio'
+  | 'nebulosa'
+  | 'none';
 
 const IMAGES: Record<Exclude<Backdrop, 'none'>, string> = {
-  forest: 'forest.avif',
-  surf: 'surf.avif',
-  palm: 'palm.avif',
-  grass: 'grass.avif',
+  hero: 'hero.avif',
+  sala: 'sala.avif',
+  ella: 'ella.avif',
+  mar: 'mar.avif',
+  canon: 'canon.avif',
+  hoja: 'hoja.avif',
+  luz: 'luz.avif',
+  ojo: 'ojo.avif',
+  plumas: 'plumas.avif',
+  cruce: 'cruce.avif',
+  montana: 'montana.avif',
+  rio: 'rio.avif',
+  nebulosa: 'nebulosa.avif',
 };
 
 /**

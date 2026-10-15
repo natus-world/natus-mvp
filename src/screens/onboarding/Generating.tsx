@@ -112,7 +112,7 @@ export function Generating({
   }, [draft, numerology, onDone, onFailed, onCrisis]);
 
   return (
-    <Screen backdrop="surf" scrim="diagonal" opacity={PHOTO.veil70}>
+    <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil70}>
       <div className="flex min-h-dvh flex-col items-center justify-center gap-9 px-8 text-center sm:min-h-0 sm:flex-1">
         <Ouroboros size={112} />
 

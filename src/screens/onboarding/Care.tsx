@@ -53,7 +53,7 @@ export function Care() {
   };
 
   return (
-    <Screen backdrop="palm" scrim="even" opacity={PHOTO.veil55}>
+    <Screen backdrop="ella" scrim="even" opacity={PHOTO.veil55}>
       <div className="flex min-h-dvh flex-col px-[22px] pt-[var(--top-inset)] pb-8 sm:min-h-0 sm:h-full">
         <p className="eyebrow mb-5">{copy.onboarding.care.kicker}</p>
         <ClinicalBasics initial={answers} busy={busy} onSubmit={(a) => void submit(a)} />
