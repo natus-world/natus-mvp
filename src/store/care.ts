@@ -6,11 +6,11 @@ import { recordCrisisEvent } from './crisis';
 
 export const CARE_PATH = '/cuidarte';
 
-export const CARE_DESTINATIONS = ['/recomendaciones', '/rutina', '/chat'] as const;
+export const CARE_DESTINATIONS = ['/caminos', '/recorrido', '/chat'] as const;
 export type CareDestination = (typeof CARE_DESTINATIONS)[number];
 
 export function careDestination(value: unknown): CareDestination {
-  return CARE_DESTINATIONS.find((path) => path === value) ?? '/recomendaciones';
+  return CARE_DESTINATIONS.find((path) => path === value) ?? '/caminos';
 }
 
 export function hasAnsweredCare(basics: ClinicalBasics | undefined): boolean {

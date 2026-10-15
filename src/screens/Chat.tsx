@@ -232,7 +232,7 @@ export function Chat() {
                       {message.linked_modality_slugs.map((slug) => (
                         <Link
                           key={slug}
-                          to="/recomendaciones"
+                          to="/caminos"
                           className="pill text-[length:var(--fs-body-10_5)] text-crema/75 no-underline"
                         >
                           {modalityBySlug(slug)?.name_es ?? slug}

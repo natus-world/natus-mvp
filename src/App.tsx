@@ -13,16 +13,20 @@ import { Care } from '@/screens/onboarding/Care';
 import { RequireCare } from '@/screens/onboarding/RequireCare';
 import { Recommendations } from '@/screens/Recommendations';
 import { Routine } from '@/screens/Routine';
-import { Dashboard } from '@/screens/Dashboard';
+import { Today } from '@/screens/Today';
 import { Signup } from '@/screens/Signup';
-import { Account } from '@/screens/Account';
+import { Profile } from '@/screens/Profile';
 import { Chat } from '@/screens/Chat';
 import { Meditation } from '@/screens/Meditation';
 import { Library } from '@/screens/Library';
 import { ExternalProfile } from '@/screens/comparison/ExternalProfile';
 import { Consent } from '@/screens/comparison/Consent';
 import { Result } from '@/screens/comparison/Result';
-import { showsNav } from '@/components/navigation';
+import { showsNav, showsProfile } from '@/components/navigation';
+import { ProfileButton } from '@/components/ProfileButton';
+import { LegacyRedirect } from '@/components/LegacyRedirect';
+import { LEGACY_PATHS, PATHS } from '@/components/routes';
+import { copy } from '@/i18n';
 import { useTakeoverShown } from '@/components/takeover';
 import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
 import { hydrate } from '@/store/hydrate.ts';
@@ -32,14 +36,14 @@ import { NotFound } from '@/screens/NotFound';
 
 const TITLES: [prefix: string, title: string][] = [
   ['/onboarding', 'Empezar'],
-  ['/mapa', 'Tu mapa'],
+  [PATHS.chart, copy.nav.chart],
   ['/cuidarte', 'Para cuidarte'],
-  ['/recomendaciones', 'Caminos'],
-  ['/rutina', 'Rutina'],
-  ['/inicio', 'Inicio'],
+  [PATHS.paths, copy.nav.paths],
+  [PATHS.journey, copy.nav.journey],
+  [PATHS.today, copy.nav.today],
   ['/registro', 'Guardar mi mapa'],
-  ['/cuenta', 'Mi cuenta'],
-  ['/chat', 'Conversación'],
+  [PATHS.profile, copy.nav.profile],
+  [PATHS.chat, copy.nav.chat],
   ['/meditaciones', 'Meditaciones'],
   ['/biblioteca', 'Biblioteca'],
   ['/comparacion', 'Cruce de mapas'],
@@ -133,6 +137,7 @@ export function App() {
             <DemoBanner />
           </div>
           <HelpNowButton onOpen={openHelp} />
+          {showsProfile(pathname, takeoverShown) && <ProfileButton />}
         </div>
         <SaveFailureNotice offline={offline} />
       </div>
@@ -150,40 +155,43 @@ export function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/mapa" element={<SoulMap />} />
+            <Route path={PATHS.chart} element={<SoulMap />} />
             <Route path="/cuidarte" element={<Care />} />
             <Route
-              path="/recomendaciones"
+              path={PATHS.paths}
               element={
-                <RequireCare next="/recomendaciones" blockOnCrisis>
+                <RequireCare next="/caminos" blockOnCrisis>
                   <Recommendations />
                 </RequireCare>
               }
             />
             <Route
-              path="/rutina"
+              path={PATHS.journey}
               element={
-                <RequireCare next="/rutina" blockOnCrisis>
+                <RequireCare next="/recorrido" blockOnCrisis>
                   <Routine />
                 </RequireCare>
               }
             />
-            <Route path="/inicio" element={<Dashboard />} />
+            <Route path={PATHS.today} element={<Today />} />
             <Route path="/registro" element={<Signup />} />
-            <Route path="/cuenta" element={<Account />} />
+            <Route path={PATHS.profile} element={<Profile />} />
             <Route
-              path="/chat"
+              path={PATHS.chat}
               element={
                 <RequireCare next="/chat">
                   <Chat />
                 </RequireCare>
               }
             />
-            <Route path="/meditaciones" element={<Meditation />} />
-            <Route path="/biblioteca" element={<Library />} />
-            <Route path="/comparacion" element={<ExternalProfile />} />
+            <Route path={PATHS.meditations} element={<Meditation />} />
+            <Route path={PATHS.library} element={<Library />} />
+            <Route path={PATHS.comparison} element={<ExternalProfile />} />
             <Route path="/comparacion/consentimiento/:id" element={<Consent />} />
             <Route path="/comparacion/resultado/:id" element={<Result />} />
+            {Object.entries(LEGACY_PATHS).map(([from, to]) => (
+              <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
+            ))}
             {isDemoMode && <Route path="/lab/safety" element={<SafetyLab />} />}
             <Route path="*" element={<NotFound />} />
           </Routes>

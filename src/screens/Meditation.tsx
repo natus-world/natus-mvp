@@ -58,7 +58,7 @@ export function Meditation() {
         }}
         onBack={() => {
           setCrisisEventId(null);
-          navigate('/inicio');
+          navigate('/hoy');
         }}
       />
     );

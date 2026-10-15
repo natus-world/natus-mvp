@@ -7,6 +7,7 @@ import {
   isPlausibleEmail,
   isSignedIn,
   signUp,
+  updateActiveProfile,
 } from './account';
 import { attachSoulMap, getOrCreateSession, getSession, updateDraft } from './session';
 import { clearAll } from './db';
@@ -131,5 +132,27 @@ describe('email shape check', () => {
     ['', false],
   ])('%s -> %s', (email, expected) => {
     expect(isPlausibleEmail(email)).toBe(expected);
+  });
+});
+
+describe('the profile changes how it is spoken to', () => {
+  it('writes the anonymous draft before signup', () => {
+    completeOnboarding();
+    expect(updateActiveProfile({ grammatical_gender: 'femenino' }, T0)).toBe(true);
+    expect(activeProfile(T0)?.draft.grammatical_gender).toBe('femenino');
+  });
+
+  it('writes the account once the draft has been claimed', () => {
+    completeOnboarding();
+    signUp({ email: 'ana@ejemplo.cl', now: T0 + 1000 });
+    expect(updateActiveProfile({ grammatical_gender: 'masculino' }, T0 + 2000)).toBe(true);
+    expect(getClient()?.profile.grammatical_gender).toBe('masculino');
+    expect(activeProfile(T0 + 2000)?.draft.grammatical_gender).toBe('masculino');
+  });
+
+  it('creates nothing when there is nobody to speak to', () => {
+    expect(updateActiveProfile({ grammatical_gender: 'neutro' }, T0)).toBe(false);
+    expect(getSession(T0)).toBeNull();
+    expect(getClient()).toBeNull();
   });
 });

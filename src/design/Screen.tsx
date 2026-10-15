@@ -58,6 +58,7 @@ type ScreenProps = {
   /** Background opacity, matching the per-screen values in the mockup. */
   opacity?: number;
   focus?: string;
+  mono?: boolean;
   children: ReactNode;
 };
 
@@ -72,6 +73,7 @@ export function Screen({
   scrim = 'even',
   opacity = 0.85,
   focus = 'center',
+  mono = false,
   children,
 }: ScreenProps) {
   const base = import.meta.env.BASE_URL;
@@ -87,7 +89,7 @@ export function Screen({
 
   return (
     <div className="relative h-full min-h-dvh w-full overflow-hidden bg-noche sm:min-h-0">
-      {photoStyle && <div className="photo-layer" style={photoStyle} aria-hidden="true" />}
+      {photoStyle && <div className={mono ? 'photo-layer photo-mono' : 'photo-layer'} style={photoStyle} aria-hidden="true" />}
       <div className="photo-scrim" style={{ background: SCRIMS[scrim] }} aria-hidden="true" />
       <div className="relative flex h-full min-h-dvh flex-col sm:min-h-0">{children}</div>
     </div>

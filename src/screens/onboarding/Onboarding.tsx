@@ -104,7 +104,7 @@ export function Onboarding() {
     });
   }, []);
 
-  const onDone = useCallback(() => navigate('/mapa'), [navigate]);
+  const onDone = useCallback(() => navigate('/carta'), [navigate]);
 
   const numerologyPreview = useMemo(() => {
     if (!draft.legal_birth_name || !/^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date)) return null;

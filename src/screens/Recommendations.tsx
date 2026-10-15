@@ -209,7 +209,7 @@ export function Recommendations() {
         </div>
 
         <div className="mt-7 flex flex-col gap-2.5">
-          <Link to="/rutina" className="cta no-underline">
+          <Link to="/recorrido" className="cta no-underline">
             Ver mi rutina
             <span aria-hidden="true">→</span>
           </Link>

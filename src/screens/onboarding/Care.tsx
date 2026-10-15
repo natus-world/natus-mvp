@@ -5,6 +5,7 @@ import { CrisisScreen } from '@/screens/CrisisScreen';
 import { activeProfile } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { careDestination, completeCare, hasAnsweredCare } from '@/store/care';
+import { legacyTarget } from '@/components/routes';
 import { markFalsePositive } from '@/store/crisis';
 import { writesSettled } from '@/store/hydrate';
 import type { ClinicalBasics as Answers } from '@/lib/safety';
@@ -14,14 +15,15 @@ import { ClinicalBasics } from './ClinicalBasics';
 export function Care() {
   const navigate = useNavigate();
   const location = useLocation();
-  const next = careDestination((location.state as { next?: unknown } | null)?.next);
+  const requested = (location.state as { next?: unknown } | null)?.next;
+  const next = careDestination(legacyTarget(requested) ?? requested);
   const [profile] = useState(() => activeProfile());
   const [alreadyAnswered] = useState(() => hasAnsweredCare(profile?.draft.clinical_basics));
   const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>(() => profile?.draft.clinical_basics ?? {});
   const [busy, setBusy] = useState(false);
 
-  if (!profile || !currentSynthesis()) return <Navigate to="/mapa" replace />;
+  if (!profile || !currentSynthesis()) return <Navigate to="/carta" replace />;
   if (alreadyAnswered) return <Navigate to={next} replace />;
 
   if (crisisEventId) {

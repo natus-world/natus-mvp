@@ -107,8 +107,8 @@ describe('O-06 — «Para cuidarte» sits between the map and Caminos', () => {
 
   it('returns only to a destination it gates', () => {
     expect(careDestination('/chat')).toBe('/chat');
-    expect(careDestination('/rutina')).toBe('/rutina');
-    expect(careDestination('https://example.com')).toBe('/recomendaciones');
-    expect(careDestination(undefined)).toBe('/recomendaciones');
+    expect(careDestination('/recorrido')).toBe('/recorrido');
+    expect(careDestination('https://example.com')).toBe('/caminos');
+    expect(careDestination(undefined)).toBe('/caminos');
   });
 });

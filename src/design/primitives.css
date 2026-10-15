@@ -50,6 +50,7 @@
   }
 
   .nav-bar,
+  .profile-button,
   .help-pill {
     backdrop-filter: blur(var(--glass-blur-bar)) saturate(var(--glass-saturate));
     -webkit-backdrop-filter: blur(var(--glass-blur-bar)) saturate(var(--glass-saturate));
@@ -79,6 +80,7 @@
   }
 
   .nav-bar,
+  .profile-button,
   .help-pill {
     background: var(--glass-bar);
     border: 1px solid var(--glass-border);
@@ -285,6 +287,36 @@
     inset: -6px -2px;
   }
 
+  .profile-button {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: calc(infinity * 1px);
+    color: rgb(236 226 208 / 0.75);
+    transition:
+      background-color 320ms var(--ease),
+      color 320ms var(--ease);
+  }
+
+  .profile-button:hover,
+  .profile-button[aria-current='page'] {
+    color: var(--natus-tinta);
+  }
+
+  .profile-button[aria-current='page'] {
+    background: var(--glass-tab-active);
+  }
+
+  .profile-button::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
   .banner {
     border-radius: var(--radius-option);
   }
@@ -359,6 +391,10 @@
 .photo-scrim {
   position: absolute;
   inset: 0;
+}
+
+.photo-mono {
+  filter: grayscale(1);
 }
 
 .ouroboros {

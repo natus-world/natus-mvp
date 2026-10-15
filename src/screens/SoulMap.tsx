@@ -157,7 +157,7 @@ export function SoulMap() {
         </p>
 
         <div className="mt-auto flex flex-col gap-2.5 pt-4">
-          <Link to="/recomendaciones" className="cta no-underline">
+          <Link to="/caminos" className="cta no-underline">
             Ver terapias sugeridas
             <span aria-hidden="true">→</span>
           </Link>

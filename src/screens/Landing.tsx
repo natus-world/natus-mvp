@@ -41,7 +41,7 @@ export function Landing() {
         <button
           type="button"
           className="cta"
-          onClick={() => navigate(returning ? '/inicio' : '/onboarding')}
+          onClick={() => navigate(returning ? '/hoy' : '/onboarding')}
         >
           <span>{returning ? 'Volver a mi espacio' : 'Comenzar'}</span>
           <span

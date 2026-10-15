@@ -40,7 +40,7 @@ export function Routine() {
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             Tu rutina sale de tus recomendaciones. Generalas primero.
           </p>
-          <Link to="/recomendaciones" className="cta no-underline">
+          <Link to="/caminos" className="cta no-underline">
             Ver terapias sugeridas
           </Link>
         </div>
@@ -111,7 +111,7 @@ export function Routine() {
         </div>
 
         <div className="mt-7">
-          <Link to="/recomendaciones" className="cta no-underline">
+          <Link to="/caminos" className="cta no-underline">
             Volver a las terapias
           </Link>
         </div>

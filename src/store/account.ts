@@ -1,5 +1,5 @@
 import { read, write } from './db';
-import { claimSession, emptyDraft, getSession, type OnboardingDraft } from './session';
+import { claimSession, emptyDraft, getSession, updateDraft, type OnboardingDraft } from './session';
 
 /**
  * The `clients` row of PDR 5.2, and the conversion moment of PDR section 3.
@@ -111,6 +111,13 @@ export function updateClientProfile(patch: Partial<OnboardingDraft>): Client | n
   const next: Client = { ...client, profile: { ...client.profile, ...patch } };
   write('client', next);
   return next;
+}
+
+export function updateActiveProfile(patch: Partial<OnboardingDraft>, now = Date.now()): boolean {
+  if (updateClientProfile(patch)) return true;
+  if (!getSession(now)) return false;
+  updateDraft(patch, now);
+  return true;
 }
 
 /** Keeps the account row in step when a Soul Map is generated after signup. */

@@ -38,7 +38,7 @@ export function Signup() {
       <Screen backdrop="surf" scrim="heavy" opacity={PHOTO.content50}>
         <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">Tu cuenta ya está creada.</p>
-          <Link to="/inicio" className="cta no-underline">
+          <Link to="/hoy" className="cta no-underline">
             Ir a mi espacio
           </Link>
         </div>
@@ -77,7 +77,7 @@ export function Signup() {
     }
 
     if (!created || !isBackendConfigured) {
-      navigate('/inicio');
+      navigate('/hoy');
       return;
     }
 
@@ -114,7 +114,7 @@ export function Signup() {
             Tu mapa ya está guardado. Confirmar sirve para que puedas volver desde otro
             dispositivo.
           </p>
-          <Link to="/inicio" className="cta no-underline">
+          <Link to="/hoy" className="cta no-underline">
             Ir a mi espacio
           </Link>
         </div>
@@ -184,7 +184,7 @@ export function Signup() {
           </button>
 
           <Link
-            to="/inicio"
+            to="/hoy"
             className="chip chip-p10 text-center text-crema/60 no-underline"
           >
             Ahora no

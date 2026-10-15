@@ -74,7 +74,7 @@ export function CrisisScreen({
           )}
 
           <Link
-            to="/cuenta"
+            to="/perfil"
             className="self-center px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
           >
             Descargar o borrar mis datos
