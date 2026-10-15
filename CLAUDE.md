@@ -65,7 +65,11 @@ ephemeris, Soul Map, recommendations, chat, meditations and synastry, all with
 real generation, all walked on the deployed site.
 
 **v1.2 is being implemented, and most of it is not built yet:** the journal,
-memory, today's sky, friends, notifications, payments, the full chart. The
+memory, today's sky, notifications, payments, the full chart. Friends and the
+comparison between them (C-01, C-02) are built. Decided and not built: the
+chat may talk over a comparison with a friend, receiving only its result and
+only while the friendship lasts; and Davraz redirects requests to do work
+(a thesis, code) back to how the person is living it. The
 plan, its order and the questions still open for the owner are in his doc
 «Guía de actualización de la app Natus»
 (https://claude.ai/artifact/9rw3grB3r7FQ6FVmnWfbbw); the requirements as agreed,
@@ -270,12 +274,14 @@ licence to reverse.
   consecutive run. The number a streak needs is not calculated anywhere.
 - **No match percentages, ever.** The ranking orders; it does not score.
 - **No facilitator names.** The MVP recommends modalities, not people.
-- **Revoking access hides the reading; it does not delete it.** Today that is
-  a revoked consent: the row stays in `chart_comparisons`, unreadable by
-  policy, until its profile or the account is deleted. Confirmed by the
-  product owner on 2026-09-25. v1.2 (C-01) replaces the consent flow with
-  friends inside Natus: ending a friendship makes the comparisons unreadable
-  for the other person on the next request, under the same rule.
+- **Revoking access hides the reading; it does not delete it.** Confirmed by
+  the product owner on 2026-09-25, and kept by v1.2 C-01: comparisons are
+  between friends inside Natus (built 15 Oct 2026), read by both while the
+  friendship is accepted. Ending it makes every comparison between them
+  unreadable on the next request; the rows stay in `chart_comparisons` until
+  an account is deleted. Only the comparison function writes one, from both
+  people's stored birth data — the browser sends a friendship id and nothing
+  else. Invitations are links, never a search by email.
 - **Safety runs in front of the model, deterministically.** Clinical
   exclusions are a predicate, not a prompt instruction — applied in the
   browser for the screen and again on the server by

@@ -1,10 +1,16 @@
 export const CHAT_PROMPT_VERSION = 'chat-v1.3';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.3';
-export const COMPARISON_PROMPT_VERSION = 'comparison-v1.2';
+export const COMPARISON_PROMPT_VERSION = 'comparison-v2.0';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.4';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'comparison-v2.0',
+    date: '2026-10-15',
+    change:
+      'Friends inside Natus (v1.2 C-01) and four parts (C-02): lo_bueno, tener_en_cuenta, que_trabajar, disfrutar_juntos. Both friends read it; the questions to talk over and the Soul Map themes are gone.',
+  },
   {
     version: 'soul-map-v2.4',
     date: '2026-10-15',

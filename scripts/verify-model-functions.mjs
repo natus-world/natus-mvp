@@ -49,6 +49,36 @@ const authed = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/
   if (error) throw new Error(`could not seed the clinical answers: ${error.message}`);
 }
 
+// A friend to compare with (v1.2 C-01). Both need an account — a `clients`
+// row — and the friendship is made the way the app makes it: one link, one
+// acceptance.
+const friend = createClient(API, ANON, { auth: { persistSession: false } });
+const { data: friendAuth } = await friend.auth.signInAnonymously();
+let FRIENDSHIP = null;
+{
+  const accounts = [
+    [client, userId, 'Ana Maria Perez', '1990-04-12', '14:30'],
+    [friend, friendAuth.session.user.id, 'Nico Rojas', '1988-09-03', '07:15'],
+  ];
+  for (const [who, id, name, date, time] of accounts) {
+    const { error } = await who.from('clients').insert({
+      user_id: id,
+      email: `${id}@example.test`,
+      legal_birth_name: name,
+      birth_date: date,
+      birth_time: time,
+      birth_city: 'Santiago',
+      birth_country: 'CL',
+      clinical_ideation_6m: 'no',
+    });
+    if (error) throw new Error(`could not seed an account: ${error.message}`);
+  }
+  const { data: token } = await client.rpc('my_invite_token');
+  const { data: id, error } = await friend.rpc('accept_friend_invite', { p_token: token });
+  if (error) throw new Error(`could not make the friendship: ${error.message}`);
+  FRIENDSHIP = id;
+}
+
 const call = (fn, body, headers = authed) =>
   fetch(`${API}/functions/v1/${fn}`, {
     method: 'POST',
@@ -104,37 +134,7 @@ const BODIES = {
     poolBeforeTruncation: MODALITIES.length,
   },
   meditation: { intent: 'quiero bajar la ansiedad antes de dormir', minutes: 8, synthesis: SYNTHESIS, risk: 'none' },
-  comparison: {
-    scope: { numerology: true, astro: false, soul_map_themes: true },
-    a: {
-      display_name: 'Ana',
-      numerology: {
-        life_path: 8,
-        expression: 11,
-        soul_urge: 5,
-        personality: 6,
-        birthday: 3,
-        master_numbers_present: [11],
-        algorithm_version: 'pythagorean-v1',
-      },
-      soul_map_themes: ['ansiedad'],
-      chart: { available: false, positions: [] },
-    },
-    b: {
-      display_name: 'Nico',
-      numerology: {
-        life_path: 4,
-        expression: 7,
-        soul_urge: 9,
-        personality: 2,
-        birthday: 6,
-        master_numbers_present: [],
-        algorithm_version: 'pythagorean-v1',
-      },
-      soul_map_themes: [],
-      chart: { available: false, positions: [] },
-    },
-  },
+  comparison: { friendship_id: FRIENDSHIP },
 };
 
 // ── the JWT is the control, on every one of them ────────────────────────────
@@ -209,50 +209,26 @@ check(
   `status=${lowSeverity.status}`,
 );
 
-// ── the aspect list is the server's, not the caller's ───────────────────────
-const supplied = await call('comparison', {
-  ...BODIES.comparison,
-  scope: { numerology: true, astro: true, soul_map_themes: true },
-  aspects: [{ a_body: 'Sun', b_body: 'Moon', type: 'conjunction', orb: 1.2 }],
-});
+// ── a comparison is between friends, built on the server ───────────────────
+//
+// The browser sends a friendship id and nothing else (v1.2 C-01): the payload
+// is built from both people's stored data, so there is no aspect list, birth
+// date or chart a caller could slip in.
+const notAnId = await call('comparison', { friendship_id: 'not-a-friendship' });
+check('comparison: a body that is not a friendship id is refused', notAnId.status === 400, `status=${notAnId.status}`);
+
+const stranger = await call('comparison', { friendship_id: crypto.randomUUID() });
+const strangerBody = await stranger.json();
 check(
-  'comparison: a caller-supplied aspect list is refused',
-  supplied.status === 400,
-  `status=${supplied.status}`,
+  'comparison: a friendship the caller is not in is refused before anything is spent',
+  stranger.status === 403 && strangerBody.reason === 'not_friends',
+  `status=${stranger.status} ${JSON.stringify(strangerBody)}`,
 );
 
-// Birth data under the astro scope parses and reaches the gate. Whether the
-// ephemeris then answers cannot be checked here: RAPIDAPI_KEY lives on the
-// deployed project, and `enrich` runs after the model gate anyway, so a
-// runtime with no ANTHROPIC_API_KEY never reaches it.
-const BIRTH_A = { year: 1990, month: 4, day: 12, hour: 14, minute: 30, city: 'Santiago', nation: 'CL' };
-const BIRTH_B = { year: 1988, month: 9, day: 3, hour: 7, minute: 15, city: 'Buenos Aires', nation: 'AR' };
-const withBirth = await call('comparison', {
-  ...BODIES.comparison,
-  scope: { numerology: true, astro: true, soul_map_themes: true },
-  a: { ...BODIES.comparison.a, birth: BIRTH_A },
-  b: { ...BODIES.comparison.b, birth: BIRTH_B },
-});
-const withBirthBody = await withBirth.json();
-check(
-  'comparison: birth data under the astro scope is accepted',
-  // Accepted means parsed and carried past validation, whatever the model
-  // then did with it. 400 would be the failure this asserts against.
-  withBirth.status !== 400,
-  `status=${withBirth.status} error=${withBirthBody.error}`,
-);
-
-const badNation = await call('comparison', {
-  ...BODIES.comparison,
-  scope: { numerology: true, astro: true, soul_map_themes: true },
-  a: { ...BODIES.comparison.a, birth: { ...BIRTH_A, nation: 'Chile' } },
-  b: { ...BODIES.comparison.b, birth: BIRTH_B },
-});
-check(
-  'comparison: a country that is not an ISO code is refused',
-  badNation.status === 400,
-  `status=${badNation.status}`,
-);
+if (real) {
+  const { data: shared } = await friend.from('chart_comparisons').select('id').eq('friendship_id', FRIENDSHIP);
+  check('comparison: the friend can read the comparison the other one asked for', (shared ?? []).length === 1, `${(shared ?? []).length} rows`);
+}
 
 // ── the catalogue is the server's ───────────────────────────────────────────
 const invented = await call('match', { ...BODIES.match, candidateSlugs: ['terapia-inventada'] });

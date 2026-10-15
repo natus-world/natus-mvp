@@ -158,106 +158,86 @@ select throws_ok(
 );
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- 2. The consent gate
+-- 2. The friendship gate (v1.2 C-01)
 -- ═══════════════════════════════════════════════════════════════════════════
+--
+-- A comparison is read by both friends while they are friends, and by nobody
+-- once the friendship ends. Only the comparison function writes one.
 
 select pg_temp.act_as_owner();
 
-insert into public.external_profiles (id, user_id, display_name, legal_birth_name)
-values ('cccccccc-0000-4000-8000-000000000003',
-        'aaaaaaaa-0000-4000-8000-000000000001', 'Someone', 'Someone Else');
-
--- The scope is a shape, not a name: three independent booleans, because the
--- person consents to each kind of material separately. It was `text` until
--- the adapter tried to map it and the compiler objected.
-insert into public.comparison_consents (id, user_id, external_profile_id, scope, status)
+insert into public.friendships (id, requester_id, addressee_id, status, responded_at)
 values ('dddddddd-0000-4000-8000-000000000004',
         'aaaaaaaa-0000-4000-8000-000000000001',
-        'cccccccc-0000-4000-8000-000000000003',
-        '{"numerology": true, "astro": false, "soul_map_themes": true}'::jsonb,
-        'granted');
+        'bbbbbbbb-0000-4000-8000-000000000002',
+        'accepted', now());
 
-insert into public.chart_comparisons (id, user_id, external_profile_id, consent_id,
-                                      prompt_version, result, mode)
+insert into public.chart_comparisons (id, user_id, friendship_id, prompt_version, result, mode)
 values ('eeeeeeee-0000-4000-8000-000000000005',
         'aaaaaaaa-0000-4000-8000-000000000001',
-        'cccccccc-0000-4000-8000-000000000003',
         'dddddddd-0000-4000-8000-000000000004',
-        'v1-reconstructed', '{}'::jsonb, 'fixture');
+        'comparison-v2.0', '{}'::jsonb, 'server');
 
 select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
 
 select is(
   (select count(*)::int from public.chart_comparisons),
   1,
-  'CONTROL: under a granted, unexpired consent Alice reads her comparison'
-);
-
-select pg_temp.act_as_owner();
-update public.comparison_consents set status = 'revoked'
-where id = 'dddddddd-0000-4000-8000-000000000004';
-select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
-
-select is(
-  (select count(*)::int from public.chart_comparisons),
-  0,
-  'Revoking closes the read immediately, for a row Alice still owns'
-);
-
-select pg_temp.act_as_owner();
-update public.comparison_consents set status = 'granted'
-where id = 'dddddddd-0000-4000-8000-000000000004';
-select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
-
-select is(
-  (select count(*)::int from public.chart_comparisons),
-  1,
-  'CONTROL: re-granting reopens it — the previous assertion tested the status, not a typo'
-);
-
-select pg_temp.act_as_owner();
-update public.comparison_consents set expires_at = now() - interval '1 day'
-where id = 'dddddddd-0000-4000-8000-000000000004';
-select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
-
-select is(
-  (select count(*)::int from public.chart_comparisons),
-  0,
-  'An expired consent closes the read even while its status still says granted'
-);
-
--- PDR 8.2: the owner may delete the other person's data at any time, and a
--- lapsed consent must not strand the rows it produced.
-select lives_ok(
-  $$delete from public.chart_comparisons
-    where id = 'eeeeeeee-0000-4000-8000-000000000005'$$,
-  'Deleting own comparison still works once the consent has lapsed'
-);
-
-select pg_temp.act_as_owner();
-update public.comparison_consents
-  set status = 'pending', expires_at = now() + interval '14 days'
-where id = 'dddddddd-0000-4000-8000-000000000004';
-select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
-
-select throws_ok(
-  $$insert into public.chart_comparisons (user_id, external_profile_id, consent_id,
-                                          prompt_version, result, mode)
-    values ('aaaaaaaa-0000-4000-8000-000000000001',
-            'cccccccc-0000-4000-8000-000000000003',
-            'dddddddd-0000-4000-8000-000000000004',
-            'v1', '{}'::jsonb, 'fixture')$$,
-  '42501',
-  null,
-  'A comparison cannot be generated against a consent that was never granted'
+  'CONTROL: while they are friends, Alice reads the comparison she asked for'
 );
 
 select pg_temp.act_as('bbbbbbbb-0000-4000-8000-000000000002');
 
 select is(
-  (select count(*)::int from public.comparison_consents),
+  (select count(*)::int from public.chart_comparisons),
+  1,
+  'Bob reads it too: a comparison belongs to the friendship, not to who asked'
+);
+
+select throws_ok(
+  $$insert into public.chart_comparisons (user_id, friendship_id, prompt_version, result, mode)
+    values ('bbbbbbbb-0000-4000-8000-000000000002', 'dddddddd-0000-4000-8000-000000000004',
+            'v', '{}'::jsonb, 'server')$$,
+  '42501',
+  null,
+  'Bob cannot write a comparison: only the function does, from stored data'
+);
+
+select throws_ok(
+  $$delete from public.chart_comparisons$$,
+  '42501',
+  null,
+  'Nor delete one: ending the friendship hides it, it does not erase it'
+);
+
+select pg_temp.act_as_owner();
+update public.friendships set status = 'removed'
+where id = 'dddddddd-0000-4000-8000-000000000004';
+select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
+
+select is(
+  (select count(*)::int from public.chart_comparisons),
   0,
-  'Bob cannot see that Alice ever asked anyone for consent'
+  'Ending the friendship closes the read immediately, for the one who asked'
+);
+
+select pg_temp.act_as('bbbbbbbb-0000-4000-8000-000000000002');
+
+select is(
+  (select count(*)::int from public.chart_comparisons),
+  0,
+  'And for the other friend'
+);
+
+select pg_temp.act_as_owner();
+update public.friendships set status = 'accepted'
+where id = 'dddddddd-0000-4000-8000-000000000004';
+select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
+
+select is(
+  (select count(*)::int from public.chart_comparisons),
+  1,
+  'CONTROL: friends again, readable again — the previous assertions tested the status, not a typo'
 );
 
 -- ═══════════════════════════════════════════════════════════════════════════

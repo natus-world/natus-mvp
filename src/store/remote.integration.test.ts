@@ -8,7 +8,7 @@ import bedTrackSeed from '@data/bed-tracks.json';
 import type { TypedClient } from '@/supabase/client.ts';
 import type { Database } from '@/supabase/database.types.ts';
 import { ADAPTERS } from './remote.ts';
-import type { ComparisonConsent, ExternalProfile, StoredComparison } from './comparison.ts';
+import type { StoredMeditation } from './meditations.ts';
 import { emptyDraft, type AnonymousSession } from './session.ts';
 import type { Client } from './account.ts';
 
@@ -43,8 +43,6 @@ const OWNED_TABLES = [
   'conversations',
   'messages',
   'meditations',
-  'external_profiles',
-  'comparison_consents',
   'chart_comparisons',
   'crisis_events',
   'natal_chart_calls',
@@ -147,38 +145,14 @@ async function edgeShared(): Promise<{
 
 const NOW = Date.now();
 
-function profile(): ExternalProfile {
+function meditation(): StoredMeditation {
   return {
     id: crypto.randomUUID(),
-    display_name: 'Ana',
-    legal_birth_name: 'Ana Pérez',
-    birth_date: '1990-04-12',
-    birth_time: '',
-    birth_city: 'Córdoba',
-    birth_country: 'AR',
-    created_at: NOW,
-  };
-}
-
-function grantedConsent(externalProfileId: string): ComparisonConsent {
-  return {
-    id: crypto.randomUUID(),
-    external_profile_id: externalProfileId,
-    scope: { numerology: true, astro: false, soul_map_themes: false },
-    status: 'granted',
-    requested_at: NOW,
-    responded_at: NOW,
-    expires_at: NOW + 14 * 24 * 3_600_000,
-  };
-}
-
-function comparison(p: ExternalProfile, c: ComparisonConsent): StoredComparison {
-  return {
-    id: crypto.randomUUID(),
-    external_profile_id: p.id,
-    consent_id: c.id,
+    intent: 'respirar',
+    requested_minutes: 5,
+    estimated_minutes: 5,
+    script: {} as StoredMeditation['script'],
     prompt_version: 'test',
-    result: {} as StoredComparison['result'],
     mode: 'fixture',
     created_at: NOW,
   };
@@ -198,89 +172,19 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
 
   it('a save from one tab does not delete rows another tab wrote', async () => {
     const { client, userId } = await person();
-    const [a, b, c] = [profile(), profile(), profile()];
-    await ADAPTERS.external_profiles.save(client, userId, [a]);
+    const [a, b, c] = [meditation(), meditation(), meditation()];
+    await ADAPTERS.meditations.save(client, userId, [a]);
 
     vi.resetModules();
     const other = (await import('./remote.ts')).ADAPTERS;
-    await other.external_profiles.load(client, userId);
-    await other.external_profiles.save(client, userId, [a, b]);
+    await other.meditations.load(client, userId);
+    await other.meditations.save(client, userId, [a, b]);
 
-    await ADAPTERS.external_profiles.save(client, userId, [a, c]);
-    await ADAPTERS.external_profiles.save(client, userId, [c]);
+    await ADAPTERS.meditations.save(client, userId, [a, c]);
+    await ADAPTERS.meditations.save(client, userId, [c]);
 
-    const ids = (await ADAPTERS.external_profiles.load(client, userId)).map((p: ExternalProfile) => p.id).sort();
+    const ids = (await ADAPTERS.meditations.load(client, userId)).map((m: StoredMeditation) => m.id).sort();
     expect(ids).toEqual([b.id, c.id].sort());
-  });
-
-  it('a second comparison saves beside the first', async () => {
-    const { client, userId } = await person();
-    const a = profile();
-    const b = profile();
-    const ca = grantedConsent(a.id);
-    const cb = grantedConsent(b.id);
-    await ADAPTERS.external_profiles.save(client, userId, [a, b]);
-    await ADAPTERS.comparison_consents.save(client, userId, [ca, cb]);
-
-    const first = comparison(a, ca);
-    await ADAPTERS.chart_comparisons.save(client, userId, [first]);
-    await ADAPTERS.chart_comparisons.save(client, userId, [first, comparison(b, cb)]);
-
-    expect(await ADAPTERS.chart_comparisons.load(client, userId)).toHaveLength(2);
-  });
-
-  it('a lapsed consent does not block the next comparison', async () => {
-    const { client, userId } = await person();
-    const a = profile();
-    const b = profile();
-    const ca = grantedConsent(a.id);
-    const cb = grantedConsent(b.id);
-    await ADAPTERS.external_profiles.save(client, userId, [a, b]);
-    await ADAPTERS.comparison_consents.save(client, userId, [ca, cb]);
-    const first = comparison(a, ca);
-    await ADAPTERS.chart_comparisons.save(client, userId, [first]);
-
-    // Revoked, and the mirror still holds the reading it produced — exactly
-    // what the store looks like until the next hydration.
-    await ADAPTERS.comparison_consents.save(client, userId, [{ ...ca, status: 'revoked' }, cb]);
-    await ADAPTERS.chart_comparisons.save(client, userId, [first, comparison(b, cb)]);
-
-    expect(rowsOwnedBy(userId)['chart_comparisons']).toBe(2);
-    expect(await ADAPTERS.chart_comparisons.load(client, userId)).toHaveLength(1);
-  });
-
-  it('a reading hidden by a revoked consent goes with its profile', async () => {
-    const { client, userId } = await person();
-    const p = profile();
-    const c = grantedConsent(p.id);
-    await ADAPTERS.external_profiles.save(client, userId, [p]);
-    await ADAPTERS.comparison_consents.save(client, userId, [c]);
-    await ADAPTERS.chart_comparisons.save(client, userId, [comparison(p, c)]);
-    await ADAPTERS.comparison_consents.save(client, userId, [{ ...c, status: 'revoked' }]);
-
-    // deleteExternalProfile in comparison.ts, in its order.
-    await ADAPTERS.external_profiles.save(client, userId, []);
-    await ADAPTERS.comparison_consents.save(client, userId, []);
-    await ADAPTERS.chart_comparisons.save(client, userId, []);
-
-    expect(rowsOwnedBy(userId)).toEqual({});
-  });
-
-  it('asking the same person again replaces the consent', async () => {
-    const { client, userId } = await person();
-    const p = profile();
-    await ADAPTERS.external_profiles.save(client, userId, [p]);
-    await ADAPTERS.comparison_consents.save(client, userId, [grantedConsent(p.id)]);
-
-    const again: ComparisonConsent = {
-      ...grantedConsent(p.id),
-      status: 'pending',
-      responded_at: null,
-    };
-    await ADAPTERS.comparison_consents.save(client, userId, [again]);
-
-    const loaded: ComparisonConsent[] = await ADAPTERS.comparison_consents.load(client, userId);
-    expect(loaded.map((c) => c.id)).toEqual([again.id]);
   });
 
   it('the account survives the anonymous session it claimed', async () => {
@@ -359,14 +263,10 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
 
   it('deleting the account leaves no row behind', async () => {
     const { client, userId } = await person();
-    const p = profile();
     await ADAPTERS.preferences.save(client, userId, { locale: 'es', voice_volume: 1, bed_volume: 0.45 });
     // The person cannot write their own subscription (v1.2 P-01); the server can.
     await admin().from('subscriptions').insert({ user_id: userId, status: 'active' });
-    await ADAPTERS.external_profiles.save(client, userId, [p]);
-    const c = grantedConsent(p.id);
-    await ADAPTERS.comparison_consents.save(client, userId, [c]);
-    await ADAPTERS.chart_comparisons.save(client, userId, [comparison(p, c)]);
+    await ADAPTERS.meditations.save(client, userId, [meditation()]);
     expect(Object.keys(rowsOwnedBy(userId)).length).toBeGreaterThan(0);
 
     // The call purgeRemote makes, against the function `supabase functions

@@ -147,9 +147,8 @@ export type Database = {
       }
       chart_comparisons: {
         Row: {
-          consent_id: string
           created_at: string
-          external_profile_id: string
+          friendship_id: string
           id: string
           mode: string
           prompt_version: string
@@ -157,9 +156,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          consent_id: string
           created_at?: string
-          external_profile_id: string
+          friendship_id: string
           id?: string
           mode: string
           prompt_version: string
@@ -167,9 +165,8 @@ export type Database = {
           user_id: string
         }
         Update: {
-          consent_id?: string
           created_at?: string
-          external_profile_id?: string
+          friendship_id?: string
           id?: string
           mode?: string
           prompt_version?: string
@@ -178,17 +175,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "chart_comparisons_consent_id_fkey"
-            columns: ["consent_id"]
+            foreignKeyName: "chart_comparisons_friendship_id_fkey"
+            columns: ["friendship_id"]
             isOneToOne: false
-            referencedRelation: "comparison_consents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "chart_comparisons_external_profile_id_fkey"
-            columns: ["external_profile_id"]
-            isOneToOne: false
-            referencedRelation: "external_profiles"
+            referencedRelation: "friendships"
             referencedColumns: ["id"]
           },
         ]
@@ -361,47 +351,6 @@ export type Database = {
         }
         Relationships: []
       }
-      comparison_consents: {
-        Row: {
-          expires_at: string
-          external_profile_id: string
-          id: string
-          requested_at: string
-          responded_at: string | null
-          scope: Json
-          status: string
-          user_id: string
-        }
-        Insert: {
-          expires_at?: string
-          external_profile_id: string
-          id?: string
-          requested_at?: string
-          responded_at?: string | null
-          scope?: Json
-          status?: string
-          user_id: string
-        }
-        Update: {
-          expires_at?: string
-          external_profile_id?: string
-          id?: string
-          requested_at?: string
-          responded_at?: string | null
-          scope?: Json
-          status?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comparison_consents_external_profile_id_fkey"
-            columns: ["external_profile_id"]
-            isOneToOne: false
-            referencedRelation: "external_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       conversations: {
         Row: {
           created_at: string
@@ -509,42 +458,6 @@ export type Database = {
           priority?: number
           type?: string
           verified_at?: string | null
-        }
-        Relationships: []
-      }
-      external_profiles: {
-        Row: {
-          birth_city: string
-          birth_country: string | null
-          birth_date: string | null
-          birth_time: string | null
-          created_at: string
-          display_name: string
-          id: string
-          legal_birth_name: string
-          user_id: string
-        }
-        Insert: {
-          birth_city?: string
-          birth_country?: string | null
-          birth_date?: string | null
-          birth_time?: string | null
-          created_at?: string
-          display_name: string
-          id?: string
-          legal_birth_name: string
-          user_id: string
-        }
-        Update: {
-          birth_city?: string
-          birth_country?: string | null
-          birth_date?: string | null
-          birth_time?: string | null
-          created_at?: string
-          display_name?: string
-          id?: string
-          legal_birth_name?: string
-          user_id?: string
         }
         Relationships: []
       }

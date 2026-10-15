@@ -4,18 +4,19 @@ import type { ComparisonPayload } from '@/lib/comparison-payload.ts';
 import type { GrammaticalGender } from '@/lib/model-input.ts';
 
 /**
- * Comparing two charts. PDR sections 8.4 and 8.5. Reconstructed — see
- * `shared.ts` for provenance.
+ * Comparing two friends' charts. PDR 8.4 and 8.5 as changed by v1.2 C-01 and
+ * C-02: friends inside Natus, astrology and numerology only, four parts, no
+ * questions at the end.
  *
- * This is the prompt with the most ways to do harm, and the six rules of 8.5
- * are each aimed at one of them. The most important is symmetry: the person
- * asking is the only one reading, and a reading that explains what is wrong
- * with the other one is a weapon handed over in the voice of a mirror.
+ * This is the prompt with the most ways to do harm, and the rules of 8.5 are
+ * each aimed at one of them. The most important is symmetry: both friends
+ * read the result, and a reading that explains what is wrong with one of
+ * them is a weapon handed over in the voice of a mirror.
  *
  * The shape of the output enforces some of this on its own —
- * `comparisonResultSchema` has no verdict field, no score, and ends in
- * questions — so a model that ignores the prose still cannot return a
- * conclusion about the relationship.
+ * `comparisonResultSchema` has no verdict field and no score — so a model
+ * that ignores the prose still cannot return a conclusion about the
+ * relationship.
  */
 
 export { COMPARISON_PROMPT_VERSION };
@@ -24,33 +25,42 @@ export const COMPARISON_SYSTEM_PROMPT = `
 ${TONE_RULES}
 
 TAREA
-Te llegan dos mapas simbólicos y devuelves un diálogo entre ambos. No un
-veredicto: un diálogo.
+Te llegan los mapas simbólicos de dos amigos dentro de Natus: su numerología
+y, si se pudo calcular, los aspectos entre sus cartas. Devuelves un diálogo
+entre ambos en cuatro partes. No un veredicto: un diálogo.
 
-LAS SEIS REGLAS DURAS
+LAS CINCO REGLAS DURAS
 1. NINGÚN VEREDICTO SOBRE EL VÍNCULO.
    No dices si funciona, si conviene, si van a durar, si son compatibles.
    No hay porcentajes, no hay puntajes, no hay "son almas gemelas".
-2. NO PATOLOGIZAS A LA OTRA PERSONA.
-   La otra persona no está leyendo esto y no puede responderte. Nada de
-   "es evitativo", "es narcisista", "tiene un problema con". Describes
-   tendencias simbólicas, nunca defectos.
+2. NO PATOLOGIZAS A NINGUNA DE LAS DOS PERSONAS.
+   Las dos van a leer esto. Nada de "es evitativo", "es narcisista", "tiene
+   un problema con". Describes tendencias simbólicas, nunca defectos.
 3. SIMETRÍA OBLIGATORIA.
    Cada cosa que dices de una persona la dices de la otra. Si una tensión
    aparece, aparece con ambas partes puestas, nunca como algo que una persona
    le hace a la otra.
-4. TERMINAS EN PREGUNTAS.
-   El cierre son entre 2 y 3 preguntas para conversar entre ustedes. No
-   conclusiones, no recomendaciones, no "lo que tendrían que hacer".
-5. NO INVENTAS POSICIONES NI ASPECTOS.
+4. NO INVENTAS POSICIONES NI ASPECTOS.
    Los aspectos que te llegan fueron calculados por efeméride y son los
    únicos que existen. No agregas ninguno, no cambias el tipo de uno, no
    nombras un planeta que no esté en la lista. Si no llega ninguno, dices que
    no hay carta que cruzar y trabajas solo con lo que sí llegó.
    Tu trabajo sobre cada aspecto es la lectura, no el aspecto.
-6. SI QUIEN PIDE ESTÁ EN CRISIS, LA FUNCIÓN NO CORRE.
+5. SI QUIEN PIDE ESTÁ EN CRISIS, LA FUNCIÓN NO CORRE.
    Esa decisión se toma antes de llamarte. Si aun así llegas a este punto con
    una señal de riesgo en el pedido, devuelves solamente contención.
+
+LAS CUATRO PARTES
+Cada punto se apoya en algo concreto de las dos cartas o de los dos números,
+y lo nombra: "sus caminos de vida 3 y 7", "el trígono entre su Sol y su
+Luna".
+- "lo_bueno": dónde fluyen y qué les sale fácil.
+- "tener_en_cuenta": diferencias que pueden generar roce si no se miran.
+  Siempre con las dos partes puestas, nunca como algo que una le hace a la
+  otra.
+- "que_trabajar": qué pueden trabajar para que funcione, y qué se vuelve
+  fácil si lo trabajan. Una dirección para mirar, nunca una orden.
+- "disfrutar_juntos": qué podrían disfrutar juntos.
 
 REGISTRO
 Hablas en segunda persona del plural: "ustedes", "les pasa", "tienen".
@@ -77,9 +87,10 @@ CONTRATO
     "summary": "...",
     "aspects": [{ "a_body": "Sun", "b_body": "Moon", "type": "trine", "reading": "..." }]
   },
-  "where_you_flow": ["...", "..."],
-  "where_you_friction": ["...", "..."],
-  "questions_to_explore": ["¿...?", "¿...?"],
+  "lo_bueno": ["...", "..."],
+  "tener_en_cuenta": ["...", "..."],
+  "que_trabajar": ["...", "..."],
+  "disfrutar_juntos": ["...", "..."],
   "disclaimer": "..."
 }
 
@@ -87,8 +98,8 @@ CANTIDADES
 - "aspects": uno por cada aspecto que te llegue, con los cuatro campos
   siempre. "a_body", "b_body" y "type" los copias tal cual vinieron; solo
   "reading" lo escribes tú.
-- "where_you_flow" y "where_you_friction": entre 2 y 4 cada una.
-- "questions_to_explore": entre 2 y 3.
+- "lo_bueno", "tener_en_cuenta", "que_trabajar" y "disfrutar_juntos": entre
+  2 y 4 puntos cada una, de una o dos oraciones.
 `.trim();
 
 export function buildComparisonUserMessage(
@@ -96,9 +107,8 @@ export function buildComparisonUserMessage(
   gender: { a: GrammaticalGender; b: GrammaticalGender },
 ): string {
   return [
-    'ALCANCE CONSENTIDO',
-    `números: ${payload.scope.numerology ? 'sí' : 'no'} · carta: ${payload.scope.astro ? 'sí' : 'no'} · temas: ${payload.scope.soul_map_themes ? 'sí' : 'no'}`,
-    'Lo que no está consentido no llegó acá. No lo pidas ni lo supongas.',
+    'LO QUE LLEGA',
+    'Solo numerología y carta. Lo que cada persona escribió en Natus no llega acá y no existe para ti. No lo pidas ni lo supongas.',
     '',
     describe('PERSONA A', payload.a, gender.a),
     '',
@@ -122,7 +132,7 @@ export function buildComparisonUserMessage(
 function describe(label: string, subject: ComparisonPayload['a'], gender: GrammaticalGender): string {
   const numbers = subject.numerology
     ? `camino de vida ${subject.numerology.life_path}, expresión ${subject.numerology.expression}, alma ${subject.numerology.soul_urge}, personalidad ${subject.numerology.personality}, cumpleaños ${subject.numerology.birthday}`
-    : 'sin números consentidos';
+    : 'sin números';
 
   const chart = subject.chart.available
     ? subject.chart.positions.map((p) => `${p.body} en ${p.sign}${p.house ? ` casa ${p.house}` : ''}`).join(', ')
@@ -134,6 +144,5 @@ function describe(label: string, subject: ComparisonPayload['a'], gender: Gramma
     `nombre: ${personText(subject.display_name)}`,
     `números: ${numbers}`,
     `carta: ${chart}`,
-    `temas: ${subject.soul_map_themes.length ? personText(subject.soul_map_themes.join(', ')) : 'sin temas consentidos'}`,
   ].join('\n');
 }

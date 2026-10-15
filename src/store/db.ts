@@ -50,7 +50,14 @@ function storage(): Storage | null {
  * against a key nothing writes, so the cost of running it forever is lower
  * than the cost of deciding when it may stop.
  */
-const RETIRED = ['ai_mode'];
+const RETIRED = [
+  'ai_mode',
+  // v1.2 C-01: comparisons are between friends and read from the server, so
+  // the people typed in by hand and their simulated consents go.
+  'external_profiles',
+  'comparison_consents',
+  'chart_comparisons',
+];
 
 export function purgeRetiredNamespaces(): void {
   const store = storage();

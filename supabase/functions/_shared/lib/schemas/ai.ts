@@ -135,10 +135,15 @@ export const comparisonResultSchema = z.object({
       }),
     ),
   }),
-  where_you_flow: z.array(z.string().min(1)).min(2).max(4),
-  where_you_friction: z.array(z.string().min(1)).min(2).max(4),
-  /** PDR 8.5 rule 4: the output ends in questions, never conclusions. */
-  questions_to_explore: z.array(z.string().min(1)).min(2).max(3),
+  /**
+   * v1.2 C-02: four parts, each grounded in concrete points of both charts
+   * and both sets of numbers. The questions to talk over (PDR 8.5 rule 4) were
+   * removed by the same item.
+   */
+  lo_bueno: z.array(z.string().min(1)).min(2).max(4),
+  tener_en_cuenta: z.array(z.string().min(1)).min(2).max(4),
+  que_trabajar: z.array(z.string().min(1)).min(2).max(4),
+  disfrutar_juntos: z.array(z.string().min(1)).min(2).max(4),
   disclaimer: z.string().min(1),
 });
 export type ComparisonResult = z.infer<typeof comparisonResultSchema>;

@@ -9,7 +9,6 @@ import type { StoredSynthesis } from './soulMap.ts';
 import type { CheckIn, StoredMatch } from './matches.ts';
 import type { Conversation, StoredMessage } from './chat.ts';
 import type { StoredMeditation } from './meditations.ts';
-import type { ComparisonConsent, ExternalProfile, StoredComparison } from './comparison.ts';
 import type { CrisisEvent } from './crisis.ts';
 import type { Preferences } from './preferences.ts';
 import type { Subscription } from './subscription.ts';
@@ -572,153 +571,6 @@ const meditations: Adapter<StoredMeditation[]> = {
     ),
 };
 
-const externalProfiles: Adapter<ExternalProfile[]> = {
-  async load(client, userId) {
-    return (await selectAll(client, 'external_profiles', userId)).map((r) => ({
-      id: r.id,
-      display_name: r.display_name,
-      legal_birth_name: r.legal_birth_name,
-      birth_date: nullToBlank(r.birth_date),
-      birth_time: nullToBlank(r.birth_time).slice(0, 5),
-      birth_city: r.birth_city,
-      birth_country: r.birth_country ?? '',
-      created_at: ms(r.created_at),
-    }));
-  },
-  save: (client, userId, value) =>
-    replaceRows(
-      client,
-      'external_profiles',
-      userId,
-      value.map((p) => ({
-        id: p.id,
-        user_id: userId,
-        display_name: p.display_name,
-        legal_birth_name: p.legal_birth_name,
-        birth_date: blankToNull(p.birth_date),
-        birth_time: blankToNull(p.birth_time),
-        birth_city: p.birth_city,
-        birth_country: blankToNull(p.birth_country),
-        created_at: iso(p.created_at),
-      })),
-    ),
-};
-
-const consents: Adapter<ComparisonConsent[]> = {
-  async load(client, userId) {
-    return (await selectAll(client, 'comparison_consents', userId, 'requested_at')).map((r) => ({
-      id: r.id,
-      external_profile_id: r.external_profile_id,
-      scope: asShape<ComparisonConsent['scope']>(r.scope),
-      status: enumerated<ComparisonConsent['status']>(r.status),
-      requested_at: ms(r.requested_at),
-      responded_at: msOrNull(r.responded_at),
-      expires_at: ms(r.expires_at),
-    }));
-  },
-  /**
-   * `one_live_consent_per_profile` allows one row per profile, and asking
-   * again hands this a new id for a profile that already has one. The generic
-   * upsert-then-prune would hold both for a moment and violate the index, so
-   * the replaced request goes first. Its readings go with it, by cascade —
-   * which `requestConsent` mirrors in the store.
-   */
-  async save(client, userId, value) {
-    const profiles = value.map((c) => c.external_profile_id);
-    if (profiles.length > 0) {
-      const { error } = await client
-        .from('comparison_consents')
-        .delete()
-        .eq('user_id', userId)
-        .in('external_profile_id', profiles)
-        .not('id', 'in', `(${value.map((c) => c.id).join(',')})`);
-      if (error) throw new Error(`comparison_consents (replace): ${error.message}`);
-    }
-
-    await replaceRows(
-      client,
-      'comparison_consents',
-      userId,
-      value.map((c) => ({
-        id: c.id,
-        user_id: userId,
-        external_profile_id: c.external_profile_id,
-        scope: c.scope,
-        status: c.status,
-        requested_at: iso(c.requested_at),
-        responded_at: c.responded_at === null ? null : iso(c.responded_at),
-        expires_at: iso(c.expires_at),
-      })),
-    );
-  },
-};
-
-const comparisons: Adapter<StoredComparison[]> = {
-  async load(client, userId) {
-    // What comes back here is already filtered by the consent gate in
-    // supabase/migrations/*_rls_policies.sql. A revoked consent means the row
-    // is simply absent, with no check performed on this side — which is the
-    // point of moving that rule into a policy.
-    return (await selectAll(client, 'chart_comparisons', userId)).map((r) => ({
-      id: r.id,
-      external_profile_id: r.external_profile_id,
-      consent_id: r.consent_id,
-      prompt_version: r.prompt_version,
-      result: asShape<StoredComparison['result']>(r.result),
-      mode: enumerated<StoredComparison['mode']>(r.mode),
-      created_at: ms(r.created_at),
-    }));
-  },
-  /**
-   * Write-once rows behind a gate that moves with the clock.
-   *
-   * `replaceRows` would upsert every row in the list, and that fails here two
-   * ways. An existing row takes the upsert's UPDATE path, which has no policy —
-   * deliberately, a reading is never edited. And a row whose consent has since
-   * been revoked or has expired fails the INSERT check it passed when it was
-   * made, so one lapsed consent would block every comparison after it.
-   *
-   * So: insert only rows whose consent is live now, skip the ones already
-   * there, and prune what the list no longer holds. A row under a lapsed
-   * consent is invisible to its owner by policy and cannot be pruned from
-   * here; it goes when its profile does, by cascade, or with the account.
-   */
-  async save(client, userId, value) {
-    const { data: live, error: liveErr } = await client
-      .from('comparison_consents')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('status', 'granted')
-      .gt('expires_at', new Date().toISOString());
-    if (liveErr) throw new Error(`chart_comparisons (consents): ${liveErr.message}`);
-    const liveIds = new Set((live ?? []).map((c) => c.id));
-
-    const rows = value
-      .filter((c) => liveIds.has(c.consent_id))
-      .map((c) => ({
-        id: c.id,
-        user_id: userId,
-        external_profile_id: c.external_profile_id,
-        consent_id: c.consent_id,
-        prompt_version: c.prompt_version,
-        result: c.result,
-        mode: c.mode,
-        created_at: iso(c.created_at),
-      }));
-    if (rows.length > 0) {
-      const { error } = await client
-        .from('chart_comparisons')
-        .upsert(rows, { onConflict: 'id', ignoreDuplicates: true });
-      if (error) throw new Error(`chart_comparisons: ${error.message}`);
-    }
-
-    let prune = client.from('chart_comparisons').delete().eq('user_id', userId);
-    if (value.length > 0) prune = prune.not('id', 'in', `(${value.map((c) => c.id).join(',')})`);
-    const { error } = await prune;
-    if (error) throw new Error(`chart_comparisons (prune): ${error.message}`);
-  },
-};
-
 const crisisEvents: Adapter<CrisisEvent[]> = {
   async load(client, userId) {
     return (await selectAll(client, 'crisis_events', userId)).map((r) => {
@@ -771,9 +623,6 @@ export const ADAPTERS: Record<RemoteNamespace, Adapter<any>> = {
   conversations,
   messages,
   meditations,
-  external_profiles: externalProfiles,
-  comparison_consents: consents,
-  chart_comparisons: comparisons,
   crisis_events: crisisEvents,
   subscription,
   preferences,

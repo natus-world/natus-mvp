@@ -15,9 +15,6 @@ export type Namespace =
   | 'conversations'
   | 'messages'
   | 'meditations'
-  | 'external_profiles'
-  | 'comparison_consents'
-  | 'chart_comparisons'
   | 'crisis_events'
   | 'subscription'
   | 'preferences'
@@ -43,9 +40,6 @@ export const REMOTE_NAMESPACES = [
   'conversations',
   'messages',
   'meditations',
-  'external_profiles',
-  'comparison_consents',
-  'chart_comparisons',
   'crisis_events',
   'subscription',
   'preferences',

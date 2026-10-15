@@ -1,155 +1,128 @@
 import { useCallback, useEffect, useState } from 'react';
-import { isDemoMode } from '@/supabase/client';
 import { Link, useParams } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { Ouroboros } from '@/design/Ouroboros';
+import { PATHS } from '@/components/routes';
 import { copy } from '@/i18n';
+import { compareWithFriend } from '@/ai/comparison';
+import type { ComparisonResult } from '@/lib/schemas';
+import { latestComparison } from '@/store/comparison';
+import { listFriends } from '@/store/friends';
 import { ComparisonGate } from './Gate';
-import { computeNumerology, NumerologyInputError } from '@/lib/numerology';
-import { buildComparisonPayload, toComparisonBirth } from '@/lib/comparison-payload';
-import { compareCharts } from '@/ai/comparison';
-import { COMPARISON_PROMPT_VERSION } from '@/ai/prompts/versions';
-import { activeProfile } from '@/store/account';
-import { currentSynthesis } from '@/store/soulMap';
-import {
-  consentFor,
-  externalProfileById,
-  isConsentActive,
-  readableComparison,
-  saveComparison,
-} from '@/store/comparison';
-
-/**
- * The reading of PDR 8.4.
- *
- * Consent is re-checked on every render through `readableComparison`, not once
- * when the reading was generated. That is what makes revocation immediate: the
- * result is never held in component state, so the next render after a
- * revocation finds nothing to show.
- *
- * The screen ends where the contract ends — on questions. There is no verdict
- * to render because there is no verdict field, and there is no place to add
- * one without changing the schema.
- */
 
 const text = copy.comparison.result;
 const KIND_LABEL = text.kind;
 
+type State =
+  | { kind: 'loading' }
+  | { kind: 'not-friends' }
+  | { kind: 'none'; friend: string }
+  | { kind: 'generating'; friend: string }
+  | { kind: 'failed'; friend: string }
+  | { kind: 'ready'; friend: string; result: ComparisonResult };
+
+/**
+ * The comparison between two friends (v1.2 C-02): four parts, the numbers
+ * and the aspects they rest on, and the balance between flow and friction.
+ *
+ * Read from the server on every visit, never kept: the policy decides on each
+ * read whether the two are still friends, so a friendship that ended shows
+ * nothing here on the next visit.
+ *
+ * Generating costs the person asking, so it waits for a tap rather than
+ * starting on its own.
+ */
 export function Result() {
-  const { id = '' } = useParams();
-  const profile = externalProfileById(id);
-  const synthesis = currentSynthesis();
-  const mine = activeProfile();
+  const { friendshipId = '' } = useParams();
+  const [state, setState] = useState<State>({ kind: 'loading' });
 
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // A counter rather than the result itself: the reading is always re-read
-  // through `readableComparison`, so a revoked consent cannot be shown from a
-  // stale copy in this component.
-  const [version, setVersion] = useState(0);
-
-  const consent = consentFor(id);
-  const active = isConsentActive(consent);
-  const stored = active ? readableComparison(id) : undefined;
-
-  const generate = useCallback(async () => {
-    if (!profile || !mine || !synthesis || !consent || !isConsentActive(consent)) return;
-
-    setGenerating(true);
-    setError(null);
+  const load = useCallback(async () => {
     try {
-      const payload = buildComparisonPayload({
-        scope: consent.scope,
-        a: {
-          display_name: mine.draft.legal_birth_name.trim().split(/\s+/)[0] ?? text.selfFallback,
-          numerology: synthesis.numerology,
-          soul_map_themes: synthesis.synthesis.inferred_topics,
-          chart: null,
-          // The positions stay null: the function computes the aspects from
-          // the birth data and the browser never holds them. `chart` is what
-          // a future path that reads a stored chart would fill.
-          birth: toComparisonBirth(mine.draft),
-        },
-        b: {
-          display_name: profile.display_name,
-          numerology: numerologyOf(profile.legal_birth_name, profile.birth_date),
-          soul_map_themes: [],
-          chart: null,
-          birth: toComparisonBirth(profile),
-        },
-      });
-
-      const result = await compareCharts(payload);
-      saveComparison({
-        externalProfileId: id,
-        consentId: consent.id,
-        result: result.value,
-        promptVersion: COMPARISON_PROMPT_VERSION,
-        mode: result.mode,
-      });
-      setVersion((v) => v + 1);
+      const friend = (await listFriends()).find((f) => f.friendshipId === friendshipId);
+      if (!friend) {
+        setState({ kind: 'not-friends' });
+        return;
+      }
+      const stored = await latestComparison(friendshipId);
+      setState(
+        stored
+          ? { kind: 'ready', friend: friend.firstName, result: stored.result }
+          : { kind: 'none', friend: friend.firstName },
+      );
     } catch {
-      setError(copy.chrome.aiError.message);
-    } finally {
-      setGenerating(false);
+      setState({ kind: 'not-friends' });
     }
-  }, [profile, mine, synthesis, consent, id]);
+  }, [friendshipId]);
 
   useEffect(() => {
-    if (active && !readableComparison(id) && !generating && error === null) void generate();
-    // `version` is in the list so a regeneration re-evaluates what is stored.
-  }, [active, id, generate, generating, error, version]);
+    void load();
+  }, [load]);
 
-  if (!profile) {
-    return <Missing message={text.missing} />;
-  }
+  const generate = async (friend: string) => {
+    setState({ kind: 'generating', friend });
+    try {
+      const outcome = await compareWithFriend(friendshipId);
+      setState({ kind: 'ready', friend, result: outcome.value });
+    } catch {
+      setState({ kind: 'failed', friend });
+    }
+  };
 
-  if (!active) {
+  if (state.kind === 'loading' || state.kind === 'generating') {
     return (
-      <Missing
-        message={
-          consent?.status === 'revoked'
-            ? text.revoked
-            : text.noConsent
-        }
-        to={`/comparacion/consentimiento/${id}`}
-        cta={text.viewPermissions}
-      />
+      <Centered>
+        <Ouroboros size={88} />
+        <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">
+          {text.loading}
+        </p>
+      </Centered>
     );
   }
 
-  if (generating || !stored) {
+  if (state.kind === 'not-friends') {
     return (
-      <ComparisonGate>
-        <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content40}>
-          <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-8 text-center sm:min-h-0 sm:flex-1">
-            {error ? (
-              <>
-                <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{error}</p>
-                <button type="button" className="cta" onClick={() => void generate()}>
-                  {copy.chrome.aiError.retry}
-                </button>
-              </>
-            ) : (
-              <>
-                <Ouroboros size={88} />
-                <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">{text.loading}</p>
-              </>
-            )}
-          </div>
-        </Screen>
-      </ComparisonGate>
+      <Centered>
+        <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/70">{text.notFriends}</p>
+        <Link to={PATHS.comparison} className="cta no-underline">
+          {text.back}
+        </Link>
+      </Centered>
     );
   }
 
-  const { result } = stored;
+  if (state.kind === 'none' || state.kind === 'failed') {
+    return (
+      <Centered>
+        <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/70">
+          {state.kind === 'failed' ? copy.chrome.aiError.message : text.intro(state.friend)}
+        </p>
+        <button type="button" className="cta" onClick={() => void generate(state.friend)}>
+          {state.kind === 'failed' ? copy.chrome.aiError.retry : text.compare}
+        </button>
+        <Link to={PATHS.comparison} className="chip chip-p10 text-crema/60 no-underline">
+          {text.back}
+        </Link>
+      </Centered>
+    );
+  }
+
+  const { result } = state;
 
   return (
     <ComparisonGate>
       <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content40}>
         <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
           <p className="eyebrow mb-3">{text.kicker}</p>
-          <h1 className="mb-6 text-[length:var(--fs-title-26)] leading-[var(--lh-heading-1_18)] text-blanco">{result.headline}</h1>
+          <h1 className="mb-6 text-[length:var(--fs-title-26)] leading-[var(--lh-heading-1_18)] text-blanco">
+            {result.headline}
+          </h1>
+
+          <Balance aspects={result.astro_dialogue.aspects} />
+
+          <Part title={text.loBueno} lines={result.lo_bueno} />
+          <Part title={text.tenerEnCuenta} lines={result.tener_en_cuenta} />
+          <Part title={text.queTrabajar} lines={result.que_trabajar} />
+          <Part title={text.disfrutarJuntos} lines={result.disfrutar_juntos} />
 
           <section className="mb-6">
             <h2 className="eyebrow mb-2.5">{text.numbers}</h2>
@@ -158,10 +131,7 @@ export function Result() {
             </p>
             <div className="flex flex-col gap-2.5">
               {result.numerology_dialogue.pairs.map((pair) => (
-                <article
-                  key={pair.kind}
-                  className="surface surface-p14"
-                >
+                <article key={pair.kind} className="surface surface-p14">
                   <div className="mb-1.5 flex items-baseline justify-between gap-3">
                     <h3 className="text-[length:var(--fs-heading-12)] tracking-wide text-crema/60 uppercase">
                       {KIND_LABEL[pair.kind] ?? pair.kind}
@@ -181,21 +151,16 @@ export function Result() {
             <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/60">
               {result.astro_dialogue.summary}
             </p>
-
             {/*
              * Every aspect here was computed by the ephemeris and checked
              * against that list server-side before this rendered. The bodies
              * and the aspect are the calculation; only the reading is the
-             * model's. Shown as a pair rather than a score — there is no
-             * number in this section and §7 is why.
+             * model's.
              */}
             {result.astro_dialogue.aspects.length > 0 && (
               <div className="mt-3 flex flex-col gap-2.5">
                 {result.astro_dialogue.aspects.map((aspect) => (
-                  <article
-                    key={`${aspect.a_body}-${aspect.type}-${aspect.b_body}`}
-                    className="surface surface-p12"
-                  >
+                  <article key={`${aspect.a_body}-${aspect.type}-${aspect.b_body}`} className="surface surface-p12">
                     <p className="mb-1 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
                       {aspect.a_body} · {aspect.type} · {aspect.b_body}
                     </p>
@@ -206,86 +171,70 @@ export function Result() {
             )}
           </section>
 
-          <section className="mb-6">
-            <h2 className="eyebrow mb-2.5">{text.flow}</h2>
-            <ul className="flex list-none flex-col gap-2 p-0">
-              {result.where_you_flow.map((line) => (
-                <li key={line} className="text-[length:var(--fs-body-12_5)] leading-relaxed text-blanco/85">
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="mb-6">
-            <h2 className="eyebrow mb-2.5">{text.friction}</h2>
-            <ul className="flex list-none flex-col gap-2 p-0">
-              {result.where_you_friction.map((line) => (
-                <li key={line} className="text-[length:var(--fs-body-12_5)] leading-relaxed text-blanco/85">
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <div className="my-2 h-px w-10 bg-crema/25" />
-
-          {/* PDR 8.5 rule 4: it ends here, on questions. */}
-          <section className="mb-6">
-            <h2 className="eyebrow mb-3">{text.questions}</h2>
-            <div className="flex flex-col gap-3">
-              {result.questions_to_explore.map((question) => (
-                <p key={question} className="font-serif text-[length:var(--fs-voice-16)] leading-snug text-crema italic">
-                  {question}
-                </p>
-              ))}
-            </div>
-          </section>
-
           <p className="mb-6 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-3 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
             {text.disclaimer}
           </p>
 
-          <div className="flex flex-col gap-2.5">
-            <Link
-              to={`/comparacion/consentimiento/${id}`}
-              className="chip chip-p10 text-center text-crema/60 no-underline"
-            >
-              {text.permissions}
-            </Link>
-            {isDemoMode && (
-              <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                {stored.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} ·{' '}
-                {stored.prompt_version}
-              </p>
-            )}
-          </div>
+          <Link to={PATHS.comparison} className="chip chip-p10 mb-4 text-center text-crema/60 no-underline">
+            {text.back}
+          </Link>
         </div>
       </Screen>
     </ComparisonGate>
   );
 }
 
-function numerologyOf(legalName: string, birthDate: string) {
-  try {
-    return computeNumerology({ legalBirthName: legalName, birthDate });
-  } catch (error) {
-    // A name with no Latin letters. The cross runs on what is left rather than
-    // refusing outright.
-    if (error instanceof NumerologyInputError) return null;
-    throw error;
-  }
+function Part({ title, lines }: { title: string; lines: readonly string[] }) {
+  return (
+    <section className="mb-6">
+      <h2 className="eyebrow mb-2.5">{title}</h2>
+      <ul className="flex list-none flex-col gap-2 p-0">
+        {lines.map((line) => (
+          <li key={line} className="text-[length:var(--fs-body-12_5)] leading-relaxed text-blanco/85">
+            {line}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
-function Missing({ message, to = '/comparacion', cta = text.back }: { message: string; to?: string; cta?: string }) {
+const FLOW = new Set(['trine', 'sextile']);
+const FRICTION = new Set(['square', 'opposition']);
+
+/**
+ * v1.2 C-02: the balance between flow and friction, with no number on it and
+ * friction drawn with the same weight as flow. Counted from the aspects the
+ * ephemeris computed; a conjunction can go either way, so it counts for
+ * neither. Hidden when there is nothing to count.
+ */
+function Balance({ aspects }: { aspects: ComparisonResult['astro_dialogue']['aspects'] }) {
+  const flow = aspects.filter((a) => FLOW.has(a.type.toLowerCase())).length;
+  const friction = aspects.filter((a) => FRICTION.has(a.type.toLowerCase())).length;
+  if (flow + friction === 0) return null;
+
+  return (
+    <section className="mb-6" aria-label={text.balance}>
+      <h2 className="eyebrow mb-2.5">{text.balance}</h2>
+      <div className="flex h-2 overflow-hidden rounded-full">
+        <div className="bg-crema/70" style={{ flexGrow: flow }} />
+        <div className="w-0.5 bg-transparent" />
+        <div className="bg-tierra" style={{ flexGrow: friction }} />
+      </div>
+      <div className="mt-1.5 flex justify-between text-[length:var(--fs-label-11)] tracking-wide text-crema/60 uppercase">
+        <span>{text.flow}</span>
+        <span>{text.friction}</span>
+      </div>
+    </section>
+  );
+}
+
+function Centered({ children }: { children: React.ReactNode }) {
   return (
     <ComparisonGate>
       <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{message}</p>
-          <Link to={to} className="cta no-underline">
-            {cta}
-          </Link>
+        <div className="flex min-h-dvh flex-col items-center justify-center gap-5 px-8 text-center sm:min-h-0 sm:flex-1">
+          {children}
         </div>
       </Screen>
     </ComparisonGate>

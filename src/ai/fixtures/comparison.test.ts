@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildComparisonFixture } from './comparison';
 import { buildComparisonPayload, type ComparisonScope, type ComparisonSource } from '@/lib/comparison-payload';
 import { comparisonResultSchema, type Numerology } from '@/lib/schemas';
-import { isInvitation, lintDeep } from '@/lib/copy-lint';
+import { lintDeep } from '@/lib/copy-lint';
 
 function numbers(values: [number, number, number, number, number]): Numerology {
   const [life_path, expression, soul_urge, personality, birthday] = values;
@@ -80,16 +80,16 @@ describe('every comparison satisfies the contract', () => {
     expect(lintDeep(build(a, b, scope))).toEqual([]);
   });
 
-  it.each(CASES)('%s ends in questions rather than conclusions', (_label, a, b, scope) => {
-    // PDR 8.5 rule 4. The schema has nowhere to put a verdict; this is the
-    // other half of the same rule.
-    for (const question of build(a, b, scope).questions_to_explore) {
-      expect(isInvitation(question)).toBe(true);
+  it.each(CASES)('%s has the four parts of v1.2 C-02 and no questions', (_label, a, b, scope) => {
+    const result = build(a, b, scope);
+    for (const part of [result.lo_bueno, result.tener_en_cuenta, result.que_trabajar, result.disfrutar_juntos]) {
+      expect(part.length).toBeGreaterThanOrEqual(2);
     }
+    expect(result).not.toHaveProperty('questions_to_explore');
   });
 });
 
-describe('the six rules of PDR 8.5', () => {
+describe('the rules of PDR 8.5 that v1.2 kept', () => {
   const result = build(CASES[1]![1], CASES[1]![2], FULL);
   const everything = JSON.stringify(result);
   // The disclaimer's whole job is to name what this is not, so it is the one
@@ -110,12 +110,17 @@ describe('the six rules of PDR 8.5', () => {
   });
 
   it('rule 3: is symmetric — every reading names both, or neither', () => {
-    // The person asking is the only one reading this. A sentence about one of
-    // them alone is a weapon handed over in the voice of a mirror.
+    // Both friends read this. A sentence about one of them alone is a weapon
+    // handed over in the voice of a mirror.
     for (const pair of result.numerology_dialogue.pairs) {
       expect(pair.reading).toMatch(/\b(ambas partes|ambos|cada persona|ustedes|de un lado|en ambos lados)\b/i);
     }
-    for (const line of [...result.where_you_flow, ...result.where_you_friction]) {
+    for (const line of [
+      ...result.lo_bueno,
+      ...result.tener_en_cuenta,
+      ...result.que_trabajar,
+      ...result.disfrutar_juntos,
+    ]) {
       expect(line).toMatch(/\b(ambas partes|cada persona|cada lado|ustedes|comparten|ninguna|un lado)\b/i);
     }
   });
@@ -141,7 +146,7 @@ describe('what the scope leaves out', () => {
   it('says the numbers section is empty on purpose', () => {
     const result = build(CASES[3]![1], CASES[3]![2], CASES[3]![3]);
     expect(result.numerology_dialogue.pairs).toEqual([]);
-    expect(result.numerology_dialogue.summary).toMatch(/no hubo n[úu]meros consentidos/i);
+    expect(result.numerology_dialogue.summary).toMatch(/no hubo n[úu]meros/i);
   });
 
   it('still finds two things on each side with almost nothing to work with', () => {
@@ -150,21 +155,21 @@ describe('what the scope leaves out', () => {
       astro: false,
       soul_map_themes: false,
     });
-    expect(result.where_you_flow.length).toBeGreaterThanOrEqual(2);
-    expect(result.where_you_friction.length).toBeGreaterThanOrEqual(2);
+    expect(result.lo_bueno.length).toBeGreaterThanOrEqual(2);
+    expect(result.tener_en_cuenta.length).toBeGreaterThanOrEqual(2);
   });
 });
 
 describe('the reading follows the numbers', () => {
   it('notices when the two people share everything', () => {
     const result = build(CASES[0]![1], CASES[0]![2], FULL);
-    expect(result.where_you_flow[0]).toMatch(/5 de los cinco|Comparten 5/);
-    expect(result.where_you_friction[0]).toMatch(/parecido/);
+    expect(result.lo_bueno[0]).toMatch(/5 de los cinco|Comparten 5/);
+    expect(result.tener_en_cuenta[0]).toMatch(/parecido/);
   });
 
   it('notices when they share nothing', () => {
     const result = build(CASES[1]![1], CASES[1]![2], FULL);
-    expect(result.where_you_flow[0]).toMatch(/ninguno de los cinco/);
+    expect(result.lo_bueno[0]).toMatch(/ninguno de los cinco/);
   });
 
   it('is deterministic', () => {

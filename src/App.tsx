@@ -18,8 +18,7 @@ import { Profile } from '@/screens/Profile';
 import { Chat } from '@/screens/Chat';
 import { Meditation } from '@/screens/Meditation';
 import { Library } from '@/screens/Library';
-import { ExternalProfile } from '@/screens/comparison/ExternalProfile';
-import { Consent } from '@/screens/comparison/Consent';
+import { ComparisonHome } from '@/screens/comparison/ComparisonHome';
 import { Result } from '@/screens/comparison/Result';
 import { showsNav, showsProfile } from '@/components/navigation';
 import { ProfileButton } from '@/components/ProfileButton';
@@ -184,9 +183,8 @@ export function App() {
             />
             <Route path={PATHS.meditations} element={<Meditation />} />
             <Route path={PATHS.library} element={<Library />} />
-            <Route path={PATHS.comparison} element={<ExternalProfile />} />
-            <Route path="/comparacion/consentimiento/:id" element={<Consent />} />
-            <Route path="/comparacion/resultado/:id" element={<Result />} />
+            <Route path={PATHS.comparison} element={<ComparisonHome />} />
+            <Route path="/comparacion/:friendshipId" element={<Result />} />
             <Route path="/amigos/:token" element={<FriendInvite />} />
             {Object.entries(LEGACY_PATHS).map(([from, to]) => (
               <Route key={from} path={from} element={<LegacyRedirect to={to} />} />

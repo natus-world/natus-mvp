@@ -198,6 +198,16 @@ const synastryAspectSchema = z.object({
 });
 
 /**
+ * What the browser sends to compare charts with a friend (v1.2 C-01): which
+ * friendship, and nothing else. The function builds the payload from both
+ * people's stored data after checking the friendship is accepted, so neither
+ * friend's birth data ever passes through the other's browser.
+ */
+export const comparisonRequestSchema = z.object({
+  friendship_id: z.string().uuid(),
+});
+
+/**
  * Validated again on arrival, having already been built by
  * `buildComparisonPayload`'s allow-list. The two are not redundant: the
  * allow-list decides what may leave one browser, and this decides what the

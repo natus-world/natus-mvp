@@ -1,13 +1,14 @@
 import { COMPARISON_PROMPT_VERSION } from '../prompts/versions';
-import { topicName } from '@/lib/catalog';
 import type { ComparisonPayload } from '@/lib/comparison-payload';
 import type { ComparisonResult } from '@/lib/schemas';
 
 /**
  * A curated comparison, assembled from the payload.
  *
- * Everything here is written to the six rules of PDR 8.5, and the two that are
- * easiest to break by accident are the two this file is built around.
+ * Everything here is written to the rules of PDR 8.5 as v1.2 C-02 left them,
+ * and the two that are easiest to break by accident are the two this file is
+ * built around. Only the demo build reads it: comparisons are between friends
+ * inside Natus, and a build with no backend has no friends.
  *
  * Symmetry: every reading names both people or neither. The sentences are
  * generated from the pair, not from one number, so there is no place for a
@@ -52,18 +53,8 @@ function reading(kind: Kind, a: number, b: number): string {
   return `En ${subject} hay ${a} de un lado y ${b} del otro. Son lenguajes distintos: lo que de un lado resulta obvio, del otro lleva un paso más, y al revés también.`;
 }
 
-function themeOverlap(payload: ComparisonPayload): { shared: string[]; onlyOne: string[] } {
-  const a = new Set(payload.a.soul_map_themes);
-  const b = new Set(payload.b.soul_map_themes);
-  return {
-    shared: [...a].filter((topic) => b.has(topic)),
-    onlyOne: [...new Set([...a, ...b])].filter((topic) => a.has(topic) !== b.has(topic)),
-  };
-}
-
 export function buildComparisonFixture(payload: ComparisonPayload): ComparisonResult {
   const { a, b } = payload;
-  const themes = themeOverlap(payload);
 
   const pairs =
     a.numerology && b.numerology
@@ -77,52 +68,30 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
 
   const matches = pairs.filter((pair) => pair.a_number === pair.b_number).length;
 
-  const flow: string[] = [];
-  const friction: string[] = [];
+  const shared = matches > 0;
 
-  if (pairs.length > 0) {
-    flow.push(
-      matches > 0
+  const loBueno = [
+    pairs.length === 0
+      ? 'Sin números para cruzar, lo que ustedes tienen en común queda por descubrirse conversando.'
+      : shared
         ? `Comparten ${matches} de los cinco números, y eso suele mostrarse como entenderse sin explicar demasiado.`
-        : 'No comparten ninguno de los cinco números, lo que suele traducirse en que cada persona aporta algo que del otro lado no habría aparecido.',
-    );
-    friction.push(
-      matches >= 3
-        ? 'Tanto parecido tiene su costo: cuando algo se les escapa, se les escapa a ambas partes al mismo tiempo.'
-        : 'Los ritmos distintos se notan más en los días de prisa, cuando cada persona resuelve como sabe y del otro lado se lee como desinterés.',
-    );
-  }
-
-  if (themes.shared.length > 0) {
-    flow.push(
-      `Ambas partes están mirando ${themes.shared.map(topicName).join(' y ')}. Tener el mismo tema abierto hace que las conversaciones lleguen rápido a algo real.`,
-    );
-    friction.push(
-      `El mismo tema abierto en ambas partes también significa que nadie llega con descanso a ese lugar cuando del otro lado hace falta.`,
-    );
-  }
-
-  if (themes.onlyOne.length > 0) {
-    flow.push(
-      `Hay temas que aparecen en un lado y no en el otro —${themes.onlyOne.map(topicName).join(', ')}—, y eso da lugar a que una persona sostenga mientras la otra atraviesa.`,
-    );
-  }
-
-  // The contract asks for at least two on each side, and a comparison that
-  // finds only smooth things is a comparison that is not looking. The filler
-  // is about the reading itself rather than about them, which is the honest
-  // thing to say when the scope left almost nothing to read.
-  const FLOW_FILLER = [
-    'Lo que ustedes dejaron entrar aquí alcanza para un primer cruce y no para mucho más, lo que ya dice algo: hay bastante que todavía no se contaron.',
-    'Que ninguna de las partes haya abierto demasiado también es un punto de partida parejo.',
+        : 'No comparten ninguno de los cinco números: cada persona aporta algo que del otro lado no habría aparecido.',
+    'Puestos en paralelo, sus números muestran dos formas de llegar a lo mismo, y eso le da a cada persona algo que aprender del otro lado.',
   ];
-  const FRICTION_FILLER = [
-    'Con este alcance queda fuera casi todo lo que suele rozar entre dos personas, así que lo que no aparece aquí no es lo que no existe entre ustedes.',
-    'Leer tan poco de cada lado deja espacio para que cada persona complete el resto por su cuenta, que es justo donde se arman los malentendidos.',
+  const tenerEnCuenta = [
+    matches >= 3
+      ? 'Tanto parecido tiene su costo: cuando algo se les escapa, se les escapa a ambas partes al mismo tiempo.'
+      : 'Los ritmos distintos se notan más en los días de prisa, cuando cada persona resuelve como sabe y del otro lado se lee como desinterés.',
+    'Lo que una de las partes da por sentado puede ser justo lo que la otra necesita escuchar; vale para ambas partes.',
   ];
-
-  for (const line of FLOW_FILLER) if (flow.length < 2) flow.push(line);
-  for (const line of FRICTION_FILLER) if (friction.length < 2) friction.push(line);
+  const queTrabajar = [
+    'Que cada persona nombre en voz alta su propio ritmo antes de que choque con el otro: cuando eso se vuelve costumbre, las diferencias dejan de leerse como distancia.',
+    'Darse un momento para preguntarle a cada persona cómo llega a una decisión; con eso, decidir en conjunto se vuelve más liviano.',
+  ];
+  const disfrutarJuntos = [
+    'Actividades donde cada persona pueda llevar su propio ritmo sin apurar a la otra.',
+    'Conversaciones sin objetivo, donde lo distinto de cada lado sea material y no problema.',
+  ];
 
   return {
     prompt_version: COMPARISON_PROMPT_VERSION,
@@ -131,7 +100,7 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
       summary:
         pairs.length > 0
           ? 'Los números no dicen qué va a pasar entre ustedes. Puestos en paralelo muestran dónde se parecen y dónde no, que es material para hablar, no un resultado.'
-          : 'No hubo números consentidos en este cruce, así que esta parte queda vacía a propósito.',
+          : 'No hubo números para este cruce, así que esta parte queda vacía a propósito.',
       pairs,
     },
     // Always empty, and it has to be.
@@ -147,13 +116,10 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
         'El cruce de las dos cartas se calcula por efeméride y esta lectura no la tiene, así que esta sección queda sin contenido. Nada aquí se completa por aproximación.',
       aspects: [],
     },
-    where_you_flow: flow.slice(0, 4),
-    where_you_friction: friction.slice(0, 4),
-    questions_to_explore: [
-      '¿En qué momento de la semana pasada se sintieron más lejos, y qué estaba pasando?',
-      '¿Qué da por sentado cada persona que la otra ya sabe?',
-      '¿Qué de esto que leyeron les suena, y qué no les suena para nada?',
-    ],
+    lo_bueno: loBueno,
+    tener_en_cuenta: tenerEnCuenta,
+    que_trabajar: queTrabajar,
+    disfrutar_juntos: disfrutarJuntos,
     disclaimer:
       'Esto es un lenguaje simbólico para conversar entre ustedes, no una medición del vínculo ni una opinión sobre si les conviene. Lo que decidan hablar después es de ustedes.',
   };

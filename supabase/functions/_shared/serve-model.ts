@@ -59,14 +59,32 @@ export type ModelRoute<I, O> = {
    * stored answers, which is why it is handed the caller: a client subject to
    * RLS, acting as the person, never the elevated one.
    */
-  enrich?: (input: I, context: { caller: SupabaseClient; userId: string }) => Promise<I>;
+  enrich?: (
+    input: I,
+    context: { caller: SupabaseClient; userId: string; elevated: SupabaseClient },
+  ) => Promise<I>;
   /**
    * A reason this person must not be served at all, read from what the
    * server holds rather than from the request. Runs right after the crisis
    * scan, before the key check and before anything is spent. `comparison`
-   * uses it for rule 6 of PDR 8.5. Returns the refusal's name, or null.
+   * uses it for rule 6 of PDR 8.5 (`safety: true`, logged as a crisis
+   * refusal) and for a friendship that is not accepted (`safety: false`, not
+   * logged: nothing was asked of the model). Returns null to serve.
    */
-  refuse?: (input: I, context: { caller: SupabaseClient; userId: string }) => Promise<string | null>;
+  refuse?: (
+    input: I,
+    context: { caller: SupabaseClient; userId: string },
+  ) => Promise<{ reason: string; safety: boolean } | null>;
+  /**
+   * Keeps the answer where the browser cannot write it. Runs after the call is
+   * logged; its id travels back as `stored_id`. `comparison` uses it because
+   * the result is read by two people and neither of them may author it.
+   */
+  store?: (
+    output: O,
+    input: I,
+    context: { elevated: SupabaseClient; userId: string; promptVersion: string },
+  ) => Promise<string | null>;
   /**
    * A rule about the answer that the schema cannot express. Returns a reason
    * to reject, or null to accept. Rejection is logged as `copy_violation` —
@@ -139,13 +157,15 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
       ? await route.refuse(parsed.data, { caller: auth.caller, userId })
       : null;
     if (withheld) {
-      await logCall(elevated, {
-        ...record,
-        outcome: 'refused_crisis',
-        latencyMs: Date.now() - started,
-        errorKind: withheld,
-      });
-      return json(request, { error: 'refused', reason: withheld }, 403);
+      if (withheld.safety) {
+        await logCall(elevated, {
+          ...record,
+          outcome: 'refused_crisis',
+          latencyMs: Date.now() - started,
+          errorKind: withheld.reason,
+        });
+      }
+      return json(request, { error: 'refused', reason: withheld.reason }, 403);
     }
 
     // A declared state, not a failure: `runAi` reads this and falls back to
@@ -176,7 +196,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
 
     try {
       const input = route.enrich
-        ? await route.enrich(parsed.data, { caller: auth.caller, userId })
+        ? await route.enrich(parsed.data, { caller: auth.caller, userId, elevated })
         : parsed.data;
       const gender = await callerGrammaticalGender(auth.caller, userId);
       const generated = await generate({
@@ -204,8 +224,13 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
       const crisis = route.crisis?.(generated.value, input);
       if (crisis) return json(request, modelCrisisReply(crisis.response, crisis.country));
 
+      const storedId = route.store
+        ? await route.store(generated.value, input, { elevated, userId, promptVersion: route.promptVersion })
+        : null;
+
       return json(request, {
         result: generated.value,
+        ...(storedId ? { stored_id: storedId } : {}),
         model,
         input_tokens: generated.inputTokens,
         output_tokens: generated.outputTokens,

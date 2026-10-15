@@ -1,41 +1,49 @@
 import { runAi, AiError, type AiResult } from './client';
 import { buildComparisonFixture } from './fixtures/comparison';
 import { comparisonResultSchema, type ComparisonResult } from '@/lib/schemas';
-import { canComputeSynastry, isScopeUsable, type ComparisonPayload } from '@/lib/comparison-payload';
+import { buildComparisonPayload } from '@/lib/comparison-payload';
+import { computeNumerology } from '@/lib/numerology';
 
-export async function compareCharts(payload: ComparisonPayload): Promise<AiResult<ComparisonResult>> {
-  if (!isScopeUsable(payload.scope)) {
-    // Sending an empty payload would leave the model with nothing to read and
-    // every incentive to improvise, which is the one thing rule 5 forbids.
-    throw new AiError('Nothing was consented to, so there is nothing to compare.', 'api_error');
-  }
-
+/**
+ * Compare charts with a friend (v1.2 C-01). The browser sends which
+ * friendship and nothing else: the function builds the payload from both
+ * people's stored data, checks rule 6 and the friendship, and stores the
+ * result where both friends can read it.
+ */
+export async function compareWithFriend(friendshipId: string): Promise<AiResult<ComparisonResult>> {
   const result = await runAi({
     schema: comparisonResultSchema,
-    // The payload crosses as it was built. `buildComparisonPayload` decided
-    // what may leave this browser; `comparisonInputSchema` decides again on
-    // arrival what the deployment's key will pay to read.
-    edge: { fn: 'comparison', body: { ...payload } },
-    fixture: () => buildComparisonFixture(payload),
+    edge: { fn: 'comparison', body: { friendship_id: friendshipId } },
+    // Only the demo build reaches this, and it has no friends to compare
+    // with: two invented people, so the screen can be walked offline.
+    fixture: () => buildComparisonFixture(DEMO_PAYLOAD),
   });
 
-  // Rule 5, from this side.
-  //
-  // The Edge Function checks the strong version — every aspect the model
-  // returned has to match one the ephemeris actually computed — because it is
-  // the only place that holds the ephemeris list. This is the half the caller
-  // can still check: aspects may exist only when the server could have
-  // computed them, which means the scope allowed it, both birth places were
-  // complete, and the answer came from the server rather than a fixture.
-  //
-  // A fixture that grew an aspect would be a hand-written placement presented
-  // as a reading of two real charts, which is the same lie with a different
-  // author.
-  const couldHaveAspects = result.mode === 'server' && canComputeSynastry(payload);
+  // Rule 5, from this side: aspects can only come from the server, which is
+  // the only place holding an ephemeris. The strong check — every aspect the
+  // model returned matches one that was computed — runs in the function.
   const dialogue = result.value.astro_dialogue;
-  if (!couldHaveAspects && (dialogue.available || dialogue.aspects.length > 0)) {
+  if (result.mode !== 'server' && (dialogue.available || dialogue.aspects.length > 0)) {
     throw new AiError('The model described chart aspects that were never computed.', 'copy_violation');
   }
 
   return result;
 }
+
+const DEMO_PAYLOAD = buildComparisonPayload({
+  scope: { numerology: true, astro: false, soul_map_themes: false },
+  a: {
+    display_name: 'Ana',
+    numerology: computeNumerology({ legalBirthName: 'Ana Prueba', birthDate: '1992-05-14' }),
+    soul_map_themes: [],
+    chart: null,
+    birth: null,
+  },
+  b: {
+    display_name: 'Beto',
+    numerology: computeNumerology({ legalBirthName: 'Beto Prueba', birthDate: '1990-11-02' }),
+    soul_map_themes: [],
+    chart: null,
+    birth: null,
+  },
+});
