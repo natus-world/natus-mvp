@@ -188,6 +188,16 @@ export const es = {
     },
     toTry: 'Para probar',
     numbers: 'Tus números',
+    // The approved Carta capture labels the five numbers in one row, so the
+    // labels are short. The full names stay in practice.numberLabels and are
+    // read out to screen readers.
+    numberShort: {
+      life_path: 'Camino',
+      expression: 'Expresión',
+      soul_urge: 'Alma',
+      personality: 'Person.',
+      birthday: 'Cumple',
+    },
     masterNumbersLead: 'Aparecen números maestros en tu mapa: ',
     masterNumbersTail:
       '. En la tradición pitagórica no se reducen, y se leen como una intensidad que pide más de ti.',
