@@ -10,6 +10,8 @@ const fieldClass =
 
 const labelClass = 'mb-1.5 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase';
 
+const helperClass = 'mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55';
+
 export function BasicData({
   draft,
   onChange,
@@ -27,7 +29,7 @@ export function BasicData({
       title={
         <>
           {text.titleLead}
-          <br />
+          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
           {text.titleTail}
         </>
       }
@@ -51,54 +53,26 @@ export function BasicData({
             onChange={(e) => onChange({ legal_birth_name: e.target.value, natal_chart: null })}
             placeholder={text.namePlaceholder}
             autoComplete="name"
+            aria-describedby="legal-name-helper"
           />
-          <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
+          <p id="legal-name-helper" className={helperClass}>
             {text.nameHelper}
           </p>
         </div>
 
-        <div>
-          <label className={labelClass} htmlFor="grammatical-gender">
-            {text.genderLabel}
-          </label>
-          <select
-            id="grammatical-gender"
-            className={fieldClass}
-            value={draft.grammatical_gender}
-            onChange={(e) =>
-              onChange({ grammatical_gender: e.target.value as OnboardingDraft['grammatical_gender'] })
-            }
-          >
-            {text.genderOptions.map(([value, label]) => (
-              <option key={value} value={value} className="bg-negro">
-                {label}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {text.genderHelper}
-          </p>
-        </div>
-
-        <div>
-          <label className={labelClass} htmlFor="birth-date">
-            {text.birthDateLabel}
-          </label>
-          <input
-            id="birth-date"
-            type="date"
-            className={fieldClass}
-            value={draft.birth_date}
-            onChange={(e) => onChange({ birth_date: e.target.value, natal_chart: null })}
-          />
-        </div>
-
-        {/*
-         * PDR US-1.2: birth time and city are optional and skipping them must
-         * not block. The copy says so plainly rather than leaving someone
-         * stuck hunting for a document.
-         */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-[3fr_2fr] gap-3">
+          <div>
+            <label className={labelClass} htmlFor="birth-date">
+              {text.birthDateLabel}
+            </label>
+            <input
+              id="birth-date"
+              type="date"
+              className={fieldClass}
+              value={draft.birth_date}
+              onChange={(e) => onChange({ birth_date: e.target.value, natal_chart: null })}
+            />
+          </div>
           <div>
             <label className={labelClass} htmlFor="birth-time">
               {text.birthTimeLabel}
@@ -111,43 +85,44 @@ export function BasicData({
               onChange={(e) => onChange({ birth_time: e.target.value, natal_chart: null })}
             />
           </div>
-          <div>
-            <label className={labelClass} htmlFor="birth-city">
-              {text.birthCityLabel}
-            </label>
-            <input
-              id="birth-city"
-              className={fieldClass}
-              value={draft.birth_city}
-              onChange={(e) => onChange({ birth_city: e.target.value, natal_chart: null })}
-              placeholder={text.birthCityPlaceholder}
-            />
-          </div>
         </div>
-        <p className="-mt-2 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          {text.optionalHelper}
-        </p>
 
         <div>
-          <label className={labelClass} htmlFor="birth-country">
-            {text.birthCountryLabel}
+          <label className={labelClass} htmlFor="birth-city">
+            {text.birthCityLabel}
           </label>
-          <select
-            id="birth-country"
+          <input
+            id="birth-city"
             className={fieldClass}
-            value={draft.birth_country}
-            onChange={(e) => onChange({ birth_country: e.target.value, natal_chart: null })}
-          >
-            {BIRTH_COUNTRIES.map(([code, name]) => (
-              <option key={code || 'empty'} value={code} className="bg-negro">
-                {name}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {text.birthCountryHelper}
-          </p>
+            value={draft.birth_city}
+            onChange={(e) => onChange({ birth_city: e.target.value, natal_chart: null })}
+            placeholder={text.birthCityPlaceholder}
+          />
         </div>
+
+        {draft.birth_city.trim() !== '' && (
+          <div>
+            <label className={labelClass} htmlFor="birth-country">
+              {text.birthCountryLabel}
+            </label>
+            <select
+              id="birth-country"
+              className={fieldClass}
+              value={draft.birth_country}
+              onChange={(e) => onChange({ birth_country: e.target.value, natal_chart: null })}
+              aria-describedby="birth-country-helper"
+            >
+              {BIRTH_COUNTRIES.map(([code, name]) => (
+                <option key={code || 'empty'} value={code} className="bg-negro">
+                  {code ? name : text.birthCountryPlaceholder}
+                </option>
+              ))}
+            </select>
+            <p id="birth-country-helper" className={helperClass}>
+              {text.birthCountryHelper}
+            </p>
+          </div>
+        )}
 
         <div>
           <label className={labelClass} htmlFor="country">
@@ -158,6 +133,7 @@ export function BasicData({
             className={fieldClass}
             value={draft.country}
             onChange={(e) => onChange({ country: e.target.value })}
+            aria-describedby="country-helper"
           >
             {text.countries.map(([code, name]) => (
               <option key={code} value={code} className="bg-negro">
@@ -165,10 +141,33 @@ export function BasicData({
               </option>
             ))}
           </select>
-          <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
+          <p id="country-helper" className={helperClass}>
             {text.countryHelper}
           </p>
         </div>
+
+        <fieldset className="border-0 p-0">
+          <legend className={labelClass}>{text.genderLabel}</legend>
+          <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={text.genderLabel}>
+            {text.genderOptions.map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={draft.grammatical_gender === value}
+                onClick={() => onChange({ grammatical_gender: value })}
+                className={[
+                  'chip chip-p10 text-center text-[length:var(--fs-body-13)]',
+                  draft.grammatical_gender === value ? 'border-tierra/50 bg-verde/60 text-crema' : 'text-blanco/85',
+                ].join(' ')}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">{text.notice}</p>
       </div>
     </StepBody>
   );

@@ -7,6 +7,7 @@ import {
   getOrCreateSession,
   getSession,
   isDraftComplete,
+  restartOnboarding,
   setStep,
   updateDraft,
 } from './session';
@@ -74,8 +75,8 @@ describe('US-1.2 — skipping birth time and city must not block', () => {
     expect(isDraftComplete({ ...base, legal_birth_name: '  ' })).toBe(false);
   });
 
-  it('is incomplete without an ideation answer', () => {
-    expect(isDraftComplete({ ...base, clinical_basics: {} })).toBe(false);
+  it('O-06: is complete without the clinical answers, which come after the map', () => {
+    expect(isDraftComplete({ ...base, clinical_basics: {} })).toBe(true);
   });
 
   it('accepts a shortcut instead of free text', () => {
@@ -95,5 +96,49 @@ describe('step tracking', () => {
     setStep(4, T0);
     const back = setStep(1, T0);
     expect(back.step).toBe(4);
+  });
+});
+
+describe('S-08 — «Empezar de nuevo» empties the form', () => {
+  it('clears every answer of the three steps and the step counter', () => {
+    getOrCreateSession(T0);
+    updateDraft(
+      {
+        legal_birth_name: 'Ana Perez',
+        grammatical_gender: 'femenino',
+        birth_date: '1990-06-04',
+        birth_time: '08:15',
+        birth_city: 'Valparaíso',
+        birth_country: 'CL',
+        country: 'MX',
+        presenting_need_text: 'algo tiene que cambiar',
+        presenting_need_slugs: ['perdida'],
+        openness_to_modalities: ['reiki'],
+      },
+      T0,
+    );
+    setStep(3, T0);
+
+    const restarted = restartOnboarding(T0);
+
+    expect(restarted.step).toBe(0);
+    expect(restarted.draft).toEqual(emptyDraft());
+    expect(getSession(T0)?.draft).toEqual(emptyDraft());
+  });
+
+  it('keeps «Para cuidarte» answered, so nobody is asked those questions twice', () => {
+    getOrCreateSession(T0);
+    updateDraft({ legal_birth_name: 'Ana Perez', clinical_basics: { ideation_6m: 'no' } }, T0);
+
+    const restarted = restartOnboarding(T0);
+
+    expect(restarted.draft.legal_birth_name).toBe('');
+    expect(restarted.draft.clinical_basics).toEqual({ ideation_6m: 'no' });
+  });
+
+  it('keeps the existing map attached until a new one replaces it', () => {
+    getOrCreateSession(T0);
+    attachSoulMap('soul-map-1', T0);
+    expect(restartOnboarding(T0).soul_map_id).toBe('soul-map-1');
   });
 });

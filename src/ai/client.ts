@@ -62,6 +62,7 @@ export class AiError extends Error {
     message: string,
     readonly kind: AiErrorKind,
     readonly crisis?: { severity: CrisisSeverity; category: CrisisCategory },
+    readonly crisisResponse?: string,
   ) {
     super(message);
   }
@@ -158,12 +159,20 @@ async function runOnEdge<T>(call: AiCall<T>, started: number): Promise<AiResult<
   }
 
   if (data && typeof data === 'object' && data['type'] === 'crisis') {
-    throw new AiError(`The ${edge.fn} function saw a crisis the caller did not.`, 'crisis', {
-      severity: data['severity'] === 'low' ? 'low' : 'high',
-      category: CATEGORIES.has(data['category'] as CrisisCategory)
-        ? (data['category'] as CrisisCategory)
-        : 'indirecto',
-    });
+    const response = data['crisis_response'];
+    throw new AiError(
+      `The ${edge.fn} function saw a crisis the caller did not.`,
+      'crisis',
+      {
+        severity: data['severity'] === 'low' ? 'low' : 'high',
+        category: CATEGORIES.has(data['category'] as CrisisCategory)
+          ? (data['category'] as CrisisCategory)
+          : 'indirecto',
+      },
+      typeof response === 'string' && response.trim() !== '' && lintCrisisText({ crisis_response: response }).length === 0
+        ? response
+        : undefined,
+    );
   }
 
   const parsed = call.schema.parse(data?.['result']);

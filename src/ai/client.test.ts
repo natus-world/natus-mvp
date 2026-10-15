@@ -98,6 +98,27 @@ describe('runAi on the server path', () => {
     });
   });
 
+  it('S-02: carries the containment text the server sent with its own lines', async () => {
+    const answer = {
+      type: 'crisis',
+      severity: 'high',
+      category: 'indirecto',
+      crisis_response: 'Lo que cuentas pesa, y hay personas para hablarlo ahora.',
+      resources: { country: 'CL', resources: [] },
+    };
+    await expect(run(async () => ({ data: answer, error: null }))).rejects.toMatchObject({
+      kind: 'crisis',
+      crisisResponse: answer.crisis_response,
+    });
+  });
+
+  it('S-02: drops a containment text that writes a number of its own', async () => {
+    const answer = { type: 'crisis', severity: 'high', crisis_response: 'Llama al 0800 345 1435.' };
+    const error = await run(async () => ({ data: answer, error: null })).catch((e: unknown) => e);
+    expect(error).toMatchObject({ kind: 'crisis' });
+    expect((error as { crisisResponse?: string }).crisisResponse).toBeUndefined();
+  });
+
   it('refuses a crisis turn whose text carries a phone number', async () => {
     mockClient(async () => ({
       data: { result: { type: 'crisis', message_text: 'Llama al 0800 345 1435.' } },

@@ -157,7 +157,17 @@ export function isDraftComplete(draft: OnboardingDraft): boolean {
     draft.legal_birth_name.trim().length > 0 &&
     /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date) &&
     (draft.presenting_need_text.trim().length > 0 || draft.presenting_need_slugs.length > 0) &&
-    draft.openness_to_modalities.length > 0 &&
-    draft.clinical_basics.ideation_6m !== undefined
+    draft.openness_to_modalities.length > 0
   );
+}
+
+export function restartOnboarding(now = Date.now()): AnonymousSession {
+  const session = getOrCreateSession(now);
+  const next: AnonymousSession = {
+    ...session,
+    step: 0,
+    draft: { ...emptyDraft(), clinical_basics: session.draft.clinical_basics },
+  };
+  write('anonymous_session', next);
+  return next;
 }

@@ -3,6 +3,7 @@ import { StepBody } from '@/components/onboarding/StepChrome';
 import { OptionItem } from '@/components/onboarding/OptionItem';
 import { expandOpenness, opennessFile, opennessOptionsFor } from '@/lib/catalog';
 import type { OnboardingDraft } from '@/store/session';
+import { copy } from '@/i18n';
 
 /**
  * PDR 5.2 stores `openness_to_modalities` as modality slugs and PDR 7.2
@@ -51,7 +52,7 @@ export function Openness({
       helper={opennessFile.helper_es}
       action={
         <button type="button" className="cta" disabled={!canContinue} onClick={onNext}>
-          Continuar
+          {copy.common.continue}
           <span aria-hidden="true">→</span>
         </button>
       }
@@ -80,12 +81,12 @@ export function Openness({
         ))}
 
         <label className="sr-only" htmlFor="openness-other">
-          Otro tipo de trabajo
+          {copy.onboarding.openness.otherLabel}
         </label>
         <input
           id="openness-other"
           className="field mt-1 w-full text-[length:var(--fs-body-13)] placeholder:text-crema/55"
-          placeholder="Otro: contanos cuál"
+          placeholder={copy.onboarding.openness.otherPlaceholder}
           value={other}
           onChange={(e) => {
             setOther(e.target.value);

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { currentSynthesis } from '@/store/soulMap';
+import { restartOnboarding } from '@/store/session';
 
 /** Screen 1 of PDR 6.1, built from mockup screen 01. */
 export function Landing() {
@@ -54,7 +55,10 @@ export function Landing() {
         {returning && (
           <button
             type="button"
-            onClick={() => navigate('/onboarding')}
+            onClick={() => {
+              restartOnboarding();
+              navigate('/onboarding');
+            }}
             className="mt-3 px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
           >
             Empezar de nuevo

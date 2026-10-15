@@ -1,8 +1,8 @@
 {
   "$comment": "Onboarding screen 4: openness to kinds of work. PDR 5.2 stores openness_to_modalities as modality slugs, and PDR 7.2 filters with `m.slug = any($openness)`. Twenty-one checkboxes is a terrible screen, so the UI offers five family-level choices and the store expands each to its member slugs before persisting. The stored contract stays exactly as the PDR specifies; only the screen is kinder. `expands_to` is asserted against modalities.json in the schema test, so adding a modality without placing it here fails a test rather than silently dropping it from every user's pool.",
   "version": "openness-v1",
-  "prompt_es": "¿Con qué tipo de trabajo te sentirías cómoda?",
-  "helper_es": "No hace falta que sepas de qué se trata cada uno. Elegí por lo que te suena.",
+  "prompt_es": "¿Con qué tipo de trabajo te gustaría empezar?",
+  "helper_es": "No hace falta saber de qué se trata cada uno. Elige por lo que te suena.",
   "options": [
     {
       "slug": "psicologica",
@@ -34,7 +34,7 @@
     {
       "slug": "contemplativa",
       "label_es": "Prácticas de calma y atención",
-      "hint_es": "Cosas que podés sostener sola, en tu casa.",
+      "hint_es": "Prácticas para hacer por tu cuenta, en casa.",
       "expands_to": ["yoga-terapeutico", "mindfulness-meditacion", "sound-healing", "breathwork"]
     },
     {
@@ -58,8 +58,8 @@
   "special": [
     {
       "slug": "me_da_lo_mismo",
-      "label_es": "Me da lo mismo, mostrame lo que haya",
-      "hint_es": "No restringe nada.",
+      "label_es": "Me da lo mismo",
+      "hint_es": "No restringe nada: vemos todas las opciones.",
       "expands_to": []
     }
   ],

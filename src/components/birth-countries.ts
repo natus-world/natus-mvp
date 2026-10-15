@@ -11,7 +11,7 @@
  * scope, not the provider's.
  */
 export const BIRTH_COUNTRIES: readonly (readonly [string, string])[] = [
-  ['', 'Elegí un país'],
+  ['', 'Elige un país'],
   ['AR', 'Argentina'],
   ['BO', 'Bolivia'],
   ['BR', 'Brasil'],

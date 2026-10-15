@@ -6,6 +6,7 @@ import { ProgressRow } from '@/components/onboarding/StepChrome';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { detectCrisis } from '@/lib/safety';
 import { computeNumerology, NumerologyInputError } from '@/lib/numerology';
+import type { AiError } from '@/ai/client';
 import {
   getOrCreateSession,
   setStep,
@@ -13,45 +14,41 @@ import {
   type OnboardingDraft,
 } from '@/store/session';
 import { markFalsePositive, recordCrisisEvent } from '@/store/crisis';
+import { copy } from '@/i18n';
 import { BasicData } from './BasicData';
 import { PresentingNeed } from './PresentingNeed';
 import { Openness } from './Openness';
-import { ClinicalBasics } from './ClinicalBasics';
 import { Generating } from './Generating';
 
 /**
- * Screens 2 to 7 of PDR 6.1. Screen 1 is the landing and screen 8 is the Soul
- * Map.
+ * The three steps of O-06 and the generation that follows them. The landing
+ * comes before and the Soul Map after; the clinical questions are no longer
+ * here — they are «Para cuidarte», between the map and Caminos.
  *
- * Layer 1 safety runs on leaving the clinical screen and again before
- * generation, which is where PDR 6.5 puts it in the pipeline. A high-severity
+ * Layer 1 safety runs on leaving the step where the person writes, which is
+ * before generation, where PDR 6.5 puts it in the pipeline. A high-severity
  * signal replaces the flow with the crisis screen and nothing is generated; a
  * low-severity one adds a persistent banner and lets the person continue.
+ * Layer 2 — the model itself answering with a crisis — lands on the same
+ * screen, with the lines the server attached.
  */
 
-const STEPS = ['datos', 'pregunta', 'apertura', 'clinicos', 'generando'] as const;
+const STEPS = ['quien', 'pregunta', 'apertura', 'generando'] as const;
 type StepName = (typeof STEPS)[number];
 
-const LABELS: Record<StepName, string> = {
-  datos: 'Quién sos',
-  pregunta: 'Lo que te estás preguntando',
-  apertura: 'Cómo te gustaría trabajar',
-  clinicos: 'Para cuidarte',
-  generando: '',
-};
-
 const BACKDROPS = {
-  datos: 'surf',
+  quien: 'surf',
   pregunta: 'surf',
   apertura: 'grass',
-  clinicos: 'palm',
 } as const;
+
+type Crisis = { eventId: string; message: string; layer: 'text' | 'model' };
 
 export function Onboarding() {
   const navigate = useNavigate();
   const [session, setSession] = useState(() => getOrCreateSession());
   const [index, setIndex] = useState(0);
-  const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
+  const [crisis, setCrisis] = useState<Crisis | null>(null);
   const [lowSeverity, setLowSeverity] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
   // Remounts Generating so a retry actually re-runs. PDR 6.5: the input is
@@ -59,7 +56,7 @@ export function Onboarding() {
   const [attempt, setAttempt] = useState(0);
 
   const draft = session.draft;
-  const step = STEPS[index] ?? 'datos';
+  const step: StepName = STEPS[index] ?? 'quien';
 
   const change = useCallback((patch: Partial<OnboardingDraft>) => {
     setSession(updateDraft(patch));
@@ -76,26 +73,38 @@ export function Onboarding() {
 
   const back = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
 
-  /**
-   * Layer 1 over everything collected so far. Returns true when the flow may
-   * continue. PDR 6.5 pipeline step 2: on a high-severity signal, return the
-   * crisis payload and do not call the model at all.
-   */
   const runSafety = useCallback((): boolean => {
-    const verdict = detectCrisis({
-      texts: [draft.presenting_need_text],
-      clinicalBasics: draft.clinical_basics,
-    });
+    const verdict = detectCrisis({ texts: [draft.presenting_need_text] });
     if (!verdict.crisis) return true;
 
     const event = recordCrisisEvent(verdict, 'onboarding');
     if (verdict.severity === 'high') {
-      setCrisisEventId(event.id);
+      setCrisis({ eventId: event.id, message: copy.onboarding.crisis.fromText, layer: 'text' });
       return false;
     }
     setLowSeverity(true);
     return true;
-  }, [draft.presenting_need_text, draft.clinical_basics]);
+  }, [draft.presenting_need_text]);
+
+  const onModelCrisis = useCallback((error: AiError) => {
+    const event = recordCrisisEvent(
+      {
+        severity: error.crisis?.severity ?? 'high',
+        category: error.crisis?.category ?? 'indirecto',
+        layer: 'deterministic',
+        matched: [],
+        excerpt: '',
+      },
+      'onboarding',
+    );
+    setCrisis({
+      eventId: event.id,
+      message: error.crisisResponse ?? copy.onboarding.crisis.fromText,
+      layer: 'model',
+    });
+  }, []);
+
+  const onDone = useCallback(() => navigate('/mapa'), [navigate]);
 
   const numerologyPreview = useMemo(() => {
     if (!draft.legal_birth_name || !/^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date)) return null;
@@ -112,18 +121,20 @@ export function Onboarding() {
     }
   }, [draft.legal_birth_name, draft.birth_date]);
 
-  if (crisisEventId) {
+  if (crisis) {
     return (
       <CrisisScreen
         country={draft.country}
+        message={crisis.message}
         onNotMyCase={() => {
-          markFalsePositive(crisisEventId);
-          setCrisisEventId(null);
-          advance();
+          markFalsePositive(crisis.eventId);
+          setCrisis(null);
+          if (crisis.layer === 'model') setAttempt((a) => a + 1);
+          else advance();
         }}
         onBack={() => {
-          setCrisisEventId(null);
-          setIndex(STEPS.indexOf('clinicos'));
+          setCrisis(null);
+          setIndex(STEPS.indexOf('pregunta'));
         }}
       />
     );
@@ -143,7 +154,7 @@ export function Onboarding() {
                 setAttempt((a) => a + 1);
               }}
             >
-              Reintentar
+              {copy.onboarding.generating.retry}
             </button>
           </div>
         </Screen>
@@ -155,21 +166,20 @@ export function Onboarding() {
         key={attempt}
         draft={draft}
         numerology={numerologyPreview}
-        onDone={() => navigate('/mapa')}
+        onDone={onDone}
         onFailed={setFailure}
+        onCrisis={onModelCrisis}
       />
     );
   }
-
-  const total = STEPS.length - 1;
 
   return (
     <Screen backdrop={BACKDROPS[step]} scrim="even" opacity={PHOTO.veil55}>
       <div className="flex min-h-dvh flex-col px-[22px] pt-[var(--top-inset)] pb-8 sm:min-h-0 sm:h-full">
         <ProgressRow
-          label={LABELS[step]}
+          label={copy.onboarding.kicker}
           step={index + 1}
-          total={total}
+          total={STEPS.length - 1}
           onBack={index > 0 ? back : undefined}
         />
 
@@ -179,13 +189,9 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 'datos' && <BasicData draft={draft} onChange={change} onNext={advance} />}
+        {step === 'quien' && <BasicData draft={draft} onChange={change} onNext={advance} />}
         {step === 'pregunta' && (
-          <PresentingNeed draft={draft} onChange={change} onNext={advance} />
-        )}
-        {step === 'apertura' && <Openness draft={draft} onChange={change} onNext={advance} />}
-        {step === 'clinicos' && (
-          <ClinicalBasics
+          <PresentingNeed
             draft={draft}
             onChange={change}
             onNext={() => {
@@ -193,6 +199,7 @@ export function Onboarding() {
             }}
           />
         )}
+        {step === 'apertura' && <Openness draft={draft} onChange={change} onNext={advance} />}
       </div>
     </Screen>
   );

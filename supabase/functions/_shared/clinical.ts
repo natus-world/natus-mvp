@@ -71,6 +71,7 @@ export async function callerIsClinicallyVulnerable(
   // The same precedence as activeProfile() in src/store/account.ts.
   const row = (account.data ?? session.data) as ClinicalColumns | null;
   if (!row) return true;
+  if (row.clinical_ideation_6m === null) return true;
 
   return isClinicallyVulnerable({
     clinicalBasics: toBasics(row),

@@ -9,6 +9,8 @@ import { Landing } from '@/screens/Landing';
 import { SoulMap } from '@/screens/SoulMap';
 import { SafetyLab } from '@/screens/SafetyLab';
 import { Onboarding } from '@/screens/onboarding/Onboarding';
+import { Care } from '@/screens/onboarding/Care';
+import { RequireCare } from '@/screens/onboarding/RequireCare';
 import { Recommendations } from '@/screens/Recommendations';
 import { Routine } from '@/screens/Routine';
 import { Dashboard } from '@/screens/Dashboard';
@@ -31,6 +33,7 @@ import { NotFound } from '@/screens/NotFound';
 const TITLES: [prefix: string, title: string][] = [
   ['/onboarding', 'Empezar'],
   ['/mapa', 'Tu mapa'],
+  ['/cuidarte', 'Para cuidarte'],
   ['/recomendaciones', 'Caminos'],
   ['/rutina', 'Rutina'],
   ['/inicio', 'Inicio'],
@@ -148,12 +151,34 @@ export function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/mapa" element={<SoulMap />} />
-            <Route path="/recomendaciones" element={<Recommendations />} />
-            <Route path="/rutina" element={<Routine />} />
+            <Route path="/cuidarte" element={<Care />} />
+            <Route
+              path="/recomendaciones"
+              element={
+                <RequireCare next="/recomendaciones" blockOnCrisis>
+                  <Recommendations />
+                </RequireCare>
+              }
+            />
+            <Route
+              path="/rutina"
+              element={
+                <RequireCare next="/rutina" blockOnCrisis>
+                  <Routine />
+                </RequireCare>
+              }
+            />
             <Route path="/inicio" element={<Dashboard />} />
             <Route path="/registro" element={<Signup />} />
             <Route path="/cuenta" element={<Account />} />
-            <Route path="/chat" element={<Chat />} />
+            <Route
+              path="/chat"
+              element={
+                <RequireCare next="/chat">
+                  <Chat />
+                </RequireCare>
+              }
+            />
             <Route path="/meditaciones" element={<Meditation />} />
             <Route path="/biblioteca" element={<Library />} />
             <Route path="/comparacion" element={<ExternalProfile />} />

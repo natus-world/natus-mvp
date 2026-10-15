@@ -2,7 +2,7 @@
   "$comment": "Shortcuts for onboarding screen 3, listed under the free-text field. PDR 14 leaves the final list open; this is a draft. Every one is phrased as something a person is going through or asking themselves - never as a diagnosis. The mockups showed 'Superar la depresión' and 'Reducir ansiedad', which PDR 1.1 explicitly forbids: the copy must never make the user diagnose themselves. topic_hints feed $inferred_topics in the hard filter; they are hints for retrieval, not labels applied to the person.",
   "version": "presenting-needs-v1-draft",
   "prompt_es": "¿Qué te estás preguntando últimamente?",
-  "helper_es": "Escribilo con tus palabras. Si no sabés por dónde empezar, tocá alguna de estas.",
+  "helper_es": "Escríbelo con tus palabras. Si no sabes por dónde empezar, toca alguna de estas.",
   "needs": [
     {
       "slug": "algo-tiene-que-cambiar",

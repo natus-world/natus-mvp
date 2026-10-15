@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
+import { copy } from '@/i18n';
 
-/** Back control, section label and step counter — mockup screen 02. */
+const twoDigits = (n: number) => String(n).padStart(2, '0');
+
 export function ProgressRow({
   label,
   step,
@@ -13,30 +15,48 @@ export function ProgressRow({
   onBack?: (() => void) | undefined;
 }) {
   return (
-    <div className="mb-7 flex items-center justify-between gap-3">
-      {onBack ? (
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="Volver"
-          className="circle-chip flex size-8 shrink-0 items-center justify-center text-[length:var(--fs-body-14)] leading-5 text-crema"
+    <div className="mb-5">
+      <div className="mb-3 flex items-center gap-3">
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label={copy.common.back}
+            className="circle-chip flex size-8 shrink-0 items-center justify-center text-[length:var(--fs-body-14)] leading-5 text-crema"
+          >
+            ←
+          </button>
+        ) : null}
+        <p className="eyebrow min-w-0 flex-1 truncate">{label}</p>
+      </div>
+
+      <p
+        className="flex items-baseline gap-2.5"
+        aria-label={`${step} ${copy.onboarding.stepOf} ${total}`}
+      >
+        <span
+          aria-hidden="true"
+          className="font-serif text-[length:var(--fs-display)] leading-[var(--lh-heading-1_12)] font-light text-crema"
         >
-          ←
-        </button>
-      ) : (
-        <span className="size-8 shrink-0" />
-      )}
+          {twoDigits(step)}
+        </span>
+        <span aria-hidden="true" className="eyebrow">
+          {copy.onboarding.stepOf} {twoDigits(total)}
+        </span>
+      </p>
 
-      <p className="eyebrow min-w-0 flex-1 truncate text-center">{label}</p>
-
-      <span className="pill shrink-0 text-[length:var(--fs-body-11)] text-crema">
-        {step} de {total}
-      </span>
+      <div aria-hidden="true" className="mt-3 flex gap-1.5">
+        {Array.from({ length: total }, (_, i) => (
+          <span
+            key={i}
+            className={['h-px flex-1', i < step ? 'bg-crema/70' : 'bg-crema/20'].join(' ')}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
-/** A step's shell: heading, optional helper, scrollable body, pinned action. */
 export function StepBody({
   title,
   helper,

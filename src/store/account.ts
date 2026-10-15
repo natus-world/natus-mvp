@@ -105,6 +105,14 @@ export function activeProfile(now = Date.now()): ActiveProfile | null {
   return { clientId: null, draft: session.draft, soulMapId: session.soul_map_id };
 }
 
+export function updateClientProfile(patch: Partial<OnboardingDraft>): Client | null {
+  const client = getClient();
+  if (!client) return null;
+  const next: Client = { ...client, profile: { ...client.profile, ...patch } };
+  write('client', next);
+  return next;
+}
+
 /** Keeps the account row in step when a Soul Map is generated after signup. */
 export function attachSoulMapToClient(soulMapId: string): Client | null {
   const client = getClient();

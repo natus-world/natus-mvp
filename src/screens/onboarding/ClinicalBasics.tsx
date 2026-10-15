@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { StepBody } from '@/components/onboarding/StepChrome';
 import { OptionItem } from '@/components/onboarding/OptionItem';
-import type { IdeationAnswer } from '@/lib/safety';
-import type { OnboardingDraft } from '@/store/session';
+import type { ClinicalBasics as Answers, IdeationAnswer } from '@/lib/safety';
+import { answerYesNo, type Skippable } from '@/store/care';
+import { copy } from '@/i18n';
 
 /**
  * PDR US-1.3: this must feel like care, not a medical form.
@@ -9,8 +11,8 @@ import type { OnboardingDraft } from '@/store/session';
  * Three things the PDR makes explicit and this screen implements. A
  * containment paragraph comes before the first question. Every question
  * accepts "prefiero no decir" except the ideation one. And answering
- * `plan_o_intencion` does not continue to the Soul Map — the flow hands off
- * to the crisis screen, which the parent does by scanning this draft.
+ * `plan_o_intencion` does not continue to Caminos — the flow hands off to the
+ * crisis screen.
  *
  * The honesty problem the PDR flags in section 5.9 and again in section 14:
  * the vault's copy promises "solo lo ve tu facilitador asignado", which is
@@ -18,12 +20,9 @@ import type { OnboardingDraft } from '@/store/session';
  * what actually happens.
  */
 
-const IDEATION_OPTIONS: [IdeationAnswer, string][] = [
-  ['no', 'No'],
-  ['fugaces_sin_plan', 'Alguna vez, de forma pasajera'],
-  ['frecuentes', 'Sí, seguido'],
-  ['plan_o_intencion', 'Sí, y pensé en cómo hacerlo'],
-];
+const text = copy.onboarding.care;
+
+const IDEATION_ORDER: IdeationAnswer[] = ['no', 'fugaces_sin_plan', 'frecuentes', 'plan_o_intencion'];
 
 function Question({ children, label }: { label: string; children: React.ReactNode }) {
   return (
@@ -35,113 +34,83 @@ function Question({ children, label }: { label: string; children: React.ReactNod
 }
 
 export function ClinicalBasics({
-  draft,
-  onChange,
-  onNext,
+  initial,
+  busy,
+  onSubmit,
 }: {
-  draft: OnboardingDraft;
-  onChange: (patch: Partial<OnboardingDraft>) => void;
-  onNext: () => void;
+  initial: Answers;
+  busy: boolean;
+  onSubmit: (answers: Answers) => void;
 }) {
-  const basics = draft.clinical_basics;
-
-  const patch = (p: Partial<typeof basics>) =>
-    onChange({ clinical_basics: { ...basics, ...p } });
-
+  const [basics, setBasics] = useState<Answers>(initial);
   const skipped = new Set(basics.prefer_not_to_say ?? []);
-  const toggleSkip = (field: string) => {
-    const next = new Set(skipped);
-    if (next.has(field)) next.delete(field);
-    else next.add(field);
-    patch({ prefer_not_to_say: [...next] });
-  };
 
-  // Only the ideation answer is required. PDR US-1.3 CA2.
-  const canContinue = basics.ideation_6m !== undefined;
+  const yesNo = (field: Skippable, label: string) => (
+    <Question label={label}>
+      <OptionItem
+        label={text.yes}
+        multi={false}
+        selected={basics[field] === true}
+        onToggle={() => setBasics(answerYesNo(basics, field, true))}
+      />
+      <OptionItem
+        label={text.no}
+        multi={false}
+        selected={basics[field] === false}
+        onToggle={() => setBasics(answerYesNo(basics, field, false))}
+      />
+      <OptionItem
+        label={text.preferNotToSay}
+        multi={false}
+        selected={skipped.has(field)}
+        onToggle={() => setBasics(answerYesNo(basics, field, 'skip'))}
+      />
+    </Question>
+  );
 
   return (
     <StepBody
       title={
         <>
-          Cuatro preguntas
+          {text.titleLead}
           <br />
-          más delicadas.
+          {text.titleTail}
         </>
       }
       action={
-        <button type="button" className="cta" disabled={!canContinue} onClick={onNext}>
-          Continuar
+        <button
+          type="button"
+          className="cta"
+          disabled={basics.ideation_6m === undefined || busy}
+          onClick={() => onSubmit(basics)}
+        >
+          {busy ? text.saving : copy.common.continue}
           <span aria-hidden="true">→</span>
         </button>
       }
     >
       <div className="flex flex-col gap-6">
-        {/* Containment before the first question. PDR US-1.3 CA1. */}
         <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/60">
-          Preguntamos esto para no recomendarte algo que en tu momento actual podría hacer
-          más daño que bien. No es un diagnóstico y no hay respuestas mejores que otras.
+          {text.intro}
           <br />
           <br />
-          <span className="text-crema/55">
-            Lo que escribas queda guardado con tu cuenta. Si aparece una señal de riesgo, un
-            responsable de Natus recibe un aviso con el fragmento que la disparó.
-          </span>
+          <span className="text-crema/55">{text.privacy}</span>
         </p>
 
-        <Question label="En los últimos 6 meses, ¿pensaste en hacerte daño o en no querer seguir?">
-          {IDEATION_OPTIONS.map(([value, label]) => (
+        <Question label={text.ideationLabel}>
+          {IDEATION_ORDER.map((value) => (
             <OptionItem
               key={value}
-              label={label}
+              label={text.ideationOptions[value]}
               multi={false}
               selected={basics.ideation_6m === value}
-              onToggle={() => patch({ ideation_6m: value })}
+              onToggle={() => setBasics({ ...basics, ideation_6m: value })}
             />
           ))}
         </Question>
 
-        <Question label="¿Estás en tratamiento psicológico o psiquiátrico ahora?">
-          <OptionItem
-            label="Sí"
-            multi={false}
-            selected={basics.in_treatment === true}
-            onToggle={() => patch({ in_treatment: true })}
-          />
-          <OptionItem
-            label="No"
-            multi={false}
-            selected={basics.in_treatment === false}
-            onToggle={() => patch({ in_treatment: false })}
-          />
-          <OptionItem
-            label="Prefiero no decir"
-            multi={false}
-            selected={skipped.has('in_treatment')}
-            onToggle={() => toggleSkip('in_treatment')}
-          />
-        </Question>
-
-        <Question label="¿Tomás medicación psiquiátrica?">
-          <OptionItem
-            label="Sí"
-            multi={false}
-            selected={basics.psychiatric_medication === true}
-            onToggle={() => patch({ psychiatric_medication: true })}
-          />
-          <OptionItem
-            label="No"
-            multi={false}
-            selected={basics.psychiatric_medication === false}
-            onToggle={() => patch({ psychiatric_medication: false })}
-          />
-          <OptionItem
-            label="Prefiero no decir"
-            multi={false}
-            selected={skipped.has('psychiatric_medication')}
-            onToggle={() => toggleSkip('psychiatric_medication')}
-          />
-        </Question>
-
+        {yesNo('in_treatment', text.treatmentLabel)}
+        {yesNo('psychiatric_medication', text.medicationLabel)}
       </div>
     </StepBody>
   );

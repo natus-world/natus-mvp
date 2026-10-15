@@ -150,11 +150,17 @@ export async function hydrate(): Promise<HydrationResult> {
  * can land out of order, and the later value is a whole-array replacement, so
  * losing the race means losing a row.
  */
+const queues = new Map<string, Promise<void>>();
+
+export async function writesSettled(): Promise<void> {
+  await Promise.all([...queues.values()]);
+}
+
 function makePersister(
   client: TypedClient,
   userId: string,
 ): (ns: string, value: unknown) => void {
-  const queues = new Map<string, Promise<void>>();
+  queues.clear();
 
   return (ns, value) => {
     const adapter = ADAPTERS[ns as RemoteNamespace];

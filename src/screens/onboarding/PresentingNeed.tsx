@@ -2,6 +2,7 @@ import { StepBody } from '@/components/onboarding/StepChrome';
 import { OptionItem } from '@/components/onboarding/OptionItem';
 import { presentingNeedsFile, PRESENTING_NEEDS } from '@/lib/catalog';
 import type { OnboardingDraft } from '@/store/session';
+import { copy } from '@/i18n';
 
 /**
  * PDR 1.1, the non-negotiable one: "¿Qué te estás preguntando últimamente?",
@@ -39,7 +40,7 @@ export function PresentingNeed({
       helper={presentingNeedsFile.helper_es}
       action={
         <button type="button" className="cta" disabled={!canContinue} onClick={onNext}>
-          Continuar
+          {copy.common.continue}
           <span aria-hidden="true">→</span>
         </button>
       }
@@ -52,7 +53,7 @@ export function PresentingNeed({
           id="presenting-need"
           rows={3}
           className="field w-full resize-none text-[length:var(--fs-body-14)] leading-relaxed placeholder:text-crema/55"
-          placeholder="Escribí lo que se te venga…"
+          placeholder={copy.onboarding.presentingNeed.placeholder}
           value={draft.presenting_need_text}
           onChange={(e) => onChange({ presenting_need_text: e.target.value })}
         />

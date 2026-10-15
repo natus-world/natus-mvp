@@ -14,6 +14,7 @@ import { AiError } from '@/ai/client';
 import type { Numerology } from '@/lib/schemas';
 import type { OnboardingDraft } from '@/store/session';
 import { SOUL_MAP_PROMPT_VERSION } from '@/ai/prompts/versions';
+import { copy } from '@/i18n';
 
 /**
  * PDR 6.1 screen 7 and PDR 6.5.
@@ -28,13 +29,9 @@ import { SOUL_MAP_PROMPT_VERSION } from '@/ai/prompts/versions';
  * misrepresent a product whose real generation takes ten to thirty seconds.
  */
 
-const STAGES = [
-  'Calculando tus números',
-  'Calculando tu carta natal',
-  'Leyendo lo que contaste',
-  'Buscando el hilo',
-  'Escribiendo tu mapa',
-];
+const text = copy.onboarding.generating;
+
+const STAGES = text.stages;
 
 const MINIMUM_MS = 4800;
 
@@ -43,11 +40,13 @@ export function Generating({
   numerology,
   onDone,
   onFailed,
+  onCrisis,
 }: {
   draft: OnboardingDraft;
   numerology: Numerology | null;
   onDone: () => void;
   onFailed: (message: string) => void;
+  onCrisis: (error: AiError) => void;
 }) {
   const [stage, setStage] = useState(0);
   const started = useRef(false);
@@ -101,7 +100,8 @@ export function Generating({
         onDone();
       } catch (error) {
         await floor;
-        onFailed(messageFor(error));
+        if (error instanceof AiError && error.kind === 'crisis') onCrisis(error);
+        else onFailed(messageFor(error));
       }
     };
 
@@ -109,7 +109,7 @@ export function Generating({
     return () => {
       for (const t of timers) clearTimeout(t);
     };
-  }, [draft, numerology, onDone, onFailed]);
+  }, [draft, numerology, onDone, onFailed, onCrisis]);
 
   return (
     <Screen backdrop="surf" scrim="diagonal" opacity={PHOTO.veil70}>
@@ -121,7 +121,7 @@ export function Generating({
             {STAGES[stage]}
           </p>
           <p className="mt-2 text-[length:var(--fs-body-11)] tracking-wide text-crema/55">
-            Esto puede tardar un momento
+            {text.wait}
           </p>
         </div>
       </div>
@@ -131,23 +131,6 @@ export function Generating({
 
 /** PDR 6.5: empathetic copy, never a technical error, and the input is kept. */
 function messageFor(error: unknown): string {
-  if (!(error instanceof AiError)) {
-    return 'Algo se cortó en el camino. Nada de lo que escribiste se perdió.';
-  }
-  switch (error.kind) {
-    case 'timeout':
-      return 'Esto está tardando más de lo normal. Nada se perdió: podemos reintentar.';
-    case 'api_error':
-      return 'No pudimos completar la generación. Nada se perdió: podemos reintentar.';
-    case 'spend_limit':
-      return 'Por hoy llegamos al límite de generaciones. Nada se perdió: probá de nuevo más tarde.';
-    case 'crisis':
-      return 'Por lo que contaste, preferimos no armar tu mapa de forma automática. Si necesitás hablar con alguien, la ayuda sigue disponible desde el inicio.';
-    case 'copy_violation':
-      // Worth being specific: this one means the model broke a product rule
-      // rather than failing technically, and that is a prompt problem.
-      return 'La respuesta no cumplió las reglas de lenguaje del producto y se descartó. Podemos reintentar.';
-    default:
-      return 'La respuesta llegó incompleta. Nada se perdió: podemos reintentar.';
-  }
+  if (error instanceof AiError && error.kind === 'spend_limit') return text.spendLimit;
+  return `${text.slow} ${text.kept}`;
 }

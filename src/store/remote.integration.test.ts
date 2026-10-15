@@ -487,6 +487,18 @@ describe.skipIf(!configured)('the clinical exclusion, server-side', () => {
     const p = await signIn();
     expect(await callerIsClinicallyVulnerable(p.client, p.userId)).toBe(true);
   });
+
+  it('O-06: fails closed for a map seen before «Para cuidarte» was answered', async () => {
+    const { callerIsClinicallyVulnerable } = await clinical();
+    const p = await withAnswers(null);
+    expect(await callerIsClinicallyVulnerable(p.client, p.userId)).toBe(true);
+  });
+
+  it('O-06: an account that has not answered yet fails closed too', async () => {
+    const { callerIsClinicallyVulnerable } = await clinical();
+    const p = await withAnswers('no', { account: null });
+    expect(await callerIsClinicallyVulnerable(p.client, p.userId)).toBe(true);
+  });
 });
 
 describe.skipIf(!configured)('the deployment budget', () => {
