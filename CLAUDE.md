@@ -89,6 +89,14 @@ id>', 'first_charge')` in the same session that writes the subscription.
 Campaign links carry `utm_source` and `utm_campaign`; the first one a browser
 arrives with travels on `onboarding_started`.
 
+**The admin panel comes after launch (owner, 15 Oct 2026),** on its own link —
+`admin.natus.world`, never inside the user app — with its own sign-in for the
+team's addresses and the three levels agreed: aggregate metrics for everyone,
+an operational record per person without content, and sensitive content
+only with restricted access and a log of who looked. First piece: the funnel
+already being recorded in `funnel_events`. Until then, numbers are pulled on
+request with SQL.
+
 What is left outside the code, in rough order of weight:
 
 - The sixteen crisis numbers carry `2026-08-19`, which records the product
