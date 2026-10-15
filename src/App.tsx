@@ -56,7 +56,7 @@ const TITLES: [prefix: string, title: string][] = [
   ['/meditaciones', 'Meditaciones'],
   ['/biblioteca', 'Biblioteca'],
   ['/comparacion', 'Cruce de mapas'],
-  ['/lab', 'Safety lab'],
+  ...(isDemoMode ? [['/lab', 'Safety lab'] as [string, string]] : []),
 ];
 
 function titleFor(pathname: string): string {
