@@ -118,13 +118,20 @@ describe('the scope decides what is included', () => {
     expect(payload.a.chart).toEqual({ available: false, positions: [] });
   });
 
-  it('drops the themes when they are not consented to', () => {
+  it('never sends the Soul Map themes, even under a scope that asks for them (v1.2 C-01)', () => {
     const payload = buildComparisonPayload({
       a: source('A'),
       b: source('B'),
-      scope: { numerology: true, astro: true, soul_map_themes: false },
+      scope: { numerology: true, astro: true, soul_map_themes: true },
     });
+    expect(payload.scope.soul_map_themes).toBe(false);
     expect(payload.a.soul_map_themes).toEqual([]);
+    expect(payload.b.soul_map_themes).toEqual([]);
+    expect(JSON.stringify(payload)).not.toContain('vinculos');
+  });
+
+  it('a scope of themes alone is not a comparison any more', () => {
+    expect(isScopeUsable({ numerology: false, astro: false, soul_map_themes: true })).toBe(false);
   });
 
   it('reports an unavailable chart as unavailable rather than as empty positions', () => {

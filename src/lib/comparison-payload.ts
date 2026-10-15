@@ -122,7 +122,10 @@ function subject(source: ComparisonSource, scope: ComparisonScope): ComparisonSu
   return {
     display_name: source.display_name,
     numerology: scope.numerology ? (source.numerology ?? null) : null,
-    soul_map_themes: scope.soul_map_themes ? [...source.soul_map_themes] : [],
+    // v1.2 C-01: astrology and numerology only. The themes are inferred from
+    // what the person wrote, so they never travel, whatever the scope says.
+    // The field stays in the shape until C-01 replaces this flow.
+    soul_map_themes: [],
     chart:
       scope.astro && source.chart?.available
         ? {
@@ -150,7 +153,7 @@ export function buildComparisonPayload(input: {
     scope: {
       numerology: input.scope.numerology,
       astro: input.scope.astro,
-      soul_map_themes: input.scope.soul_map_themes,
+      soul_map_themes: false,
     },
     a: subject(input.a, input.scope),
     b: subject(input.b, input.scope),
@@ -201,7 +204,7 @@ export const ALLOWED_SUBJECT_FIELDS: readonly string[] = ALLOWED;
 /** A scope that permits nothing is not a comparison; the caller should refuse
  *  rather than send an empty payload and let the model improvise. */
 export function isScopeUsable(scope: ComparisonScope): boolean {
-  return scope.numerology || scope.astro || scope.soul_map_themes;
+  return scope.numerology || scope.astro;
 }
 
 /**

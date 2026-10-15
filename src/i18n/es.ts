@@ -463,6 +463,8 @@ export const es = {
     gate: {
       noMap: 'Para comparar hace falta tu mapa primero. El de la otra persona lo cargas después.',
       start: 'Empezar',
+      withheld: 'La comparación de cartas no está disponible por ahora. Tu mapa, tu rutina y el chat siguen aquí.',
+      back: 'Volver a Hoy',
     },
     external: {
       kicker: 'Comparar cartas',

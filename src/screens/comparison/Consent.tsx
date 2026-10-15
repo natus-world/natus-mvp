@@ -31,7 +31,9 @@ import { isScopeUsable } from '@/lib/comparison-payload';
 const text = copy.comparison.consent;
 
 const SCOPE_LABELS: [keyof ComparisonScope, string, string][] = (
-  ['numerology', 'astro', 'soul_map_themes'] as const
+  // v1.2 C-01: astrology and numerology only. The Soul Map's themes are no
+  // longer offered.
+  ['numerology', 'astro'] as const
 ).map((key) => [key, text.scope[key][0], text.scope[key][1]]);
 
 function days(ms: number): number {
@@ -44,7 +46,7 @@ export function Consent() {
   const profile = externalProfileById(id);
   const [consent, setConsent] = useState(() => consentFor(id));
   const [scope, setScope] = useState<ComparisonScope>(
-    () => consent?.scope ?? { numerology: true, astro: false, soul_map_themes: true },
+    () => consent?.scope ?? { numerology: true, astro: false, soul_map_themes: false },
   );
 
   if (!profile) {

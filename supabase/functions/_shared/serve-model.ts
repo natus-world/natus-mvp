@@ -61,6 +61,13 @@ export type ModelRoute<I, O> = {
    */
   enrich?: (input: I, context: { caller: SupabaseClient; userId: string }) => Promise<I>;
   /**
+   * A reason this person must not be served at all, read from what the
+   * server holds rather than from the request. Runs right after the crisis
+   * scan, before the key check and before anything is spent. `comparison`
+   * uses it for rule 6 of PDR 8.5. Returns the refusal's name, or null.
+   */
+  refuse?: (input: I, context: { caller: SupabaseClient; userId: string }) => Promise<string | null>;
+  /**
    * A rule about the answer that the schema cannot express. Returns a reason
    * to reject, or null to accept. Rejection is logged as `copy_violation` —
    * the model held the contract and broke the product rule.
@@ -126,6 +133,19 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
       // containment path. Reaching this means the two disagreed, which
       // `runAi` surfaces rather than papers over.
       return json(request, { error: 'refused_crisis' }, 403);
+    }
+
+    const withheld = route.refuse
+      ? await route.refuse(parsed.data, { caller: auth.caller, userId })
+      : null;
+    if (withheld) {
+      await logCall(elevated, {
+        ...record,
+        outcome: 'refused_crisis',
+        latencyMs: Date.now() - started,
+        errorKind: withheld,
+      });
+      return json(request, { error: 'refused', reason: withheld }, 403);
     }
 
     // A declared state, not a failure: `runAi` reads this and falls back to

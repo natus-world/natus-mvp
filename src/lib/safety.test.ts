@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isComparisonWithheld,
   detectCrisis,
   isClinicallyVulnerable,
   normalize,
@@ -248,5 +249,20 @@ describe('admin notification deduplication — PDR 6.4 step 5', () => {
 
   it('notifies again once the window has passed', () => {
     expect(shouldNotifyAdmin(1_000, 1_000 + CRISIS_NOTIFICATION_WINDOW_MS)).toBe(true);
+  });
+});
+
+describe('rule 6 of PDR 8.5: who is not offered the comparison', () => {
+  it('withholds it from somebody vulnerable, in recent crisis, or not yet asked', () => {
+    expect(isComparisonWithheld({ clinicalBasics: { ideation_6m: 'no' } })).toBe(false);
+    expect(isComparisonWithheld({ clinicalBasics: { ideation_6m: 'fugaces_sin_plan' } })).toBe(false);
+    expect(isComparisonWithheld({ clinicalBasics: { ideation_6m: 'frecuentes' } })).toBe(true);
+    expect(
+      isComparisonWithheld({ clinicalBasics: { ideation_6m: 'no', psychiatric_medication: true } }),
+    ).toBe(true);
+    expect(
+      isComparisonWithheld({ clinicalBasics: { ideation_6m: 'no' }, recentCrisisWithin30Days: true }),
+    ).toBe(true);
+    expect(isComparisonWithheld({ clinicalBasics: {} })).toBe(true);
   });
 });

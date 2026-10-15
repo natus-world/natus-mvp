@@ -282,6 +282,23 @@ export function isClinicallyVulnerable(input: {
 }
 
 /**
+ * PDR 8.5 rule 6, kept by v1.2 C-01: the comparison is not offered while the
+ * person asking is in crisis or clinically vulnerable.
+ *
+ * Fails closed, like `callerIsClinicallyVulnerable` on the server: somebody
+ * who has not answered the ideation question yet — the Soul Map now comes
+ * before «Para cuidarte» (O-06) — is not offered it either. The two sides
+ * must agree, or the browser offers what the server then refuses.
+ */
+export function isComparisonWithheld(input: {
+  clinicalBasics?: ClinicalBasics;
+  recentCrisisWithin30Days?: boolean;
+}): boolean {
+  if (!input.clinicalBasics?.ideation_6m) return true;
+  return isClinicallyVulnerable(input);
+}
+
+/**
  * Derived risk level passed into the chat context. PDR 10.2: the raw clinical
  * text is never handed to the model on every turn — fewer tokens, and less
  * surface for it to leak back out.

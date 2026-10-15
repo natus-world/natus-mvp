@@ -39,6 +39,16 @@ const token = auth.session.access_token;
 const userId = auth.session.user.id;
 const authed = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
+// Somebody who has answered «Para cuidarte» and is not vulnerable. Without an
+// answer the comparison is refused (rule 6 fails closed), which is checked at
+// the end with a second person.
+{
+  const { error } = await client
+    .from('anonymous_sessions')
+    .insert({ user_id: userId, legal_birth_name: 'Prueba', clinical_ideation_6m: 'no' });
+  if (error) throw new Error(`could not seed the clinical answers: ${error.message}`);
+}
+
 const call = (fn, body, headers = authed) =>
   fetch(`${API}/functions/v1/${fn}`, {
     method: 'POST',
@@ -313,6 +323,34 @@ check(
   refusals.join(',') === 'meditation,soul_map',
   refusals.join(',') || '(none)',
 );
+
+// ── rule 6 of PDR 8.5: the comparison is refused, before anything is spent ──
+//
+// Two people: one who answered «frecuentes», one who never answered at all.
+// Both must be refused from what the server holds, whatever the request says,
+// and ahead of the key check, so a keyless deployment refuses them too.
+for (const [label, ideation] of [
+  ['somebody clinically vulnerable', 'frecuentes'],
+  ['somebody who has not answered yet', null],
+]) {
+  const other = createClient(API, ANON, { auth: { persistSession: false } });
+  const { data: otherAuth } = await other.auth.signInAnonymously();
+  if (ideation) {
+    await other
+      .from('anonymous_sessions')
+      .insert({ user_id: otherAuth.session.user.id, legal_birth_name: 'Prueba', clinical_ideation_6m: ideation });
+  }
+  const refused = await call('comparison', BODIES.comparison, {
+    Authorization: `Bearer ${otherAuth.session.access_token}`,
+    'Content-Type': 'application/json',
+  });
+  const refusedBody = await refused.json();
+  check(
+    `comparison: ${label} is refused (rule 6)`,
+    refused.status === 403 && refusedBody.reason === 'clinically_vulnerable',
+    `status=${refused.status} ${JSON.stringify(refusedBody)}`,
+  );
+}
 
 const failed = results.filter((r) => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} passed`);

@@ -11,6 +11,7 @@ import { currentMatchFor, isCheckedToday } from '@/store/matches';
 import { hasRecentLowSeverity, markFalsePositive } from '@/store/crisis';
 import { useActiveCrisisId } from '@/components/takeover';
 import { copy } from '@/i18n';
+import { comparisonWithheld } from '@/screens/comparison/Gate';
 
 const t = copy.today;
 
@@ -107,7 +108,10 @@ export function Today() {
           <div className="surface rows px-0">
             {[
               { to: PATHS.meditations, title: t.meditations, body: t.meditationsBody },
-              { to: PATHS.comparison, title: t.comparison, body: t.comparisonBody },
+              // PDR 8.5 rule 6: not offered while the person is vulnerable.
+              ...(comparisonWithheld(profile)
+                ? []
+                : [{ to: PATHS.comparison, title: t.comparison, body: t.comparisonBody }]),
             ].map((entry) => (
               <Link key={entry.to} to={entry.to} className="flex items-center gap-3 px-4 py-3.5 no-underline">
                 <div className="min-w-0 flex-1">

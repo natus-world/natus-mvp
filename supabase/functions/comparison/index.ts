@@ -3,6 +3,7 @@ import { comparisonInputSchema } from '../_shared/lib/model-input.ts';
 import { comparisonResultSchema } from '../_shared/lib/schemas/index.ts';
 import { canComputeSynastry, inventedAspect } from '../_shared/lib/comparison-payload.ts';
 import { resolveLocation, synastryAspects } from '../_shared/astrology.ts';
+import { callerIsClinicallyVulnerable } from '../_shared/clinical.ts';
 import {
   COMPARISON_PROMPT_VERSION,
   COMPARISON_SYSTEM_PROMPT,
@@ -17,10 +18,24 @@ import {
  * allow-list keeps free text out by construction — that is the whole reason
  * the file exists — so there is nothing here for the scan to read.
  *
- * Rule 6 of §8.5, which refuses the feature entirely while the requester is
- * in active crisis, is enforced by `ComparisonGate` in front of all three
- * screens.
+ * Rule 6 of §8.5, which refuses the feature while the requester is in crisis
+ * or clinically vulnerable, is enforced twice: by `ComparisonGate` in front
+ * of the screens, and here, from the person's stored answers, before
+ * anything is spent. This one is the one that counts.
+ *
+ * v1.2 C-01: astrology and numerology only. The Soul Map's themes are
+ * inferred from what the person wrote, so they are emptied here whatever the
+ * request asked for — the same rule the payload test holds in the browser.
  */
+
+function astroAndNumerologyOnly<T extends Parameters<typeof canComputeSynastry>[0]>(payload: T): T {
+  return {
+    ...payload,
+    scope: { ...payload.scope, soul_map_themes: false },
+    a: { ...payload.a, soul_map_themes: [] },
+    b: { ...payload.b, soul_map_themes: [] },
+  };
+}
 
 const TIMEOUT_MS = 25_000;
 
@@ -36,6 +51,7 @@ const TIMEOUT_MS = 25_000;
 async function withAspects<T extends Parameters<typeof canComputeSynastry>[0]>(
   payload: T,
 ): Promise<T> {
+  payload = astroAndNumerologyOnly(payload);
   if (!canComputeSynastry(payload) || !payload.a.birth || !payload.b.birth) return payload;
 
   const controller = new AbortController();
@@ -75,6 +91,8 @@ Deno.serve(
     system: COMPARISON_SYSTEM_PROMPT,
     user: (payload, { gender }) => buildComparisonUserMessage(payload, { a: gender, b: 'neutro' }),
     enrich: withAspects,
+    refuse: async (_payload, { caller, userId }) =>
+      (await callerIsClinicallyVulnerable(caller, userId)) ? 'clinically_vulnerable' : null,
 
     /**
      * Rule 5, with teeth. The predicate lives in `lib` so it has tests;
