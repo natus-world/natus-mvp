@@ -7,7 +7,8 @@ import { currentSynthesis } from '@/store/soulMap';
 import { currentMatchFor, isCheckedToday, savedSlugs } from '@/store/matches';
 import { remainingQuestions } from '@/store/chat';
 import { listMeditations } from '@/store/meditations';
-import { activeHighSeverityEvent, hasRecentLowSeverity } from '@/store/crisis';
+import { hasRecentLowSeverity, markFalsePositive } from '@/store/crisis';
+import { useActiveCrisisId } from '@/components/takeover';
 
 /**
  * The signed-in home of PDR 11.1.
@@ -43,6 +44,7 @@ function firstNameOf(fullName: string): string {
 }
 
 export function Dashboard() {
+  const crisisId = useActiveCrisisId();
   const profile = activeProfile();
   const synthesis = currentSynthesis();
   const match = synthesis ? currentMatchFor(synthesis.id) : undefined;
@@ -50,8 +52,8 @@ export function Dashboard() {
   // A high-severity event takes the whole screen, exactly as it does in
   // onboarding. PDR 1.6: clinical safety before product, with no commercial
   // fallback — so no "meanwhile, here are your recommendations".
-  if (activeHighSeverityEvent()) {
-    return <CrisisScreen country={profile?.draft.country} />;
+  if (crisisId) {
+    return <CrisisScreen country={profile?.draft.country} onNotMyCase={() => markFalsePositive(crisisId)} />;
   }
 
   if (!profile || !synthesis) {

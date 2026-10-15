@@ -24,6 +24,19 @@ export type CrisisEvent = CrisisDetection & {
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
+const listeners = new Set<() => void>();
+
+export function subscribeCrisis(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function emitChange(): void {
+  for (const listener of [...listeners]) listener();
+}
+
 function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `crisis-${performance.now()}`;
 }
@@ -55,6 +68,7 @@ export function recordCrisisEvent(
   };
 
   write('crisis_events', [...events, event]);
+  emitChange();
   return event;
 }
 
@@ -70,6 +84,7 @@ export function markFalsePositive(id: string): void {
     'crisis_events',
     listCrisisEvents().map((e) => (e.id === id ? { ...e, false_positive: true } : e)),
   );
+  emitChange();
 }
 
 /** The active block, if any. A dismissed false positive stops blocking. */

@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { CrisisResourceList } from '@/components/CrisisResourceList';
+import { useTakeover } from '@/components/takeover';
 
 /**
  * The full-screen takeover for high severity. PDR 6.4.
@@ -25,6 +27,8 @@ export function CrisisScreen({
   onNotMyCase?: () => void;
   onBack?: () => void;
 }) {
+  useTakeover();
+
   return (
     <Screen backdrop="palm" scrim="diagonal" opacity={PHOTO.content50}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9 sm:min-h-0">
@@ -68,6 +72,13 @@ export function CrisisScreen({
               Esto no aplica a mi caso
             </button>
           )}
+
+          <Link
+            to="/cuenta"
+            className="self-center px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
+          >
+            Descargar o borrar mis datos
+          </Link>
         </div>
       </div>
     </Screen>

@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { CrisisScreen } from '@/screens/CrisisScreen';
-import { activeHighSeverityEvent } from '@/store/crisis';
+import { markFalsePositive } from '@/store/crisis';
+import { useActiveCrisisId } from '@/components/takeover';
 import { activeProfile } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 
@@ -16,10 +17,11 @@ import { currentSynthesis } from '@/store/soulMap';
  * than not offering it.
  */
 export function ComparisonGate({ children }: { children: ReactNode }) {
+  const crisisId = useActiveCrisisId();
   const profile = activeProfile();
 
-  if (activeHighSeverityEvent()) {
-    return <CrisisScreen country={profile?.draft.country} />;
+  if (crisisId) {
+    return <CrisisScreen country={profile?.draft.country} onNotMyCase={() => markFalsePositive(crisisId)} />;
   }
 
   if (!profile || !currentSynthesis()) {

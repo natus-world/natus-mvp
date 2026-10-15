@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { PhoneFrame } from '@/components/PhoneFrame';
 import { DemoBanner } from '@/components/DemoBanner';
@@ -20,29 +20,13 @@ import { Library } from '@/screens/Library';
 import { ExternalProfile } from '@/screens/comparison/ExternalProfile';
 import { Consent } from '@/screens/comparison/Consent';
 import { Result } from '@/screens/comparison/Result';
-import { activeHighSeverityEvent } from '@/store/crisis';
+import { showsNav } from '@/components/navigation';
+import { useTakeoverShown } from '@/components/takeover';
+import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
 import { hydrate } from '@/store/hydrate.ts';
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { NotFound } from '@/screens/NotFound';
-
-/**
- * Where the navigation belongs. Onboarding, the landing and the signup are
- * linear — offering five destinations mid-flow invites someone to leave a form
- * half-answered — so the nav appears only once there is something to navigate
- * between.
- */
-const NAV_ROUTES = [
-  '/inicio',
-  '/mapa',
-  '/recomendaciones',
-  '/rutina',
-  '/cuenta',
-  '/chat',
-  '/meditaciones',
-  '/biblioteca',
-  '/comparacion',
-];
 
 const TITLES: [prefix: string, title: string][] = [
   ['/onboarding', 'Empezar'],
@@ -65,14 +49,12 @@ function titleFor(pathname: string): string {
   return `${match?.[1] ?? 'Página no encontrada'} · Natus`;
 }
 
-/** Prefixes, not exact paths: the comparison flow has nested routes and losing
- *  the nav halfway through it strands the person on a sub-screen. */
-function showsNav(pathname: string): boolean {
-  return NAV_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
-}
-
 export function App() {
   const { pathname } = useLocation();
+  const takeoverShown = useTakeoverShown();
+  const [helpOpen, setHelpOpen] = useState(false);
+  const openHelp = useCallback(() => setHelpOpen(true), []);
+  const closeHelp = useCallback(() => setHelpOpen(false), []);
 
   // Load the dataset before anything reads it.
   //
@@ -132,14 +114,23 @@ export function App() {
     return (
       <PhoneFrame>
         <Gate />
+        <div className="fixed top-0 right-0 z-50 p-2 sm:absolute">
+          <HelpNowButton onOpen={openHelp} />
+        </div>
+        {helpOpen && <HelpNowPanel onClose={closeHelp} />}
       </PhoneFrame>
     );
   }
 
   return (
     <PhoneFrame>
-      <div className="absolute inset-x-0 top-0 z-50 flex flex-col gap-1.5 p-2">
-        <DemoBanner />
+      <div className="fixed inset-x-0 top-0 z-50 flex flex-col gap-1.5 p-2 sm:absolute">
+        <div className="flex items-start gap-1.5">
+          <div className="min-w-0 flex-1">
+            <DemoBanner />
+          </div>
+          <HelpNowButton onOpen={openHelp} />
+        </div>
         <SaveFailureNotice offline={offline} />
       </div>
       {/*
@@ -173,17 +164,12 @@ export function App() {
           </Routes>
         </ErrorBoundary>
       </main>
-      {/*
-        A crisis takeover has to actually take the screen over. Leaving a glass
-        bar offering "Caminos" and "Chat" across the bottom of it turns the
-        takeover into a page with a way around it, which is the opposite of
-        what PDR 1.6 asks for.
-      */}
-      {showsNav(pathname) && !activeHighSeverityEvent() && (
+      {showsNav(pathname, takeoverShown) && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 p-3">
           <BottomNav />
         </div>
       )}
+      {helpOpen && <HelpNowPanel onClose={closeHelp} />}
     </PhoneFrame>
   );
 }

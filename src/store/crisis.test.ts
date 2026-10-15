@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   activeHighSeverityEvent,
   hadCrisisWithin30Days,
   listCrisisEvents,
   markFalsePositive,
   recordCrisisEvent,
+  subscribeCrisis,
 } from './crisis';
 import { clearAll } from './db';
 import type { CrisisDetection } from '@/lib/safety';
@@ -106,5 +107,39 @@ describe('feeding the hard filter', () => {
     const event = recordCrisisEvent(HIGH, 'onboarding');
     markFalsePositive(event.id);
     expect(hadCrisisWithin30Days()).toBe(false);
+  });
+});
+
+describe('telling the screens the block changed', () => {
+  it('notifies subscribers when a false positive is dismissed', () => {
+    const event = recordCrisisEvent(HIGH, 'onboarding');
+    const listener = vi.fn(() => activeHighSeverityEvent());
+    subscribeCrisis(listener);
+
+    markFalsePositive(event.id);
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveReturnedWith(undefined);
+  });
+
+  it('notifies subscribers when a crisis is recorded', () => {
+    const listener = vi.fn(() => activeHighSeverityEvent()?.id);
+    subscribeCrisis(listener);
+
+    const event = recordCrisisEvent(HIGH, 'chat');
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveReturnedWith(event.id);
+  });
+
+  it('stops notifying once unsubscribed', () => {
+    const event = recordCrisisEvent(HIGH, 'onboarding');
+    const listener = vi.fn();
+    const unsubscribe = subscribeCrisis(listener);
+
+    unsubscribe();
+    markFalsePositive(event.id);
+
+    expect(listener).not.toHaveBeenCalled();
   });
 });
