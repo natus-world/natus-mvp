@@ -73,7 +73,7 @@ export async function calculateNatalChart(draft: OnboardingDraft): Promise<Natal
 
   return {
     provider: 'astrologer',
-    api_version: 'v5',
+    api_version: 'v6',
     context: data.context,
     calculated_at: Date.now(),
     parse_status: 'parsed',

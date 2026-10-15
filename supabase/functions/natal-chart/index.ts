@@ -2,7 +2,7 @@ import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
 import { parseAstrologerSubject, resolveLocation } from '../_shared/astrology.ts';
 
-const ENDPOINT = 'https://astrologer.p.rapidapi.com/api/v5/context/birth-chart';
+const ENDPOINT = 'https://astrologer.p.rapidapi.com/api/v6/context/birth-chart';
 const HOST = 'astrologer.p.rapidapi.com';
 const TIMEOUT_MS = 20_000;
 const CALLS_PER_DAY = 5;
@@ -72,6 +72,7 @@ Deno.serve(async (request) => {
     if (!response.ok || !isRecord(payload) || payload.status !== 'OK') {
       // Do not pass provider details through: they can reveal configuration,
       // and the UI has one useful recovery for every provider-side failure.
+      console.error('astrologer_error', response.status, isRecord(payload) ? payload.status : null);
       return json(request, { error: 'astrologer_error' }, 502);
     }
 
@@ -80,7 +81,7 @@ Deno.serve(async (request) => {
       return json(request, { error: 'invalid_astrologer_response' }, 502);
     }
 
-    return json(request, { status: 'OK', api_version: 'v5', context });
+    return json(request, { status: 'OK', api_version: 'v6', context });
   } catch (error) {
     return json(
       request,

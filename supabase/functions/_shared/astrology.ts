@@ -3,7 +3,7 @@ export { parseAstrologerSubject, type AstrologerSubject } from './lib/astrology.
 
 const HOST = 'astrologer.p.rapidapi.com';
 const GEOCODING_ENDPOINT = 'https://geocoding-api.open-meteo.com/v1/search';
-const SYNASTRY_ENDPOINT = `https://${HOST}/api/v5/chart-data/synastry`;
+const SYNASTRY_ENDPOINT = `https://${HOST}/api/v6/chart-data/synastry`;
 
 export type Located = { latitude: number; longitude: number; timezone: string };
 

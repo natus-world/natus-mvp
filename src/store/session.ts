@@ -16,7 +16,7 @@ import type { GrammaticalGender } from '@/i18n/gender';
 
 export type NatalChartDraft = {
   provider: 'astrologer';
-  api_version: 'v5';
+  api_version: 'v5' | 'v6';
   context: string;
   calculated_at: number;
   parse_status: 'parsed';
