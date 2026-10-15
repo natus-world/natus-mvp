@@ -1,4 +1,5 @@
 import { copy } from '@/i18n';
+import { PayPalSubscribe } from './PayPalSubscribe';
 
 const text = copy.paywall;
 
@@ -11,10 +12,10 @@ const text = copy.paywall;
  * in the box behind it, still theirs, and comes back untouched if they close
  * this.
  *
- * There is nothing to buy yet. Payments arrive with dLocal Go (v1.2 P-01), and
- * only the server can make anybody premium, so this shows the reference price
- * and says plainly that Premium cannot be taken out yet. The simulated
- * subscription it used to offer is gone: it changed nothing on the server.
+ * Premium is taken out with PayPal for now (one free month, then US$10), a
+ * bridge until dLocal Go (v1.2 P-01). Activation is manual and only the server
+ * can make anybody premium. The simulated subscription it used to offer is
+ * gone: it changed nothing on the server.
  */
 export function Paywall({ used, onDismiss }: { used: number; onDismiss: () => void }) {
   return (
@@ -32,10 +33,11 @@ export function Paywall({ used, onDismiss }: { used: number; onDismiss: () => vo
       </p>
 
       <div className="mb-3.5 border-t border-crema/15 pt-3">
-        <p className="text-[length:var(--fs-body-13)] text-blanco">{text.soonTitle}</p>
-        <p className="mt-1 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-          {text.soonBody}
+        <p className="text-[length:var(--fs-body-13)] text-blanco">{text.offerTitle}</p>
+        <p className="mt-1 mb-3 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
+          {text.offerBody}
         </p>
+        <PayPalSubscribe />
       </div>
 
       <button

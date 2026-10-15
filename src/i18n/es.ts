@@ -295,8 +295,11 @@ export const es = {
     kicker: 'Hasta aquí llega lo incluido',
     title: (used: number) => `Usaste tus ${used} preguntas.`,
     body: 'Lo que escribiste sigue guardado en el cuadro de abajo. Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
-    soonTitle: 'Premium llega pronto',
-    soonBody: 'Costará US$7 al mes. Todavía no se puede contratar.',
+    offerTitle: 'Premium: el primer mes es gratis',
+    offerBody: 'Después, US$10 al mes. Puedes cancelar cuando quieras desde PayPal.',
+    approved:
+      'Listo. Tu suscripción quedó registrada en PayPal. Activamos tu Premium en cuanto lo confirmemos.',
+    unavailable: 'Ahora no pudimos cargar el pago. Prueba de nuevo en un rato.',
     back: 'Volver',
   },
   meditation: {
