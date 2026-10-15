@@ -97,6 +97,12 @@ only with restricted access and a log of who looked. First piece: the funnel
 already being recorded in `funnel_events`. Until then, numbers are pulled on
 request with SQL.
 
+**Beta notice and feedback (owner, 15 Oct 2026), for later:** while in beta,
+a message saying the app is being tested and a place to leave suggestions,
+changes and annoyances. Being designed in the branding conversation. When
+built: the feedback is free text, so it goes through the crisis detector,
+never into a model payload or the funnel, and is readable only by the team.
+
 What is left outside the code, in rough order of weight:
 
 - The sixteen crisis numbers carry `2026-08-19`, which records the product
