@@ -71,7 +71,12 @@ comparison between them (C-01, C-02) are built, and so is the routine
 saying what it converses with and keeping its origin in `routine_practices`.
 Marking a practice asks how useful it was, 1 to 5, with an optional comment
 (R-03), stored on `recommendation_checkins`; nothing reads it yet — the
-memory and the routine's adjustment will. Decided and not built: the
+memory and the routine's adjustment will.
+A therapy card shows a one-or-two-sentence summary and opens, on touch, the
+full why — citing what the person told, a placement of their chart and one
+of their numbers when there are — and what happens in a session (R-02,
+match-v1.5). The browser sends the symbols; matches made before keep their
+reasoning on the card. Decided and not built: the
 chat may talk over a comparison with a friend, receiving only its result and
 only while the friendship lasts; and Davraz redirects requests to do work
 (a thesis, code) back to how the person is living it. The

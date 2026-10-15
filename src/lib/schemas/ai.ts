@@ -75,8 +75,14 @@ export const matchResultSchema = z.object({
       z.object({
         modality_slug: z.string().min(1),
         rank: z.number().int().min(1),
+        /** v1.2 R-02: one or two sentences, what the card shows before it is
+         *  touched. Optional only so matches stored before it still read;
+         *  the match function refuses an answer without it. */
+        summary: z.string().min(1).optional(),
         /** PDR 7.5: two to four sentences, connecting something specific the
-         *  user said to something specific about the modality. */
+         *  user said to something specific about the modality. v1.2 R-02: the
+         *  full why, opened by touching the card, citing what the person told,
+         *  their chart and their numbers, whichever are available. */
         reasoning: z.string().min(1),
         /** Required whenever requires_clinical_support survives the filter. */
         caution_note: z.string().min(1).nullable(),

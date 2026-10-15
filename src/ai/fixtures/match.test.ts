@@ -24,6 +24,13 @@ describe('the assembled match satisfies the contract', () => {
     expect(() => matchResultSchema.parse(build().result)).not.toThrow();
   });
 
+  it('gives every card a summary of one or two sentences (v1.2 R-02)', () => {
+    for (const m of build().result.matched_modalities) {
+      expect(m.summary, m.modality_slug).toBeTruthy();
+      expect(countSentences(m.summary!), m.modality_slug).toBeLessThanOrEqual(2);
+    }
+  });
+
   it('returns between three and five modalities', () => {
     const { result } = build();
     expect(result.matched_modalities.length).toBeGreaterThanOrEqual(3);

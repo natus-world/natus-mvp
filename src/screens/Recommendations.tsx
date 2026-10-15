@@ -9,6 +9,7 @@ import { modalityBySlug } from '@/lib/catalog';
 import { filterModalities, poolFraming, type PoolFraming } from '@/lib/matching';
 import { isClinicallyVulnerable } from '@/lib/safety';
 import { matchModalities } from '@/ai/match';
+import { chartPlacements } from '@/astrology/natal-chart';
 import { AiError } from '@/ai/client';
 import { isDemoMode } from '@/supabase/client';
 import { currentSynthesis } from '@/store/soulMap';
@@ -88,6 +89,8 @@ export function Recommendations() {
         synthesis: stored.synthesis,
         outcome,
         presentingNeedText: profile.draft.presenting_need_text,
+        // v1.2 R-02: what the full why may cite.
+        symbols: { numerology: stored.numerology, chart: chartPlacements(profile.draft) },
       });
     } catch (err) {
       setError(
@@ -217,6 +220,7 @@ export function Recommendations() {
               key={entry.modality_slug}
               modality={modality}
               rank={entry.rank}
+              summary={entry.summary ?? null}
               reasoning={entry.reasoning}
               cautionNote={entry.caution_note}
               reaction={match.reactions[entry.modality_slug]?.reaction}

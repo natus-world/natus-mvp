@@ -91,6 +91,7 @@ export function buildMatchFixture(input: {
     matched_modalities: chosen.map((entry, index) => ({
       modality_slug: entry.modality.slug,
       rank: index + 1,
+      summary: firstSentence(REASONINGS[entry.modality.slug] ?? entry.reasoning),
       reasoning: REASONINGS[entry.modality.slug] ?? entry.reasoning,
       caution_note: entry.modality.requires_clinical_support
         ? (CAUTIONS[entry.modality.slug] ?? entry.modality.contraindications.join(' '))
@@ -100,3 +101,8 @@ export function buildMatchFixture(input: {
 }
 
 export const CURATED_REASONING_SLUGS = Object.keys(REASONINGS);
+
+/** The card's summary in fixture mode: the curated reasoning's first sentence. */
+function firstSentence(text: string): string {
+  return text.split(/(?<=[.!?])\s+/)[0] ?? text;
+}

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { numerologySchema, soulMapSynthesisSchema } from './schemas/index.ts';
 import { filterStrategySchema } from './matching.ts';
 import { modalityBySlug } from './catalog.ts';
+import { MAIN_POINTS, SIGNS } from './natal-chart.ts';
 
 /**
  * What the browser is allowed to say about itself, for every surface that has
@@ -134,9 +135,33 @@ export const soulMapInputSchema = z.object({
  * or quietly edit the contraindications of one that does, which the model
  * then reads out as ours.
  */
+/**
+ * v1.2 R-02: what the full why may cite from the person's symbols — the
+ * numbers already calculated and the main placements of the chart, by whole
+ * sign. Null when there is none; never guessed.
+ */
+export const matchSymbolsSchema = z
+  .object({
+    numerology: numerologySchema.nullable().default(null),
+    chart: z
+      .array(
+        z.object({
+          name: z.enum(MAIN_POINTS),
+          sign: z.enum(SIGNS),
+          house: z.number().int().min(1).max(12).nullable(),
+        }),
+      )
+      .max(MAIN_POINTS.length)
+      .nullable()
+      .default(null),
+  })
+  .default({ numerology: null, chart: null });
+export type MatchSymbols = z.infer<typeof matchSymbolsSchema>;
+
 export const matchInputSchema = z
   .object({
     synthesis: soulMapSynthesisSchema,
+    symbols: matchSymbolsSchema,
     presentingNeedText: z.string().max(MAX_PROSE).default(''),
     candidateSlugs: slugs.min(1),
     strategy: filterStrategySchema,

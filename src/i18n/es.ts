@@ -294,6 +294,8 @@ export const es = {
       flexible: 'sin plazo fijo',
     },
     whatHappens: 'Qué pasa en una sesión',
+    whyOpen: 'Ver por qué',
+    whyClose: 'Ver menos',
     save: 'Guardar',
     saved: 'Guardada',
     dismiss: 'No me hace sentido',

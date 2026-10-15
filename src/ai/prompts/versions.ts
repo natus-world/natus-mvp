@@ -1,11 +1,17 @@
 export const CHAT_PROMPT_VERSION = 'chat-v1.3';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
-export const MATCH_PROMPT_VERSION = 'match-v1.4';
+export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
 export const COMPARISON_PROMPT_VERSION = 'comparison-v2.0';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.5';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'match-v1.5',
+    date: '2026-10-15',
+    change:
+      'v1.2 R-02: a one-or-two-sentence summary for the card, and the reasoning becomes the full why, citing what the person told, a placement of their chart and one of their numbers when available. The symbols now arrive in the user message; citing them does not change the order.',
+  },
   {
     version: 'routine-v1.1',
     date: '2026-10-15',

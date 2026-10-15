@@ -3,6 +3,7 @@ import { MATCH_PROMPT_VERSION } from './prompts/versions';
 import { buildMatchFixture } from './fixtures/match';
 import { fallbackRanking, type FilterOutcome } from '@/lib/matching';
 import { matchResultSchema, type MatchResult, type SoulMapSynthesis } from '@/lib/schemas';
+import type { MatchSymbols } from '@/lib/model-input';
 import { isDemoMode } from '@/supabase/client';
 
 /** PDR 7.4, as a separate call from the Soul Map so therapies can be
@@ -11,6 +12,8 @@ export async function matchModalities(input: {
   synthesis: SoulMapSynthesis;
   outcome: FilterOutcome;
   presentingNeedText: string;
+  /** v1.2 R-02: what the full why may cite. */
+  symbols: MatchSymbols;
 }): Promise<AiResult<MatchResult> & { usedFallback: boolean }> {
   try {
     const result = await runAi({
@@ -21,6 +24,7 @@ export async function matchModalities(input: {
         fn: 'match',
         body: {
           synthesis: input.synthesis,
+          symbols: input.symbols,
           presentingNeedText: input.presentingNeedText,
           candidateSlugs: input.outcome.candidates.map((m) => m.slug),
           strategy: input.outcome.strategy,

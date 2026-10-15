@@ -55,6 +55,8 @@ Deno.serve(
       const pool = new Set(input.candidateSlugs);
       const stray = output.matched_modalities.find((m) => !pool.has(m.modality_slug));
       if (stray) return `recommended ${stray.modality_slug}, which is not in the pool`;
+      const bare = output.matched_modalities.find((m) => !m.summary);
+      if (bare) return `${bare.modality_slug} came without the summary the card shows`;
       const fastingBarred =
         input.excludedForVulnerability.length > 0 ||
         hasFoodOrWeightSignal({
@@ -69,6 +71,7 @@ Deno.serve(
       buildMatchUserMessage({
         synthesis: input.synthesis,
         presentingNeedText: input.presentingNeedText,
+        symbols: input.symbols,
         gender,
         outcome: {
           candidates: input.candidateSlugs.map((slug) => modalityBySlug(slug) as Modality),

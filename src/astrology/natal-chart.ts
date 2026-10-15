@@ -1,5 +1,6 @@
 import { isBackendConfigured, supabase } from '@/supabase/client';
 import type { NatalChartDraft, OnboardingDraft } from '@/store/session';
+import { buildNatalChart, mainPlacements, type Placement } from '@/lib/natal-chart';
 
 type NatalChartResponse = {
   context?: unknown;
@@ -99,3 +100,17 @@ export async function calculateNatalChart(draft: OnboardingDraft): Promise<Natal
   };
 }
 
+
+/**
+ * v1.2 R-02: the main placements a recommendation may cite, read by whole
+ * sign from the stored chart. Null when there is no readable chart.
+ */
+export function chartPlacements(draft: OnboardingDraft): Placement[] | null {
+  const chart = draft.natal_chart;
+  if (!chart || chart.parse_status !== 'parsed') return null;
+  try {
+    return mainPlacements(buildNatalChart(chart.context, hasBirthTime(draft)));
+  } catch {
+    return null;
+  }
+}

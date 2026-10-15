@@ -44,6 +44,7 @@ function builders(gender: GrammaticalGender, text: string): [string, string][] {
       buildMatchUserMessage({
         synthesis,
         presentingNeedText: text,
+        symbols: { numerology: null, chart: null },
         gender,
         outcome: {
           candidates,

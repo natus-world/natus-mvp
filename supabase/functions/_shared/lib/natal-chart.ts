@@ -156,6 +156,17 @@ export function aspectsBySign(points: readonly ChartPoint[]): ChartAspect[] {
 
 export class ChartParseError extends Error {}
 
+/** The placements a recommendation may cite: the seven visible planets and the Ascendant. */
+export const MAIN_POINTS = [...TRADITIONAL, 'Ascendant'] as const;
+export type MainPoint = (typeof MAIN_POINTS)[number];
+export type Placement = { name: MainPoint; sign: Sign; house: number | null };
+
+export function mainPlacements(chart: NatalChart): Placement[] {
+  return chart.points
+    .filter((p): p is ChartPoint & { name: MainPoint } => (MAIN_POINTS as readonly string[]).includes(p.name))
+    .map((p) => ({ name: p.name, sign: p.sign, house: p.house }));
+}
+
 function signIndex(sign: string): number {
   return SIGNS.indexOf(sign as Sign);
 }

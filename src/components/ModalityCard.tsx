@@ -1,3 +1,4 @@
+import { useId, useState } from 'react';
 import { copy } from '@/i18n';
 import type { Modality } from '@/lib/schemas';
 import type { UserReaction } from '@/store/matches';
@@ -26,6 +27,7 @@ const HORIZON_LABEL: Record<Modality['typical_horizon'], string> = copy.modality
 export function ModalityCard({
   modality,
   rank,
+  summary,
   reasoning,
   cautionNote,
   reaction,
@@ -33,12 +35,17 @@ export function ModalityCard({
 }: {
   modality: Modality;
   rank: number;
+  /** v1.2 R-02: the card's one or two sentences. Null on matches made before it. */
+  summary: string | null;
+  /** The full why, opened by touching the card. */
   reasoning: string;
   cautionNote: string | null;
   reaction: UserReaction | undefined;
   onReact: (reaction: UserReaction) => void;
 }) {
   const dismissed = reaction === 'dismissed';
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
 
   return (
     <article
@@ -77,25 +84,37 @@ export function ModalityCard({
         </span>
       </div>
 
-      <p className="mb-3 text-[length:var(--fs-body-13)] leading-relaxed text-blanco/85">{reasoning}</p>
+      {/* v1.2 R-02: the card says why in a sentence or two; touching it opens
+          the full why and what actually happens in a session (US-6.1 CA1 —
+          without that the recommendation is useless: most people have no
+          idea what EMDR or constelaciones involve). */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className="mb-3 block w-full text-left"
+      >
+        <span className="block text-[length:var(--fs-body-13)] leading-relaxed text-blanco/85">
+          {summary ?? reasoning}
+        </span>
+        <span className="mt-2 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
+          {open ? copy.modalityCard.whyClose : copy.modalityCard.whyOpen}
+          <span aria-hidden="true" className="ml-1.5">
+            {open ? '−' : '+'}
+          </span>
+        </span>
+      </button>
 
-      {/* US-6.1 CA1: what actually happens in a session. Without it the
-          recommendation is useless — most people have no idea what EMDR or
-          constelaciones involve. */}
-      <details className="group mb-3">
-        <summary className="cursor-pointer list-none text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase hover:text-crema/80">
+      <div id={panelId} hidden={!open} className="mb-3">
+        {summary && (
+          <p className="mb-3 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/75">{reasoning}</p>
+        )}
+        <p className="mb-1 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
           {copy.modalityCard.whatHappens}
-          <span aria-hidden="true" className="ml-1.5 group-open:hidden">
-            +
-          </span>
-          <span aria-hidden="true" className="ml-1.5 hidden group-open:inline">
-            −
-          </span>
-        </summary>
-        <p className="mt-2 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">
-          {modality.what_happens}
         </p>
-      </details>
+        <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{modality.what_happens}</p>
+      </div>
 
       {cautionNote && (
         <div className="mb-3 flex gap-2.5 rounded-[10px] border border-error/25 bg-error/8 px-3 py-2.5">
