@@ -64,7 +64,17 @@ The product runs end to end in production: onboarding, natal chart by
 ephemeris, Soul Map, recommendations, chat, meditations and synastry, all with
 real generation, all walked on the deployed site.
 
-**What is left is not code.** In rough order of weight:
+**v1.2 is being implemented, and most of it is not built yet:** the journal,
+memory, today's sky, friends, notifications, payments, the full chart. The
+plan, its order and the questions still open for the owner are in his doc
+«Guía de actualización de la app Natus»
+(https://claude.ai/artifact/9rw3grB3r7FQ6FVmnWfbbw); the requirements as agreed,
+with what was deliberately left for later (admin panel and funnels, the
+therapist side, the marketplace), in «Lo que acordamos para la app de Natus»
+(https://claude.ai/artifact/HhbMJH5C46SUhKxZsz9fJ3). Read v1.2 before asking the
+owner anything: a question it already answers costs his trust.
+
+What is left outside the code, in rough order of weight:
 
 - The sixteen crisis numbers carry `2026-08-19`, which records the product
   owner accepting them as transcribed from the PDR — not a call placed to each
@@ -99,22 +109,19 @@ real generation, all walked on the deployed site.
   requires one before the door can close, and the app stores birth data and
   clinical answers. The text is the owner's.
 
-**A product call for the owner, found in the onboarding:** the clinical step
-had a free-text "¿Hay algo más…?" bound to nothing, and it was removed.
-Bringing it back means storing clinical free text, scanning it and keeping it
-out of every model payload.
+**Decided in v1.2 (O-06), not built yet:** «Para cuidarte» asks the PDR's four
+clinical questions. The free-text "¿Hay algo más…?" was removed for being bound
+to nothing; bringing it back means storing clinical free text, scanning it for
+crisis and keeping it out of every model payload.
 
-**A product call for the owner, found in the data layer:**
-
-- **What a subscription buys.** The paywall's button activates a simulated
-  subscription for free, and every question after it is a real model call on
-  the deployment's key. It is capped at six per thirty days on top of the
-  free three (`SUBSCRIBED_QUESTIONS` in `src/lib/quota.ts`) — not a product
-  number but the one that fits: `budget.test.ts` holds one person's worst
-  month under a third of `MONTHLY_BUDGET_USD`, and the other purposes already
-  use most of it. Offering more is raising the budget or lowering another
-  ceiling; the test fails until the sum is true. Accepted for now by the
-  product owner on 2026-09-25, to be revisited.
+**What a subscription buys** is set by v1.2 (F-01: free gets 3 questions plus
+1 a month, premium an unlimited chat under a high technical cap, every quota
+configurable without a deploy), but its cost is still open (F-03). Until F-01
+is built, `src/lib/quota.ts` keeps the interim numbers — 3 free, 6 subscribed
+per thirty days — because `budget.test.ts` holds one person's worst month
+under a third of `MONTHLY_BUDGET_USD`; the test fails until any new numbers
+fit too. The paywall's button still activates a simulated subscription for
+free. P-01 replaces it: only the server decides who is premium.
 
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
@@ -124,7 +131,9 @@ the owner's call).
 
 **The prompts in the repo are the official ones** (S-06, decided 14 Oct 2026;
 the vault versions are reference only). Every change bumps the version in
-`src/ai/prompts/versions.ts` and adds a line to `PROMPT_HISTORY` there. Do not
+`src/ai/prompts/versions.ts` and adds a line to `PROMPT_HISTORY` there;
+`versions.test.ts` fails when a prompt's text changes under the same version,
+and prints the fingerprint to record in `prompt-fingerprints.json`. Do not
 edit prompt text without a decided item behind it — the design is somebody's
 work.
 
@@ -193,7 +202,7 @@ pnpm verify:chat && pnpm verify:models
 
 ```
 pnpm typecheck      tsc --noEmit
-pnpm test           vitest, 784 tests
+pnpm test           vitest, about 1,030 tests
 pnpm test:db        pgTAP policies + the adapters and functions against a
                     real Postgres; needs `supabase start`
 pnpm build          production build
@@ -201,10 +210,13 @@ pnpm dev            development server
 pnpm sync:shared    re-copy src/lib and src/ai/prompts into _shared
 ```
 
-Migrations and functions deploy on push, in that order, from the `functions`
-job that the site job waits on. A migration that fails stops the functions
-and the site behind it — the order matters, because a function deployed ahead
-of a column it writes can fail silently. `pnpm deploy:functions` pushes
+On every event the `verify` job runs typecheck, tests, build and `deno check`
+on the Edge Functions. On a push to `main`, the `functions` job waits on it and
+applies migrations, then deploys functions; the site job waits on that. Nothing
+deploys from a commit whose tests fail, and a missing `SUPABASE_ACCESS_TOKEN`
+fails the run instead of skipping the backend. A migration that fails stops
+the functions and the site behind it — the order matters, because a function
+deployed ahead of a column it writes can fail silently. `pnpm deploy:functions` pushes
 functions without a commit, which is what to use while iterating on one; it
 does not apply migrations, so push those first with `supabase db push`.
 
@@ -243,15 +255,20 @@ These are product decisions, not preferences. Each one was argued and settled;
 the argument is no longer written down, which is a reason to ask rather than a
 licence to reverse.
 
-- **No streaks, badges, or re-engagement notifications.** `store/matches.ts`
-  computes a total, never a consecutive run. The number a streak needs is not
-  calculated anywhere.
+- **No streaks, badges, or manipulative notifications.** Notifications exist
+  (v1.2 G-06, N-01): reflection phrases, practices the person chose, an
+  invitation to the journal, the daily tip — configured and switchable by the
+  person. What is banned is the pattern: streaks, badges, guilt, loss, false
+  urgency, "te extrañamos". `store/matches.ts` computes a total, never a
+  consecutive run. The number a streak needs is not calculated anywhere.
 - **No match percentages, ever.** The ranking orders; it does not score.
 - **No facilitator names.** The MVP recommends modalities, not people.
-- **A revoked consent hides the reading; it does not delete it.** The row
-  stays in `chart_comparisons`, unreadable by policy, until its profile or
-  the account is deleted. Seen and accepted when the demo was built, and
-  confirmed by the product owner on 2026-09-25 when asked outright.
+- **Revoking access hides the reading; it does not delete it.** Today that is
+  a revoked consent: the row stays in `chart_comparisons`, unreadable by
+  policy, until its profile or the account is deleted. Confirmed by the
+  product owner on 2026-09-25. v1.2 (C-01) replaces the consent flow with
+  friends inside Natus: ending a friendship makes the comparisons unreadable
+  for the other person on the next request, under the same rule.
 - **Safety runs in front of the model, deterministically.** Clinical
   exclusions are a predicate, not a prompt instruction — applied in the
   browser for the screen and again on the server by
