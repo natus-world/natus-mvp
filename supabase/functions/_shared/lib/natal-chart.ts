@@ -10,7 +10,10 @@
  * - the seven visible planets' traditional rulerships and the ruler of the
  *   Ascendant;
  * - essential dignities: domicile, exaltation, exile, fall;
- * - the sect: a day chart when the Sun is above the horizon.
+ * - the sect: a day chart when the Sun is above the horizon;
+ * - aspects by sign (decided by the owner, 15 Oct 2026): two points are in
+ *   aspect when their signs are, whatever the degrees — the separation in
+ *   degrees is kept beside it as information, never as a condition.
  *
  * Calculated here, like the numerology, so the model receives them as given
  * and is told not to recompute them. Without the hour of birth there is no
@@ -85,8 +88,30 @@ export type ChartPoint = {
   dignity: Dignity | null;
 };
 
+/** Signs apart → aspect. 1, 5, 7 and 11 signs apart are in aversion: no aspect. */
+const ASPECT_BY_DISTANCE: Record<number, ChartAspect['type']> = {
+  0: 'conjunction',
+  2: 'sextile',
+  3: 'square',
+  4: 'trine',
+  6: 'opposition',
+  8: 'trine',
+  9: 'square',
+  10: 'sextile',
+};
+
+export type ChartAspect = {
+  a: string;
+  b: string;
+  type: 'conjunction' | 'sextile' | 'square' | 'trine' | 'opposition';
+  /** Degrees between the two points along the ecliptic, 0 to 180. Information only. */
+  separation: number;
+};
+
+export const NATAL_CHART_VERSION = 'whole-sign-v2';
+
 export type NatalChart = {
-  version: 'whole-sign-v1';
+  version: typeof NATAL_CHART_VERSION;
   house_system: 'whole_sign';
   has_birth_time: boolean;
   points: ChartPoint[];
@@ -96,7 +121,38 @@ export type NatalChart = {
   ascendant_ruler: { planet: Traditional; sign: Sign; house: number | null } | null;
   /** Day or night chart, and the planets of that sect. Null without the hour. */
   sect: { kind: 'diurna' | 'nocturna'; planets: Traditional[] } | null;
+  /** By sign, between every pair of points that are not the same axis. */
+  aspects: ChartAspect[];
 };
+
+/** The Descendant and the Imum Coeli only mirror the Ascendant and the Midheaven. */
+const MIRRORS = new Set(['Descendant', 'Imum_Coeli']);
+/** Pairs that are always in the same relation, so saying it says nothing. */
+const FIXED_PAIRS = new Set([
+  'True_North_Lunar_Node|True_South_Lunar_Node',
+  'Mean_North_Lunar_Node|Mean_South_Lunar_Node',
+  'Ascendant|Descendant',
+  'Imum_Coeli|Medium_Coeli',
+]);
+
+export function aspectsBySign(points: readonly ChartPoint[]): ChartAspect[] {
+  const usable = points.filter((p) => !MIRRORS.has(p.name));
+  const aspects: ChartAspect[] = [];
+  for (let i = 0; i < usable.length; i++) {
+    for (let j = i + 1; j < usable.length; j++) {
+      const a = usable[i]!;
+      const b = usable[j]!;
+      if (FIXED_PAIRS.has([a.name, b.name].sort().join('|'))) continue;
+      const distance = (signIndex(b.sign) - signIndex(a.sign) + 12) % 12;
+      const type = ASPECT_BY_DISTANCE[distance];
+      if (!type) continue;
+      const raw = Math.abs(a.longitude - b.longitude) % 360;
+      const separation = Math.round(Math.min(raw, 360 - raw) * 10) / 10;
+      aspects.push({ a: a.name, b: b.name, type, separation });
+    }
+  }
+  return aspects;
+}
 
 export class ChartParseError extends Error {}
 
@@ -188,12 +244,13 @@ export function buildNatalChart(context: string, hasBirthTime: boolean): NatalCh
   }
 
   return {
-    version: 'whole-sign-v1',
+    version: NATAL_CHART_VERSION,
     house_system: 'whole_sign',
     has_birth_time: ascSign !== null,
     points,
     ascendant: asc && ascSign ? { sign: ascSign, degree: Math.round(asc.position * 100) / 100 } : null,
     ascendant_ruler: ascendantRuler,
     sect,
+    aspects: aspectsBySign(points),
   };
 }

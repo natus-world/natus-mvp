@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildNatalChart, ChartParseError, dignityOf, wholeSignHouse } from './natal-chart.ts';
+import { aspectsBySign, buildNatalChart, ChartParseError, dignityOf, wholeSignHouse } from './natal-chart.ts';
 import { withoutBirthTime } from './astrology.ts';
 
 // The provider's shape, with invented positions.
@@ -115,4 +115,46 @@ describe('without the hour of birth (PDR US-1.2 CA2)', () => {
 
 it('refuses a context with no Sun to read', () => {
   expect(() => buildNatalChart('<chart_analysis></chart_analysis>', true)).toThrow(ChartParseError);
+});
+
+describe('aspects by sign (decided 15 Oct 2026)', () => {
+  const chart = buildNatalChart(CHART, true);
+  const between = (a: string, b: string) =>
+    chart.aspects.find((x) => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+
+  it('counts signs, not degrees', () => {
+    // Gemini 13.5° and Libra 2.1°: 4 signs apart, a trine by sign, though the
+    // degrees are 108.6 apart — a moderate orb would not call it one.
+    expect(between('Sun', 'Moon')).toEqual({ a: 'Sun', b: 'Moon', type: 'trine', separation: 108.6 });
+    // Taurus and Capricorn, 4 signs apart: trine.
+    expect(between('Mercury', 'Mars')?.type).toBe('trine');
+    // Gemini and Aquarius: trine. Cancer and Capricorn: opposition.
+    expect(between('Sun', 'Saturn')?.type).toBe('trine');
+    expect(between('Jupiter', 'Mars')?.type).toBe('opposition');
+    // Same sign: conjunction.
+    expect(between('Mars', 'Uranus')?.type).toBe('conjunction');
+  });
+
+  it('leaves signs in aversion without an aspect', () => {
+    // Taurus and Gemini, one sign apart.
+    expect(between('Mercury', 'Sun')).toBeUndefined();
+  });
+
+  it('skips the mirrored axes and pairs that are always the same', () => {
+    const points = [
+      ...chart.points,
+      { ...chart.points[0]!, name: 'True_North_Lunar_Node', sign: 'Aries' as const, longitude: 10 },
+      { ...chart.points[0]!, name: 'True_South_Lunar_Node', sign: 'Libra' as const, longitude: 190 },
+      { ...chart.points[0]!, name: 'Descendant', sign: 'Pisces' as const, longitude: 350 },
+    ];
+    const all = aspectsBySign(points);
+    expect(all.some((x) => x.a === 'Descendant' || x.b === 'Descendant')).toBe(false);
+    expect(all.some((x) => [x.a, x.b].sort().join('|') === 'True_North_Lunar_Node|True_South_Lunar_Node')).toBe(false);
+  });
+
+  it('has aspects without the hour too, between the planets', () => {
+    const noHour = buildNatalChart(withoutBirthTime(CHART), false);
+    expect(noHour.aspects.length).toBeGreaterThan(0);
+    expect(noHour.aspects.some((x) => x.a === 'Ascendant' || x.b === 'Ascendant')).toBe(false);
+  });
 });

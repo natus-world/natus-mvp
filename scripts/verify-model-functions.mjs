@@ -353,7 +353,7 @@ for (const [label, ideation] of [
   const sun = stored?.chart?.points?.find((p) => p.name === 'Sun');
   check(
     'natal-chart: houses by whole sign, the ruler of the Ascendant and the sect, calculated',
-    stored?.house_system === 'whole_sign' && sun?.house === 10 && stored?.chart?.ascendant_ruler?.planet === 'Mercury' && stored?.chart?.sect?.kind === 'diurna',
+    stored?.house_system === 'whole_sign' && sun?.house === 10 && stored?.chart?.ascendant_ruler?.planet === 'Mercury' && stored?.chart?.sect?.kind === 'diurna' && Array.isArray(stored?.chart?.aspects),
     JSON.stringify({ house: sun?.house, ruler: stored?.chart?.ascendant_ruler, sect: stored?.chart?.sect }),
   );
 }
