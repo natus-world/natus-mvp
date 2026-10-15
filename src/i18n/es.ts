@@ -369,7 +369,6 @@ export const es = {
     later: 'Ahora no',
   },
   gate: {
-    brand: 'Natus',
     authFailed: 'No pudimos abrir el ingreso con Google. Inténtalo de nuevo en un momento.',
     failed: 'Algo falló al intentar entrar.',
     titleLead: 'Esto todavía ',
