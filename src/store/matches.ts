@@ -37,6 +37,10 @@ export type CheckIn = {
   practice_title: string;
   /** ISO date. One per practice per day — the unique constraint of PDR 5.4. */
   checked_on: string;
+  /** v1.2 R-03: how useful it was that day, 1 to 5. Absent until rated. */
+  rating?: number | null;
+  /** v1.2 R-03: optional, crisis-scanned before it gets here. Never sent to a model. */
+  comment?: string | null;
 };
 
 const DISMISSAL_TTL_MS = 90 * 24 * 60 * 60 * 1000;
@@ -144,6 +148,29 @@ export function toggleCheckIn(title: string, today: string): void {
     already
       ? existing.filter((c) => !(c.practice_title === title && c.checked_on === today))
       : [...existing, { practice_title: title, checked_on: today }],
+  );
+}
+
+/** Today's check-in of a practice, if it was marked. */
+export function checkInToday(title: string, today: string): CheckIn | undefined {
+  return listCheckIns().find((c) => c.practice_title === title && c.checked_on === today);
+}
+
+/**
+ * v1.2 R-03: how useful today's practice was, and an optional comment. Only a
+ * practice marked today can be rated; unmarking it takes the rating with it.
+ * A comment left empty is stored as none.
+ */
+export function rateCheckIn(title: string, today: string, rating: number, comment?: string | null): void {
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) throw new Error(`rating out of range: ${rating}`);
+  const existing = listCheckIns();
+  if (!existing.some((c) => c.practice_title === title && c.checked_on === today)) return;
+  const text = comment?.trim() ? comment.trim().slice(0, 1000) : null;
+  write(
+    'recommendation_checkins',
+    existing.map((c) =>
+      c.practice_title === title && c.checked_on === today ? { ...c, rating, comment: text } : c,
+    ),
   );
 }
 

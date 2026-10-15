@@ -254,6 +254,16 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
     expect((await ADAPTERS.client.load(client, userId))?.profile.clinical_basics).toEqual(draft.clinical_basics);
   });
 
+  it('a practice rating and its comment round-trip (v1.2 R-03)', async () => {
+    const { client, userId } = await person();
+    const checkIns = [
+      { practice_title: 'Caminar', checked_on: '2026-10-15', rating: 4, comment: 'Me ordenó la cabeza.' },
+      { practice_title: 'Respirar', checked_on: '2026-10-15', rating: null, comment: null },
+    ];
+    await ADAPTERS.recommendation_checkins.save(client, userId, checkIns);
+    expect(await ADAPTERS.recommendation_checkins.load(client, userId)).toEqual(checkIns);
+  });
+
   it('a person cannot make themselves premium (v1.2 P-01)', async () => {
     const { client, userId } = await person();
     const { error } = await client.from('subscriptions').upsert({ user_id: userId, status: 'active' });

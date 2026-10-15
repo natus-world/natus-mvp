@@ -824,20 +824,26 @@ export type Database = {
       recommendation_checkins: {
         Row: {
           checked_on: string
+          comment: string | null
           id: string
           practice_title: string
+          rating: number | null
           user_id: string
         }
         Insert: {
           checked_on: string
+          comment?: string | null
           id?: string
           practice_title: string
+          rating?: number | null
           user_id: string
         }
         Update: {
           checked_on?: string
+          comment?: string | null
           id?: string
           practice_title?: string
+          rating?: number | null
           user_id?: string
         }
         Relationships: []

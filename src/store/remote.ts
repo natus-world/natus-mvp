@@ -462,6 +462,8 @@ const checkins: Adapter<CheckIn[]> = {
     return (data ?? []).map((r) => ({
       practice_title: r.practice_title,
       checked_on: r.checked_on,
+      rating: r.rating,
+      comment: r.comment,
     }));
   },
   async save(client, userId, value) {
@@ -480,6 +482,8 @@ const checkins: Adapter<CheckIn[]> = {
         user_id: userId,
         practice_title: c.practice_title,
         checked_on: c.checked_on,
+        rating: c.rating ?? null,
+        comment: c.comment ?? null,
       })),
     );
     if (error) throw new Error(`recommendation_checkins: ${error.message}`);

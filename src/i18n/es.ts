@@ -313,6 +313,16 @@ export const es = {
     connectsMap: 'Conversa con tu mapa',
     connectsTherapy: (therapy: string) => `Conversa con ${therapy}`,
     connectsBoth: (therapy: string) => `Conversa con tu mapa y con ${therapy}`,
+    rating: {
+      question: '¿Qué tan útil te resultó?',
+      low: 'Nada',
+      high: 'Mucho',
+      option: (n: number) => `${n} de 5`,
+      commentLabel: 'Comentario (opcional)',
+      commentPlaceholder: 'Qué notaste, qué te costó, qué cambiarías',
+      saveComment: 'Guardar comentario',
+      commentSaved: 'Guardado',
+    },
   },
   chat: {
     kicker: 'Chat',

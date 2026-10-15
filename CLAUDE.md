@@ -68,7 +68,10 @@ real generation, all walked on the deployed site.
 memory, today's sky, notifications, payments, the full chart. Friends and the
 comparison between them (C-01, C-02) are built, and so is the routine
 (R-01): written after the therapies, by its own function, each practice
-saying what it converses with and keeping its origin in `routine_practices`. Decided and not built: the
+saying what it converses with and keeping its origin in `routine_practices`.
+Marking a practice asks how useful it was, 1 to 5, with an optional comment
+(R-03), stored on `recommendation_checkins`; nothing reads it yet — the
+memory and the routine's adjustment will. Decided and not built: the
 chat may talk over a comparison with a friend, receiving only its result and
 only while the friendship lasts; and Davraz redirects requests to do work
 (a thesis, code) back to how the person is living it. The
@@ -142,7 +145,9 @@ What is left outside the code, in rough order of weight:
   second call (00:00 and 23:59) to tell whether it changed; left for later.
 - `crisis-keywords.json` is `"status": "preliminary"` and wants a clinician.
   One thing for that review: a negated indirect term suppresses the next one
-  in its window, so "no doy más y nada tiene sentido" does not fire.
+  in its window, so "no doy más y nada tiene sentido" does not fire. The same
+  reaches a direct term across a comma: "no sirve, quiero morirme" does not
+  fire either (found 15 Oct 2026, on a practice comment).
 - There is no privacy policy or terms page. Google's OAuth consent screen
   requires one before the door can close, and the app stores birth data and
   clinical answers. The text is the owner's.

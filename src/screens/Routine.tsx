@@ -1,12 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { Ouroboros } from '@/design/Ouroboros';
 import { copy } from '@/i18n';
 import { modalityBySlug } from '@/lib/catalog';
 import type { Practice } from '@/lib/schemas';
+import { detectCrisis } from '@/lib/safety';
 import { generateRoutine } from '@/ai/routine';
-import { currentMatch, isCheckedToday, toggleCheckIn, totalCheckIns } from '@/store/matches';
+import { CrisisScreen } from '@/screens/CrisisScreen';
+import { activeProfile } from '@/store/account';
+import { markFalsePositive, recordCrisisEvent } from '@/store/crisis';
+import {
+  checkInToday,
+  currentMatch,
+  isCheckedToday,
+  rateCheckIn,
+  toggleCheckIn,
+  totalCheckIns,
+} from '@/store/matches';
 import { routineFor, saveRoutine } from '@/store/routine';
 import { currentSynthesis } from '@/store/soulMap';
 
@@ -41,9 +52,111 @@ export function connectsLabel(practice: Practice): string {
   return text.connectsMap;
 }
 
+const RATINGS = [1, 2, 3, 4, 5] as const;
+
+/**
+ * v1.2 R-03: once a practice is marked, how useful it was, 1 to 5, and an
+ * optional comment. Five plain pills with the two ends named — no stars, no
+ * colour that reads as a grade, nothing that looks like an achievement.
+ *
+ * The comment is free text, so it goes through the crisis detector before it
+ * is saved; a high-severity match opens the crisis screen and the comment is
+ * not kept.
+ */
+function PracticeRating({
+  title,
+  date,
+  onCrisis,
+  onChange,
+}: {
+  title: string;
+  date: string;
+  onCrisis: (eventId: string) => void;
+  onChange: () => void;
+}) {
+  const checkIn = checkInToday(title, date);
+  const rating = checkIn?.rating ?? null;
+  const savedComment = checkIn?.comment ?? '';
+  const [comment, setComment] = useState(savedComment);
+  const r = text.rating;
+  const fieldId = `comment-${title}`;
+
+  const saveComment = () => {
+    if (rating === null) return;
+    const value = comment.trim();
+    if (value) {
+      const verdict = detectCrisis({ texts: [value] });
+      if (verdict.crisis) {
+        const event = recordCrisisEvent(verdict, 'practice_comment');
+        if (verdict.severity === 'high') {
+          onCrisis(event.id);
+          return;
+        }
+      }
+    }
+    rateCheckIn(title, date, rating, value);
+    onChange();
+  };
+
+  return (
+    <div className="mt-3.5 flex flex-col gap-2.5">
+      <p className="text-[length:var(--fs-body-12_5)] text-crema/75">{r.question}</p>
+      <div role="radiogroup" aria-label={r.question} className="flex gap-1.5">
+        {RATINGS.map((n) => (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={rating === n}
+            aria-label={r.option(n)}
+            onClick={() => {
+              rateCheckIn(title, date, n, savedComment);
+              onChange();
+            }}
+            className={['chip-p8 flex-1', rating === n ? 'chip chip-on' : 'chip text-crema/70'].join(' ')}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+      <div className="flex justify-between text-[length:var(--fs-body-11)] text-crema/55">
+        <span>{r.low}</span>
+        <span>{r.high}</span>
+      </div>
+
+      {rating !== null && (
+        <>
+          <label htmlFor={fieldId} className="text-[length:var(--fs-body-11)] text-crema/55">
+            {r.commentLabel}
+          </label>
+          <textarea
+            id={fieldId}
+            rows={2}
+            maxLength={1000}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder={r.commentPlaceholder}
+            className="field w-full resize-none px-3.5 text-[length:var(--fs-body-13)] placeholder:text-crema/55"
+          />
+          <button
+            type="button"
+            onClick={saveComment}
+            disabled={comment.trim() === savedComment}
+            className="chip chip-p8 text-crema/70 disabled:opacity-60"
+          >
+            {comment.trim() === savedComment && savedComment ? r.commentSaved : r.saveComment}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Routine() {
   const match = currentMatch();
+  const navigate = useNavigate();
   const [, force] = useState(0);
+  const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [failed, setFailed] = useState(false);
   const date = today();
@@ -66,6 +179,11 @@ export function Routine() {
       const reasons = Object.fromEntries(kept.map((m) => [m.modality_slug, m.reasoning]));
       const result = await generateRoutine({ synthesis: synthesis.synthesis, modalitySlugs, reasons });
       saveRoutine(match.id, result.value);
+      // The practices live in the store, not in state. When the answer comes
+      // back at once (a fixture), generating goes true and false in the same
+      // batch, React sees no state change and drops the render; this makes
+      // sure the routine just saved is shown.
+      force((n) => n + 1);
     } catch {
       setFailed(true);
     } finally {
@@ -77,6 +195,22 @@ export function Routine() {
   useEffect(() => {
     if (needsRoutine && !generating && !failed) void generate();
   }, [needsRoutine, generating, failed, generate]);
+
+  if (crisisEventId) {
+    return (
+      <CrisisScreen
+        country={activeProfile()?.draft.country}
+        onNotMyCase={() => {
+          markFalsePositive(crisisEventId);
+          setCrisisEventId(null);
+        }}
+        onBack={() => {
+          setCrisisEventId(null);
+          navigate('/hoy');
+        }}
+      />
+    );
+  }
 
   if (!match) {
     return (
@@ -175,6 +309,15 @@ export function Routine() {
                     </span>
                   )}
                 </div>
+
+                {done && (
+                  <PracticeRating
+                    title={practice.title}
+                    date={date}
+                    onCrisis={setCrisisEventId}
+                    onChange={() => force((n) => n + 1)}
+                  />
+                )}
               </article>
             );
           })}
