@@ -34,6 +34,12 @@ export type ClinicalBasics = {
   in_treatment?: boolean;
   psychiatric_medication?: boolean;
   prefer_not_to_say?: string[];
+  /**
+   * The fourth question (v1.2 O-06): anything else the person wants taken into
+   * account. Scanned for crisis like every free text; never sent to a model —
+   * no model payload carries `clinical_basics` at all.
+   */
+  additional_notes?: string;
 };
 
 export type CrisisDetection = {

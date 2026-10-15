@@ -72,12 +72,11 @@ export const es = {
     },
     care: {
       kicker: 'Para cuidarte',
-      titleLead: 'Tres preguntas',
+      titleLead: 'Cuatro preguntas',
       titleTail: 'más delicadas.',
       intro:
         'Preguntamos esto para no recomendarte algo que en tu momento actual podría hacer más daño que bien. No es un diagnóstico y no hay respuestas mejores que otras.',
-      privacy:
-        'Lo que respondas queda guardado con tu cuenta. Si aparece una señal de riesgo, una persona responsable de Natus recibe un aviso.',
+      privacy: 'Lo que respondas aquí solo lo ve tu terapeuta.',
       ideationLabel: 'En los últimos 6 meses, ¿pensaste en hacerte daño o en no querer seguir?',
       ideationOptions: {
         no: 'No',
@@ -87,6 +86,8 @@ export const es = {
       },
       treatmentLabel: '¿Estás en tratamiento psicológico o psiquiátrico ahora?',
       medicationLabel: '¿Tomas medicación psiquiátrica?',
+      notesLabel: '¿Hay algo más que quieras que tengamos en cuenta?',
+      notesHint: 'Opcional. Puedes dejarlo en blanco.',
       yes: 'Sí',
       no: 'No',
       preferNotToSay: 'Prefiero no decir',

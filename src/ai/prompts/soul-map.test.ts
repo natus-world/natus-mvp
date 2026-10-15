@@ -43,8 +43,11 @@ describe('what the Soul Map narrowing lets through', () => {
     // the clinical answers and this schema has nowhere to put them, so the
     // body the Edge Function receives cannot contain them even if a future
     // caller passes the whole draft by mistake.
-    const narrowed = soulMapDraftSchema.parse(emptyDraft());
+    const draft = emptyDraft();
+    draft.clinical_basics = { ideation_6m: 'no', additional_notes: 'nota clínica privada' };
+    const narrowed = soulMapDraftSchema.parse(draft);
     expect(narrowed).not.toHaveProperty('clinical_basics');
     expect(JSON.stringify(narrowed)).not.toContain('clinical');
+    expect(JSON.stringify(narrowed)).not.toContain('nota clínica privada');
   });
 });

@@ -48,9 +48,13 @@ export function completeCare(basics: ClinicalBasics, now = Date.now()): CareOutc
     updateDraft({ clinical_basics: basics }, now);
   }
 
-  const verdict = detectCrisis({ clinicalBasics: basics });
+  // The free-text note is read like any other text the person writes (PDR
+  // 6.4, Capa 1). High severity stops the flow; a low signal is recorded, as
+  // it is in the chat, so the clinical exclusions see it for thirty days.
+  const verdict = detectCrisis({ texts: [basics.additional_notes], clinicalBasics: basics });
   if (verdict.crisis && verdict.severity === 'high') {
     return { next: 'crisis', eventId: recordCrisisEvent(verdict, 'onboarding', now).id };
   }
+  if (verdict.crisis) recordCrisisEvent(verdict, 'onboarding', now);
   return { next: 'continue' };
 }

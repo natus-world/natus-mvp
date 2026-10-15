@@ -319,6 +319,35 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
     expect(rowsOwnedBy(userId)['clients']).toBe(1);
   });
 
+  it('the fourth clinical answer round-trips on both profile tables (v1.2 O-06)', async () => {
+    const { client, userId } = await person();
+    const draft = emptyDraft();
+    draft.clinical_basics = { ideation_6m: 'no', additional_notes: 'Trabajo de noche.' };
+
+    await ADAPTERS.anonymous_session.save(client, userId, {
+      id: crypto.randomUUID(),
+      created_at: NOW,
+      expires_at: NOW + 3_600_000,
+      step: 4,
+      draft,
+      soul_map_id: null,
+      claimed_by: null,
+    });
+    expect((await ADAPTERS.anonymous_session.load(client, userId))?.draft.clinical_basics).toEqual(
+      draft.clinical_basics,
+    );
+
+    await ADAPTERS.client.save(client, userId, {
+      id: crypto.randomUUID(),
+      email: 'ana@example.com',
+      created_at: NOW,
+      profile: draft,
+      soul_map_id: null,
+      claimed_session_id: null,
+    });
+    expect((await ADAPTERS.client.load(client, userId))?.profile.clinical_basics).toEqual(draft.clinical_basics);
+  });
+
   it('a person cannot make themselves premium (v1.2 P-01)', async () => {
     const { client, userId } = await person();
     const { error } = await client.from('subscriptions').upsert({ user_id: userId, status: 'active' });

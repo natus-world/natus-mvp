@@ -88,6 +88,7 @@ type DraftColumns = {
   clinical_in_treatment: boolean | null;
   clinical_psychiatric_medication: boolean | null;
   clinical_prefer_not_to_say: string[];
+  clinical_additional_notes: string | null;
   natal_chart: OnboardingDraft['natal_chart'];
 };
 
@@ -110,6 +111,7 @@ function draftToColumns(draft: OnboardingDraft): DraftColumns {
     clinical_in_treatment: draft.clinical_basics.in_treatment ?? null,
     clinical_psychiatric_medication: draft.clinical_basics.psychiatric_medication ?? null,
     clinical_prefer_not_to_say: draft.clinical_basics.prefer_not_to_say ?? [],
+    clinical_additional_notes: draft.clinical_basics.additional_notes ?? null,
     natal_chart: draft.natal_chart,
   };
 }
@@ -133,6 +135,7 @@ function columnsToDraft(row: DraftRow): OnboardingDraft {
   if (row.clinical_psychiatric_medication !== null) {
     clinical.psychiatric_medication = row.clinical_psychiatric_medication;
   }
+  if (row.clinical_additional_notes !== null) clinical.additional_notes = row.clinical_additional_notes;
   if (row.clinical_prefer_not_to_say.length > 0) {
     clinical.prefer_not_to_say = row.clinical_prefer_not_to_say;
   }

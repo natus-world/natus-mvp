@@ -41,6 +41,7 @@ export type Database = {
           birth_date: string | null
           birth_time: string | null
           claimed_at: string | null
+          clinical_additional_notes: string | null
           clinical_ideation_6m: string | null
           clinical_in_treatment: boolean | null
           clinical_prefer_not_to_say: string[]
@@ -66,6 +67,7 @@ export type Database = {
           birth_date?: string | null
           birth_time?: string | null
           claimed_at?: string | null
+          clinical_additional_notes?: string | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]
@@ -91,6 +93,7 @@ export type Database = {
           birth_date?: string | null
           birth_time?: string | null
           claimed_at?: string | null
+          clinical_additional_notes?: string | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]
@@ -287,6 +290,7 @@ export type Database = {
           birth_date: string | null
           birth_time: string | null
           claimed_session_id: string | null
+          clinical_additional_notes: string | null
           clinical_ideation_6m: string | null
           clinical_in_treatment: boolean | null
           clinical_prefer_not_to_say: string[]
@@ -311,6 +315,7 @@ export type Database = {
           birth_date?: string | null
           birth_time?: string | null
           claimed_session_id?: string | null
+          clinical_additional_notes?: string | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]
@@ -335,6 +340,7 @@ export type Database = {
           birth_date?: string | null
           birth_time?: string | null
           claimed_session_id?: string | null
+          clinical_additional_notes?: string | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]

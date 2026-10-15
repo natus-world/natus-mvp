@@ -71,6 +71,23 @@ describe('O-06 — «Para cuidarte» sits between the map and Caminos', () => {
     expect(listCrisisEvents()).toHaveLength(0);
   });
 
+  it('reads the free-text note for crisis like any other text (v1.2 O-06)', () => {
+    withMap();
+    const outcome = completeCare({ ideation_6m: 'no', additional_notes: 'a veces quiero matarme' }, T0);
+
+    expect(outcome.next).toBe('crisis');
+    expect(activeHighSeverityEvent(T0)?.source_surface).toBe('onboarding');
+  });
+
+  it('keeps an ordinary note and continues', () => {
+    withMap();
+    const outcome = completeCare({ ideation_6m: 'no', additional_notes: 'Trabajo de noche y duermo poco.' }, T0);
+
+    expect(outcome).toEqual({ next: 'continue' });
+    expect(activeProfile(T0)?.draft.clinical_basics.additional_notes).toBe('Trabajo de noche y duermo poco.');
+    expect(listCrisisEvents()).toHaveLength(0);
+  });
+
   it('sends ideation with a plan to the crisis screen, not to Caminos', () => {
     withMap();
     const outcome = completeCare({ ideation_6m: 'plan_o_intencion' }, T0);
