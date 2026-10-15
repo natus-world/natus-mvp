@@ -113,7 +113,7 @@ export function BasicData({
               aria-describedby="birth-country-helper"
             >
               {BIRTH_COUNTRIES.map(([code, name]) => (
-                <option key={code || 'empty'} value={code} className="bg-negro">
+                <option key={code || 'empty'} value={code}>
                   {code ? name : text.birthCountryPlaceholder}
                 </option>
               ))}
@@ -136,7 +136,7 @@ export function BasicData({
             aria-describedby="country-helper"
           >
             {text.countries.map(([code, name]) => (
-              <option key={code} value={code} className="bg-negro">
+              <option key={code} value={code}>
                 {name}
               </option>
             ))}
