@@ -175,6 +175,6 @@ modalities, not people.
 | `CLAUDE.md` | Architecture, non-negotiables, and what is still open |
 | `docs/ASSETS.md` | Image origin and licensing |
 
-The PDR itself is not committed. It lives in Nico's vault, and every prompt
-reconstructed from it carries a `-reconstructed` suffix so nothing here can be
-mistaken for the original text.
+The PDR itself is not committed; it lives in Nico's package. The prompts in
+`src/ai/prompts/` are the official ones (S-06, 14 Oct 2026) and every change to
+them is recorded in `prompts/versions.ts`.

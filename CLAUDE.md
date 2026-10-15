@@ -12,13 +12,15 @@ owner once presentable.
 It began as a static demo and is no longer one: there is a Supabase project
 behind it, with Postgres under Row Level Security, Google sign-in, and Edge
 Functions holding the API keys. The curated fixtures run only in a build with
-`VITE_DEMO_MODE=true` (PDR v1.1 `S-01`): anywhere else a model path that is
+`VITE_DEMO_MODE=true` (changes v1.2 `S-01`): anywhere else a model path that is
 unavailable shows the error state, never a fixture, and no internal label
 (prompt version, pool strategy, `/lab/safety`) renders. Keep the demo path
 working — it is how the app runs offline and how the tests exercise it.
 
-**The product spec in force is `cambios-pdr-natus-v1.1.md`** (14 Oct 2026,
-in `~/Downloads`), which overrides the PDR v1.0 wherever they disagree, and
+**The product spec in force is Nico's package `~/Downloads/natus-paquete-tomas 2/`**
+(v1.2, 14 Oct 2026, final: read `LEEME.md` and `00-NOVEDADES-version-final.md`
+first; `02-cambios-pdr-natus-v1.2.md` wins on logic, `03-natus-guia-interfaz-app.md`
+on everything visual and every UI string), which overrides the PDR v1.0 wherever they disagree, and
 works through its items in the order of its §13. Items marked `[ABIERTO]`
 are not to be built without the product owner's answer.
 
@@ -120,11 +122,11 @@ prompt cache is worth its 25% write surcharge on the once-per-account surfaces
 what the first attempt got wrong (that adds text to the user message, so it is
 the owner's call).
 
-**The prompts are reconstructed, not the author's.** Every version string
-carries `-reconstructed` because `07 - System Prompt IA.md` was never
-available. Swapping in the real text is a change to constants in
-`src/ai/prompts/shared.ts` and the five version strings in `versions.ts`. Do not edit prompt
-text for any other reason without asking — the design is somebody's work.
+**The prompts in the repo are the official ones** (S-06, decided 14 Oct 2026;
+the vault versions are reference only). Every change bumps the version in
+`src/ai/prompts/versions.ts` and adds a line to `PROMPT_HISTORY` there. Do not
+edit prompt text without a decided item behind it — the design is somebody's
+work.
 
 Keep this section current. It is now the only handover there is: when one of
 the items above closes, delete it, and when something new is left open, write

@@ -1,22 +1,9 @@
 /**
- * Tone rules shared by every prompt.
- *
- * PROVENANCE — read this before editing.
- *
- * PDR appendix B lists `07 - System Prompt IA.md` as "vigente y crítico —
- * copiar literal". That file was not available when this was written, so what
- * follows is RECONSTRUCTED from the principles of PDR section 1, the output
- * contract of section 6.5 and the copy rules of section 7.5.
- *
- * It is therefore a faithful reading of the documented intent, not the
- * vault's text. Every prompt version carries a `-reconstructed` suffix so
- * nothing downstream mistakes it for the original, and swapping in the real
- * one is a change to these constants alone.
+ * Tone rules shared by every prompt. These are the official Natus prompts
+ * (S-06, 14 Oct 2026); the vault versions are reference only.
  */
 
 import type { GrammaticalGender } from '@/lib/model-input.ts';
-
-export const PROMPT_PROVENANCE = 'reconstructed-from-pdr-2026-08';
 
 export const PERSON_TEXT_OPEN = '<texto_de_la_persona>';
 export const PERSON_TEXT_CLOSE = '</texto_de_la_persona>';
