@@ -107,6 +107,9 @@ a message saying the app is being tested and a place to leave suggestions,
 changes and annoyances. Being designed in the branding conversation. When
 built: the feedback is free text, so it goes through the crisis detector,
 never into a model payload or the funnel, and is readable only by the team.
+The suggestions and complaints arrive in the admins' panel (owner, 15 Oct
+2026): its own section there, beside each person's operational record —
+not rows in `funnel_events`.
 
 What is left outside the code, in rough order of weight:
 
