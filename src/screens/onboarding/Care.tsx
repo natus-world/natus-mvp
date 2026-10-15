@@ -11,6 +11,7 @@ import { writesSettled } from '@/store/hydrate';
 import type { ClinicalBasics as Answers } from '@/lib/safety';
 import { copy } from '@/i18n';
 import { ClinicalBasics } from './ClinicalBasics';
+import { track } from '@/store/funnel';
 
 export function Care() {
   const navigate = useNavigate();
@@ -42,6 +43,8 @@ export function Care() {
 
   const submit = async (submitted: Answers) => {
     setAnswers(submitted);
+    // That it was answered, never what: recorded the same whatever comes next.
+    track('care_done');
     const outcome = completeCare(submitted);
     if (outcome.next === 'crisis') {
       setCrisisEventId(outcome.eventId);

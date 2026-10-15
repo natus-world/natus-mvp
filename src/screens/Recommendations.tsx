@@ -14,6 +14,7 @@ import { isDemoMode } from '@/supabase/client';
 import { currentSynthesis } from '@/store/soulMap';
 import { activeProfile } from '@/store/account';
 import { hadCrisisWithin30Days } from '@/store/crisis';
+import { track } from '@/store/funnel';
 import {
   clearReaction,
   currentMatch,
@@ -114,6 +115,12 @@ export function Recommendations() {
   useEffect(() => {
     if (!match && error === null) void run();
   }, [match, error, run]);
+
+  // The funnel: Caminos was seen, once there is something on it.
+  const hasMatch = Boolean(match);
+  useEffect(() => {
+    if (hasMatch) track('paths_seen');
+  }, [hasMatch]);
 
   const react = (slug: string, reaction: UserReaction) => {
     const existing = match?.reactions[slug]?.reaction;

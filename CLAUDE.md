@@ -78,6 +78,17 @@ therapist side, the marketplace), in «Lo que acordamos para la app de Natus»
 (https://claude.ai/artifact/HhbMJH5C46SUhKxZsz9fJ3). Read v1.2 before asking the
 owner anything: a question it already answers costs his trust.
 
+**The admin funnel records from 15 Oct 2026** in `funnel_events`: who, which
+step, when, and nothing else — never content, never a step only a vulnerable
+person reaches, never anything sent to an ad platform. The browser records
+its own steps through `track_step`; rows that prove a step record it by
+trigger; nobody reads the table through the API. The steps about money
+(`trial_started`, `first_charge`, `canceled`) are the server's: while premium
+is activated by hand, record them with `select public.record_step('<user
+id>', 'first_charge')` in the same session that writes the subscription.
+Campaign links carry `utm_source` and `utm_campaign`; the first one a browser
+arrives with travels on `onboarding_started`.
+
 What is left outside the code, in rough order of weight:
 
 - The sixteen crisis numbers carry `2026-08-19`, which records the product

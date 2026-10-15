@@ -162,7 +162,7 @@ export function Result() {
                 {result.astro_dialogue.aspects.map((aspect) => (
                   <article key={`${aspect.a_body}-${aspect.type}-${aspect.b_body}`} className="surface surface-p12">
                     <p className="mb-1 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
-                      {aspect.a_body} · {aspect.type} · {aspect.b_body}
+                      {bodyName(aspect.a_body)} · {aspectName(aspect.type)} · {bodyName(aspect.b_body)}
                     </p>
                     <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/70">{aspect.reading}</p>
                   </article>
@@ -182,6 +182,15 @@ export function Result() {
       </Screen>
     </ComparisonGate>
   );
+}
+
+/** Spanish names for what the ephemeris returns in English; unknown ones as they came. */
+function bodyName(body: string): string {
+  return copy.astro.bodies[body] ?? body.replace(/_/g, ' ');
+}
+
+function aspectName(type: string): string {
+  return copy.astro.aspects[type.toLowerCase()] ?? type;
 }
 
 function Part({ title, lines }: { title: string; lines: readonly string[] }) {

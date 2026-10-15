@@ -7,6 +7,7 @@ import {
   renewInviteUrl,
   type Friend,
 } from '@/store/friends';
+import { track } from '@/store/funnel';
 
 const t = copy.friends;
 
@@ -42,6 +43,7 @@ export function FriendsSection() {
     if (!link) return;
     try {
       await navigator.clipboard.writeText(link);
+      track('friend_invited');
       setCopied(true);
       setTimeout(() => setCopied(false), 2_500);
     } catch {
@@ -53,6 +55,7 @@ export function FriendsSection() {
     if (!link) return;
     try {
       await navigator.share({ text: t.shareText, url: link });
+      track('friend_invited');
     } catch {
       // Cancelled, or not supported: copying is the fallback beside it.
     }

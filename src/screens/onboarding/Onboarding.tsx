@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { track } from '@/store/funnel';
 import { useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { CrisisBanner } from '@/components/CrisisBanner';
@@ -72,6 +73,11 @@ export function Onboarding() {
   }, [index]);
 
   const back = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
+
+  // The funnel's first step. Recorded once per person by the database.
+  useEffect(() => {
+    track('onboarding_started');
+  }, []);
 
   const runSafety = useCallback((): boolean => {
     const verdict = detectCrisis({ texts: [draft.presenting_need_text] });
@@ -189,7 +195,16 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 'quien' && <BasicData draft={draft} onChange={change} onNext={advance} />}
+        {step === 'quien' && (
+          <BasicData
+            draft={draft}
+            onChange={change}
+            onNext={() => {
+              track('birth_data_done');
+              advance();
+            }}
+          />
+        )}
         {step === 'pregunta' && (
           <PresentingNeed
             draft={draft}

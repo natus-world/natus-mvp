@@ -512,6 +512,39 @@ export type Database = {
         }
         Relationships: []
       }
+      funnel_events: {
+        Row: {
+          campaign: string | null
+          dedupe_key: string
+          detail: string | null
+          id: number
+          occurred_at: string
+          source: string | null
+          step: string
+          user_id: string
+        }
+        Insert: {
+          campaign?: string | null
+          dedupe_key: string
+          detail?: string | null
+          id?: never
+          occurred_at?: string
+          source?: string | null
+          step: string
+          user_id: string
+        }
+        Update: {
+          campaign?: string | null
+          dedupe_key?: string
+          detail?: string | null
+          id?: never
+          occurred_at?: string
+          source?: string | null
+          step?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       match_reactions: {
         Row: {
           modality_slug: string
@@ -879,6 +912,10 @@ export type Database = {
       }
       end_friendship: { Args: { p_friendship: string }; Returns: undefined }
       first_name_of: { Args: { p_user: string }; Returns: string }
+      funnel_dedupe_key: {
+        Args: { p_detail: string; p_step: string }
+        Returns: string
+      }
       invite_preview: {
         Args: { p_token: string }
         Returns: {
@@ -898,6 +935,16 @@ export type Database = {
         }[]
       }
       my_invite_token: { Args: never; Returns: string }
+      record_step: {
+        Args: {
+          p_campaign?: string
+          p_detail?: string
+          p_source?: string
+          p_step: string
+          p_user: string
+        }
+        Returns: undefined
+      }
       renew_invite_token: { Args: never; Returns: string }
       reserve_chat_turn: {
         Args: {
@@ -919,6 +966,15 @@ export type Database = {
           p_user: string
         }
         Returns: string
+      }
+      track_step: {
+        Args: {
+          p_campaign?: string
+          p_detail?: string
+          p_source?: string
+          p_step: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

@@ -1,5 +1,7 @@
 import { copy } from '@/i18n';
+import { useEffect } from 'react';
 import { PayPalSubscribe } from './PayPalSubscribe';
+import { track } from '@/store/funnel';
 
 const text = copy.paywall;
 
@@ -18,6 +20,10 @@ const text = copy.paywall;
  * gone: it changed nothing on the server.
  */
 export function Paywall({ used, onDismiss }: { used: number; onDismiss: () => void }) {
+  useEffect(() => {
+    track('paywall_seen', 'chat');
+  }, []);
+
   return (
     <div
       role="dialog"

@@ -28,6 +28,7 @@ import { copy } from '@/i18n';
 import { useTakeoverShown } from '@/components/takeover';
 import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
 import { hydrate } from '@/store/hydrate.ts';
+import { rememberFirstTouch, track } from '@/store/funnel';
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { NotFound } from '@/screens/NotFound';
@@ -84,7 +85,9 @@ export function App() {
   const [offline, setOffline] = useState(false);
   useEffect(() => {
     let live = true;
+    rememberFirstTouch();
     void hydrate().then((result) => {
+      if (result.kind === 'remote') track('app_opened');
       if (!live) return;
       setAdmitted(result.kind === 'remote');
       setOffline(result.kind === 'local' && result.reason === 'failed');
