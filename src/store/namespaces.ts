@@ -20,7 +20,9 @@ export type Namespace =
   | 'chart_comparisons'
   | 'crisis_events'
   | 'subscription'
-  | 'preferences';
+  | 'preferences'
+  /** A friend invitation opened before signing up, kept until it is answered. */
+  | 'pending_invite';
 
 /**
  * `ai_mode` used to live at the end of that union and held a pasted Anthropic

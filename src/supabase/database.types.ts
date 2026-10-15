@@ -548,6 +548,57 @@ export type Database = {
         }
         Relationships: []
       }
+      friend_invites: {
+        Row: {
+          created_at: string
+          inviter_id: string
+          revoked_at: string | null
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          inviter_id: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          inviter_id?: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          ended_by: string | null
+          id: string
+          requester_id: string
+          responded_at: string | null
+          status: Database["public"]["Enums"]["friendship_status"]
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          ended_by?: string | null
+          id?: string
+          requester_id: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["friendship_status"]
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          ended_by?: string | null
+          id?: string
+          requester_id?: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["friendship_status"]
+        }
+        Relationships: []
+      }
       match_reactions: {
         Row: {
           modality_slug: string
@@ -901,6 +952,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_friend_invite: { Args: { p_token: string }; Returns: string }
+      caller_has_account: { Args: never; Returns: boolean }
       deployment_token_totals: {
         Args: { since: string }
         Returns: {
@@ -911,6 +964,28 @@ export type Database = {
           output_tokens: number
         }[]
       }
+      end_friendship: { Args: { p_friendship: string }; Returns: undefined }
+      first_name_of: { Args: { p_user: string }; Returns: string }
+      invite_preview: {
+        Args: { p_token: string }
+        Returns: {
+          already_friends: boolean
+          inviter_first_name: string
+          own_link: boolean
+          valid: boolean
+        }[]
+      }
+      my_friends: {
+        Args: never
+        Returns: {
+          first_name: string
+          friend_id: string
+          friendship_id: string
+          since: string
+        }[]
+      }
+      my_invite_token: { Args: never; Returns: string }
+      renew_invite_token: { Args: never; Returns: string }
       reserve_chat_turn: {
         Args: {
           p_limit: number
@@ -934,7 +1009,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      friendship_status: "pending" | "accepted" | "declined" | "removed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1064,7 +1139,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      friendship_status: ["pending", "accepted", "declined", "removed"],
+    },
   },
 } as const
 

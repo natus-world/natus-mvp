@@ -12,6 +12,7 @@ import { hasRecentLowSeverity, markFalsePositive } from '@/store/crisis';
 import { useActiveCrisisId } from '@/components/takeover';
 import { copy } from '@/i18n';
 import { comparisonWithheld } from '@/screens/comparison/Gate';
+import { pendingInvite } from '@/store/friends';
 
 const t = copy.today;
 
@@ -72,6 +73,18 @@ export function Today() {
           <Link to="/registro" className="surface surface-p14 mb-3 block no-underline">
             <p className="text-[length:var(--fs-body-13)] leading-snug text-blanco">{t.saveTitle}</p>
             <p className="mt-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/55">{t.saveBody}</p>
+          </Link>
+        )}
+
+        {isSignedIn() && pendingInvite() && (
+          <Link
+            to={`/amigos/${pendingInvite()}`}
+            className="surface surface-p14 mb-3 flex items-center gap-3 no-underline"
+          >
+            <p className="min-w-0 flex-1 text-[length:var(--fs-body-13)] leading-snug text-blanco">
+              {copy.friends.pending}
+            </p>
+            <span className="chip chip-p6 px-3 text-crema/75">{copy.friends.pendingCta}</span>
           </Link>
         )}
 

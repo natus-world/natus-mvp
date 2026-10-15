@@ -32,6 +32,7 @@ import { hydrate } from '@/store/hydrate.ts';
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { NotFound } from '@/screens/NotFound';
+import { FriendInvite } from '@/screens/friends/FriendInvite';
 
 const TITLES: [prefix: string, title: string][] = [
   ['/onboarding', 'Empezar'],
@@ -186,6 +187,7 @@ export function App() {
             <Route path={PATHS.comparison} element={<ExternalProfile />} />
             <Route path="/comparacion/consentimiento/:id" element={<Consent />} />
             <Route path="/comparacion/resultado/:id" element={<Result />} />
+            <Route path="/amigos/:token" element={<FriendInvite />} />
             {Object.entries(LEGACY_PATHS).map(([from, to]) => (
               <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
             ))}

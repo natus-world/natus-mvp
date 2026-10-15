@@ -8,6 +8,7 @@ import { hasRemoteIdentity, purgeRemote } from '@/store/hydrate.ts';
 import { signOut } from '@/supabase/session.ts';
 import { activeProfile, getClient, updateActiveProfile } from '@/store/account';
 import { copy, type GrammaticalGender } from '@/i18n';
+import { FriendsSection } from '@/screens/friends/FriendsSection';
 
 const t = copy.profile;
 
@@ -107,6 +108,8 @@ export function Profile() {
             </>
           )}
         </section>
+
+        {client && hasRemoteIdentity() && <FriendsSection />}
 
         {gender && (
           <section className="surface surface-p14 mb-3">

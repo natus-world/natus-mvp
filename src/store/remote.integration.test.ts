@@ -624,6 +624,46 @@ describe.skipIf(!configured)('reference data matches data/*.json', () => {
   });
 });
 
+describe.skipIf(!configured)('friends (v1.2 C-01)', () => {
+  it('a link makes two people friends, both see it, and either can end it', async () => {
+    const alice = await signIn();
+    const bob = await signIn();
+    // An account is a `clients` row; an anonymous session alone cannot invite.
+    for (const [person, name] of [[alice, 'Alice Soto'], [bob, 'Bob Rojas']] as const) {
+      const { error } = await person.client
+        .from('clients')
+        .insert({ user_id: person.userId, email: `${name.split(' ')[0]}@example.test`, legal_birth_name: name });
+      expect(error).toBeNull();
+    }
+
+    const { data: token, error: tokenError } = await alice.client.rpc('my_invite_token');
+    expect(tokenError).toBeNull();
+    expect(typeof token).toBe('string');
+
+    const { data: preview } = await bob.client.rpc('invite_preview', { p_token: token! });
+    expect(preview?.[0]).toMatchObject({ inviter_first_name: 'Alice', valid: true, already_friends: false });
+
+    const { error: acceptError } = await bob.client.rpc('accept_friend_invite', { p_token: token! });
+    expect(acceptError).toBeNull();
+
+    const { data: aliceFriends } = await alice.client.rpc('my_friends');
+    const { data: bobFriends } = await bob.client.rpc('my_friends');
+    expect(aliceFriends?.map((f) => f.first_name)).toEqual(['Bob']);
+    expect(bobFriends?.map((f) => f.first_name)).toEqual(['Alice']);
+
+    const { error: endError } = await alice.client.rpc('end_friendship', {
+      p_friendship: aliceFriends![0]!.friendship_id,
+    });
+    expect(endError).toBeNull();
+    const { data: afterEnd } = await bob.client.rpc('my_friends');
+    expect(afterEnd).toEqual([]);
+
+    await admin().auth.admin.deleteUser(alice.userId);
+    await admin().auth.admin.deleteUser(bob.userId);
+    expect(asOwner(`select count(*) from public.friendships where '${bob.userId}' in (requester_id, addressee_id)`)).toBe('0');
+  });
+});
+
 describe.skipIf(!configured)('the schema', () => {
   it('refuses a new row in the removed pasted-key mode', async () => {
     const { client, userId } = await signIn();
