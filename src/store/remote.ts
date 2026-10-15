@@ -74,6 +74,7 @@ const asShape = <T>(value: unknown): T => value as T;
 
 type DraftColumns = {
   legal_birth_name: string;
+  grammatical_gender: string;
   birth_date: string | null;
   birth_time: string | null;
   birth_city: string;
@@ -93,6 +94,7 @@ type DraftColumns = {
 function draftToColumns(draft: OnboardingDraft): DraftColumns {
   return {
     legal_birth_name: draft.legal_birth_name,
+    grammatical_gender: draft.grammatical_gender,
     birth_date: blankToNull(draft.birth_date),
     birth_time: blankToNull(draft.birth_time),
     birth_city: draft.birth_city,
@@ -137,6 +139,7 @@ function columnsToDraft(row: DraftRow): OnboardingDraft {
 
   return {
     legal_birth_name: row.legal_birth_name,
+    grammatical_gender: enumerated<OnboardingDraft['grammatical_gender']>(row.grammatical_gender),
     birth_date: nullToBlank(row.birth_date),
     // Postgres returns `time` as HH:MM:SS; the input element wants HH:MM.
     birth_time: nullToBlank(row.birth_time).slice(0, 5),

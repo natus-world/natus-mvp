@@ -29,6 +29,7 @@ const SRC = resolve(__dirname);
 const LAYERS: Record<string, number> = {
   styles: 0,
   lib: 0,
+  i18n: 0,
   /**
    * The design layer. Below the components that consume it and above nothing,
    * so a surface can never reach back into the store to decide how it looks.

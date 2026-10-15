@@ -1,16 +1,9 @@
 import { StepBody } from '@/components/onboarding/StepChrome';
 import { BIRTH_COUNTRIES } from '@/components/birth-countries';
 import type { OnboardingDraft } from '@/store/session';
+import { copy } from '@/i18n';
 
-const COUNTRIES: [string, string][] = [
-  ['CL', 'Chile'],
-  ['MX', 'México'],
-  ['CO', 'Colombia'],
-  ['AR', 'Argentina'],
-  ['PE', 'Perú'],
-  ['XX', 'Otro país'],
-];
-
+const text = copy.onboarding.basicData;
 
 const fieldClass =
   'field w-full text-[length:var(--fs-body-14)] leading-5 placeholder:text-crema/55 [color-scheme:dark]';
@@ -33,15 +26,15 @@ export function BasicData({
     <StepBody
       title={
         <>
-          Empecemos por
+          {text.titleLead}
           <br />
-          lo básico.
+          {text.titleTail}
         </>
       }
-      helper="Tu nombre completo de nacimiento y tu fecha. Con eso ya podemos calcular tus números."
+      helper={text.helper}
       action={
         <button type="button" className="cta" disabled={!canContinue} onClick={onNext}>
-          Continuar
+          {copy.common.continue}
           <span aria-hidden="true">→</span>
         </button>
       }
@@ -49,25 +42,47 @@ export function BasicData({
       <div className="flex flex-col gap-4">
         <div>
           <label className={labelClass} htmlFor="legal-name">
-            Nombre completo de nacimiento
+            {text.nameLabel}
           </label>
           <input
             id="legal-name"
             className={fieldClass}
             value={draft.legal_birth_name}
             onChange={(e) => onChange({ legal_birth_name: e.target.value, natal_chart: null })}
-            placeholder="Como figura en tu partida"
+            placeholder={text.namePlaceholder}
             autoComplete="name"
           />
           <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            Los números se calculan sobre el nombre de nacimiento, no sobre el que usás
-            todos los días.
+            {text.nameHelper}
+          </p>
+        </div>
+
+        <div>
+          <label className={labelClass} htmlFor="grammatical-gender">
+            {text.genderLabel}
+          </label>
+          <select
+            id="grammatical-gender"
+            className={fieldClass}
+            value={draft.grammatical_gender}
+            onChange={(e) =>
+              onChange({ grammatical_gender: e.target.value as OnboardingDraft['grammatical_gender'] })
+            }
+          >
+            {text.genderOptions.map(([value, label]) => (
+              <option key={value} value={value} className="bg-negro">
+                {label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
+            {text.genderHelper}
           </p>
         </div>
 
         <div>
           <label className={labelClass} htmlFor="birth-date">
-            Fecha de nacimiento
+            {text.birthDateLabel}
           </label>
           <input
             id="birth-date"
@@ -86,7 +101,7 @@ export function BasicData({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelClass} htmlFor="birth-time">
-              Hora
+              {text.birthTimeLabel}
             </label>
             <input
               id="birth-time"
@@ -98,25 +113,24 @@ export function BasicData({
           </div>
           <div>
             <label className={labelClass} htmlFor="birth-city">
-              Ciudad
+              {text.birthCityLabel}
             </label>
             <input
               id="birth-city"
               className={fieldClass}
               value={draft.birth_city}
               onChange={(e) => onChange({ birth_city: e.target.value, natal_chart: null })}
-              placeholder="Santiago"
+              placeholder={text.birthCityPlaceholder}
             />
           </div>
         </div>
         <p className="-mt-2 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          Si no las sabés, seguí sin ellas. Sin hora exacta no hablamos de Ascendente ni de
-          casas, y el resto funciona igual.
+          {text.optionalHelper}
         </p>
 
         <div>
           <label className={labelClass} htmlFor="birth-country">
-            País de nacimiento
+            {text.birthCountryLabel}
           </label>
           <select
             id="birth-country"
@@ -131,13 +145,13 @@ export function BasicData({
             ))}
           </select>
           <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            Sólo hace falta si querés que calculemos tu carta natal.
+            {text.birthCountryHelper}
           </p>
         </div>
 
         <div>
           <label className={labelClass} htmlFor="country">
-            ¿Dónde vivís?
+            {text.countryLabel}
           </label>
           <select
             id="country"
@@ -145,14 +159,14 @@ export function BasicData({
             value={draft.country}
             onChange={(e) => onChange({ country: e.target.value })}
           >
-            {COUNTRIES.map(([code, name]) => (
+            {text.countries.map(([code, name]) => (
               <option key={code} value={code} className="bg-negro">
                 {name}
               </option>
             ))}
           </select>
           <p className="mt-1.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            Define qué líneas de ayuda te mostramos si alguna vez hacen falta.
+            {text.countryHelper}
           </p>
         </div>
       </div>

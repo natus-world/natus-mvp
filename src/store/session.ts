@@ -1,5 +1,6 @@
 import { read, write } from './db';
 import type { ClinicalBasics } from '@/lib/safety';
+import type { GrammaticalGender } from '@/i18n/gender';
 
 /**
  * The anonymous session of PDR 5.1.
@@ -21,8 +22,11 @@ export type NatalChartDraft = {
   parse_status: 'parsed';
 };
 
+export type { GrammaticalGender };
+
 export type OnboardingDraft = {
   legal_birth_name: string;
+  grammatical_gender: GrammaticalGender;
   birth_date: string;
   /** PDR US-1.2: optional, and skipping them must not block. */
   birth_time: string;
@@ -55,6 +59,7 @@ export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export function emptyDraft(): OnboardingDraft {
   return {
     legal_birth_name: '',
+    grammatical_gender: 'neutro',
     birth_date: '',
     birth_time: '',
     birth_city: '',
