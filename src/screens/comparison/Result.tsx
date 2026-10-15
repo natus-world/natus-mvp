@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { isDemoMode } from '@/supabase/client';
 import { Link, useParams } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { ComparisonGate } from './Gate';
@@ -258,10 +259,12 @@ export function Result() {
             >
               Permisos y alcance
             </Link>
-            <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-              {stored.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
-              {stored.prompt_version}
-            </p>
+            {isDemoMode && (
+              <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
+                {stored.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
+                {stored.prompt_version}
+              </p>
+            )}
           </div>
         </div>
       </Screen>

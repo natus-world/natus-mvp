@@ -7,6 +7,8 @@ import { modalityBySlug } from '@/lib/catalog';
 import { filterModalities, poolFraming } from '@/lib/matching';
 import { isClinicallyVulnerable } from '@/lib/safety';
 import { matchModalities } from '@/ai/match';
+import { AiError } from '@/ai/client';
+import { isDemoMode } from '@/supabase/client';
 import { currentSynthesis } from '@/store/soulMap';
 import { activeProfile } from '@/store/account';
 import { hadCrisisWithin30Days } from '@/store/crisis';
@@ -41,6 +43,7 @@ export function Recommendations() {
   const [loading, setLoading] = useState(!match);
   const [framing, setFraming] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const run = useCallback(async () => {
     const stored = currentSynthesis();
@@ -53,6 +56,7 @@ export function Recommendations() {
     }
 
     setLoading(true);
+    setError(null);
 
     const outcome = filterModalities({
       openness: profile.draft.openness_to_modalities,
@@ -73,11 +77,24 @@ export function Recommendations() {
         : null,
     );
 
-    const result = await matchModalities({
-      synthesis: stored.synthesis,
-      outcome,
-      presentingNeedText: profile.draft.presenting_need_text,
-    });
+    let result;
+    try {
+      result = await matchModalities({
+        synthesis: stored.synthesis,
+        outcome,
+        presentingNeedText: profile.draft.presenting_need_text,
+      });
+    } catch (err) {
+      setError(
+        err instanceof AiError && err.kind === 'spend_limit'
+          ? 'Por hoy llegamos al límite de búsquedas. Nada se perdió: inténtalo de nuevo más tarde.'
+          : err instanceof AiError && err.kind === 'crisis'
+            ? 'Por lo que contaste, preferimos no sugerir caminos de forma automática. Si necesitas hablar con alguien, la ayuda sigue disponible desde el inicio.'
+            : 'No pudimos buscar tus caminos esta vez. Nada se perdió: puedes reintentar.',
+      );
+      setLoading(false);
+      return;
+    }
 
     setMatch(
       saveMatch({
@@ -91,8 +108,8 @@ export function Recommendations() {
   }, []);
 
   useEffect(() => {
-    if (!match) void run();
-  }, [match, run]);
+    if (!match && error === null) void run();
+  }, [match, error, run]);
 
   const react = (slug: string, reaction: UserReaction) => {
     const existing = match?.reactions[slug]?.reaction;
@@ -111,6 +128,21 @@ export function Recommendations() {
           <Link to="/onboarding" className="cta no-underline">
             Empezar
           </Link>
+        </div>
+      </Screen>
+    );
+  }
+
+  if (error && !loading) {
+    return (
+      <Screen backdrop="grass" scrim="heavy" opacity={PHOTO.content40}>
+        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+          <p role="alert" className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">
+            {error}
+          </p>
+          <button type="button" className="cta" onClick={() => void run()}>
+            Reintentar
+          </button>
         </div>
       </Screen>
     );
@@ -191,9 +223,11 @@ export function Recommendations() {
             Volver a buscar
           </button>
 
-          <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-            {match.result.prompt_version} · pool {match.strategy}
-          </p>
+          {isDemoMode && (
+            <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
+              {match.result.prompt_version} · pool {match.strategy}
+            </p>
+          )}
         </div>
       </div>
     </Screen>

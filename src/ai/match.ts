@@ -4,6 +4,7 @@ import { buildMatchFixture } from './fixtures/match';
 import { fallbackRanking, type FilterOutcome } from '@/lib/matching';
 import { matchResultSchema, type MatchResult, type SoulMapSynthesis } from '@/lib/schemas';
 import { CURATED_ROUTINES } from './fixtures/match';
+import { isDemoMode } from '@/supabase/client';
 
 /** PDR 7.4, as a separate call from the Soul Map so therapies can be
  *  re-ranked without regenerating the narrative. */
@@ -45,10 +46,8 @@ export async function matchModalities(input: {
     }
 
     return { ...result, usedFallback: false };
-  } catch {
-    // PDR 7.2 edge case 4. A deterministic top-three with reasoning assembled
-    // from the catalogue is duller than a generated reading and honest, which
-    // is the right trade against an error screen.
+  } catch (error) {
+    if (!isDemoMode) throw error;
     return {
       value: deterministicMatch(input),
       mode: 'fixture',

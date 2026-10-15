@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { isBackendConfigured } from '@/supabase/client';
+import { isBackendConfigured, isDemoMode } from '@/supabase/client';
 
 /**
  * This demo asks people about anxiety, grief and suicidal ideation. It would
@@ -46,9 +46,11 @@ export function DemoBanner() {
 
       {open && (
         <p className="px-3.5 pb-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/60">
-          {isBackendConfigured
-            ? 'Si iniciaste sesión, lo que escribas se envía a los servidores de Natus y desde ahí a la API de Anthropic. Sin sesión, las respuestas vienen de guiones escritos a mano y nada sale de este navegador.'
-            : 'Las respuestas vienen de guiones escritos a mano. Lo que escribas queda en este navegador y no se envía a ningún servidor.'}{' '}
+          {isDemoMode
+            ? isBackendConfigured
+              ? 'Si iniciaste sesión, lo que escribas se envía a los servidores de Natus y desde ahí a la API de Anthropic. Sin sesión, las respuestas vienen de guiones escritos a mano y nada sale de este navegador.'
+              : 'Las respuestas vienen de guiones escritos a mano. Lo que escribas queda en este navegador y no se envía a ningún servidor.'
+            : 'Lo que escribas se envía a los servidores de Natus y desde ahí a la API de Anthropic.'}{' '}
           Los números de crisis todavía no fueron verificados uno por uno.
         </p>
       )}

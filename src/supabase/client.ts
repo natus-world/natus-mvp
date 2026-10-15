@@ -47,6 +47,8 @@ export const isBackendConfigured = Boolean(url && anonKey);
  */
 export const requiresInvite = import.meta.env['VITE_REQUIRE_INVITE'] !== 'false';
 
+export const isDemoMode = import.meta.env['VITE_DEMO_MODE'] === 'true';
+
 function create(): TypedClient | null {
   if (!url || !anonKey) return null;
 

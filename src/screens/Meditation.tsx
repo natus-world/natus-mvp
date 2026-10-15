@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { isDemoMode } from '@/supabase/client';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { CrisisScreen } from '@/screens/CrisisScreen';
@@ -302,10 +303,12 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
           >
             Armar otra
           </button>
-          <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-            {meditation.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
-            {meditation.prompt_version}
-          </p>
+          {isDemoMode && (
+            <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
+              {meditation.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
+              {meditation.prompt_version}
+            </p>
+          )}
         </div>
       </div>
     </Screen>

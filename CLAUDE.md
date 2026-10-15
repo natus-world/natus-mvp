@@ -11,9 +11,16 @@ owner once presentable.
 
 It began as a static demo and is no longer one: there is a Supabase project
 behind it, with Postgres under Row Level Security, Google sign-in, and Edge
-Functions holding the API keys. **The offline path is not vestigial** — a
-build with no backend configured, or a visitor who has not signed in, still
-renders every screen from curated fixtures. Keep it working.
+Functions holding the API keys. The curated fixtures run only in a build with
+`VITE_DEMO_MODE=true` (PDR v1.1 `S-01`): anywhere else a model path that is
+unavailable shows the error state, never a fixture, and no internal label
+(prompt version, pool strategy, `/lab/safety`) renders. Keep the demo path
+working — it is how the app runs offline and how the tests exercise it.
+
+**The product spec in force is `cambios-pdr-natus-v1.1.md`** (14 Oct 2026,
+in `~/Downloads`), which overrides the PDR v1.0 wherever they disagree, and
+works through its items in the order of its §13. Items marked `[ABIERTO]`
+are not to be built without the product owner's answer.
 
 Live at https://app.natus.world/
 

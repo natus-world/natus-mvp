@@ -22,7 +22,7 @@ import { Consent } from '@/screens/comparison/Consent';
 import { Result } from '@/screens/comparison/Result';
 import { activeHighSeverityEvent } from '@/store/crisis';
 import { hydrate } from '@/store/hydrate.ts';
-import { isBackendConfigured, requiresInvite } from '@/supabase/client.ts';
+import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { NotFound } from '@/screens/NotFound';
 
@@ -168,7 +168,7 @@ export function App() {
             <Route path="/comparacion" element={<ExternalProfile />} />
             <Route path="/comparacion/consentimiento/:id" element={<Consent />} />
             <Route path="/comparacion/resultado/:id" element={<Result />} />
-            <Route path="/lab/safety" element={<SafetyLab />} />
+            {isDemoMode && <Route path="/lab/safety" element={<SafetyLab />} />}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ErrorBoundary>

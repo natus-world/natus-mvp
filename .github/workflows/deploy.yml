@@ -38,9 +38,7 @@ jobs:
   #
   # The order is the safe one. A function deployed ahead of the site that
   # calls it is inert; a site deployed ahead of its functions calls a URL that
-  # does not answer, and even though `runOnEdge` now degrades to the fixtures
-  # on a 404, degrading is not the same as working — somebody would be reading
-  # a curated script while believing they were reading their own.
+  # does not answer, and every screen that reaches it shows its error state.
   #
   # It also means a failed function deploy blocks the site, which is
   # deliberate: shipping a front end whose backend did not update is how the
@@ -95,7 +93,7 @@ jobs:
         run: |
           if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
             echo "No SUPABASE_ACCESS_TOKEN: skipping. The site still deploys,"
-            echo "and without functions it runs on the curated fixtures."
+            echo "and without functions every model call shows its error state."
             exit 0
           fi
           # The ref is not a secret — it is the subdomain of the URL that

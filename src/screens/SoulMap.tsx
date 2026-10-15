@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { isDemoMode } from '@/supabase/client';
 import { PHOTO, Screen } from '@/design/Screen';
 import { NUMBER_LABELS } from '@/lib/numerology';
 import { activeProfile, isSignedIn } from '@/store/account';
@@ -173,10 +174,12 @@ export function SoulMap() {
             </Link>
           )}
 
-          <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-            {stored.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
-            {stored.prompt_version}
-          </p>
+          {isDemoMode && (
+            <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
+              {stored.mode === 'fixture' ? 'Modo demo · guion curado' : 'Generado con Claude'} ·{' '}
+              {stored.prompt_version}
+            </p>
+          )}
         </div>
       </div>
     </Screen>

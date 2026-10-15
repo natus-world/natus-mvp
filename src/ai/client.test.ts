@@ -4,9 +4,11 @@ import { z } from 'zod';
 
 type Invoke = (fn: string, options: unknown) => Promise<{ data: unknown; error: unknown }>;
 
-function mockClient(invoke: Invoke) {
+function mockClient(invoke: Invoke, isDemoMode = false) {
+  vi.doMock('@/supabase/report-error', () => ({ reportError: () => {} }));
   vi.doMock('@/supabase/client', () => ({
     isBackendConfigured: true,
+    isDemoMode,
     supabase: {
       auth: { getSession: async () => ({ data: { session: { user: { id: 'u1' } } } }) },
       functions: { invoke },
@@ -35,8 +37,8 @@ const call = {
   edge: { fn: 'chat', body: {} },
 };
 
-async function run(invoke: Invoke) {
-  mockClient(invoke);
+async function run(invoke: Invoke, isDemoMode = false) {
+  mockClient(invoke, isDemoMode);
   const { runAi } = await import('./client');
   return runAi(call);
 }
@@ -48,6 +50,7 @@ describe('runAi on the server path', () => {
 
   afterEach(() => {
     vi.doUnmock('@/supabase/client');
+    vi.doUnmock('@/supabase/report-error');
     vi.resetModules();
   });
 
@@ -67,9 +70,24 @@ describe('runAi on the server path', () => {
     });
   });
 
-  it.each([404, 503])('falls back to the fixture on a %i', async (status) => {
-    const result = await run(async () => ({ data: null, error: httpError(status, { error: 'no_model' }) }));
+  it.each([404, 503])('falls back to the fixture on a %i in demo mode', async (status) => {
+    const result = await run(
+      async () => ({ data: null, error: httpError(status, { error: 'no_model' }) }),
+      true,
+    );
     expect(result).toMatchObject({ value: { text: 'fixture' }, mode: 'fixture' });
+  });
+
+  it.each([404, 503])('never shows a fixture on a %i outside demo mode', async (status) => {
+    await expect(
+      run(async () => ({ data: null, error: httpError(status, { error: 'no_model' }) })),
+    ).rejects.toMatchObject({ kind: 'api_error' });
+  });
+
+  it('never shows a fixture when the server declares no model outside demo mode', async () => {
+    await expect(run(async () => ({ data: { error: 'no_model' }, error: null }))).rejects.toMatchObject({
+      kind: 'api_error',
+    });
   });
 
   it('carries the verdict when the server answers with containment', async () => {

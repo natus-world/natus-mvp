@@ -23,7 +23,7 @@ authenticated Edge Functions.
 | Onboarding, dashboard, library | **Real** | `localStorage` in place of Postgres |
 | Meditation voice and sound bed | **Real** | Web Speech API + `OscillatorNode` |
 | Consent, quota, two-step delete, export | **Real** | Enforced in code, not only in the UI |
-| Soul Map, matching, chat, meditations, comparison | **Real with backend** | five Edge Functions; fixtures without one |
+| Soul Map, matching, chat, meditations, comparison | **Real with backend** | five Edge Functions; fixtures only with `VITE_DEMO_MODE=true` |
 | Natal chart | **Real with backend** | Astrologer API via an authenticated Edge Function |
 | Payments, transactional email | Simulated | no charge, no mail is sent |
 
@@ -99,9 +99,9 @@ supabase functions deploy meditation
 supabase functions deploy comparison
 ```
 
-Without the key they answer `no_model` and the app falls back to the curated
-fixtures, which is a supported way to run the deployment rather than a broken
-one.
+Without the key they answer `no_model`. With `VITE_DEMO_MODE=true` the app
+falls back to the curated fixtures; without it the person sees the error state,
+because a curated script shown in production reads as their own reading.
 
 The prompts the function uses are copied from `src/ai/prompts` by
 `pnpm sync:shared`, the same way `src/lib` is, and `shared-parity.test.ts`
@@ -129,6 +129,7 @@ attaching a domain changes the answers and should not mean editing a file.
 | `ALLOWED_ORIGINS` | Supabase project | CORS falls back to the two localhost origins, and a deployed browser silently discards every answer |
 | `MONTHLY_BUDGET_USD` | Supabase project | Defaults to 50 |
 | `SUPABASE_ACCESS_TOKEN` | GitHub repository **secret** | The `functions` job skips; the site still ships and the functions stay at the last hand-deployed version |
+| `VITE_DEMO_MODE` | Build environment | Off: no fixture is ever shown, `/lab/safety` does not exist and no internal label renders. Set to `true` only for an offline demo or local work without functions |
 
 `ALLOWED_ORIGINS` is comma-separated, scheme and host, no path:
 
@@ -138,8 +139,7 @@ supabase secrets set ALLOWED_ORIGINS=https://<owner>.github.io
 
 `MONTHLY_BUDGET_USD` is the ceiling on what the whole deployment may spend at
 Anthropic in a rolling thirty days, counted from `claude_api_calls`. Past it
-every model call is refused with 429 and the application falls back to its
-curated fixtures. Per-person ceilings sit under it in `src/lib/budget.ts`.
+every model call is refused with 429 and the person sees the error state. Per-person ceilings sit under it in `src/lib/budget.ts`.
 
 Three more things are keyed to the public URL and all three break silently
 when it changes: the Supabase redirect allow-list (Authentication → URL

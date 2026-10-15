@@ -1,7 +1,8 @@
 import type { ZodType } from 'zod';
 import { lintDeep } from '@/lib/copy-lint';
 import type { CrisisCategory, CrisisSeverity } from '@/lib/safety';
-import { isBackendConfigured, supabase } from '@/supabase/client';
+import { isBackendConfigured, isDemoMode, supabase } from '@/supabase/client';
+import { reportError } from '@/supabase/report-error';
 
 /**
  * One interface, two implementations, one validation path.
@@ -80,6 +81,12 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiResult<T>> {
     if (result) return result;
   }
 
+  if (!isDemoMode) {
+    const error = new AiError(`No model path answered for ${call.edge.fn}.`, 'api_error');
+    reportError('error', error);
+    throw error;
+  }
+
   const value = call.schema.parse(call.fixture());
   assertCleanCopy(value);
   // A token of latency so the generating screen is not a flash. The real call
@@ -97,11 +104,12 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiResult<T>> {
 /**
  * The server path.
  *
- * Returns `null` — meaning "use the fixture" — only for the one refusal the
- * server declares rather than suffers: `no_model`, which says the deployment
- * has no key configured and the curated path is the right answer. Every other
- * failure throws, because a fixture substituted for a broken server is a
- * screen that looks like it worked.
+ * Returns `null` — meaning "the server path is not available" — only for the
+ * absences the server declares rather than suffers: no session, `no_model`,
+ * 503 and 404. In demo mode that falls through to the fixture; anywhere else
+ * `runAi` turns it into an error. Every other failure throws, because a
+ * fixture substituted for a broken server is a screen that looks like it
+ * worked.
  */
 async function runOnEdge<T>(call: AiCall<T>, started: number): Promise<AiResult<T> | null> {
   const edge = call.edge;
@@ -129,10 +137,8 @@ async function runOnEdge<T>(call: AiCall<T>, started: number): Promise<AiResult<
     // key; 404 is a function that was never deployed — which is the state
     // every purpose is in until the first push that carries it, and briefly
     // again whenever one is added. Both mean the server path is not available
-    // to this person, which is exactly what the fixtures are for. Treating
-    // 404 as an error instead put a failure screen where a curated answer
-    // used to be, for the window between shipping a caller and shipping the
-    // function it calls.
+    // to this person, which `runAi` answers with the fixture in demo mode and
+    // with the error state everywhere else.
     if (status === 503 || status === 404) return null;
     if (status === 402) throw new AiError(`The ${edge.fn} quota is exhausted.`, 'quota');
     if (status === 429) throw new AiError(`The ${edge.fn} spend limit was reached.`, 'spend_limit');
