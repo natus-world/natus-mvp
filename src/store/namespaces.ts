@@ -29,7 +29,9 @@ export type Namespace =
   /** The map was made after Google became required: save it before seeing it. */
   | 'account_required'
   /** The map just written in onboarding, still to be revealed (package 02). */
-  | 'revelation_pending';
+  | 'revelation_pending'
+  /** Davraz's readings of the full chart, as last read from the server (package 05). */
+  | 'chart_readings';
 
 /**
  * `ai_mode` used to live at the end of that union and held a pasted Anthropic

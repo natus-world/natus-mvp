@@ -254,6 +254,11 @@
   text-shadow: none;
 }
 
+.carta .p1 svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
 /* ── Desktop: the wheel on the left, the readings on the right ────────── */
 
 @media (min-width: 1024px) {
@@ -293,6 +298,12 @@
 
   .carta .col1 .aviso {
     text-align: left;
+    margin-left: calc(var(--d) * 30);
+  }
+
+  /* «Ver mi carta completa», under the trio (package 04). */
+  .carta .col1 .p1 {
+    width: calc(var(--d) * 360);
     margin-left: calc(var(--d) * 30);
   }
 

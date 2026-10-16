@@ -15,6 +15,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+/** JSON with sorted keys: jsonb gives keys back in its own order. */
+function canonical(value: unknown): string {
+  return JSON.stringify(value, (_key, v: unknown) =>
+    isRecord(v) ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, v[k]])) : v,
+  );
+}
+
 /**
  * The chart read by whole sign (v1.2 A-01, A-02), kept in `natal_charts`.
  * Derived from the provider's text with no further call, so a stored chart
@@ -29,6 +36,11 @@ async function keepWholeSignChart(
 ): Promise<boolean> {
   try {
     const chart = buildNatalChart(context, hasBirthTime);
+    // The same chart keeps its `calculated_at`: the readings of the full
+    // chart (package 05) are written for it, and a rebuild on another device
+    // that changes nothing must not make them stale.
+    const { data: before } = await elevated.from('natal_charts').select('chart').eq('user_id', userId).maybeSingle();
+    if (before && canonical((before as { chart: unknown }).chart) === canonical(chart)) return true;
     const { error } = await elevated.from('natal_charts').upsert({
       user_id: userId,
       has_birth_time: chart.has_birth_time,

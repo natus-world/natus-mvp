@@ -1,4 +1,5 @@
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
+import type { Purpose } from './lib/budget.ts';
 
 /**
  * PDR 4. What happened, never what was said.
@@ -29,7 +30,7 @@ export type CallOutcome =
 
 export type CallRecord = {
   userId: string;
-  purpose: 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison' | 'routine' | 'memory' | 'routine_review';
+  purpose: Purpose;
   promptVersion: string;
   model: string;
   mode: 'fixture' | 'server';

@@ -21,7 +21,16 @@ import type { SynthesisTrigger } from './model-input.ts';
  * and nothing a client can write.
  */
 
-export type Purpose = 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison' | 'routine' | 'memory' | 'routine_review';
+export type Purpose =
+  | 'soul_map'
+  | 'match'
+  | 'chat'
+  | 'meditation'
+  | 'comparison'
+  | 'routine'
+  | 'memory'
+  | 'routine_review'
+  | 'chart_points';
 
 export const OPUS = 'claude-opus-5-5';
 export const SONNET = 'claude-sonnet-5-5';
@@ -144,6 +153,10 @@ export const PURPOSE_LIMITS: Record<Exclude<Purpose, 'chat'>, PurposeLimit> = {
   // v1.2 R-04: premium weekly plus its two signals, free every two months.
   // Twelve is three a week.
   routine_review: { calls: 12, windowHours: 720 },
+  // Davraz's reading of each point of the full chart: once per calculated
+  // chart, written again only when the chart is (a birth-data change, a
+  // rebuild). Ten is the Soul Map's order.
+  chart_points: { calls: 10, windowHours: 720 },
 };
 
 /**
@@ -191,4 +204,6 @@ export const MAX_OUTPUT_TOKENS: Record<Purpose, number> = {
   routine: 4000,
   memory: 3000,
   routine_review: 4000,
+  // Up to eighteen readings of one or two sentences, plus thinking.
+  chart_points: 6000,
 };

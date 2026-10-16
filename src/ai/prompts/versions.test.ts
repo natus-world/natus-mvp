@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import FINGERPRINTS from './prompt-fingerprints.json' with { type: 'json' };
 import {
+  CHART_POINTS_PROMPT_VERSION,
   CHAT_PROMPT_VERSION,
   COMPARISON_PROMPT_VERSION,
   MATCH_PROMPT_VERSION,
@@ -40,6 +41,7 @@ const SURFACES = [
   ['routine.ts', ROUTINE_PROMPT_VERSION],
   ['memory.ts', MEMORY_PROMPT_VERSION],
   ['routine-review.ts', ROUTINE_REVIEW_PROMPT_VERSION],
+  ['chart-points.ts', CHART_POINTS_PROMPT_VERSION],
 ] as const;
 
 function withoutComments(source: string): string {

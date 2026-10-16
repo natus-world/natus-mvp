@@ -108,6 +108,12 @@ export async function generate<T>(call: {
    */
   maxTokens: number;
   model: string;
+  /**
+   * A product rule the schema cannot express and a second attempt can mend:
+   * returns why the answer breaks it, or null. Treated as a copy violation,
+   * so it is retried once with the reason, like the copy lint.
+   */
+  lint?: (value: T) => string | null;
 }): Promise<Generation<T>> {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) throw new ModelError('No key is configured.', 'api_error');
@@ -147,6 +153,8 @@ export async function generate<T>(call: {
       }
 
       assertCleanCopy(parsed.data, spent);
+      const ruled = call.lint?.(parsed.data);
+      if (ruled) throw new ModelError(ruled, 'copy_violation', 'lint:route', spent);
       return {
         value: parsed.data,
         inputTokens: response.inputTokens,

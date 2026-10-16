@@ -50,7 +50,7 @@ type Labels = {
   axes: { ac: string; dc: string; mc: string; fc: string };
 };
 
-function Glyph({
+export function Glyph({
   d,
   advance,
   x,

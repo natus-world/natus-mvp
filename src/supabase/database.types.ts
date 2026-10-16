@@ -186,6 +186,30 @@ export type Database = {
           },
         ]
       }
+      chart_point_readings: {
+        Row: {
+          chart_calculated_at: string
+          created_at: string
+          prompt_version: string
+          readings: Json
+          user_id: string
+        }
+        Insert: {
+          chart_calculated_at: string
+          created_at?: string
+          prompt_version: string
+          readings: Json
+          user_id: string
+        }
+        Update: {
+          chart_calculated_at?: string
+          created_at?: string
+          prompt_version?: string
+          readings?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       claude_api_calls: {
         Row: {
           cache_read_tokens: number | null

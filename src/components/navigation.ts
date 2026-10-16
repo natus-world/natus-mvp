@@ -1,3 +1,4 @@
+import { copy } from '@/i18n';
 import { PATHS } from './routes';
 
 /**
@@ -29,7 +30,17 @@ export function showsProfile(pathname: string, takeoverShown: boolean): boolean 
  * tab bar. On desktop the rail stays, with the tab they hang from lit.
  * Returns that tab, or null for a sub-screen that hangs from none.
  */
-const SUB_SCREENS: readonly [prefix: string, parent: string | null, backOnDesktop: boolean][] = [
+type SubScreenOptions = {
+  /** In place of «Volver»: «Tu mapa» on the full chart. */
+  backLabel?: string;
+  /** The package keeps the initial and the tab bar on the phone. */
+  keepsPhoneChrome?: boolean;
+};
+
+const SUB_SCREENS: readonly [prefix: string, parent: string | null, backOnDesktop: boolean, options?: SubScreenOptions][] = [
+  // Carta completa (package 05): «‹ Tu mapa» in place of NATUS, on the phone
+  // and the desktop, with the initial and the tab bar still there.
+  [PATHS.fullChart, PATHS.chart, true, { backLabel: copy.fullChart.back, keepsPhoneChrome: true }],
   [PATHS.meditations, PATHS.today, true],
   [PATHS.library, PATHS.today, true],
   [PATHS.comparison, PATHS.today, true],
@@ -38,7 +49,9 @@ const SUB_SCREENS: readonly [prefix: string, parent: string | null, backOnDeskto
   [PATHS.profile, null, false],
 ];
 
-export function subScreenOf(pathname: string): { parent: string | null; backOnDesktop: boolean } | null {
+export function subScreenOf(
+  pathname: string,
+): ({ parent: string | null; backOnDesktop: boolean } & SubScreenOptions) | null {
   const hit = SUB_SCREENS.find(([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`));
-  return hit ? { parent: hit[1], backOnDesktop: hit[2] } : null;
+  return hit ? { parent: hit[1], backOnDesktop: hit[2], ...hit[3] } : null;
 }

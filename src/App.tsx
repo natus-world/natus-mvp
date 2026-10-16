@@ -7,6 +7,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { BottomNav } from '@/components/BottomNav';
 import { Landing } from '@/screens/Landing';
 import { SoulMap } from '@/screens/SoulMap';
+import { FullChart } from '@/screens/FullChart';
 import { SafetyLab } from '@/screens/SafetyLab';
 import { Onboarding } from '@/screens/onboarding/Onboarding';
 import { Care } from '@/screens/onboarding/Care';
@@ -23,6 +24,7 @@ import { ComparisonHome } from '@/screens/comparison/ComparisonHome';
 import { Result } from '@/screens/comparison/Result';
 import { showsNav, showsProfile, subScreenOf } from '@/components/navigation';
 import { BackIcon } from '@/design/brand-icons';
+import { BackChevron } from '@/design/chart-marks';
 import { ProfileButton } from '@/components/ProfileButton';
 import { LegacyRedirect } from '@/components/LegacyRedirect';
 import { LEGACY_PATHS, PATHS } from '@/components/routes';
@@ -182,7 +184,7 @@ export function App() {
     <AppFrame>
       <header
         className="app-header"
-        data-sub={sub ? '' : undefined}
+        data-sub={sub && !sub.keepsPhoneChrome ? '' : undefined}
         data-norail={!sub && !showsNav(pathname, takeoverShown) ? '' : undefined}
       >
         <div className="min-w-0 flex-1">
@@ -190,11 +192,17 @@ export function App() {
             <>
               <button
                 type="button"
-                className={sub.backOnDesktop ? 'header-back' : 'header-back phone-only'}
+                className={[
+                  'header-back',
+                  sub.backOnDesktop ? '' : 'phone-only',
+                  sub.backLabel ? 'header-back-named' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
                 onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(sub.parent ?? PATHS.today))}
               >
-                <BackIcon />
-                {copy.chrome.back}
+                {sub.backLabel ? <BackChevron /> : <BackIcon />}
+                {sub.backLabel ?? copy.chrome.back}
               </button>
               {!sub.backOnDesktop && (
                 <Link to={PATHS.today} className="header-brand desk-only">
@@ -241,6 +249,7 @@ export function App() {
                 </RevealFirst>
               }
             />
+            <Route path={PATHS.fullChart} element={<FullChart />} />
             <Route path="/cuidarte" element={<Care />} />
             <Route
               path={PATHS.paths}
@@ -288,7 +297,7 @@ export function App() {
         </ErrorBoundary>
       </main>
       {showsNav(pathname, takeoverShown) && (
-        <div className="app-nav" data-sub={sub ? '' : undefined}>
+        <div className="app-nav" data-sub={sub && !sub.keepsPhoneChrome ? '' : undefined}>
           <BottomNav lit={sub?.parent ?? null} />
         </div>
       )}

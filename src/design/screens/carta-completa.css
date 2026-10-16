@@ -1,0 +1,630 @@
+/* Package screen: carta completa (05). Ported from the branding package (16 Oct 2026). */
+/*
+ * Carta, level 2. On the phone one column that scrolls: title, sect and
+ * ruler, Simple · Completa, the aspect filter (in Completa), the wheel, the
+ * card of what is chosen, then the four parts. On desktop the large wheel
+ * stays on the left and the right column scrolls on its own.
+ */
+
+.carta-completa :is(h1, h2, h3) {
+  margin: 0;
+  font-weight: inherit;
+}
+
+.carta-completa button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.carta-completa :is(.on, .p2) {
+  text-shadow: none;
+}
+
+/* A glyph outline set in a line of text: one em tall, like the package's characters. */
+.carta-completa .glifo {
+  display: inline-block;
+  height: 1em;
+  vertical-align: -0.14em;
+  overflow: visible;
+  flex: none;
+}
+
+/* ── The wheel ────────────────────────────────────────────────────────── */
+
+.carta-completa .rueda {
+  position: relative;
+  width: calc(var(--u) * 342);
+  height: calc(var(--u) * 342);
+  align-self: center;
+  flex: none;
+}
+
+/* The dark circle behind the wheel, part of the figure. */
+.carta-completa .rueda::before {
+  content: '';
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(var(--v) / 0.82) 62%, rgb(var(--v) / 0.5) 82%, rgb(var(--v) / 0));
+}
+
+.carta-completa .rueda svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.carta-completa .rueda text {
+  font-family: var(--font-sans);
+  font-variant-numeric: lining-nums;
+  text-shadow: none;
+}
+
+.carta-completa .rueda .eje-t {
+  letter-spacing: 0.1em;
+}
+
+.carta-completa .rueda .eje-t.on {
+  font-weight: 500;
+}
+
+.carta-completa .rueda .toca {
+  cursor: pointer;
+}
+
+.carta-completa .rueda .toca:focus {
+  outline: none;
+}
+
+.carta-completa .rueda .toca:focus-visible {
+  outline: 1px solid var(--t1);
+  outline-offset: 2px;
+}
+
+/* ── Sect and ruler ───────────────────────────────────────────────────── */
+
+.carta-completa .res {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.carta-completa .res > div {
+  padding: calc(var(--u) * 14) calc(var(--u) * 16);
+}
+
+.carta-completa .res > div + div {
+  border-left: 1px solid rgb(236 226 208 / 0.1);
+}
+
+.carta-completa .res b {
+  display: block;
+  font: 400 calc(var(--u) * 15) / 1.3 var(--font-sans);
+  margin-top: calc(var(--u) * 6);
+}
+
+.carta-completa .res small {
+  display: block;
+  font: 300 calc(var(--u) * 13) / 1.35 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 2);
+}
+
+/* ── Simple · Completa, and the four parts ────────────────────────────── */
+
+.carta-completa .segm {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border: 1px solid rgb(236 226 208 / 0.3);
+  border-radius: calc(var(--u) * 10);
+  padding: calc(var(--u) * 3);
+  flex: none;
+}
+
+.carta-completa .segm button {
+  display: grid;
+  place-items: center;
+  height: calc(var(--u) * 34);
+  border-radius: calc(var(--u) * 7);
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: var(--t2);
+  text-align: center;
+}
+
+.carta-completa .segm button.on {
+  background: var(--t1);
+  color: #0b120e;
+  font-weight: 500;
+}
+
+/* ── The aspect filter ────────────────────────────────────────────────── */
+
+.carta-completa .chips {
+  display: flex;
+  gap: calc(var(--u) * 8);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 calc(var(--u) * -24);
+  padding: 0 calc(var(--u) * 24);
+  flex: none;
+}
+
+.carta-completa .chips::-webkit-scrollbar {
+  display: none;
+}
+
+.carta-completa .chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  height: calc(var(--u) * 34);
+  padding: 0 calc(var(--u) * 12);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.3);
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: var(--t2);
+  white-space: nowrap;
+}
+
+.carta-completa .chip.on {
+  background: var(--t1);
+  border-color: var(--t1);
+  color: #0b120e;
+}
+
+.carta-completa .chip svg {
+  width: calc(var(--u) * 15);
+  height: calc(var(--u) * 15);
+}
+
+.carta-completa .pista {
+  font: 300 calc(var(--u) * 14) / 1.4 var(--font-sans);
+  color: var(--t2);
+  text-align: center;
+}
+
+/* ── The card of what is chosen ───────────────────────────────────────── */
+
+.carta-completa .ficha {
+  padding: calc(var(--u) * 18);
+  display: grid;
+  gap: calc(var(--u) * 12);
+}
+
+.carta-completa .fcab {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 12);
+  align-items: center;
+}
+
+.carta-completa .fcab .gl {
+  font-size: calc(var(--u) * 34);
+  line-height: 1;
+  color: var(--t1);
+  min-width: calc(var(--u) * 40);
+  text-align: center;
+}
+
+.carta-completa .fcab .gl.eje {
+  font: 400 calc(var(--u) * 17) / 1 var(--font-sans);
+  letter-spacing: 0.1em;
+}
+
+.carta-completa .fcab .par {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  font-size: calc(var(--u) * 24);
+}
+
+.carta-completa .fcab .par > svg {
+  width: calc(var(--u) * 18);
+  height: calc(var(--u) * 18);
+}
+
+.carta-completa .fcab .par .eje {
+  font: 400 calc(var(--u) * 15) / 1 var(--font-sans);
+}
+
+.carta-completa .fn {
+  font: 300 calc(var(--u) * 24) / 1.1 var(--font-serif);
+}
+
+.carta-completa .fs {
+  font: 300 calc(var(--u) * 14) / 1.35 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 3);
+}
+
+.carta-completa .cerrar {
+  width: calc(var(--u) * 32);
+  height: calc(var(--u) * 32);
+  border-radius: 50%;
+  border: 1px solid rgb(236 226 208 / 0.25);
+  display: grid;
+  place-items: center;
+}
+
+.carta-completa .cerrar svg {
+  width: calc(var(--u) * 13);
+  height: calc(var(--u) * 13);
+}
+
+.carta-completa .etis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--u) * 6);
+}
+
+.carta-completa .eti {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 5);
+  font: 400 calc(var(--u) * 12) / 1 var(--font-sans);
+  color: var(--t1);
+  border: 1px solid rgb(236 226 208 / 0.25);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 7) calc(var(--u) * 10);
+}
+
+.carta-completa .eti > svg {
+  width: calc(var(--u) * 13);
+  height: calc(var(--u) * 13);
+}
+
+.carta-completa .dig {
+  font: 300 calc(var(--u) * 14) / 1.45 var(--font-sans);
+  color: var(--t2);
+}
+
+.carta-completa .dig b {
+  font-weight: 400;
+  color: var(--t1);
+}
+
+.carta-completa .ia {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t2);
+}
+
+.carta-completa .ia b {
+  font-weight: 500;
+  border: 1px solid rgb(236 226 208 / 0.4);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 3) calc(var(--u) * 5);
+  letter-spacing: 0.1em;
+  color: var(--t1);
+}
+
+.carta-completa .lec {
+  font: italic 300 calc(var(--u) * 17) / 1.4 var(--font-serif);
+  color: var(--t1);
+}
+
+.carta-completa .ia + :is(.lec, .cargando) {
+  margin-top: calc(var(--u) * -4);
+}
+
+.carta-completa .cargando {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  min-height: calc(var(--u) * 24);
+  font: 300 calc(var(--u) * 14) / 1.4 var(--font-sans);
+  color: var(--t2);
+}
+
+.carta-completa .lec-err {
+  display: grid;
+  gap: calc(var(--u) * 10);
+  justify-items: start;
+}
+
+/* ── The four parts ───────────────────────────────────────────────────── */
+
+.carta-completa .sub {
+  font: 500 calc(var(--u) * 11) / 1.2 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t2);
+  padding: calc(var(--u) * 16) calc(var(--u) * 16) calc(var(--u) * 2);
+}
+
+.carta-completa .pf {
+  display: grid;
+  width: 100%;
+  grid-template-columns: calc(var(--u) * 30) minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 12);
+  align-items: center;
+  padding: calc(var(--u) * 12) calc(var(--u) * 16);
+  text-align: left;
+}
+
+.carta-completa .pf + .pf {
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+}
+
+.carta-completa .pf.on {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.carta-completa .vid > .pf:last-child {
+  border-radius: 0 0 calc(var(--u) * 12) calc(var(--u) * 12);
+}
+
+.carta-completa .vid > .pf:first-child {
+  border-radius: calc(var(--u) * 12) calc(var(--u) * 12) 0 0;
+}
+
+.carta-completa .pf .gl {
+  font-size: calc(var(--u) * 22);
+  text-align: center;
+  line-height: 1;
+}
+
+.carta-completa .pf .gl.eje {
+  font: 400 calc(var(--u) * 12) / 1 var(--font-sans);
+  letter-spacing: 0.1em;
+}
+
+.carta-completa .pf .ft {
+  margin: 0;
+}
+
+.carta-completa .pf .fd {
+  margin-top: calc(var(--u) * 2);
+}
+
+.carta-completa .pf .der {
+  font: 300 calc(var(--u) * 12) / 1.2 var(--font-sans);
+  color: var(--t2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.carta-completa .pf .icos {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 3);
+  font-size: calc(var(--u) * 19);
+}
+
+.carta-completa .pf .icos > svg {
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+}
+
+/* Gold only for the Sun–Moon thread. */
+.carta-completa .pf .icos.oro {
+  color: #c9a876;
+}
+
+.carta-completa .pf .icos .eje {
+  font: 400 calc(var(--u) * 11) / 1 var(--font-sans);
+}
+
+.carta-completa .cf {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 30) calc(var(--u) * 22) minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 10);
+  align-items: center;
+  padding: calc(var(--u) * 11) calc(var(--u) * 16);
+}
+
+.carta-completa .cf + .cf {
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+}
+
+.carta-completa .cf b {
+  font: 300 calc(var(--u) * 24) / 1 var(--font-serif);
+  text-align: center;
+}
+
+.carta-completa .cf .gl {
+  font-size: calc(var(--u) * 17);
+  color: var(--t2);
+  text-align: center;
+}
+
+.carta-completa .cf .gl2 {
+  display: flex;
+  gap: calc(var(--u) * 5);
+  font-size: calc(var(--u) * 17);
+  white-space: nowrap;
+}
+
+.carta-completa .cf .gl2 .eje-m {
+  font: 400 calc(var(--u) * 11) / 1 var(--font-sans);
+}
+
+.carta-completa .eq {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  text-align: center;
+  padding: calc(var(--u) * 6) calc(var(--u) * 10) calc(var(--u) * 14);
+}
+
+.carta-completa .eq div {
+  display: grid;
+  justify-items: center;
+  gap: calc(var(--u) * 5);
+  font: 300 calc(var(--u) * 12) / 1.2 var(--font-sans);
+  color: var(--t2);
+}
+
+.carta-completa .eq b {
+  font: 300 calc(var(--u) * 24) / 1 var(--font-serif);
+  color: var(--t1);
+}
+
+.carta-completa .eq svg {
+  width: calc(var(--u) * 20);
+  height: calc(var(--u) * 20);
+}
+
+.carta-completa .eq.tres {
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+  padding-top: calc(var(--u) * 14);
+}
+
+.carta-completa .nf {
+  padding: calc(var(--u) * 13) calc(var(--u) * 16);
+}
+
+.carta-completa .nf + .nf {
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+}
+
+.carta-completa .nf .top {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 46) minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 12);
+  align-items: center;
+}
+
+.carta-completa .nf .top > b {
+  font: 300 calc(var(--u) * 34) / 1 var(--font-serif);
+  text-align: center;
+}
+
+.carta-completa .nf .top .ft {
+  margin-top: 0;
+}
+
+.carta-completa .nf p.cuerpo {
+  margin: calc(var(--u) * 10) 0 0 calc(var(--u) * 58);
+}
+
+.carta-completa .maestro {
+  font: 500 calc(var(--u) * 10) / 1 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--t2);
+  border: 1px solid rgb(236 226 208 / 0.3);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 5) calc(var(--u) * 8);
+  white-space: nowrap;
+}
+
+.carta-completa .aviso {
+  font: 300 calc(var(--u) * 14) / 1.45 var(--font-sans);
+  color: var(--t2);
+  padding: calc(var(--u) * 16);
+}
+
+.carta-completa :is(.cf b, .eq b, .fn, .nf .top > b) {
+  font-variant-numeric: lining-nums tabular-nums !important;
+  font-feature-settings:
+    'lnum' 1,
+    'tnum' 1;
+}
+
+/* «‹ Tu mapa» in the header, in place of NATUS: bare text, no outline. */
+:root:has(.pz.carta-completa) .app-header .header-back-named {
+  height: auto;
+  min-height: 32px;
+  padding: 0;
+  gap: 4px;
+  border: 0;
+  border-radius: 8px;
+  font-size: var(--fs-body-14);
+}
+
+:root:has(.pz.carta-completa) .app-header .header-back-named svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Desktop: the large wheel on the left, the reading on the right ───── */
+
+@media (min-width: 1024px) {
+  .carta-completa:not(.scroll) {
+    position: relative;
+    height: 100%;
+  }
+
+  .carta-completa .col1 {
+    position: absolute;
+    left: 0;
+    top: calc(var(--d) * -8);
+    width: calc(var(--d) * 600);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 14);
+  }
+
+  .carta-completa .col1 .t {
+    font-size: calc(var(--d) * 48);
+  }
+
+  .carta-completa .col1 .k {
+    font-size: calc(var(--d) * 12);
+  }
+
+  .carta-completa .modo {
+    display: flex;
+    gap: calc(var(--d) * 14);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .carta-completa .segm {
+    width: calc(var(--d) * 300);
+  }
+
+  .carta-completa .rueda {
+    width: calc(var(--d) * 560);
+    height: calc(var(--d) * 560);
+    align-self: flex-start;
+    margin-left: calc(var(--d) * 16);
+  }
+
+  .carta-completa .col2 {
+    position: absolute;
+    right: 0;
+    top: calc(var(--d) * -8);
+    bottom: 0;
+    width: calc(var(--d) * 520);
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: calc(var(--d) * 8) 0 calc(var(--d) * 40);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 16);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 16), #000 92%, transparent);
+    mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 16), #000 92%, transparent);
+  }
+
+  .carta-completa .col2::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carta-completa .chips {
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  :root:has(.pz.carta-completa) .app-header .header-back-named {
+    font-size: calc(var(--d) * 15);
+  }
+}

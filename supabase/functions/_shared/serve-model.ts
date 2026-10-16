@@ -101,6 +101,12 @@ export type ModelRoute<I, O> = {
     input: I,
     context: { caller: SupabaseClient; userId: string },
   ) => string | null | Promise<string | null>;
+  /**
+   * Like `check`, for a rule the model can mend when told: it runs inside
+   * `generate`, so a rejection is retried once with the reason, as the copy
+   * lint's is. `chart-points` uses it for the points its answer must read.
+   */
+  lint?: (output: O, input: I) => string | null;
   crisis?: (output: O, input: I) => { response: string; country: string | undefined } | null;
   /**
    * v1.2 F-01: the plan feature this surface spends, if any. Its quota is
@@ -243,6 +249,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
         ? await route.enrich(parsed.data, { caller: auth.caller, userId, elevated })
         : parsed.data;
       const gender = await callerGrammaticalGender(auth.caller, userId);
+      const lint = route.lint;
       const generated = await generate({
         model,
         system: route.system,
@@ -250,6 +257,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
         schema: route.output,
         maxTokens: MAX_OUTPUT_TOKENS[route.purpose],
         ...(route.effort ? { effort: route.effort } : {}),
+        ...(lint ? { lint: (value: O) => lint(value, input) } : {}),
       });
 
       const rejection = await route.check?.(generated.value, input, { caller: auth.caller, userId });

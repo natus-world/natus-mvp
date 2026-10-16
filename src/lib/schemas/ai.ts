@@ -223,6 +223,26 @@ export const comparisonResultSchema = z.object({
 });
 export type ComparisonResult = z.infer<typeof comparisonResultSchema>;
 
+/**
+ * Package 05 «Carta completa» (owner, 16 Oct 2026): Davraz's reading of each
+ * point of the person's chart, one or two sentences each. The point is named
+ * as `src/lib/natal-chart.ts` names it; which points must be there depends on
+ * the chart, so that is checked by `checkChartPointReadings`, not here.
+ */
+export const MAX_CHART_POINT_READING_CHARS = 320;
+export const chartPointReadingsSchema = z.object({
+  readings: z
+    .array(
+      z.object({
+        point: z.string().min(1),
+        text: z.string().trim().min(1).max(MAX_CHART_POINT_READING_CHARS),
+      }),
+    )
+    .min(1)
+    .max(30),
+});
+export type ChartPointReadings = z.infer<typeof chartPointReadingsSchema>;
+
 /** PDR 6.2. Calculated in TypeScript, never by the model — the model is told
  *  to treat these as symbolic facts and not recompute them. */
 export const numerologySchema = z.object({

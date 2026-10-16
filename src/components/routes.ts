@@ -1,6 +1,7 @@
 export const PATHS = {
   today: '/hoy',
   chart: '/carta',
+  fullChart: '/carta/completa',
   paths: '/caminos',
   journey: '/recorrido',
   journal: '/bitacora',

@@ -210,6 +210,9 @@ export type MemoryInput = z.infer<typeof memoryInputSchema>;
 /** v1.2 R-04. Nothing: the function decides from what the server holds whether a review is due. */
 export const routineReviewInputSchema = z.object({});
 
+/** Package 05. Nothing: the function reads the person's stored chart itself. */
+export const chartPointsInputSchema = z.object({});
+
 export const routineInputSchema = z
   .object({
     synthesis: soulMapSynthesisSchema,

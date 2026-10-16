@@ -545,6 +545,86 @@ if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
     stored?.house_system === 'whole_sign' && sun?.house === 10 && stored?.chart?.ascendant_ruler?.planet === 'Mercury' && stored?.chart?.sect?.kind === 'diurna' && Array.isArray(stored?.chart?.aspects),
     JSON.stringify({ house: sun?.house, ruler: stored?.chart?.ascendant_ruler, sect: stored?.chart?.sect }),
   );
+
+  // The same chart keeps its calculation stamp: the readings of the full
+  // chart are written for it (package 05).
+  const { data: first } = await client.from('natal_charts').select('calculated_at').eq('user_id', userId).maybeSingle();
+  await call('natal-chart', { rebuild: true });
+  const { data: again } = await client.from('natal_charts').select('calculated_at').eq('user_id', userId).maybeSingle();
+  check(
+    'natal-chart: a rebuild that changes nothing keeps calculated_at',
+    Boolean(first?.calculated_at) && first?.calculated_at === again?.calculated_at,
+    `${first?.calculated_at} → ${again?.calculated_at}`,
+  );
+}
+
+// ── Davraz's readings of the full chart (package 05) ───────────────────────
+//
+// The browser sends nothing: the function reads the person's stored chart.
+// Once per chart: readings written for the current calculation are kept and
+// nothing is spent, which is decided before the key check.
+{
+  const anon = await call('chart-points', {}, { 'Content-Type': 'application/json' });
+  check('chart-points: no bearer token is refused', anon.status === 401, `status=${anon.status}`);
+
+  const someone = createClient(API, ANON, { auth: { persistSession: false } });
+  const { data: someoneAuth } = await someone.auth.signInAnonymously();
+  const noChart = await call('chart-points', {}, {
+    Authorization: `Bearer ${someoneAuth.session.access_token}`,
+    'Content-Type': 'application/json',
+  });
+  const noChartBody = await noChart.json();
+  check(
+    'chart-points: no chart, nothing to read and nothing spent',
+    noChart.status === 403 && noChartBody.reason === 'no_chart',
+    `status=${noChart.status} ${JSON.stringify(noChartBody)}`,
+  );
+
+  // `client` has the chart rebuilt above.
+  const { data: chartRow } = await client.from('natal_charts').select('calculated_at').eq('user_id', userId).maybeSingle();
+  const asked = await call('chart-points', {});
+  const askedBody = await asked.json();
+  if (asked.status === 200) {
+    const { data: kept } = await client.from('chart_point_readings').select('chart_calculated_at, readings').eq('user_id', userId).maybeSingle();
+    check(
+      'chart-points: answers, and keeps the readings for this calculation',
+      Boolean(kept) && Date.parse(kept.chart_calculated_at) === Date.parse(chartRow.calculated_at) && kept.readings.length === askedBody.points,
+      `points=${askedBody.points} kept=${kept?.readings?.length}`,
+    );
+  } else {
+    check(
+      'chart-points: a person with a chart reaches the model gate',
+      (asked.status === 503 && askedBody.error === 'no_model') || (asked.status === 502 && askedBody.kind === 'api_error'),
+      `status=${asked.status} ${JSON.stringify(askedBody)}`,
+    );
+  }
+
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const elevated = createClient(API, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+    const READINGS = [{ point: 'Sun', text: 'Tu Sol en Géminis sugiere curiosidad.' }];
+    await elevated.from('chart_point_readings').upsert({
+      user_id: userId, chart_calculated_at: chartRow.calculated_at, prompt_version: 'verify', readings: READINGS,
+    });
+    const again = await call('chart-points', {});
+    const againBody = await again.json();
+    check(
+      'chart-points: readings for the current chart are kept, and nothing is spent',
+      again.status === 403 && againBody.reason === 'current',
+      `status=${again.status} ${JSON.stringify(againBody)}`,
+    );
+    const { data: mine } = await client.from('chart_point_readings').select('prompt_version').eq('user_id', userId).maybeSingle();
+    check('chart-points: the person reads their own readings', mine?.prompt_version === 'verify', JSON.stringify(mine));
+    const { data: theirs } = await someone.from('chart_point_readings').select('user_id');
+    check("chart-points: nobody reads somebody else's", (theirs ?? []).length === 0, `${(theirs ?? []).length} rows`);
+
+    await elevated.from('chart_point_readings').update({ chart_calculated_at: '2026-01-01T00:00:00Z' }).eq('user_id', userId);
+    const stale = await call('chart-points', {});
+    check(
+      'chart-points: readings for an older calculation are written again',
+      stale.status !== 403,
+      `status=${stale.status}`,
+    );
+  }
 }
 
 const failed = results.filter((r) => !r.pass);

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { isDemoMode } from '@/supabase/client';
 import { Screen } from '@/design/Screen';
 import { ChartWheel } from '@/design/ChartWheel';
-import { CheckIcon, ChevronIcon } from '@/design/icons';
+import { ArrowIcon, CheckIcon, ChevronIcon } from '@/design/icons';
 import { copy } from '@/i18n';
 import { buildNatalChart, type NatalChart } from '@/lib/natal-chart';
 import { activeProfile, isSignedIn } from '@/store/account';
@@ -24,8 +24,8 @@ import type { Numerology } from '@/lib/schemas';
  * readings, the practices of the routine that converse with the chart, and
  * when the map was written.
  *
- * «Ver mi carta completa» is the package's one primary pill; it opens level 2,
- * which is not built yet, so it is left out until it is. The first showing of
+ * «Ver mi carta completa» is the package's one primary pill; it opens level 2
+ * (`FullChart`), and only when there is a chart to open. The first showing of
  * the map (the revelation) is its own screen.
  */
 
@@ -103,6 +103,11 @@ function Wheel({ chart }: { chart: NatalChart }) {
       </div>
       {/* Without the hour: no Ascendant and no houses, and it says so. */}
       {!ascendant && <p className="aviso">{copy.onboarding.basicData.notice}</p>}
+      {/* Package 04: the one primary pill, under the trio; it opens level 2. */}
+      <Link to={PATHS.fullChart} className="p1">
+        {text.fullChart}
+        <ArrowIcon />
+      </Link>
     </>
   );
 }

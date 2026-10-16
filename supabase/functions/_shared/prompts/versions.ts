@@ -6,8 +6,15 @@ export const COMPARISON_PROMPT_VERSION = 'comparison-v2.1';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.6';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
+export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.0';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chart-points-v1.0',
+    date: '2026-10-16',
+    change:
+      'New (package 05 «Carta completa», owner, 16 Oct 2026): Davraz\'s reading of each point of the calculated chart, one or two sentences per point, with the Hellenistic and propositive rules of the Soul Map and the comparison. Reads the chart only, never the person\'s words or numbers.',
+  },
   {
     version: 'chat-v1.8',
     date: '2026-10-16',

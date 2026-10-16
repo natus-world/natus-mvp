@@ -380,10 +380,31 @@ questions are answered (the package's rule, owner). Right after the
 revelation (option B) Premium is offered once with the free month day by day
 (`Paywall feature="welcome"`, funnel detail `welcome`), never to premium nor
 after a crisis alert. The crisis screen always has «Volver» (owner). Carta
-completa (05) is not built. Open with the owner: *4141 for Chile (real, Minsal,
+completa (05) is `screens/FullChart.tsx`, with Davraz's reading of each point
+from the server (below). Open with the owner: *4141 for Chile (real, Minsal,
 not in `crisis-resources.json`); the why of a therapy in three parts needs a
 prompt change; texts the package marks «propuesta» were applied unless they
 broke a rule.
+
+**«La lectura de Davraz» in the full chart (owner, 16 Oct 2026, built).** One
+or two sentences per point of the chart — every point `buildNatalChart`
+returns but the Descendant and the Imum Coeli; without the hour, no houses
+and no axes — read with the Hellenistic and propositive rules of
+`prompts/chart-reading.ts` (chart-points-v1.0, Sonnet). The `chart-points`
+function takes nothing from the browser: it reads the person's row in
+`natal_charts` under RLS, refuses `no_chart`, and refuses `current` while the
+row in `chart_point_readings` was written for that chart's `calculated_at` —
+once per chart, not a plan feature, but under the same reservation, ceiling
+(`chart_points`, 10 a month) and budget as the rest. The answer must read
+exactly the points asked for, one or two sentences each, nothing rated
+(`lib/chart-points.ts`); that check runs inside the model call through
+`serveModel`'s `lint` hook, so it is retried once with the reason, like the
+copy lint. A birth-data change gives the chart a new `calculated_at`, the
+readings go stale and `store/chart-readings.ts` asks again (kept in the
+browser as `chart_readings`, hidden as soon as the draft's chart changes);
+a rebuild that changes nothing now keeps `calculated_at`, so a new device does
+not pay for new readings. The demo reads `ai/fixtures/chart-points.ts`. The
+readings are in «Descargar mis datos» and go with the account.
 
 **Adults only, the home country chosen, a second try (owner, 16 Oct 2026).**
 The birth step refuses a date that is not 18 years past (`lib/age.ts`), so
@@ -461,7 +482,8 @@ data/        Seed JSON: modalities, topics, crisis resources, bed tracks.
 
 supabase/functions/
              soul-map · match · routine · routine-review · chat · meditation
-             · comparison · memory · natal-chart · paypal-webhook
+             · comparison · memory · chart-points · natal-chart
+             · paypal-webhook
              One directory, URL and worker each. Four share the sequence in
              _shared/serve-model.ts; chat has a quota to consult mid-flow.
 ```
