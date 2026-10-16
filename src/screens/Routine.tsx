@@ -240,7 +240,7 @@ export function Routine() {
   if (!match) {
     return (
       <Screen backdrop="hoja" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             {text.empty}
           </p>
@@ -255,7 +255,7 @@ export function Routine() {
   if (practices.length === 0) {
     return (
       <Screen backdrop="hoja" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex min-h-dvh flex-col items-center justify-center gap-5 px-8 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col items-center justify-center gap-5 px-8 text-center flex-1">
           {failed ? (
             <>
               <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{copy.chrome.aiError.message}</p>
@@ -278,7 +278,7 @@ export function Routine() {
 
   return (
     <Screen backdrop="hoja" scrim="heavy" opacity={PHOTO.content45}>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
         <p className="eyebrow mb-3">{text.kicker}</p>
         <h1 className="mb-2 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
           {text.titleLead}

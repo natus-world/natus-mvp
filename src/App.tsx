@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { accountRequired, clearAccountRequirement } from '@/store/account-required';
-import { PhoneFrame } from '@/components/PhoneFrame';
+import { AppFrame } from '@/components/AppFrame';
 import { SaveFailureNotice } from '@/components/SaveFailureNotice';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { BottomNav } from '@/components/BottomNav';
@@ -133,15 +133,15 @@ export function App() {
 
   if (!ready) {
     return (
-      <PhoneFrame>
+      <AppFrame>
         <div
           role="status"
           aria-live="polite"
-          className="flex min-h-dvh items-center justify-center px-6 text-center"
+          className="flex h-full items-center justify-center px-6 text-center"
         >
           <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">{copy.chrome.opening}</p>
         </div>
-      </PhoneFrame>
+      </AppFrame>
     );
   }
 
@@ -157,13 +157,14 @@ export function App() {
   const legal = pathname === '/privacidad' || pathname === '/terminos';
   if (isBackendConfigured && requiresInvite && !admitted && !legal) {
     return (
-      <PhoneFrame>
+      <AppFrame>
         <Gate />
-        <div className="fixed top-0 right-0 z-50 p-2 sm:absolute">
+        <div className="app-header">
+          <div className="min-w-0 flex-1" />
           <HelpNowButton onOpen={openHelp} />
         </div>
         {helpOpen && <HelpNowPanel onClose={closeHelp} />}
-      </PhoneFrame>
+      </AppFrame>
     );
   }
 
@@ -174,14 +175,22 @@ export function App() {
   }
 
   return (
-    <PhoneFrame>
-      <div className="fixed inset-x-0 top-0 z-50 flex flex-col gap-1.5 p-2 sm:absolute">
-        <div className="flex items-start gap-1.5">
-          <div className="min-w-0 flex-1" />
-          <HelpNowButton onOpen={openHelp} />
-          {showsProfile(pathname, takeoverShown) && <ProfileButton />}
+    <AppFrame>
+      <header className="app-header">
+        <div className="min-w-0 flex-1">
+          {showsNav(pathname, takeoverShown) && (
+            <Link to={PATHS.today} className="header-brand">
+              {copy.chrome.brand}
+            </Link>
+          )}
         </div>
-        <SaveFailureNotice offline={offline} />
+        <HelpNowButton onOpen={openHelp} />
+        {showsProfile(pathname, takeoverShown) && <ProfileButton />}
+      </header>
+      <div className="pointer-events-none absolute inset-x-0 top-[var(--header-h)] z-50 px-3 lg:left-[var(--desk-left)]">
+        <div className="pointer-events-auto">
+          <SaveFailureNotice offline={offline} />
+        </div>
       </div>
       {/*
         Keyed by pathname so navigating away clears a caught error. Without the
@@ -245,11 +254,11 @@ export function App() {
         </ErrorBoundary>
       </main>
       {showsNav(pathname, takeoverShown) && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 p-3 sm:absolute">
+        <div className="app-nav">
           <BottomNav />
         </div>
       )}
       {helpOpen && <HelpNowPanel onClose={closeHelp} />}
-    </PhoneFrame>
+    </AppFrame>
   );
 }

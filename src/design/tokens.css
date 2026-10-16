@@ -16,13 +16,35 @@
   --natus-tinta-2: rgb(236 226 208 / 0.65);
   --natus-tinta-3: rgb(236 226 208 / 0.45);
 
-  --glass-bg: rgb(255 255 255 / 0.08);
+  /*
+   * Photo families (branding, 16 Oct 2026). Every photo belongs to one, and
+   * its tone tints the veil, the glass, the bar and the help pill. `--v` is
+   * the current screen's family, set by `Screen`; the default is the night.
+   * Written as bare RGB channels so they take an alpha: rgb(var(--v) / .5).
+   */
+  --veil-verde: 15 24 13;
+  --veil-azul: 13 18 24;
+  --veil-tierra: 24 18 13;
+  --veil-arena: 24 20 15;
+  --veil-grafito: 24 24 24;
+  --v: 11 18 14;
+  /* How opaque the glass is over this screen's photo (30–86 %), per photo. */
+  --glass-alpha: 0.32;
+
+  /* Glass is blur only: no saturate() since 16 Oct 2026. */
+  --glass-bg: rgb(var(--v) / var(--glass-alpha));
   --glass-border: rgb(255 255 255 / 0.15);
-  --glass-hover: rgb(255 255 255 / 0.13);
-  --glass-bar: rgb(16 20 18 / 0.72);
+  --glass-hover: rgb(var(--v) / calc(var(--glass-alpha) + 0.08));
+  --glass-bar: rgb(var(--v) / 0.78);
+  --glass-bar-border: rgb(255 255 255 / 0.1);
   --glass-tab-active: rgb(255 255 255 / 0.1);
   --glass-rule: rgb(236 226 208 / 0.1);
-  --glass-saturate: 1.4;
+  --glass-help: rgb(var(--v) / 0.45);
+  --glass-blur-help: 10px;
+  --line-pill: rgb(236 226 208 / 0.4);
+
+  /* Loose text over a photo reads by a soft shadow in the photo's tone. */
+  --text-shadow-photo: 0 0 16px rgb(var(--v) / 0.8), 0 1px 3px rgb(var(--v) / 0.55);
   --glass-blur-chip: 12px;
   --glass-blur-card: 24px;
   --glass-blur-bar: 20px;
@@ -48,14 +70,22 @@
   --text-faint: var(--natus-tinta-3);
   --text-eyebrow: var(--natus-tinta-2);
 
-  /* Geometry */
-  --radius-frame: 48px;
-  --radius-cta: 27px;
-  --radius-option: 14px;
-  --radius-pill: 23px;
-  --radius-card: 24px;
-  --radius-tab-bar: 28px;
-  --radius-tab: 20px;
+  /*
+   * Geometry (16 Oct 2026): nothing is an oval; the smaller the part, the
+   * straighter its corner, and nothing is rounder than what holds it.
+   * Circles — the profile initial, close buttons, the wheel, the phase
+   * nodes — stay round.
+   */
+  --radius-tab-bar: 20px; /* the tab bar and the desktop rail */
+  --radius-sheet: 20px;
+  --radius-card: 12px; /* glass cards, boxes, chat bubbles */
+  --radius-tab: 12px; /* the active tab */
+  --radius-segmented: 10px;
+  --radius-segmented-option: 7px;
+  --radius-cta: 8px; /* buttons, pills, fields, filters, «Necesito ayuda» */
+  --radius-option: 8px;
+  --radius-pill: 8px;
+  --radius-tag: 6px; /* small tags: element, «Número maestro», «IA» */
 
   --h-cta: 54px;
   --h-option: 52px;
@@ -70,6 +100,16 @@
   /* Clearance for the demo banner, which floats over every screen. Screens
      start their content below this rather than each guessing a padding. */
   --top-inset: 62px;
+
+  /* The header: NATUS, «Necesito ayuda» and the initial. Content is cut just
+     below it — no band, no mask, since a mask takes the blur off the glass
+     inside it. */
+  --header-h: calc(env(safe-area-inset-top, 0px) + 64px);
+  --rail-w: 92px;
+  --rail-gap: 24px;
+  /* Where content starts on desktop: past the rail and its margin. */
+  --desk-left: 164px;
+  --desk-right: 48px;
 
   /* Clearance for the bottom navigation, which floats over the screens that
      carry it. Same reasoning as `--top-inset`: one number, not a guess per
@@ -163,6 +203,9 @@
 
   --fs-cta: 15px;
   --fs-brand: 17px;
+  /* NATUS in the header: 20 on the phone, 24 on desktop (16 Oct 2026). */
+  --fs-brand-header: 20px;
+  --fs-brand-header-desk: 24px;
 
   /* Marks and numerals inside chips, checkboxes and badges. */
   --fs-micro-12: 12px; /* ×1 */
@@ -191,4 +234,10 @@
   --track-eyebrow: 0.2em;
   --track-brand: 0.15em;
   --track-cta: 0.12em;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --header-h: 112px;
+  }
 }

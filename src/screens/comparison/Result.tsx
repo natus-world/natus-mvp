@@ -150,7 +150,7 @@ export function Result() {
   return (
     <ComparisonGate>
       <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content40}>
-        <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+        <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
           <p className="eyebrow mb-3">{text.kicker}</p>
           <h1 className="mb-6 text-[length:var(--fs-title-26)] leading-[var(--lh-heading-1_18)] text-blanco">
             {result.headline}
@@ -297,7 +297,7 @@ function Centered({ children }: { children: React.ReactNode }) {
   return (
     <ComparisonGate>
       <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex min-h-dvh flex-col items-center justify-center gap-5 px-8 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col items-center justify-center gap-5 px-8 text-center flex-1">
           {children}
         </div>
       </Screen>

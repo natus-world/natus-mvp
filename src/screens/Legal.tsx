@@ -18,7 +18,7 @@ export function Legal({ doc }: { doc: 'privacy' | 'terms' }) {
 
   return (
     <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content40}>
-      <article className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+      <article className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
         <button
           type="button"
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}

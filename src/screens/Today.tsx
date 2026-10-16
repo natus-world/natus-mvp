@@ -34,7 +34,7 @@ export function Today() {
   if (!profile || !synthesis) {
     return (
       <Screen backdrop="luz" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{t.empty}</p>
           <Link to="/onboarding" className="cta no-underline">
             {t.emptyCta}
@@ -50,8 +50,8 @@ export function Today() {
   const name = firstNameOf(profile.draft.legal_birth_name);
 
   return (
-    <Screen backdrop="luz" scrim="heavy" opacity={PHOTO.content42}>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+    <Screen photo="muroSombra" veil={0.42} glassAlpha={0.77}>
+      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
         <p className="eyebrow mb-3">{t.kicker}</p>
         <h1 className="mb-6 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
           {name ? (

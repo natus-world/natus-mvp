@@ -102,7 +102,7 @@ export function Profile() {
 
   return (
     <Screen backdrop="montana" scrim="heavy" opacity={PHOTO.content40} mono>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
         <p className="eyebrow mb-3">{t.kicker}</p>
         <h1 className="mb-7 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
           {t.titleLead}

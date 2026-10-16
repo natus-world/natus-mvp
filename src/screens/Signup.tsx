@@ -65,7 +65,7 @@ export function Signup() {
   if (isSignedIn()) {
     return (
       <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{text.alreadySignedIn}</p>
           <Link to="/hoy" className="cta no-underline">
             {text.toHome}
@@ -78,7 +78,7 @@ export function Signup() {
   if (!currentSynthesis()) {
     return (
       <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             {text.noMap}
           </p>
@@ -133,7 +133,7 @@ export function Signup() {
   if (sent) {
     return (
       <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             {text.sentLead}
             <span className="text-blanco">{email}</span>
@@ -152,7 +152,7 @@ export function Signup() {
 
   return (
     <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9 sm:min-h-0">
+      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9">
         <p className="eyebrow mb-3">{text.kicker}</p>
 
         <h1 className="mb-3 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">

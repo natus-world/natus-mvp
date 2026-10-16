@@ -65,7 +65,7 @@ export function FriendInvite() {
 
   return (
     <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content45}>
-      <div className="flex min-h-dvh flex-col justify-center gap-5 px-6 sm:min-h-0 sm:flex-1">
+      <div className="flex flex-col justify-center gap-5 px-6 flex-1">
         <p className="eyebrow">{t.kicker}</p>
 
         {state.kind === 'loading' && <p className="text-[length:var(--fs-body-14)] text-crema/60">…</p>}

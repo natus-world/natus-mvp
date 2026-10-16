@@ -110,6 +110,7 @@ export const es = {
     },
   },
   chrome: {
+    brand: 'Natus',
     aiError: {
       message: 'Esto está tardando más de lo normal. ¿Reintentamos?',
       retry: 'Reintentar',
@@ -138,7 +139,7 @@ export const es = {
     today: 'Hoy',
     chart: 'Carta',
     paths: 'Caminos',
-    journey: 'Rutina',
+    journey: 'Tu rutina',
     journal: 'Bitácora',
     chat: 'Chat',
     profile: 'Perfil',

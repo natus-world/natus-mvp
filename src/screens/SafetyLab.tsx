@@ -75,7 +75,7 @@ export function SafetyLab() {
 
   return (
     <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content35}>
-      <div className="flex min-h-dvh flex-col gap-4 overflow-y-auto px-5 pt-[var(--top-inset)] pb-8 sm:min-h-0">
+      <div className="flex flex-col gap-4 overflow-y-auto px-5 pt-[var(--top-inset)] pb-8">
         <div>
           <p className="eyebrow mb-2">Laboratorio</p>
           <h1 className="text-[length:var(--fs-title-26)] text-blanco">Capa 1 de safety</h1>

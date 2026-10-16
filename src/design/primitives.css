@@ -36,8 +36,8 @@
   .circle,
   .bubble,
   .option {
-    backdrop-filter: blur(var(--glass-blur-card)) saturate(var(--glass-saturate));
-    -webkit-backdrop-filter: blur(var(--glass-blur-card)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur-card));
+    -webkit-backdrop-filter: blur(var(--glass-blur-card));
   }
 
   .chip,
@@ -49,11 +49,14 @@
     -webkit-backdrop-filter: blur(var(--glass-blur-chip));
   }
 
-  .nav-bar,
-  .profile-button,
+  .nav-bar {
+    backdrop-filter: blur(var(--glass-blur-bar));
+    -webkit-backdrop-filter: blur(var(--glass-blur-bar));
+  }
+
   .help-pill {
-    backdrop-filter: blur(var(--glass-blur-bar)) saturate(var(--glass-saturate));
-    -webkit-backdrop-filter: blur(var(--glass-blur-bar)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur-help));
+    -webkit-backdrop-filter: blur(var(--glass-blur-help));
   }
 
   .node {
@@ -79,11 +82,20 @@
     border: 1px solid var(--glass-border);
   }
 
-  .nav-bar,
+  .nav-bar {
+    background: var(--glass-bar);
+    border: 1px solid var(--glass-bar-border);
+  }
+
+  /* «Necesito ayuda» always reads: a light glass in the photo's tone. The
+     initial beside it is a line only. */
+  .help-pill {
+    background: var(--glass-help);
+  }
+
   .profile-button,
   .help-pill {
-    background: var(--glass-bar);
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--line-pill);
   }
 
   /* HOVER. Only the card blur ever lifted; the chip never had one. */
@@ -124,8 +136,8 @@
     justify-content: center;
     gap: 0.375rem;
     min-height: var(--h-pill);
-    border-radius: calc(infinity * 1px);
-    border: 1px solid rgb(236 226 208 / 0.4);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line-pill);
     background: transparent;
     padding-inline: 1rem;
     font-family: var(--font-sans);
@@ -145,6 +157,7 @@
   }
 
   .chip-on {
+    text-shadow: none;
     border-color: var(--natus-tinta);
     background: var(--natus-tinta);
     color: var(--natus-noche);
@@ -167,7 +180,7 @@
   /* ── Badge — the uppercase mark inside a card. ───────────────────────── */
   .badge,
   .badge-bare {
-    border-radius: calc(infinity * 1px);
+    border-radius: var(--radius-tag);
     padding: 0.25rem 0.625rem;
     font-size: var(--fs-label-10);
     letter-spacing: 0.025em;
@@ -176,7 +189,7 @@
 
   /* ── Pill — a badge that reads as prose: no versals, no tracking. ────── */
   .pill {
-    border-radius: calc(infinity * 1px);
+    border-radius: var(--radius-tag);
     padding: 0.25rem 0.75rem;
   }
 
@@ -184,7 +197,7 @@
      it must not read as the product speaking calmly. ───────────────────── */
   .bubble,
   .bubble-bare {
-    border-radius: var(--radius-option);
+    border-radius: var(--radius-card);
     padding: 0.75rem 0.875rem;
   }
 
@@ -220,31 +233,65 @@
   }
 
   /* ── Chrome — one of each, and each the only one of its kind. ────────── */
-  .nav-bar {
+
+  /* The header, over every screen: NATUS on the left, «Necesito ayuda» and
+     the initial on the right. No band behind it. */
+  .app-header {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 50;
     display: flex;
-    align-items: stretch;
-    gap: 0.125rem;
+    align-items: center;
+    gap: 8px;
+    height: var(--header-h);
+    padding: env(safe-area-inset-top, 0px) 24px 0;
+    pointer-events: none;
+  }
+
+  .app-header :is(a, button) {
+    pointer-events: auto;
+  }
+
+  /* The tab bar floats 12px from the edges; on desktop it is the rail. */
+  .app-nav {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 40;
+  }
+
+  .nav-bar {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: center;
     height: var(--h-tab-bar);
     border-radius: var(--radius-tab-bar);
-    padding: 0.5rem;
+    padding: 0 6px;
   }
 
   .nav-tab {
-    display: flex;
-    flex: 1 1 0;
-    min-width: var(--touch);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+    padding: 9px 0;
     border-radius: var(--radius-tab);
-    color: rgb(236 226 208 / 0.6);
-    font-size: var(--fs-body-11);
+    color: var(--natus-tinta-3);
+    font-size: var(--fs-label-11);
+    font-weight: 400;
     line-height: 1;
     text-decoration: none;
+    white-space: nowrap;
     transition:
       background-color 320ms var(--ease),
       color 320ms var(--ease);
+  }
+
+  .nav-tab svg {
+    width: 20px;
+    height: 20px;
   }
 
   .nav-tab:hover {
@@ -256,19 +303,42 @@
     color: var(--natus-tinta);
   }
 
+  /* The gold dot under the active tab: the only gold besides the Sun–Moon
+     thread. */
+  .nav-tab[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--natus-dorado);
+  }
+
+  .brand-icon * {
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Open beads on a line are filled with the tone behind them. */
+  .brand-icon .bead {
+    fill: rgb(var(--v));
+  }
+
   .help-pill {
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
     height: 2rem;
-    border-radius: calc(infinity * 1px);
-    padding-inline: 0.75rem;
+    border-radius: var(--radius-pill);
+    padding-inline: 12px;
     color: var(--natus-tinta);
     font-family: var(--font-sans);
-    font-size: var(--fs-label-11);
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    font-size: var(--fs-body-12);
+    font-weight: 400;
+    line-height: 1;
     white-space: nowrap;
   }
 
@@ -277,8 +347,8 @@
     width: 6px;
     height: 6px;
     flex-shrink: 0;
-    border-radius: calc(infinity * 1px);
-    background: var(--natus-error);
+    border-radius: 50%;
+    background: var(--natus-tinta);
   }
 
   .help-pill::after {
@@ -287,6 +357,7 @@
     inset: -6px -2px;
   }
 
+  /* Perfil: the person's initial in a circle. */
   .profile-button {
     position: relative;
     display: inline-flex;
@@ -295,16 +366,15 @@
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    border-radius: calc(infinity * 1px);
-    color: rgb(236 226 208 / 0.75);
-    transition:
-      background-color 320ms var(--ease),
-      color 320ms var(--ease);
-  }
-
-  .profile-button:hover,
-  .profile-button[aria-current='page'] {
+    border-radius: 50%;
     color: var(--natus-tinta);
+    font-family: var(--font-serif);
+    font-size: var(--fs-voice-15);
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+    font-variant-numeric: lining-nums;
+    transition: background-color 320ms var(--ease);
   }
 
   .profile-button[aria-current='page'] {
@@ -315,6 +385,88 @@
     content: '';
     position: absolute;
     inset: -6px;
+  }
+
+  .header-brand {
+    font-family: var(--font-serif);
+    font-size: var(--fs-brand-header);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--natus-crema);
+    letter-spacing: var(--track-brand);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  /* The chrome over a photo reads by the same soft shadow as the screen. */
+  .app-header .header-brand {
+    text-shadow: var(--text-shadow-photo);
+  }
+
+  @media (min-width: 1024px) {
+    .app-header {
+      top: 14px;
+      left: var(--desk-left);
+      right: var(--desk-right);
+      height: 80px;
+      gap: 10px;
+      padding: 0;
+    }
+
+    .app-nav {
+      top: var(--rail-gap);
+      bottom: var(--rail-gap);
+      left: var(--rail-gap);
+      right: auto;
+    }
+
+    .nav-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      gap: 6px;
+      width: var(--rail-w);
+      height: 100%;
+      padding: 10px;
+    }
+
+    .nav-tab {
+      gap: 6px;
+      padding: 12px 0;
+      font-size: var(--fs-body-12);
+    }
+
+    .nav-tab svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .nav-tab[aria-current='page']::after {
+      bottom: 4px;
+    }
+
+    .help-pill {
+      height: 40px;
+      gap: 8px;
+      padding-inline: 16px;
+      font-size: var(--fs-body-14);
+    }
+
+    .help-pill::before {
+      width: 7px;
+      height: 7px;
+    }
+
+    .profile-button {
+      width: 40px;
+      height: 40px;
+      font-size: var(--fs-numeral-18);
+    }
+
+    .header-brand {
+      font-size: var(--fs-brand-header-desk);
+    }
   }
 
   .banner {
@@ -370,6 +522,7 @@
     font-weight: 500;
     letter-spacing: 0.01em;
     color: var(--natus-noche);
+    text-shadow: none;
     transition: opacity 240ms var(--ease);
   }
 
@@ -379,13 +532,19 @@
   }
 }
 
-/* The photographic backdrop and its legibility gradient. Every screen in the
-   mockup uses this pairing; the gradient stops differ per screen. */
+/* The photographic backdrop. The photo never takes a filter. */
 .photo-layer {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
+}
+
+/* The wide crop of the same photograph, from the desktop width on. */
+@media (min-width: 1024px) {
+  .photo-layer[data-wide] {
+    background-image: var(--photo-wide) !important;
+  }
 }
 
 .photo-scrim {
@@ -395,6 +554,40 @@
 
 .photo-mono {
   filter: grayscale(1);
+}
+
+/* Where a bank screen's content lives: cut just below the header — no band,
+   no mask, since a mask takes the blur off the glass inside it — and
+   scrolled by the screen itself. */
+.screen-body {
+  --top-inset: 30px;
+  --bottom-inset: 112px;
+  position: absolute;
+  inset-inline: 0;
+  top: var(--header-h);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .screen-body {
+    --top-inset: 8px;
+    --bottom-inset: 40px;
+    left: var(--desk-left);
+    right: var(--desk-right);
+  }
+}
+
+/* Loose text over a photograph — titles, kickers — reads by a soft shadow in
+   the photo's tone; long text goes in glass. Filled parts and fields take it
+   off again. */
+.on-photo {
+  text-shadow: var(--text-shadow-photo);
+}
+
+.on-photo :is(.cta, .chip-on, input, textarea, select, [aria-pressed='true'], [aria-checked='true']) {
+  text-shadow: none;
 }
 
 .ouroboros {

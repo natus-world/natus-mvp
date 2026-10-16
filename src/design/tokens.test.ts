@@ -15,28 +15,40 @@ const MOCKUP_PALETTE = {
   '--natus-tinta-3': 'rgb(236 226 208 / 0.45)',
 } as const;
 
-/** Mockup: rgba(255,255,255,0.08 / 0.15 / 0.13). Alpha is what matters. */
+/** Branding, 16 Oct 2026: the border stays white; the fill takes the family. */
 const MOCKUP_GLASS_ALPHA = {
-  '--glass-bg': '0.08',
   '--glass-border': '0.15',
-  '--glass-hover': '0.13',
+  '--glass-bar-border': '0.1',
+  '--glass-tab-active': '0.1',
 } as const;
 
+/** natus-tokens.css of the branding package, 16 Oct 2026. */
 const MOCKUP_GEOMETRY = {
-  '--radius-frame': '48px',
-  '--radius-cta': '27px',
-  '--radius-option': '14px',
+  '--radius-tab-bar': '20px',
+  '--radius-sheet': '20px',
+  '--radius-card': '12px',
+  '--radius-tab': '12px',
+  '--radius-segmented': '10px',
+  '--radius-segmented-option': '7px',
+  '--radius-cta': '8px',
+  '--radius-option': '8px',
+  '--radius-pill': '8px',
+  '--radius-tag': '6px',
+  '--veil-verde': '15 24 13',
+  '--veil-azul': '13 18 24',
+  '--veil-tierra': '24 18 13',
+  '--veil-arena': '24 20 15',
+  '--veil-grafito': '24 24 24',
+  '--rail-w': '92px',
   '--h-cta': '54px',
   '--h-option': '52px',
-  '--radius-card': '24px',
   '--h-pill': '36px',
   '--h-tab-bar': '74px',
   '--tab-bar-gap': '12px',
   '--touch': '44px',
   '--glass-blur-card': '24px',
   '--glass-blur-bar': '20px',
-  '--glass-saturate': '1.4',
-  '--glass-bar': 'rgb(16 20 18 / 0.72)',
+  '--glass-bar': 'rgb(var(--v) / 0.78)',
   '--ease': 'cubic-bezier(0.16, 1, 0.3, 1)',
 } as const;
 

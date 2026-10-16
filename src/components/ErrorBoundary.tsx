@@ -22,7 +22,7 @@ import { reportError } from '@/supabase/report-error';
  * ship. Every read below is wrapped, because the store is a plausible source
  * of the error being caught and a fallback that throws is not a fallback.
  *
- * Deliberately independent of `PhoneFrame` and `Screen`. Either of those may
+ * Deliberately independent of `AppFrame` and `Screen`. Either of those may
  * be what failed, and this renders above them at the root.
  */
 
@@ -76,7 +76,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <div
         role="alert"
-        className="flex min-h-dvh flex-col justify-center gap-6 bg-noche px-6 py-10 sm:h-full sm:min-h-0"
+        className="flex flex-col justify-center gap-6 bg-noche px-6 py-10 h-full"
       >
         {active ? (
           <>

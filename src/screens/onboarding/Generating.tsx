@@ -120,7 +120,7 @@ export function Generating({
 
   return (
     <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil70}>
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-9 px-8 text-center sm:min-h-0 sm:flex-1">
+      <div className="flex flex-col items-center justify-center gap-9 px-8 text-center flex-1">
         <Ouroboros size={112} />
 
         <div aria-live="polite" className="min-h-12">

@@ -32,7 +32,7 @@ export function CrisisScreen({
 
   return (
     <Screen backdrop="rio" scrim="diagonal" opacity={PHOTO.content50}>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9 sm:min-h-0">
+      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9">
         <div className="mb-6 flex items-center gap-2.5">
           <span aria-hidden="true" className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]" />
           <p className="eyebrow">{copy.crisisScreen.kicker}</p>

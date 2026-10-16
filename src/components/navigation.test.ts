@@ -58,7 +58,7 @@ describe('the profile button', () => {
 
 describe('the bar', () => {
   it('carries the six tabs that exist, in the guide order', () => {
-    expect(TABS.map((tab) => tab.label)).toEqual(['Hoy', 'Carta', 'Caminos', 'Rutina', 'Bitácora', 'Chat']);
+    expect(TABS.map((tab) => tab.label)).toEqual(['Hoy', 'Carta', 'Caminos', 'Tu rutina', 'Bitácora', 'Chat']);
     expect(TABS.map((tab) => tab.to)).toEqual(['/hoy', '/carta', '/caminos', '/recorrido', '/bitacora', '/chat']);
   });
 

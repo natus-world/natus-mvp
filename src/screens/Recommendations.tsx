@@ -135,7 +135,7 @@ export function Recommendations() {
   if (!currentSynthesis()) {
     return (
       <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
             {text.empty}
           </p>
@@ -150,7 +150,7 @@ export function Recommendations() {
   if (error && !loading) {
     return (
       <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
           <p role="alert" className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">
             {error}
           </p>
@@ -165,7 +165,7 @@ export function Recommendations() {
   if (loading || !match) {
     return (
       <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-        <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-8 text-center sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col items-center justify-center gap-4 px-8 text-center flex-1">
           <Ouroboros size={88} />
           <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">{text.loading}</p>
         </div>
@@ -188,7 +188,7 @@ export function Recommendations() {
 
   return (
     <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
         <p className="eyebrow mb-3 text-center">{text.kicker}</p>
 
         <Constellation modalities={shown.map((c) => c.modality)} />

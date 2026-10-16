@@ -37,7 +37,7 @@ export function HelpNowPanel({ onClose }: { onClose: () => void }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="help-now-title"
-      className="fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-noche px-6 pt-8 pb-9 sm:absolute"
+      className="inset-0 z-[60] flex flex-col overflow-y-auto bg-noche px-6 pt-8 pb-9 absolute"
     >
       <div className="mb-6 flex items-center gap-2.5">
         <span aria-hidden="true" className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]" />

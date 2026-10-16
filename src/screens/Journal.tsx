@@ -148,7 +148,7 @@ export function Journal() {
 
   return (
     <Screen backdrop="plumas" scrim="heavy" opacity={PHOTO.content45}>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
         <p className="eyebrow mb-3">{text.kicker}</p>
         <Title lead={text.titleLead} emphasis={text.titleEmphasis} />
         <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">{notice}</p>
@@ -255,7 +255,7 @@ export function NewJournalEntry() {
 
   return (
     <Screen backdrop="plumas" scrim="heavy" opacity={PHOTO.content45}>
-      <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
+      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
         <p className="eyebrow mb-3">{text.newKicker}</p>
         <Title lead={text.newTitleLead} emphasis={text.newTitleEmphasis} />
 

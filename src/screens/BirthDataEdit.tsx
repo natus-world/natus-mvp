@@ -94,7 +94,7 @@ export function BirthDataEdit() {
     if (failure) {
       return (
         <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil60}>
-          <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-8 text-center sm:min-h-0 sm:flex-1">
+          <div className="flex flex-col items-center justify-center gap-6 px-8 text-center flex-1">
             <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{failure}</p>
             <button
               type="button"
@@ -126,7 +126,7 @@ export function BirthDataEdit() {
   if (step === 'confirm') {
     return (
       <Screen backdrop="sala" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex min-h-dvh flex-col justify-center gap-6 px-6 sm:min-h-0 sm:flex-1">
+        <div className="flex flex-col justify-center gap-6 px-6 flex-1">
           <p className="eyebrow">{t.kicker}</p>
           <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/80">{t.confirm}</p>
           <div className="flex flex-col gap-2.5">
@@ -153,7 +153,7 @@ export function BirthDataEdit() {
 
   return (
     <Screen backdrop="sala" scrim="even" opacity={PHOTO.veil55}>
-      <div className="flex min-h-dvh flex-col px-[22px] pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0 sm:h-full">
+      <div className="flex flex-col px-[22px] pt-[var(--top-inset)] pb-[var(--bottom-inset)] h-full">
         <p className="eyebrow mb-4">{t.kicker}</p>
         <BasicData
           draft={draft}

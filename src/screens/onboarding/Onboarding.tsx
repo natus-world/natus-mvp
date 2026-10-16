@@ -172,7 +172,7 @@ export function Onboarding() {
     if (failure) {
       return (
         <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil60}>
-          <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-8 text-center sm:min-h-0 sm:flex-1">
+          <div className="flex flex-col items-center justify-center gap-6 px-8 text-center flex-1">
             <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{failure}</p>
             <button
               type="button"
@@ -203,7 +203,7 @@ export function Onboarding() {
 
   return (
     <Screen backdrop={BACKDROPS[step]} scrim="even" opacity={PHOTO.veil55}>
-      <div className="flex min-h-dvh flex-col px-[22px] pt-[var(--top-inset)] pb-8 sm:min-h-0 sm:h-full">
+      <div className="flex flex-col px-[22px] pt-[var(--top-inset)] pb-8 h-full">
         <ProgressRow
           label={copy.onboarding.kicker}
           step={index + 1}
