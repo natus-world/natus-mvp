@@ -11,6 +11,58 @@ import type { CrisisResource } from './schemas/index.ts';
 
 export const MVP_COUNTRIES = ['CL', 'MX', 'CO', 'AR', 'PE'] as const;
 
+/**
+ * The country a phone is in, read from its IANA time zone (owner, 16 Oct
+ * 2026): the help lines follow where the person is, not only where they
+ * said they live. A phone sets its zone by itself when it travels, so this
+ * needs no permission and no network — asking for the location in the middle
+ * of a crisis would put a dialog between somebody and the numbers.
+ *
+ * Only the MVP countries, and only zones no other country shares: anything
+ * else answers null, and the lines of «País donde vives» stand.
+ */
+const ZONES: Readonly<Record<string, (typeof MVP_COUNTRIES)[number]>> = {
+  'America/Santiago': 'CL',
+  'America/Punta_Arenas': 'CL',
+  'America/Coyhaique': 'CL',
+  'Pacific/Easter': 'CL',
+  'Chile/Continental': 'CL',
+  'Chile/EasterIsland': 'CL',
+  'America/Mexico_City': 'MX',
+  'America/Cancun': 'MX',
+  'America/Merida': 'MX',
+  'America/Monterrey': 'MX',
+  'America/Matamoros': 'MX',
+  'America/Chihuahua': 'MX',
+  'America/Ciudad_Juarez': 'MX',
+  'America/Ojinaga': 'MX',
+  'America/Mazatlan': 'MX',
+  'America/Bahia_Banderas': 'MX',
+  'America/Hermosillo': 'MX',
+  'America/Tijuana': 'MX',
+  'Mexico/General': 'MX',
+  'Mexico/BajaNorte': 'MX',
+  'Mexico/BajaSur': 'MX',
+  'America/Bogota': 'CO',
+  'America/Lima': 'PE',
+  'America/Buenos_Aires': 'AR',
+  'America/Cordoba': 'AR',
+  'America/Catamarca': 'AR',
+  'America/Jujuy': 'AR',
+  'America/Mendoza': 'AR',
+};
+
+export function countryFromTimeZone(timeZone: string | undefined): string | null {
+  if (!timeZone) return null;
+  if (timeZone.startsWith('America/Argentina/')) return 'AR';
+  return ZONES[timeZone] ?? null;
+}
+
+/** Where the lines come from: the country the phone is in, else the one chosen. */
+export function helpCountry(home: string | undefined, timeZone: string | undefined): string | undefined {
+  return countryFromTimeZone(timeZone) ?? home;
+}
+
 export type CrisisResourceSet = {
   country: string;
   resources: CrisisResource[];
@@ -61,5 +113,5 @@ export function modelCrisisReply(crisisResponse: string, country: string | undef
 
 /** `tel:` href with everything a dialler would choke on removed. */
 export function telHref(contact: string): string {
-  return `tel:${contact.replace(/[^\d+]/g, '')}`;
+  return `tel:${contact.replace(/[^\d+*#]/g, '')}`;
 }

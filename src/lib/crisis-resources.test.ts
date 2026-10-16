@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MVP_COUNTRIES, resourcesForCountry, telHref } from './crisis-resources.ts';
+import { MVP_COUNTRIES, countryFromTimeZone, helpCountry, resourcesForCountry, telHref } from './crisis-resources.ts';
 
 /**
  * The honest-framing criterion, over the one screen where being wrong costs
@@ -60,7 +60,36 @@ describe('the dial link', () => {
     ['600 360 7777', 'tel:6003607777'],
     ['+54 11 5275-1135', 'tel:+541152751135'],
     ['135', 'tel:135'],
+    // A star code keeps its star: «*4141» dialled as «4141» is somebody else.
+    ['*4141', 'tel:*4141'],
   ])('%s dials %s', (contact, expected) => {
     expect(telHref(contact)).toBe(expected);
+  });
+});
+
+describe('the lines follow the phone', () => {
+  it.each([
+    ['America/Santiago', 'CL'],
+    ['Pacific/Easter', 'CL'],
+    ['America/Argentina/Cordoba', 'AR'],
+    ['America/Buenos_Aires', 'AR'],
+    ['America/Mexico_City', 'MX'],
+    ['America/Tijuana', 'MX'],
+    ['America/Bogota', 'CO'],
+    ['America/Lima', 'PE'],
+  ])('%s is %s', (zone, country) => {
+    expect(countryFromTimeZone(zone)).toBe(country);
+  });
+
+  it('answers null outside the five, and for a zone shared with another country', () => {
+    expect(countryFromTimeZone('Europe/Madrid')).toBeNull();
+    expect(countryFromTimeZone('America/Guayaquil')).toBeNull();
+    expect(countryFromTimeZone(undefined)).toBeNull();
+  });
+
+  it('shows where the phone is, and the chosen country when that is unknown', () => {
+    expect(helpCountry('CL', 'America/Lima')).toBe('PE');
+    expect(helpCountry('CL', 'Europe/Madrid')).toBe('CL');
+    expect(helpCountry(undefined, 'America/Bogota')).toBe('CO');
   });
 });

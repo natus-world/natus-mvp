@@ -1,5 +1,6 @@
 import { copy } from '@/i18n';
 import { resourcesForCountry, telHref } from '@/lib/crisis-resources';
+import { linesCountry } from './help-country';
 
 const t = copy.crisisResources;
 
@@ -48,7 +49,7 @@ export function CrisisResourceList({
   country: string | undefined;
   tone?: 'paper' | 'dark';
 }) {
-  const set = resourcesForCountry(country);
+  const set = resourcesForCountry(linesCountry(country));
   const paper = tone === 'paper';
   const lines = paper ? set.resources.filter((r) => r.type !== 'emergency') : set.resources;
   const emergencies = paper ? set.resources.filter((r) => r.type === 'emergency') : [];

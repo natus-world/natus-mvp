@@ -1,14 +1,24 @@
 {
-  "$comment": "Crisis resources per PDR 6.4. A wrong number here is the worst possible bug in this product. While verified_at is null the crisis screen renders an unverified notice and always shows the international fallback alongside; with a date set it shows the numbers plainly. The 2026-08-19 dates record the product owner accepting the numbers as transcribed from the PDR, which is where they came from - not a call placed to each line. That distinction is written down because the re-verification below is still owed, and because whoever reads this in six months needs to know what was and was not checked. Verify by calling, not by searching, then set the date again. Re-verify every 6 months. Note also: eight of these are short codes (1515, 131, 911, 192, 106, 135, 113, 123) and cannot be dialled from outside the country, which no field here records.",
+  "$comment": "Crisis resources per PDR 6.4. A wrong number here is the worst possible bug in this product. While verified_at is null the crisis screen renders an unverified notice and always shows the international fallback alongside; with a date set it shows the numbers plainly. The 2026-08-19 dates record the product owner accepting the numbers as transcribed from the PDR, which is where they came from - not a call placed to each line. That distinction is written down because the re-verification below is still owed, and because whoever reads this in six months needs to know what was and was not checked. Verify by calling, not by searching, then set the date again. Re-verify every 6 months. Chile's *4141 was added on 2026-10-16: the owner accepted it from the Ministry of Health's own page (minsal.cl), not a call. Note also: nine of these are short codes (*4141, 1515, 131, 911, 192, 106, 135, 113, 123) and cannot be dialled from outside the country, which no field here records.",
   "version": "crisis-resources-v1-unverified",
   "resources": [
+    {
+      "country": "CL",
+      "type": "hotline",
+      "name": "Línea de Prevención del Suicidio",
+      "contact": "*4141",
+      "note": "Del Ministerio de Salud. Gratuita, 24 horas.",
+      "priority": 1,
+      "is_active": true,
+      "verified_at": "2026-10-16"
+    },
     {
       "country": "CL",
       "type": "hotline",
       "name": "Salud Responde",
       "contact": "600 360 7777",
       "note": "Orientación en salud mental, 24 horas.",
-      "priority": 1,
+      "priority": 2,
       "is_active": true,
       "verified_at": "2026-08-19"
     },
@@ -18,7 +28,7 @@
       "name": "Fono Esperanza",
       "contact": "800 800 077",
       "note": "Escucha y contención.",
-      "priority": 2,
+      "priority": 3,
       "is_active": true,
       "verified_at": "2026-08-19"
     },
@@ -28,7 +38,7 @@
       "name": "Línea Libre",
       "contact": "1515",
       "note": "Para personas de 8 a 29 años.",
-      "priority": 3,
+      "priority": 4,
       "is_active": true,
       "verified_at": "2026-08-19"
     },
@@ -38,7 +48,7 @@
       "name": "Emergencias",
       "contact": "131",
       "note": "Ambulancia SAMU.",
-      "priority": 4,
+      "priority": 5,
       "is_active": true,
       "verified_at": "2026-08-19"
     },

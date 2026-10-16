@@ -2,6 +2,7 @@ import { useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent, type Touch
 import { CrisisResourceList } from '@/components/CrisisResourceList';
 import { activeProfile } from '@/store/account';
 import { resourcesForCountry } from '@/lib/crisis-resources';
+import { linesCountry } from './help-country';
 import { copy } from '@/i18n';
 
 const t = copy.chrome.helpNow;
@@ -42,7 +43,10 @@ export function HelpNowPanel({ onClose }: { onClose: () => void }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const swipe = useRef<{ start: number; dy: number } | null>(null);
   const country = activeProfile()?.draft.country;
-  const name = countryName(country);
+  const shown = linesCountry(country);
+  const name = countryName(shown);
+  // Away from home: say whose lines these are and why (owner, 16 Oct 2026).
+  const away = Boolean(shown && country && shown !== country.toUpperCase());
 
   useEffect(() => {
     const before = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -145,8 +149,8 @@ export function HelpNowPanel({ onClose }: { onClose: () => void }) {
         <CrisisResourceList country={country} tone="paper" />
 
         <p className="pie-a">
-          {name ? `${t.countryLines(name)} ` : ''}
-          {t.changeCountry}
+          {name ? `${away ? t.awayLines(name) : t.countryLines(name)} ` : ''}
+          {away ? '' : t.changeCountry}
         </p>
       </div>
     </div>

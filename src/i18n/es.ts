@@ -153,6 +153,8 @@ export const es = {
       body: 'Personas preparadas para escucharte, a cualquier hora.',
       close: 'Cerrar',
       countryLines: (name: string) => `Líneas de ${name}.`,
+      // Proposal (owner, 16 Oct 2026): the lines follow where the phone is.
+      awayLines: (name: string) => `Tu teléfono está en ${name}: te mostramos sus líneas.`,
       changeCountry: 'Puedes cambiar tu país en Perfil.',
     },
     /** The browser tab's title, by section. */

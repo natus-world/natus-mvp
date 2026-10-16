@@ -194,21 +194,26 @@ not rows in `funnel_events`.
 
 What is left outside the code, in rough order of weight:
 
-- The sixteen crisis numbers carry `2026-08-19`, which records the product
+- Chile's *4141 (Minsal's suicide prevention line, free, 24 h) was added
+  first among Chile's lines on 16 Oct 2026, accepted by the owner from
+  minsal.cl. The other sixteen crisis numbers carry `2026-08-19`, which records the product
   owner accepting them as transcribed from the PDR — not a call placed to each
   line. The PDR calls telephone verification an absolute launch blocker; the
   owner decided on 16 Oct 2026 to launch without the calls, with the numbers
   shown and dialled on touch. The calls are still the way to verify them.
-- Eight of those sixteen — 1515, 131, 911, 192, 106, 135, 113, 123 — are short
+- Nine of the seventeen — *4141, 1515, 131, 911, 192, 106, 135, 113, 123 — are short
   codes and cannot be dialled from abroad. Nothing in the data records that, so
   somebody living abroad who selected their home country is shown a number they
   cannot ring. The international fallback on the same screen is all that covers
   it today.
-- **The help lines must follow the country the person is in (owner, 16 Oct
-  2026).** Today they follow «País donde vives», chosen once in onboarding
-  and not editable afterwards, so somebody who moves or travels keeps seeing
-  the first country's lines. How to follow it (an editable country in the
-  profile, or the location the app is opened from) is not decided.
+- **The help lines follow the country the phone is in (owner, 16 Oct 2026,
+  built).** `countryFromTimeZone` (lib/crisis-resources.ts) reads the
+  phone's IANA zone — no permission, no network — for the five countries and
+  zones no other country shares; `linesCountry` (components/help-country.ts)
+  is what every list of lines goes through, and falls back to «País donde
+  vives», which Perfil can change. Away from home the help sheet says «Tu
+  teléfono está en {país}: te mostramos sus líneas.» (proposal). A phone in a
+  country outside the five still shows the home lines, short codes included.
 - **Which countries the app is open to is the owner's to define (16 Oct
   2026).** Today onboarding offers Chile, México, Colombia, Argentina and
   Perú — the five with lines in `crisis-resources.json` — plus «Otro país»,
@@ -381,8 +386,7 @@ revelation (option B) Premium is offered once with the free month day by day
 (`Paywall feature="welcome"`, funnel detail `welcome`), never to premium nor
 after a crisis alert. The crisis screen always has «Volver» (owner). Carta
 completa (05) is `screens/FullChart.tsx`, with Davraz's reading of each point
-from the server (below). Open with the owner: *4141 for Chile (real, Minsal,
-not in `crisis-resources.json`); the why of a therapy in three parts needs a
+from the server (below). Open with the owner: the why of a therapy in three parts needs a
 prompt change; texts the package marks «propuesta» were applied unless they
 broke a rule.
 

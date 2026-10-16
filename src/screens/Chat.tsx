@@ -5,6 +5,7 @@ import { copy } from '@/i18n';
 import { PayPalSubscribe } from '@/components/PayPalSubscribe';
 import { modalityBySlug } from '@/lib/catalog';
 import { resourcesForCountry, telHref } from '@/lib/crisis-resources';
+import { linesCountry } from '@/components/help-country';
 import { detectCrisis, isClinicallyVulnerable, riskLevel } from '@/lib/safety';
 import { chartPlacements } from '@/astrology/natal-chart';
 import { askChat } from '@/ai/chat';
@@ -102,7 +103,7 @@ function moonSign(draft: Parameters<typeof chartPlacements>[0]): string | null {
  * international directory, then the notice when a number is unverified.
  */
 function HelpLines({ country }: { country: string | undefined }) {
-  const set = resourcesForCountry(country);
+  const set = resourcesForCountry(linesCountry(country));
   return (
     <div className="lineas" role="region" aria-label={text.crisisLines}>
       <p className="lt">{text.crisisLines}</p>
