@@ -369,7 +369,12 @@ The birth step refuses a date that is not 18 years past (`lib/age.ts`), so
 also any date to come, with «Natus es para personas mayores de 18 años»
 (proposed). «País donde vives» starts empty and must be chosen: it decides
 the help lines. Accounts and sessions made before by people under 18 were
-left as they are — the owner's call. A copy violation is retried once,
+to be deleted later, with three anonymous test users made on 16 Oct 2026
+(owner: all tests): 136f25bc-0f04-48ca-bb45-e970bb34e7e1,
+14945aac-dee1-47a6-92ef-4928b5fbf632, d15715b0-4cc1-4243-9a67-b52ecec8e883,
+175c72c4-dfcb-46f8-9576-ac766300d2a1, d446a420-6ec3-409f-92a7-ef529180faa0.
+A delete through the Supabase connector needs the owner's approval in the
+moment; it was cancelled twice. A copy violation is retried once,
 telling the model the rule it broke (closes the open question about
 retries); the `command` rule lets a negation through («no tienes que hacerlo
 perfecto»), which had failed a person's Caminos and gift meditation.
