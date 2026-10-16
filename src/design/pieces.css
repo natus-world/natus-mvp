@@ -1,0 +1,247 @@
+/*
+ * The pieces of the branding package (16 Oct 2026), ported as they are.
+ *
+ * Every screen of the package is drawn with the same small vocabulary —
+ * `.k` the kicker, `.t` the screen title, `.vid` the glass, `.fila` a row,
+ * `.p2` the outlined pill — measured in `--u`, one pixel at 390 wide. This
+ * file carries those rules with the package's own names and numbers, so a
+ * screen built from them is the screen that was approved, not an
+ * approximation of it. Scoped under `.pz` so nothing leaks into the screens
+ * not yet rebuilt.
+ *
+ * On desktop the package measures in `--d`, one pixel at 1440 wide, and
+ * draws the pieces at `--u = --d × 1.08`.
+ */
+
+:root {
+  --u: 1px;
+  --d: 1px;
+  --t1: #ece2d0;
+  --t2: rgb(236 226 208 / 0.65);
+  --t3: rgb(236 226 208 / 0.45);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --d: clamp(0.8px, calc(100vw / 1440), 1.25px);
+  }
+}
+
+.pz {
+  color: var(--t1);
+  font-family: var(--font-sans);
+  font-feature-settings: 'lnum' 1;
+}
+
+@media (min-width: 1024px) {
+  .pz {
+    --u: calc(var(--d) * 1.08);
+  }
+}
+
+.pz p {
+  margin: 0;
+}
+
+.pz a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Type ─────────────────────────────────────────────────────────────── */
+
+.pz .k {
+  font: 500 calc(var(--u) * 11) / 1.25 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--t2);
+}
+
+.pz .t {
+  font: 300 calc(var(--u) * 32) / 1.08 var(--font-serif);
+  margin: 0;
+  color: var(--t1);
+  letter-spacing: 0;
+}
+
+.pz .fr {
+  font: 300 calc(var(--u) * 26) / 1.18 var(--font-serif);
+  margin: 0;
+}
+
+.pz :is(.t, .fr) em {
+  font-style: italic;
+}
+
+.pz :is(.t, .fr, .tip, .num b, .marca, .yo) {
+  font-variant-numeric: lining-nums !important;
+  font-feature-settings: 'lnum' 1;
+}
+
+.pz .cuerpo {
+  font: 300 calc(var(--u) * 15) / 1.5 var(--font-sans);
+  color: var(--t2);
+}
+
+@media (min-width: 1024px) {
+  .pz .t {
+    font-size: calc(var(--d) * 60);
+    line-height: 1;
+  }
+
+  .pz .fr {
+    font-size: calc(var(--d) * 40);
+    line-height: 1.12;
+  }
+
+  .pz .k {
+    font-size: calc(var(--d) * 12);
+  }
+}
+
+/* ── Glass ────────────────────────────────────────────────────────────── */
+
+.pz .vid {
+  border-radius: calc(var(--u) * 12);
+  background: rgb(var(--v) / var(--glass-alpha));
+  -webkit-backdrop-filter: blur(calc(var(--u) * 24));
+  backdrop-filter: blur(calc(var(--u) * 24));
+  border: 1px solid rgb(255 255 255 / 0.15);
+}
+
+.pz .pad {
+  padding: calc(var(--u) * 18) calc(var(--u) * 18);
+}
+
+.pz .pila {
+  display: grid;
+  gap: calc(var(--u) * 10);
+}
+
+/* ── Rows ─────────────────────────────────────────────────────────────── */
+
+.pz .fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 12);
+  align-items: center;
+  padding: calc(var(--u) * 14) calc(var(--u) * 16);
+}
+
+.pz .fila + .fila {
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+}
+
+.pz .fk {
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t2);
+}
+
+.pz .ft {
+  font: 400 calc(var(--u) * 15) / 1.3 var(--font-sans);
+  margin-top: calc(var(--u) * 6);
+}
+
+.pz .fd {
+  font: 300 calc(var(--u) * 14) / 1.35 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 3);
+}
+
+.pz .fila .ft:first-child {
+  margin-top: 0;
+}
+
+/* ── Pills ────────────────────────────────────────────────────────────── */
+
+.pz .p2 {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  height: calc(var(--u) * 36);
+  padding: 0 calc(var(--u) * 14);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  background: none;
+  font: 400 calc(var(--u) * 14) / 1 var(--font-sans);
+  white-space: nowrap;
+  color: var(--t1);
+  cursor: pointer;
+}
+
+.pz .p2.on {
+  background: var(--t1);
+  color: #0b120e;
+  border-color: var(--t1);
+  text-shadow: none;
+}
+
+.pz .chev {
+  width: calc(var(--u) * 30);
+  height: calc(var(--u) * 30);
+  border-radius: 50%;
+  border: 1px solid rgb(236 226 208 / 0.25);
+  display: grid;
+  place-items: center;
+}
+
+.pz :is(.chev, .p2) svg {
+  width: calc(var(--u) * 13);
+  height: calc(var(--u) * 13);
+}
+
+.pz .sep {
+  height: 1px;
+  background: rgb(236 226 208 / 0.1);
+  margin: calc(var(--u) * 14) 0;
+}
+
+/* ── Tiles: two to a row ──────────────────────────────────────────────── */
+
+.pz .dos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--u) * 10);
+}
+
+.pz .tile {
+  padding: calc(var(--u) * 16);
+  display: grid;
+  gap: calc(var(--u) * 6);
+  align-content: start;
+  min-height: calc(var(--u) * 118);
+}
+
+.pz .tile svg {
+  width: calc(var(--u) * 26);
+  height: calc(var(--u) * 26);
+  flex: none;
+}
+
+.pz .tile b {
+  font: 400 calc(var(--u) * 15) / 1.25 var(--font-sans);
+}
+
+.pz .tile small {
+  font: 300 calc(var(--u) * 13) / 1.35 var(--font-sans);
+  color: var(--t2);
+}
+
+/* ── The screen's own scroll, cut just below the header ───────────────── */
+
+:is(.pz.scroll, .pz .scroll) {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: calc(var(--u) * 30) calc(var(--u) * 24) calc(var(--u) * 112);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 16);
+}
+
+:is(.pz.scroll, .pz .scroll)::-webkit-scrollbar {
+  display: none;
+}

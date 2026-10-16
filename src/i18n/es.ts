@@ -146,6 +146,18 @@ export const es = {
   },
   today: {
     kicker: 'Hoy',
+    // Package 03 (16 Oct 2026): the date as the kicker, «jueves 15 de octubre».
+    date: (d: Date) => {
+      const weekday = d.toLocaleDateString('es', { weekday: 'long' });
+      const month = d.toLocaleDateString('es', { month: 'long' });
+      return `${weekday} ${d.getDate()} de ${month}`;
+    },
+    nextKicker: 'Lo siguiente',
+    nextAllDone: (n: number) => `Hoy ya marcaste tus ${n} prácticas.`,
+    nextNone: 'Hoy no hay prácticas pendientes.',
+    nextNoRoutine: 'Elige un camino para armar tu rutina.',
+    practicesKicker: 'Tus prácticas de hoy',
+    needMapKicker: 'Qué necesitas ahora · de tu mapa',
     greeting: 'Hola, ',
     greetingWithoutName: 'Hola',
     empty: 'Tu espacio se arma con tu mapa. Empecemos por ahí.',
@@ -158,9 +170,9 @@ export const es = {
     journeyEmpty: 'Tu rutina sale de tus caminos.',
     needKicker: 'Qué necesitas ahora',
     meditations: 'Meditaciones',
-    meditationsBody: 'Escribes una intención y se arma una práctica guiada.',
+    meditationsBody: 'Una práctica guiada, armada para hoy',
     comparison: 'Comparar cartas',
-    comparisonBody: 'Un espejo para conversar, no un veredicto sobre la relación.',
+    comparisonBody: 'Mirar un vínculo desde los dos lados',
   },
   profile: {
     kicker: 'Tú',

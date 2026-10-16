@@ -1,13 +1,14 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
-import { DayArc } from '@/design/DayArc';
-import { ChevronIcon } from '@/design/icons';
+import { CheckIcon, ChevronIcon } from '@/design/icons';
+import { CompareIcon, MeditationsIcon } from '@/design/brand-icons';
 import { CrisisBanner } from '@/components/CrisisBanner';
 import { PATHS } from '@/components/routes';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { activeProfile, isSignedIn } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
-import { currentMatchFor, isCheckedToday } from '@/store/matches';
+import { currentMatchFor, isCheckedToday, toggleCheckIn } from '@/store/matches';
 import { hasRecentLowSeverity, markFalsePositive } from '@/store/crisis';
 import { useActiveCrisisId } from '@/components/takeover';
 import { copy } from '@/i18n';
@@ -16,12 +17,15 @@ import { pendingInvite } from '@/store/friends';
 import { routineFor } from '@/store/routine';
 
 const t = copy.today;
+const routineText = copy.routine;
+const CADENCE = copy.practice.cadence;
 
 function firstNameOf(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] ?? '';
 }
 
 export function Today() {
+  const [, force] = useState(0);
   const crisisId = useActiveCrisisId();
   const profile = activeProfile();
   const synthesis = currentSynthesis();
@@ -45,97 +49,147 @@ export function Today() {
   }
 
   const practices = routineFor(match);
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
   const doneToday = practices.filter((p) => isCheckedToday(p.title, today)).length;
+  const next = practices.find((p) => !isCheckedToday(p.title, today));
   const name = firstNameOf(profile.draft.legal_birth_name);
+  const mark = (title: string) => {
+    toggleCheckIn(title, today);
+    force((n) => n + 1);
+  };
+  const marked = t.marked(doneToday, practices.length);
 
+  // Package 03 (16 Oct 2026). The day's phrase, today's sky and Davraz's tip
+  // stay out until «Tus astros de hoy» is built (owner, 16 Oct 2026).
   return (
     <Screen photo="muroSombra" veil={0.42} glassAlpha={0.77}>
-      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
-        <p className="eyebrow mb-3">{t.kicker}</p>
-        <h1 className="mb-6 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {name ? (
-            <>
-              {t.greeting}
-              <em className="font-serif text-crema italic">{name}</em>
-            </>
-          ) : (
-            t.greetingWithoutName
-          )}
-        </h1>
+      <div className="pz hoy scroll">
+        <div className="col1">
+          <p className="k">{t.date(now)}</p>
+          <p className="t">
+            {name ? (
+              <>
+                {t.greeting}
+                <em>{name}</em>
+              </>
+            ) : (
+              t.greetingWithoutName
+            )}
+          </p>
 
-        {hasRecentLowSeverity() && (
-          <div className="-mx-2 mb-5">
-            <CrisisBanner country={profile.draft.country} />
-          </div>
-        )}
+          {hasRecentLowSeverity() && <CrisisBanner country={profile.draft.country} />}
 
-        {!isSignedIn() && (
-          <Link to="/registro" className="surface surface-p14 mb-3 block no-underline">
-            <p className="text-[length:var(--fs-body-13)] leading-snug text-blanco">{t.saveTitle}</p>
-            <p className="mt-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/55">{t.saveBody}</p>
-          </Link>
-        )}
-
-        {isSignedIn() && pendingInvite() && (
-          <Link
-            to={`/amigos/${pendingInvite()}`}
-            className="surface surface-p14 mb-3 flex items-center gap-3 no-underline"
-          >
-            <p className="min-w-0 flex-1 text-[length:var(--fs-body-13)] leading-snug text-blanco">
-              {copy.friends.pending}
-            </p>
-            <span className="chip chip-p6 px-3 text-crema/75">{copy.friends.pendingCta}</span>
-          </Link>
-        )}
-
-        <div className="flex flex-col gap-3">
-          {practices.length > 0 ? (
-            <Link to={PATHS.journey} className="surface surface-p16 block text-center no-underline">
-              <p className="eyebrow mb-3 text-left">{t.journeyKicker}</p>
-              <DayArc done={doneToday} total={practices.length} />
-              <p className="mt-2 font-serif text-[length:var(--fs-voice-17)] leading-snug text-blanco">
-                {t.marked(doneToday, practices.length)}
-              </p>
-              <p className="mt-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/55">{t.markedNote}</p>
-            </Link>
-          ) : (
-            <Link to={PATHS.paths} className="surface surface-p14 flex items-center gap-3 no-underline">
-              <div className="min-w-0 flex-1">
-                <p className="eyebrow mb-1.5">{t.journeyKicker}</p>
-                <p className="text-[length:var(--fs-body-13)] leading-snug text-blanco">{t.journeyEmpty}</p>
+          {practices.length === 0 ? (
+            <Link to={PATHS.paths} className="vid fila">
+              <div>
+                <p className="fk">{t.nextKicker}</p>
+                <p className="ft">{t.nextNoRoutine}</p>
               </div>
-              <ChevronIcon className="shrink-0 text-crema/60" />
+              <span className="chev">
+                <ChevronIcon />
+              </span>
+            </Link>
+          ) : next ? (
+            <div className="vid">
+              <div className="fila">
+                <div>
+                  <p className="fk">{t.nextKicker}</p>
+                  <p className="ft">{next.title}</p>
+                  <p className="fd">
+                    {CADENCE[next.cadence]} · {marked}
+                  </p>
+                </div>
+                <button type="button" className="p2" aria-pressed={false} onClick={() => mark(next.title)}>
+                  {routineText.markToday}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="vid">
+              <div className="fila">
+                <div>
+                  <p className="fk">{t.nextKicker}</p>
+                  <p className="ft">{t.nextAllDone(practices.length)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isSignedIn() && (
+            <Link to="/registro" className="vid fila">
+              <div>
+                <p className="ft">{t.saveTitle}</p>
+                <p className="fd">{t.saveBody}</p>
+              </div>
+              <span className="chev">
+                <ChevronIcon />
+              </span>
             </Link>
           )}
 
-          <Link to={PATHS.chart} className="surface surface-p14 flex items-center gap-3 no-underline">
-            <div className="min-w-0 flex-1">
-              <p className="eyebrow mb-1.5">{t.needKicker}</p>
-              <p className="line-clamp-4 text-[length:var(--fs-body-13)] leading-relaxed text-blanco/85">
-                {synthesis.synthesis.soul_map_synthesis.que_necesitas_ahora}
-              </p>
-            </div>
-            <ChevronIcon className="shrink-0 text-crema/60" />
-          </Link>
+          {isSignedIn() && pendingInvite() && (
+            <Link to={`/amigos/${pendingInvite()}`} className="vid fila">
+              <p className="ft">{copy.friends.pending}</p>
+              <span className="p2">{copy.friends.pendingCta}</span>
+            </Link>
+          )}
 
-          <div className="surface rows px-0">
-            {[
-              { to: PATHS.meditations, title: t.meditations, body: t.meditationsBody },
-              // PDR 8.5 rule 6: not offered while the person is vulnerable.
-              ...(comparisonWithheld(profile)
-                ? []
-                : [{ to: PATHS.comparison, title: t.comparison, body: t.comparisonBody }]),
-            ].map((entry) => (
-              <Link key={entry.to} to={entry.to} className="flex items-center gap-3 px-4 py-3.5 no-underline">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[length:var(--fs-heading-15)] leading-snug text-blanco">{entry.title}</p>
-                  <p className="mt-0.5 text-[length:var(--fs-body-12)] leading-relaxed text-crema/60">{entry.body}</p>
-                </div>
-                <ChevronIcon className="shrink-0 text-crema/60" />
+          <div className="dos">
+            <Link to={PATHS.meditations} className="vid tile">
+              <MeditationsIcon />
+              <b>{t.meditations}</b>
+              <small>{t.meditationsBody}</small>
+            </Link>
+            {/* PDR 8.5 rule 6: not offered while the person is vulnerable. */}
+            {!comparisonWithheld(profile) && (
+              <Link to={PATHS.comparison} className="vid tile">
+                <CompareIcon />
+                <b>{t.comparison}</b>
+                <small>{t.comparisonBody}</small>
               </Link>
-            ))}
+            )}
           </div>
+        </div>
+
+        <div className="col2">
+          {practices.length > 0 && (
+            <div className="vid">
+              <div className="fila">
+                <div>
+                  <p className="fk">{t.practicesKicker}</p>
+                  <p className="ft">{marked}</p>
+                </div>
+              </div>
+              {practices.map((practice) => {
+                const done = isCheckedToday(practice.title, today);
+                return (
+                  <div key={practice.title} className="fila">
+                    <div>
+                      <p className="fk">{CADENCE[practice.cadence]}</p>
+                      <p className="ft">{practice.title}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className={done ? 'p2 on' : 'p2'}
+                      aria-pressed={done}
+                      onClick={() => mark(practice.title)}
+                    >
+                      {done && <CheckIcon />}
+                      {done ? routineText.doneToday : routineText.markToday}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <Link to={PATHS.chart} className="vid pad pila">
+            <p className="k">{t.needMapKicker}</p>
+            <p className="cuerpo" style={{ color: 'var(--t1)' }}>
+              {synthesis.synthesis.soul_map_synthesis.que_necesitas_ahora}
+            </p>
+          </Link>
         </div>
       </div>
     </Screen>

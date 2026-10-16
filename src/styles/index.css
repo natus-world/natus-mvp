@@ -8,6 +8,20 @@
  */
 @import '../design/tokens.css';
 @import '../design/primitives.css';
+@import '../design/pieces.css';
+@import '../design/screens/hoy.css';
+@import '../design/screens/entrada.css';
+@import '../design/screens/revelacion.css';
+@import '../design/screens/carta.css';
+@import '../design/screens/caminos.css';
+@import '../design/screens/rutina.css';
+@import '../design/screens/bitacora.css';
+@import '../design/screens/chat.css';
+@import '../design/screens/perfil.css';
+@import '../design/screens/ayuda.css';
+@import '../design/screens/premium.css';
+@import '../design/screens/meditaciones.css';
+@import '../design/screens/comparar.css';
 
 @font-face {
   font-family: 'Cormorant Garamond';

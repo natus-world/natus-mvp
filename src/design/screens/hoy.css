@@ -1,0 +1,54 @@
+/*
+ * Hoy (package 03, 15 Oct 2026). On the phone one column that scrolls; on
+ * desktop the day on the left — what the phone shows without scrolling, plus
+ * the shortcuts — and the detail on the right, scrolled on its own.
+ */
+@media (min-width: 1024px) {
+  .hoy.scroll {
+    position: relative;
+    display: block;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .hoy .col1 {
+    position: absolute;
+    left: 0;
+    top: calc(var(--d) * 38);
+    width: min(calc(var(--d) * 560), calc(100% - var(--d) * 470 - 24px));
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 20);
+  }
+
+  .hoy .col2 {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: calc(var(--d) * 470);
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: calc(var(--d) * 8) 0 calc(var(--d) * 40);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 16);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 16), #000 92%, transparent);
+    mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 16), #000 92%, transparent);
+  }
+
+  .hoy .col2::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* On the phone the two columns are one, in the package's order. */
+@media (max-width: 1023.98px) {
+  .hoy :is(.col1, .col2) {
+    display: contents;
+  }
+
+  .hoy .col1 > .dos {
+    order: 9;
+  }
+}
