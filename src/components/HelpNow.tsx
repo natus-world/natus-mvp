@@ -3,6 +3,7 @@ import { CrisisResourceList } from '@/components/CrisisResourceList';
 import { activeProfile } from '@/store/account';
 import { resourcesForCountry } from '@/lib/crisis-resources';
 import { linesCountry } from './help-country';
+import { countryName as countryNameOf } from './countries';
 import { copy } from '@/i18n';
 
 const t = copy.chrome.helpNow;
@@ -29,7 +30,7 @@ const SWIPE_CLOSE_PX = 90;
 function countryName(country: string | undefined): string | null {
   if (resourcesForCountry(country).resources.length === 0) return null;
   const code = (country ?? '').toUpperCase();
-  return copy.onboarding.basicData.countries.find(([c]) => c === code)?.[1] ?? null;
+  return countryNameOf(code);
 }
 
 /**

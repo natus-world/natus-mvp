@@ -214,10 +214,15 @@ What is left outside the code, in rough order of weight:
   vives», which Perfil can change. Away from home the help sheet says «Tu
   teléfono está en {país}: te mostramos sus líneas.» (proposal). A phone in a
   country outside the five still shows the home lines, short codes included.
-- **Which countries the app is open to is the owner's to define (16 Oct
-  2026).** Today onboarding offers Chile, México, Colombia, Argentina and
-  Perú — the five with lines in `crisis-resources.json` — plus «Otro país»,
-  which gets only the international directory.
+- **Anybody may be born or live in any country (owner, 16 Oct 2026, built).**
+  `components/countries.ts` lists every ISO 3166 country with the browser's
+  own Spanish names; the birth step and «País donde vives» offer them all —
+  the five with help lines first — and Perfil picks the rest from one list.
+  «Otro país» (`XX`) stays only for who chose it before. A country without
+  lines of its own shows the international directory and the emergency
+  instruction. Open: Anthropic does not serve people physically in Venezuela
+  or Cuba (its supported-regions policy), and nothing blocks the model
+  surfaces there yet — the owner has not answered whether to.
 - The door is open: `REQUIRE_INVITE=false`, so anybody with the link is in.
   Closing it needs a Google Cloud OAuth client first — the code is built and
   waiting, the console work is not done. Access control on GitHub Pages is an

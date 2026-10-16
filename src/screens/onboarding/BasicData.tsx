@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react';
 import { NextButton, StepBody } from '@/components/onboarding/StepChrome';
 import { BIRTH_COUNTRIES } from '@/components/birth-countries';
+import { ELSEWHERE, LIVING_COUNTRIES } from '@/components/countries';
 import { BirthPlaceField } from '@/components/onboarding/BirthPlaceField';
 import { BirthIcon, GlobeIcon, PinIcon, YouIcon } from '@/components/onboarding/icons';
 import type { OnboardingDraft } from '@/store/session';
@@ -180,11 +181,21 @@ export function BasicData({
               <option value="" disabled>
                 {text.countryLabel}
               </option>
-              {text.countries.map(([code, name]) => (
+              {/* Every country (owner, 16 Oct 2026): the five with help lines
+                  first, then the rest of the world. */}
+              {LIVING_COUNTRIES.first.map(([code, name]) => (
                 <option key={code} value={code}>
-                  {code === 'XX' ? text.livesElsewhere : `${text.livesIn}${name}`}
+                  {`${text.livesIn}${name}`}
                 </option>
               ))}
+              <optgroup label={text.otherCountries}>
+                {LIVING_COUNTRIES.rest.map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {`${text.livesIn}${name}`}
+                  </option>
+                ))}
+              </optgroup>
+              {draft.country === ELSEWHERE && <option value={ELSEWHERE}>{text.livesElsewhere}</option>}
             </select>
             <p id="country-helper" className="l">
               {text.countryHelper}

@@ -22,14 +22,10 @@ import { listFriends } from '@/store/friends';
 import { initialOf } from '@/components/ProfileButton';
 import { PayPalSubscribe } from '@/components/PayPalSubscribe';
 import { Row, RowIcon, Tick, Title } from '@/screens/profile/parts';
+import { LIVING_COUNTRIES, countryName } from '@/components/countries';
 
 const t = copy.profile;
 const GENDERS = copy.onboarding.basicData.genderOptions;
-// In the package's order: the five with help lines, then the rest.
-const ORDER = ['CL', 'MX', 'CO', 'PE', 'AR'];
-const rank = (code: string) => (code === 'XX' ? 99 : ORDER.includes(code) ? ORDER.indexOf(code) : 50);
-const LIVING = [...copy.onboarding.basicData.countries].sort(([a], [b]) => rank(a) - rank(b));
-const COUNTRIES = new Map(copy.birthCountries);
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Where PayPal keeps the subscriptions a person pays (proposal, 16 Oct 2026). */
@@ -194,7 +190,8 @@ export function Profile() {
   }
 
   const genderLabel = GENDERS.find(([value]) => value === gender)?.[1];
-  const countryName = LIVING.find(([code]) => code === country)?.[1];
+  const livingName = country ? countryName(country) : undefined;
+  const elsewhere = Boolean(country) && !(LIVING_COUNTRIES.first as readonly (readonly [string, string])[]).some(([c]) => c === country);
   const accountLine = remote
     ? google
       ? t.rows.accountGoogle
@@ -225,7 +222,7 @@ export function Profile() {
           : '';
         const where = [
           draft?.birth_city,
-          COUNTRIES.get(draft?.birth_country ?? '') || draft?.birth_country,
+          (draft?.birth_country ? countryName(draft.birth_country) : undefined) || draft?.birth_country,
         ]
           .filter(Boolean)
           .join(', ');
@@ -309,8 +306,10 @@ export function Profile() {
             <p className="k">{t.country.kicker}</p>
             <Title lead={t.country.titleLead} emphasis={t.country.titleEmphasis} />
             <p className="sub">{t.country.sub}</p>
+            {/* Every country (owner, 16 Oct 2026): the five with help lines,
+                then the rest of the world in one list. */}
             <div role="radiogroup" aria-label={t.country.kicker} className="lista">
-              {LIVING.map(([code, label]) => (
+              {LIVING_COUNTRIES.first.map(([code, label]) => (
                 <button
                   key={code}
                   type="button"
@@ -323,11 +322,35 @@ export function Profile() {
                 >
                   <span className="tx">
                     <span className="t1">{label}</span>
-                    {code === 'XX' && <span className="t2">{t.country.other}</span>}
                   </span>
                   <span className="ck">{country === code && Tick}</span>
                 </button>
               ))}
+              <label className={elsewhere ? 'op on' : 'op'}>
+                <span className="tx">
+                  <span className="t1">{elsewhere ? livingName : t.country.otherLabel}</span>
+                  <span className="t2">{t.country.other}</span>
+                </span>
+                <span className="ck">{elsewhere && Tick}</span>
+                <select
+                  className="op-select"
+                  aria-label={t.country.otherLabel}
+                  value={elsewhere ? country : ''}
+                  onChange={(e) => {
+                    const code = e.target.value;
+                    if (code && updateActiveProfile({ country: code })) setCountry(code);
+                  }}
+                >
+                  <option value="" disabled>
+                    {t.country.otherLabel}
+                  </option>
+                  {LIVING_COUNTRIES.rest.map(([code, name]) => (
+                    <option key={code} value={code}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </>
         );
@@ -621,7 +644,7 @@ export function Profile() {
                 <Row
                   icon={RowIcon.country}
                   title={t.rows.country}
-                  line={countryName ? t.rows.countryLine(countryName) : undefined}
+                  line={livingName ? t.rows.countryLine(livingName) : undefined}
                   to="?ver=pais"
                 />
               )}

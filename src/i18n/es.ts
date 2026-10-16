@@ -59,6 +59,8 @@ export const es = {
       // Owner, 16 Oct 2026: only adults; proposed text.
       underage: 'Natus es para personas mayores de 18 años.',
       countryHelper: 'Define qué líneas de ayuda ves',
+      elsewhere: 'Otro país',
+      otherCountries: 'Otros países',
       countries: [
         ['CL', 'Chile'],
         ['MX', 'México'],
@@ -289,6 +291,8 @@ export const es = {
       titleEmphasis: 'vives',
       sub: 'Define qué líneas de ayuda ves.',
       other: 'Te mostramos ayuda internacional',
+      // Proposal (owner, 16 Oct 2026: any country of the world).
+      otherLabel: 'Otro país',
     },
     voice: {
       kicker: 'Cómo te hablamos',
