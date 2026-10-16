@@ -288,7 +288,10 @@ account even to pay a subscription by card** (the owner tried it, 15 Oct
 and is off the build list (owner, 16 Oct 2026): if it changes, the premium
 logic stays and only the notifier changes.
 
-**Where Premium is offered — decided 15 Oct 2026, not built.** Three
+**Where Premium is offered — decided 15 Oct 2026, mostly not built.** Built
+(16 Oct 2026): the crisis rule — `my_quota` returns `offer_premium: false`
+for seven days after an alert the person did not mark as not their case, and
+the paywall then says what is used up without the offer. Three
 levels, never pressure: (1) always at hand — «Tu plan» in the profile (what
 each plan includes, the free month, and for premium the next charge and
 «Cancelar» in the same place: Chile's Ley 21.398) and a «Ver Premium» link

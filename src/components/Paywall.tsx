@@ -1,5 +1,6 @@
 import { copy } from '@/i18n';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { fetchQuota } from '@/store/quota';
 import { PayPalSubscribe } from './PayPalSubscribe';
 import { track } from '@/store/funnel';
 import type { PlanFeature } from '@/lib/quota';
@@ -21,9 +22,23 @@ const text = copy.paywall;
  * gone: it changed nothing on the server.
  */
 export function Paywall({ feature, onDismiss }: { feature: PlanFeature; onDismiss: () => void }) {
+  // After a crisis alert the server holds the offer back for seven days
+  // (decided 15 Oct 2026): what is used up is still said, Premium is not.
+  // Unknown until the server answers, so the offer never flashes.
+  const [offer, setOffer] = useState<boolean | null>(null);
   useEffect(() => {
-    track('paywall_seen', feature);
+    let live = true;
+    void fetchQuota(feature).then((q) => {
+      if (live) setOffer(q ? q.offerPremium : true);
+    });
+    return () => {
+      live = false;
+    };
   }, [feature]);
+
+  useEffect(() => {
+    if (offer) track('paywall_seen', feature);
+  }, [feature, offer]);
 
   return (
     <div
@@ -39,13 +54,15 @@ export function Paywall({ feature, onDismiss }: { feature: PlanFeature; onDismis
         {text.body[feature]}
       </p>
 
-      <div className="mb-3.5 border-t border-crema/15 pt-3">
-        <p className="text-[length:var(--fs-body-13)] text-blanco">{text.offerTitle}</p>
-        <p className="mt-1 mb-3 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-          {text.offerBody}
-        </p>
-        <PayPalSubscribe />
-      </div>
+      {offer && (
+        <div className="mb-3.5 border-t border-crema/15 pt-3">
+          <p className="text-[length:var(--fs-body-13)] text-blanco">{text.offerTitle}</p>
+          <p className="mt-1 mb-3 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
+            {text.offerBody}
+          </p>
+          <PayPalSubscribe />
+        </div>
+      )}
 
       <button
         type="button"

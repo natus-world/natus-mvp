@@ -1,7 +1,7 @@
 -- Natus — plan quotas (v1.2 F-01), adversarially.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(18);
+select plan(20);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -92,6 +92,16 @@ select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
 
 select is((public.my_quota('chat') ->> 'remaining')::int, 0,
   'Alice reads her own quota');
+
+select is((public.my_quota('chat') ->> 'offer_premium')::boolean, true,
+  'With no recent alert, Premium may be offered');
+
+reset role;
+insert into public.crisis_events (user_id, severity, category, layer, matched, excerpt, source_surface)
+  values ('aaaaaaaa-0000-4000-8000-000000000001', 'low', 'indirecto', 'deterministic', '{}', '', 'journal');
+select pg_temp.act_as('aaaaaaaa-0000-4000-8000-000000000001');
+select is((public.my_quota('chat') ->> 'offer_premium')::boolean, false,
+  'For seven days after an alert, it is not');
 
 select throws_ok(
   $$select public.quota_remaining('bbbbbbbb-0000-4000-8000-000000000002', 'chat')$$,
