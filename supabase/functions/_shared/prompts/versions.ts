@@ -1,4 +1,4 @@
-export const CHAT_PROMPT_VERSION = 'chat-v1.6';
+export const CHAT_PROMPT_VERSION = 'chat-v1.7';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
@@ -8,6 +8,12 @@ export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chat-v1.7',
+    date: '2026-10-16',
+    change:
+      'Davraz reads the whole person (owner, 16 Oct 2026): the calculated chart with the Hellenistic and propositive rules, where and when they were born, what they told at the start and their routine, read by the function; and recommends stones, aromas, colours, plants and other spiritual practices from a fixed table of correspondences by sign and element, as tradition and support for a practice, never as cure, nothing ingested, no psychoactives, nothing to buy.',
+  },
   {
     version: 'chat-v1.6',
     date: '2026-10-16',

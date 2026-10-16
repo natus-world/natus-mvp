@@ -1,6 +1,6 @@
 /**
  * Reading a chart (v1.2 A-02), for the prompts that interpret one — the Soul
- * Map and the comparison — and no other. Kept apart from shared.ts so the
+ * Map, the comparison and, since chat-v1.7, the chat — and no other. Kept apart from shared.ts so the
  * prompts that do not read a chart do not change with it; versions.test.ts
  * fingerprints a prompt together with every local file it imports.
  */

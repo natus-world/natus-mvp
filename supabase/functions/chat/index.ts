@@ -1,3 +1,4 @@
+import { readPersonContext } from '../_shared/person.ts';
 import { memoryConsented, readMemory } from '../_shared/memory.ts';
 import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
@@ -209,9 +210,11 @@ Deno.serve(async (request) => {
   const context = chatContextSchema.safeParse(body);
   if (!context.success) return json(request, { error: 'invalid_context' }, 400);
 
-  const [vulnerable, gender, memory] = await Promise.all([
+  const [vulnerable, gender, person, memory] = await Promise.all([
     callerIsClinicallyVulnerable(caller, userId),
     callerGrammaticalGender(caller, userId),
+    // chat-v1.7: the chart, the numbers and what the person told, read here.
+    readPersonContext(caller, userId),
     // v1.2 M-01: premium with consent reads the memory on every answer;
     // otherwise it is paused and the block is left out.
     quota.tier === 'premium' && (await memoryConsented(caller, userId)) ? readMemory(caller, userId) : null,
@@ -239,13 +242,14 @@ Deno.serve(async (request) => {
       user: buildChatUserMessage({
         question: message,
         synthesis: context.data.synthesis,
-        numerology: context.data.numerology,
+        numerology: person.numerology ?? context.data.numerology,
         risk,
         recommendedSlugs,
         history: context.data.history,
         gender,
         memory,
         comparison,
+        person: { chart: person.chart, birth: person.birth, told: person.told, routine: person.routine },
       }),
       schema: chatResponseSchema,
       maxTokens: MAX_OUTPUT_TOKENS.chat,

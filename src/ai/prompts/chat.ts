@@ -1,6 +1,9 @@
 import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES, addressLine, personText } from './shared.ts';
 import type { ComparisonResult, Numerology, SoulMapSynthesis } from '@/lib/schemas/index.ts';
 import type { GrammaticalGender } from '@/lib/model-input.ts';
+import type { NatalChart } from '@/lib/natal-chart.ts';
+import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
+import { SPIRITUAL_RULES, describeCorrespondences } from './spiritual.ts';
 
 /**
  * The conversation of PDR section 10. Reconstructed — see `shared.ts` for
@@ -89,6 +92,20 @@ mala. Lo que fluye se dice como lo que fluye naturalmente; lo que pide más
 trabajo, junto con cómo se puede trabajar. No hables por el amigo ni supongas
 lo que siente, y no agregues nada de su carta que no esté en la comparación.
 
+LO QUE SABES DE ELLA
+Te llega su carta natal calculada, sus números, lo que contó al empezar, sus
+caminos y su rutina. Léelos y úsalos: cuando pregunta por su carta, sus
+números o algo que se lee desde ahí, responde desde lo concreto ("tu Luna en
+Cáncer, en casa 4", "tu camino de vida 7"), no en general. Si no hay carta
+calculada o falta la hora, dilo con naturalidad y no inventes posiciones,
+Ascendente ni casas.
+
+${HELLENISTIC_RULES}
+
+${PROPOSITIVE_RULES}
+
+${SPIRITUAL_RULES}
+
 MEMORIA
 Si la persona tiene Premium, te llega lo que Natus recuerda de ella: cosas
 que contó antes en su bitácora, en otras conversaciones o al decir cómo le
@@ -128,7 +145,19 @@ export function buildChatUserMessage(input: {
   memory?: readonly { category: string; content: string }[] | null;
   /** A comparison with a friend, read by the function while they are friends. */
   comparison?: ComparisonResult | null;
+  /**
+   * What the function reads of the person itself (owner, 16 Oct 2026): the
+   * chart as calculated, where and when they were born, what they told at
+   * the start and the routine they have. Never the clinical answers.
+   */
+  person?: {
+    chart: NatalChart | null;
+    birth: string;
+    told: string;
+    routine: readonly string[];
+  } | null;
 }): string {
+  const person = input.person ?? null;
   const numbers = input.numerology
     ? `Camino de vida ${input.numerology.life_path} · expresión ${input.numerology.expression} · alma ${input.numerology.soul_urge} · personalidad ${input.numerology.personality} · cumpleaños ${input.numerology.birthday}`
     : 'sin números calculados';
@@ -146,6 +175,21 @@ export function buildChatUserMessage(input: {
     `TEMAS INFERIDOS: ${input.synthesis.inferred_topics.join(', ') || 'ninguno'}`,
     // PDR 10.2. The derived level, never the answers it came from.
     `NIVEL DE RIESGO DERIVADO: ${input.risk}`,
+    ...(person
+      ? [
+          '',
+          `NACIMIENTO: ${person.birth}`,
+          '',
+          'SU CARTA NATAL',
+          person.chart ? describeChart(person.chart) : 'Sin carta calculada.',
+          ...(person.chart ? ['', 'CORRESPONDENCIAS (tabla de Natus)', describeCorrespondences(person.chart)] : []),
+          '',
+          'LO QUE CONTÓ AL EMPEZAR',
+          person.told ? personText(person.told) : '(nada)',
+          '',
+          `SU RUTINA: ${person.routine.length ? person.routine.join(' · ') : 'todavía no tiene'}`,
+        ]
+      : []),
     `MODALIDADES YA SUGERIDAS (únicos slugs permitidos): ${input.recommendedSlugs.join(', ') || 'ninguna'}`,
     ...(input.memory
       ? [

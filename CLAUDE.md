@@ -349,6 +349,21 @@ now says when the chart was asked for and could not be calculated, with a
 link to the birth data. The texts of the field and of that notice are
 proposals; the privacy policy names Open-Meteo.
 
+**Davraz reads the whole person (chat-v1.7, owner, 16 Oct 2026).** The chat
+function reads, as the person (`_shared/person.ts`): the chart stored in
+`natal_charts`, described with the Hellenistic and propositive rules; the
+numbers, computed there from the birth name and date; where and when they
+were born; what they told at the start; and their active routine. Never the
+clinical answers. It recommends stones, aromas, colours, plants and other
+spiritual practices (rituals, the Moon, tarot as reflection) from a fixed
+table of correspondences by sign and element (`prompts/spiritual.ts`: Sun,
+Moon, Ascendant and the scarce elements) — as tradition and support for a
+practice, never cure or protection, nothing ingested, no psychoactives,
+nothing to buy. The table is the commonest Western one and waits for the
+owner's review. Before, the chat saw only the Soul Map's summary and said
+crystals were not part of the map. `lintChartJudgement` still holds only the
+answers about a comparison.
+
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
 (`cache_read_tokens` answers it), and whether a retry should tell the model
