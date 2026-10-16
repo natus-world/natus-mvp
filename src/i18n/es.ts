@@ -334,7 +334,8 @@ export const es = {
     save: 'Guardar',
     saved: 'Guardada',
     dismiss: 'No me hace sentido',
-    dismissed: 'Descartada',
+    removed: (name: string) => `Quitamos ${name} de tus caminos.`,
+    undo: 'Deshacer',
   },
   routine: {
     kicker: 'Tu rutina',

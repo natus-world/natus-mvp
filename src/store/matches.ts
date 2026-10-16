@@ -43,7 +43,8 @@ export type CheckIn = {
   comment?: string | null;
 };
 
-const DISMISSAL_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+// v1.2 R-05 (owner, 15 Oct 2026): a week, replacing US-6.2 CA3's 90 days.
+const DISMISSAL_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 function newId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `match-${Math.trunc(performance.now())}`;
@@ -117,7 +118,10 @@ export function clearReaction(slug: string): void {
   );
 }
 
-/** US-6.2 CA3: dismissed modalities do not reappear in a re-match for 90 days. */
+/**
+ * v1.2 R-05: a dismissed therapy does not reappear for 7 days; after that the
+ * next review may propose it again.
+ */
 export function recentlyDismissedSlugs(now = Date.now()): string[] {
   const reactions = currentMatch()?.reactions ?? {};
   return Object.entries(reactions)

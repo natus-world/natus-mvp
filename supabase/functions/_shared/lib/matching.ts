@@ -48,7 +48,7 @@ export type FilterOutcome = {
   strategy: FilterStrategy;
   /** Slugs removed because the person is clinically vulnerable. */
   excludedForVulnerability: string[];
-  /** Slugs removed because they were dismissed within the last 90 days. */
+  /** Slugs removed because they were dismissed within the last 7 days (v1.2 R-05). */
   excludedForDismissal: string[];
   /** How many were cut by the size cap, and never silently. */
   droppedForSize: number;
@@ -61,7 +61,7 @@ export type FilterInput = {
   openness: readonly string[];
   inferredTopics: readonly string[];
   clinicallyVulnerable: boolean;
-  /** US-6.2 CA3: dismissed modalities do not reappear for 90 days. */
+  /** v1.2 R-05: dismissed modalities do not reappear for 7 days. */
   dismissedSlugs?: readonly string[];
 };
 

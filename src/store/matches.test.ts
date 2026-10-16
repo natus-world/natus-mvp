@@ -1,5 +1,15 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { checkInToday, rateCheckIn, toggleCheckIn, totalCheckIns } from './matches';
+import {
+  checkInToday,
+  clearReaction,
+  rateCheckIn,
+  recentlyDismissedSlugs,
+  saveMatch,
+  setReaction,
+  toggleCheckIn,
+  totalCheckIns,
+} from './matches';
+import type { MatchResult } from '@/lib/schemas';
 import { clearAll } from './db';
 import { installMemoryStorage } from './memory-storage.testing.ts';
 
@@ -43,5 +53,24 @@ describe('v1.2 R-03 — how useful a marked practice was', () => {
     toggleCheckIn('Caminar', DAY);
     toggleCheckIn('Caminar', DAY);
     expect(checkInToday('Caminar', DAY)?.rating).toBeUndefined();
+  });
+});
+
+describe('v1.2 R-05 — a dismissed therapy, for a week', () => {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const result = { matched_modalities: [] } as unknown as MatchResult;
+
+  it('stays out for 7 days, then may be proposed again', () => {
+    saveMatch({ result, strategy: 'topical', usedFallback: false, synthesisId: 's1', now: 0 });
+    setReaction('reiki', 'dismissed', 1_000);
+    expect(recentlyDismissedSlugs(1_000 + 6 * DAY_MS)).toEqual(['reiki']);
+    expect(recentlyDismissedSlugs(1_000 + 7 * DAY_MS)).toEqual([]);
+  });
+
+  it('comes back at once with «Deshacer»', () => {
+    saveMatch({ result, strategy: 'topical', usedFallback: false, synthesisId: 's1', now: 0 });
+    setReaction('reiki', 'dismissed', 1_000);
+    clearReaction('reiki');
+    expect(recentlyDismissedSlugs(2_000)).toEqual([]);
   });
 });

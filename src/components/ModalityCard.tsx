@@ -47,13 +47,27 @@ export function ModalityCard({
   const [open, setOpen] = useState(false);
   const panelId = useId();
 
+  // v1.2 R-05: «No me hace sentido» takes the therapy off the paths, says so,
+  // and offers to bring it back at once. It is not proposed again for 7 days.
+  if (dismissed) {
+    return (
+      <article className="surface surface-p16 flex items-center gap-3">
+        <p role="status" className="min-w-0 flex-1 text-[length:var(--fs-body-13)] leading-relaxed text-crema/75">
+          {copy.modalityCard.removed(modality.name_es)}
+        </p>
+        <button
+          type="button"
+          onClick={() => onReact('dismissed')}
+          className="chip chip-p8 shrink-0 px-4 text-crema/75 hover:text-crema"
+        >
+          {copy.modalityCard.undo}
+        </button>
+      </article>
+    );
+  }
+
   return (
-    <article
-      className={[
-        'surface surface-p16 transition-opacity',
-        dismissed ? 'opacity-40' : '',
-      ].join(' ')}
-    >
+    <article className="surface surface-p16">
       <div className="mb-2 flex items-baseline gap-2.5">
         <span aria-hidden="true" className="font-serif text-[length:var(--fs-voice-15)] text-crema/55 italic">
           {rank}
@@ -140,10 +154,9 @@ export function ModalityCard({
         <button
           type="button"
           onClick={() => onReact('dismissed')}
-          aria-pressed={dismissed}
           className="chip chip-p8 flex-1 text-crema/55 hover:text-crema"
         >
-          {dismissed ? copy.modalityCard.dismissed : copy.modalityCard.dismiss}
+          {copy.modalityCard.dismiss}
         </button>
       </div>
     </article>
