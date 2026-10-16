@@ -23,7 +23,7 @@ export type BrowserStep =
   | 'app_opened'
   | 'friend_invited';
 
-export type PaywallPlace = 'chat' | 'meditation' | 'comparison' | 'profile';
+export type PaywallPlace = 'chat' | 'meditation' | 'comparison' | 'profile' | 'welcome';
 
 type FirstTouch = { source: string | null; campaign: string | null };
 

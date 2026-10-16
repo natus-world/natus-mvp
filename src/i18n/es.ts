@@ -903,11 +903,15 @@ export const es = {
     titleLead: {
       meditation: 'Ya usaste tu meditación ',
       comparison: 'Usaste las comparaciones ',
+      // Proposal (owner, 16 Oct 2026): Premium right after the map, the free month first.
+      welcome: 'Tu primer mes de Premium es ',
     },
     titleEmphasis: {
       meditation: 'de regalo',
       comparison: 'de este mes',
+      welcome: 'gratis',
     },
+    welcomeKicker: 'Tu mapa ya es tuyo',
     kept: 'Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
     includes: [
       'Conversar con Davraz sin límite',

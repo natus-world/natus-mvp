@@ -152,7 +152,8 @@ function Stem({ phase, desk }: { phase: Phase; desk: boolean }) {
  * is saved; a high-severity match opens the crisis screen and neither the
  * comment nor the rating is kept.
  */
-function FeedbackSheet({
+/** R-03, shared with Hoy and Carta: mounted inside an element with `.rutina`. */
+export function FeedbackSheet({
   title,
   date,
   onCrisis,

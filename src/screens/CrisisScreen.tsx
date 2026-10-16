@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { PATHS } from '@/components/routes';
 import { copy } from '@/i18n';
 import { CrisisResourceList } from '@/components/CrisisResourceList';
 import { useTakeover } from '@/components/takeover';
@@ -32,6 +33,10 @@ export function CrisisScreen({
   onBack?: () => void;
 }) {
   useTakeover();
+  const navigate = useNavigate();
+  // «Volver» always (owner, 16 Oct 2026): the caller's own way back, or the
+  // screen before this one. The lines stay one tap away in the header.
+  const back = onBack ?? (() => (window.history.length > 1 ? navigate(-1) : navigate(PATHS.chart)));
 
   return (
     <div className="pz ayuda-pz crisis">
@@ -45,11 +50,9 @@ export function CrisisScreen({
 
         <CrisisResourceList country={country} tone="paper" />
 
-        {onBack && (
-          <button type="button" className="volver-b" onClick={onBack}>
-            {copy.crisisScreen.back}
-          </button>
-        )}
+        <button type="button" className="volver-b" onClick={back}>
+          {copy.crisisScreen.back}
+        </button>
 
         {onNotMyCase && (
           /*

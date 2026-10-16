@@ -76,6 +76,12 @@ export function ClinicalBasics({
 }) {
   const [basics, setBasics] = useState<Answers>(initial);
   const skipped = new Set(basics.prefer_not_to_say ?? []);
+  // Package 12/01 (owner, 16 Oct 2026): the button lights once the three
+  // questions that decide what is safe are answered — «Prefiero no decir»
+  // counts as an answer.
+  const answered = (field: Skippable) => basics[field] !== undefined || skipped.has(field);
+  const complete =
+    basics.ideation_6m !== undefined && answered('in_treatment') && answered('psychiatric_medication');
 
   const yesNo = (field: Skippable, label: string) => (
     <Question id={`care-${field}`} label={label}>
@@ -115,7 +121,7 @@ export function ClinicalBasics({
         </p>
       }
       action={
-        <NextButton disabled={basics.ideation_6m === undefined || busy} onClick={() => onSubmit(basics)}>
+        <NextButton disabled={!complete || busy} onClick={() => onSubmit(basics)}>
           {busy ? text.saving : actionLabel}
         </NextButton>
       }

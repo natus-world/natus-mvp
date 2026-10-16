@@ -13,7 +13,9 @@ import { currentMatchFor, isCheckedToday, toggleCheckIn, totalCheckIns } from '@
 import { routineFor } from '@/store/routine';
 import type { OnboardingDraft } from '@/store/session';
 import { PATHS } from '@/components/routes';
-import { connectsLabel } from '@/screens/Routine';
+import { connectsLabel, FeedbackSheet } from '@/screens/Routine';
+import { CrisisScreen } from '@/screens/CrisisScreen';
+import { markFalsePositive } from '@/store/crisis';
 import type { Numerology } from '@/lib/schemas';
 
 /**
@@ -186,8 +188,10 @@ function Readings({ stored }: { stored: StoredSynthesis }) {
   );
 }
 
-function ToTry({ synthesisId }: { synthesisId: string }) {
+function ToTry({ synthesisId, onCrisis }: { synthesisId: string; onCrisis: (eventId: string) => void }) {
   const [, force] = useState(0);
+  // R-03: marking from Carta asks how useful it was, as in Tu rutina.
+  const [sheet, setSheet] = useState<string | null>(null);
   const practices = routineFor(currentMatchFor(synthesisId));
   // v1.2 O-07: the same routine, seen from the chart — not a second list.
   const toTry = practices.filter((p) => p.connects_to.soul_map);
@@ -234,6 +238,7 @@ function ToTry({ synthesisId }: { synthesisId: string }) {
               className={done ? 'p2 on' : 'p2'}
               onClick={() => {
                 toggleCheckIn(practice.title, date);
+                if (!done) setSheet(practice.title);
                 force((n) => n + 1);
               }}
             >
@@ -243,6 +248,23 @@ function ToTry({ synthesisId }: { synthesisId: string }) {
           </div>
         );
       })}
+      {sheet && (
+        <div className="rutina">
+          <FeedbackSheet
+            key={sheet}
+            title={sheet}
+            date={date}
+            onCrisis={(id) => {
+              setSheet(null);
+              onCrisis(id);
+            }}
+            onClose={() => {
+              setSheet(null);
+              force((n) => n + 1);
+            }}
+          />
+        </div>
+      )}
     </section>
   );
 }
@@ -281,6 +303,20 @@ function Updated({ stored, previous }: { stored: StoredSynthesis; previous: Stor
 export function SoulMap() {
   const profile = activeProfile();
   const stored = currentSynthesis();
+  const [localCrisis, setLocalCrisis] = useState<string | null>(null);
+
+  if (localCrisis) {
+    return (
+      <CrisisScreen
+        country={profile?.draft.country}
+        onNotMyCase={() => {
+          markFalsePositive(localCrisis);
+          setLocalCrisis(null);
+        }}
+        onBack={() => setLocalCrisis(null)}
+      />
+    );
+  }
 
   if (!stored) {
     return (
@@ -329,7 +365,7 @@ export function SoulMap() {
         <div className="col2">
           <Numbers numerology={stored.numerology} />
           <Readings stored={stored} />
-          <ToTry synthesisId={stored.id} />
+          <ToTry synthesisId={stored.id} onCrisis={setLocalCrisis} />
           <Updated stored={stored} previous={previous} />
           <NumbersNote numerology={stored.numerology} />
 

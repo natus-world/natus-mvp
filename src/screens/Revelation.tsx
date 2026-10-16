@@ -1,9 +1,10 @@
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Screen } from '@/design/Screen';
 import { PLANET_GLYPHS } from '@/design/planet-glyphs';
 import { SIGN_GLYPHS, type GlyphSign } from '@/design/zodiac-glyphs';
 import { useTakeover } from '@/components/takeover';
+import { Paywall } from '@/components/Paywall';
 import { PATHS } from '@/components/routes';
 import { hasBirthTime } from '@/astrology/natal-chart';
 import { buildNatalChart, SIGNS, type NatalChart } from '@/lib/natal-chart';
@@ -68,6 +69,13 @@ function firstSentence(body: string): string {
 export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen: () => void }) {
   useTakeover();
   const navigate = useNavigate();
+  // Right after the map, Premium with the free month first (owner, 16 Oct
+  // 2026) — once, and never to a premium person or after a crisis alert.
+  const [invite, setInvite] = useState(false);
+  const goOn = useCallback(() => {
+    onSeen();
+    navigate(PATHS.paths);
+  }, [onSeen, navigate]);
   const root = useRef<HTMLDivElement>(null);
   const chart = useMemo(readChart, []);
   const firstName = (activeProfile()?.draft.legal_birth_name ?? '').trim().split(/\s+/)[0] ?? '';
@@ -160,10 +168,7 @@ export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen
           <button
             type="button"
             className="p1"
-            onClick={() => {
-              onSeen();
-              navigate(PATHS.paths);
-            }}
+            onClick={() => setInvite(true)}
           >
             {copy.common.continue}
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
@@ -172,6 +177,7 @@ export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen
           </button>
         </div>
       </div>
+      {invite && <Paywall feature="welcome" onDismiss={goOn} />}
     </Screen>
   );
 }

@@ -364,6 +364,27 @@ owner's review. Before, the chat saw only the Soul Map's summary and said
 crystals were not part of the map. `lintChartJudgement` still holds only the
 answers about a comparison.
 
+**The branding package is the look (owner, 16 Oct 2026, built).** Every
+screen is rebuilt from Nico's package (`natus-para-la-ia`: `html/NN-*/index.html`
+with its CSS, `notas/`, PNGs): `src/design/pieces.css` carries the package's
+own pieces (`.k .t .vid .fila .p2 .tile .scroll`, measured in `--u`, 1px at
+390, and `--d` on desktop) scoped under `.pz`, and each screen has its file in
+`src/design/screens/`. `Screen` takes a bank photo (`BANK`, `public/img/banco`)
+with its family tone, an even veil and the glass alpha; the frame is the whole
+viewport at every width (no phone drawn on desktop): a floating tab bar below
+1024px, the rail above. Screens opened from another show «Volver»
+(`subScreenOf`). Decided against the package: US$ 10; no today's sky, Davraz
+tip, notifications or e-mail export until built; Google only; the app's order
+of onboarding (account after the map); the Care button lights when the three
+questions are answered (the package's rule, owner). Right after the
+revelation (option B) Premium is offered once with the free month day by day
+(`Paywall feature="welcome"`, funnel detail `welcome`), never to premium nor
+after a crisis alert. The crisis screen always has «Volver» (owner). Carta
+completa (05) is not built. Open with the owner: *4141 for Chile (real, Minsal,
+not in `crisis-resources.json`); the why of a therapy in three parts needs a
+prompt change; texts the package marks «propuesta» were applied unless they
+broke a rule.
+
 **Adults only, the home country chosen, a second try (owner, 16 Oct 2026).**
 The birth step refuses a date that is not 18 years past (`lib/age.ts`), so
 also any date to come, with «Natus es para personas mayores de 18 años»

@@ -7,7 +7,7 @@ import { track } from '@/store/funnel';
 const text = copy.paywall;
 
 /** Where this sheet is shown; the chat draws its own («Seguir conversando», package 10). */
-type SheetFeature = 'meditation' | 'comparison';
+type SheetFeature = 'meditation' | 'comparison' | 'welcome';
 
 /** The package's check (`OK`, stroke 1.4). */
 function CheckGlyph() {
@@ -78,15 +78,21 @@ export function Paywall({ feature, onDismiss }: { feature: SheetFeature; onDismi
   const [trying, setTrying] = useState(false);
   useEffect(() => {
     let live = true;
-    void fetchQuota(feature).then((q) => {
+    // «welcome», right after the map (owner, 16 Oct 2026), asks the chat's
+    // quota only for the tier and the crisis hold; a premium person skips it.
+    void fetchQuota(feature === 'welcome' ? 'chat' : feature).then((q) => {
       if (!live) return;
+      if (feature === 'welcome' && (q?.tier === 'premium' || q?.offerPremium === false)) {
+        onDismiss();
+        return;
+      }
       setOffer(q ? q.offerPremium : true);
       setRenewsOn(q?.renewsOn ?? '');
     });
     return () => {
       live = false;
     };
-  }, [feature]);
+  }, [feature, onDismiss]);
 
   useEffect(() => {
     if (offer) track('paywall_seen', feature);
@@ -101,7 +107,7 @@ export function Paywall({ feature, onDismiss }: { feature: SheetFeature; onDismi
     <div className="premium">
       <div className="velo-p" aria-hidden="true" />
       <div className="hoja-p" role="dialog" aria-label={text.label}>
-        <p className="k">{text.kicker}</p>
+        <p className="k">{feature === 'welcome' ? text.welcomeKicker : text.kicker}</p>
         <p className="t">
           {text.titleLead[feature]}
           <em>{text.titleEmphasis[feature]}</em>
@@ -125,7 +131,7 @@ export function Paywall({ feature, onDismiss }: { feature: SheetFeature; onDismi
                 {text.cancel}
               </span>
             </div>
-            {trying && <FreeMonth />}
+            {(trying || feature === 'welcome') && <FreeMonth />}
             <div className="bts">
               {trying ? (
                 <div className="pago">

@@ -6,6 +6,7 @@ import { CompareIcon, MeditationsIcon } from '@/design/brand-icons';
 import { CrisisBanner } from '@/components/CrisisBanner';
 import { PATHS } from '@/components/routes';
 import { CrisisScreen } from '@/screens/CrisisScreen';
+import { FeedbackSheet } from '@/screens/Routine';
 import { activeProfile, isSignedIn } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { currentMatchFor, isCheckedToday, toggleCheckIn } from '@/store/matches';
@@ -26,10 +27,26 @@ function firstNameOf(fullName: string): string {
 
 export function Today() {
   const [, force] = useState(0);
+  // R-03: marking from Hoy asks how useful it was, as in Tu rutina.
+  const [sheet, setSheet] = useState<string | null>(null);
+  const [localCrisis, setLocalCrisis] = useState<string | null>(null);
   const crisisId = useActiveCrisisId();
   const profile = activeProfile();
   const synthesis = currentSynthesis();
   const match = synthesis ? currentMatchFor(synthesis.id) : undefined;
+
+  if (localCrisis) {
+    return (
+      <CrisisScreen
+        country={profile?.draft.country}
+        onNotMyCase={() => {
+          markFalsePositive(localCrisis);
+          setLocalCrisis(null);
+        }}
+        onBack={() => setLocalCrisis(null)}
+      />
+    );
+  }
 
   if (crisisId) {
     return <CrisisScreen country={profile?.draft.country} onNotMyCase={() => markFalsePositive(crisisId)} />;
@@ -55,7 +72,9 @@ export function Today() {
   const next = practices.find((p) => !isCheckedToday(p.title, today));
   const name = firstNameOf(profile.draft.legal_birth_name);
   const mark = (title: string) => {
+    const wasDone = isCheckedToday(title, today);
     toggleCheckIn(title, today);
+    if (!wasDone) setSheet(title);
     force((n) => n + 1);
   };
   const marked = t.marked(doneToday, practices.length);
@@ -191,6 +210,24 @@ export function Today() {
             </p>
           </Link>
         </div>
+
+        {sheet && (
+          <div className="rutina">
+            <FeedbackSheet
+              key={sheet}
+              title={sheet}
+              date={today}
+              onCrisis={(id) => {
+                setSheet(null);
+                setLocalCrisis(id);
+              }}
+              onClose={() => {
+                setSheet(null);
+                force((n) => n + 1);
+              }}
+            />
+          </div>
+        )}
       </div>
     </Screen>
   );
