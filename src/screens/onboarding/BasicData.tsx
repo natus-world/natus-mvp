@@ -1,5 +1,6 @@
 import { StepBody } from '@/components/onboarding/StepChrome';
 import { BIRTH_COUNTRIES } from '@/components/birth-countries';
+import { BirthPlaceField } from '@/components/onboarding/BirthPlaceField';
 import type { OnboardingDraft } from '@/store/session';
 import { copy } from '@/i18n';
 import { hasBirthTime, hasNatalChartInput } from '@/astrology/natal-chart';
@@ -25,7 +26,11 @@ export function BasicData({
   // Without the hour, and only when there is enough to calculate a chart at
   // all, the person decides whether to calculate it. Nothing is preselected.
   const askWithoutTime = !hasBirthTime(draft) && hasNatalChartInput(draft);
+  // A city typed but not picked from the list would be guessed at; the chart
+  // is cast only for a place the person chose (16 Oct 2026).
+  const placeUnpicked = draft.birth_city.trim() !== '' && !draft.birth_place;
   const canContinue =
+    !placeUnpicked &&
     draft.legal_birth_name.trim().length > 1 &&
     /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date) &&
     (!askWithoutTime || draft.chart_without_time !== undefined);
@@ -94,41 +99,39 @@ export function BasicData({
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="birth-city">
-            {text.birthCityLabel}
+          <label className={labelClass} htmlFor="birth-country">
+            {text.birthCountryLabel}
           </label>
-          <input
-            id="birth-city"
+          <select
+            id="birth-country"
             className={fieldClass}
-            value={draft.birth_city}
-            onChange={(e) => onChange({ birth_city: e.target.value, natal_chart: null })}
-            placeholder={text.birthCityPlaceholder}
-          />
+            value={draft.birth_country}
+            // Another country is another search: the city picked goes with it.
+            onChange={(e) =>
+              onChange({ birth_country: e.target.value, birth_city: '', birth_place: null, natal_chart: null })
+            }
+            aria-describedby="birth-country-helper"
+          >
+            {BIRTH_COUNTRIES.map(([code, name]) => (
+              <option key={code || 'empty'} value={code}>
+                {code ? name : text.birthCountryPlaceholder}
+              </option>
+            ))}
+          </select>
+          <p id="birth-country-helper" className={helperClass}>
+            {text.birthCountryHelper}
+          </p>
         </div>
 
-        {draft.birth_city.trim() !== '' && (
-          <div>
-            <label className={labelClass} htmlFor="birth-country">
-              {text.birthCountryLabel}
-            </label>
-            <select
-              id="birth-country"
-              className={fieldClass}
-              value={draft.birth_country}
-              onChange={(e) => onChange({ birth_country: e.target.value, natal_chart: null })}
-              aria-describedby="birth-country-helper"
-            >
-              {BIRTH_COUNTRIES.map(([code, name]) => (
-                <option key={code || 'empty'} value={code}>
-                  {code ? name : text.birthCountryPlaceholder}
-                </option>
-              ))}
-            </select>
-            <p id="birth-country-helper" className={helperClass}>
-              {text.birthCountryHelper}
-            </p>
-          </div>
-        )}
+        <BirthPlaceField
+          city={draft.birth_city}
+          country={draft.birth_country}
+          place={draft.birth_place ?? null}
+          fieldClass={fieldClass}
+          labelClass={labelClass}
+          helperClass={helperClass}
+          onChange={(birth_city, birth_place) => onChange({ birth_city, birth_place, natal_chart: null })}
+        />
 
         <div>
           <label className={labelClass} htmlFor="country">

@@ -1,3 +1,4 @@
+import type { BirthPlace } from '@/lib/places';
 import { read, write } from './db';
 import type { ClinicalBasics } from '@/lib/safety';
 import type { GrammaticalGender } from '@/i18n/gender';
@@ -32,6 +33,9 @@ export type OnboardingDraft = {
   birth_time: string;
   birth_city: string;
   birth_country: string;
+  /** The place picked from suggestions, with its coordinates and timezone
+   *  (16 Oct 2026). Absent on drafts saved before the pick existed. */
+  birth_place?: BirthPlace | null;
   country: string;
   locale: 'es' | 'en';
   presenting_need_text: string;

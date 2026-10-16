@@ -75,7 +75,8 @@ export async function calculateNatalChart(draft: OnboardingDraft): Promise<Natal
   let response;
   try {
     response = await supabase.functions.invoke<NatalChartResponse>('natal-chart', {
-      body: { subject, time_known: hasBirthTime(draft) },
+      // The place picked from suggestions, when there is one (16 Oct 2026).
+      body: { subject, time_known: hasBirthTime(draft), place: draft.birth_place ?? null },
     });
   } catch {
     throw new NatalChartError(

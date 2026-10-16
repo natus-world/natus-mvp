@@ -1,3 +1,4 @@
+import { shouldCalculateNatalChart } from '@/astrology/natal-chart';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isDemoMode } from '@/supabase/client';
@@ -191,6 +192,16 @@ export function SoulMap() {
           <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
             {text.numbersFailed}
           </p>
+        )}
+
+        {/* The chart was asked for and is not there: said, not hidden (16 Oct 2026). */}
+        {profile && shouldCalculateNatalChart(profile.draft) && !profile.draft.natal_chart && (
+          <div className="mt-5 flex flex-col items-start gap-2.5">
+            <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/60">{text.chartMissing}</p>
+            <Link to={`${PATHS.profile}/nacimiento`} className="chip chip-p6 px-3 text-crema/75 no-underline">
+              {text.chartMissingCta}
+            </Link>
+          </div>
         )}
 
         <p className="mt-8 mb-3 px-1 font-serif text-[length:var(--fs-voice-17)] leading-snug text-crema/80 italic">

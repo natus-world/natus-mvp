@@ -38,6 +38,7 @@ export type Database = {
         Row: {
           birth_city: string
           birth_country: string
+          birth_place: Json | null
           birth_date: string | null
           birth_time: string | null
           claimed_at: string | null
@@ -64,6 +65,7 @@ export type Database = {
         Insert: {
           birth_city?: string
           birth_country?: string
+          birth_place?: Json | null
           birth_date?: string | null
           birth_time?: string | null
           claimed_at?: string | null
@@ -90,6 +92,7 @@ export type Database = {
         Update: {
           birth_city?: string
           birth_country?: string
+          birth_place?: Json | null
           birth_date?: string | null
           birth_time?: string | null
           claimed_at?: string | null
@@ -277,6 +280,7 @@ export type Database = {
         Row: {
           birth_city: string
           birth_country: string
+          birth_place: Json | null
           birth_date: string | null
           birth_time: string | null
           claimed_session_id: string | null
@@ -302,6 +306,7 @@ export type Database = {
         Insert: {
           birth_city?: string
           birth_country?: string
+          birth_place?: Json | null
           birth_date?: string | null
           birth_time?: string | null
           claimed_session_id?: string | null
@@ -327,6 +332,7 @@ export type Database = {
         Update: {
           birth_city?: string
           birth_country?: string
+          birth_place?: Json | null
           birth_date?: string | null
           birth_time?: string | null
           claimed_session_id?: string | null

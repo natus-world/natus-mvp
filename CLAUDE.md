@@ -331,6 +331,24 @@ signs into it and the new map stays behind on the anonymous row (that text
 and the message above it are proposals). Anonymous rows are still created at
 the first page load and nothing purges them.
 
+**The birth place is picked, not guessed (owner, 16 Oct 2026).** The birth
+step asks the country of birth first, then the city with suggestions inside
+that country (Open-Meteo, from the browser; `components/onboarding/
+BirthPlaceField.tsx`, ranking and aliases in `lib/places.ts`). The pick —
+name, region, coordinates, IANA timezone — is stored in `birth_place` on
+`clients` and `anonymous_sessions` and sent to `natal-chart`, which casts the
+chart for it. A city typed and not picked blocks «Continuar». A draft from
+before has no `birth_place`: the function then looks the typed name up and
+takes only a place whose name carries it (`bestPlace`), so no chart rather
+than a wrong one. Before this, the first geocoder hit was used blind: «León»
+(MX) became a village in Baja California, «CABA» a hamlet in Tucumán,
+«Santiago» (EC) Gualaquiza; «CDMX», «DF» and «Capital Federal» found
+nothing; and a missing birth country meant no chart. Charts already cast
+from a wrong place have not been recalculated — the owner's call. Carta
+now says when the chart was asked for and could not be calculated, with a
+link to the birth data. The texts of the field and of that notice are
+proposals; the privacy policy names Open-Meteo.
+
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
 (`cache_read_tokens` answers it), and whether a retry should tell the model

@@ -1,3 +1,4 @@
+import { parseBirthPlace, type BirthPlace } from '@/lib/places';
 import type { TypedClient } from '@/supabase/client.ts';
 import type { Database } from '@/supabase/database.types.ts';
 import type { ClinicalBasics } from '@/lib/safety.ts';
@@ -80,6 +81,7 @@ type DraftColumns = {
   birth_time: string | null;
   birth_city: string;
   birth_country: string;
+  birth_place: BirthPlace | null;
   country: string;
   locale: string;
   presenting_need_text: string;
@@ -101,6 +103,7 @@ function draftToColumns(draft: OnboardingDraft): DraftColumns {
     birth_time: blankToNull(draft.birth_time),
     birth_city: draft.birth_city,
     birth_country: draft.birth_country,
+    birth_place: draft.birth_place ?? null,
     country: draft.country,
     locale: draft.locale,
     presenting_need_text: draft.presenting_need_text,
@@ -119,7 +122,10 @@ function draftToColumns(draft: OnboardingDraft): DraftColumns {
 
 /** Reading is looser than writing: the generator types `natal_chart` as Json
  *  because Postgres does, and the shape is reasserted on the way out. */
-type DraftRow = Omit<DraftColumns, 'natal_chart'> & { natal_chart: unknown };
+type DraftRow = Omit<DraftColumns, 'natal_chart' | 'birth_place'> & {
+  natal_chart: unknown;
+  birth_place: unknown;
+};
 
 function columnsToDraft(row: DraftRow): OnboardingDraft {
   // `exactOptionalPropertyTypes` is on, so an absent clinical answer has to be
@@ -149,6 +155,7 @@ function columnsToDraft(row: DraftRow): OnboardingDraft {
     birth_time: nullToBlank(row.birth_time).slice(0, 5),
     birth_city: row.birth_city,
     birth_country: row.birth_country,
+    birth_place: parseBirthPlace(row.birth_place),
     country: row.country,
     locale: row.locale === 'en' ? 'en' : 'es',
     presenting_need_text: row.presenting_need_text,

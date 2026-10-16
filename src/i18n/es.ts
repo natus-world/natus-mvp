@@ -25,7 +25,14 @@ export const es = {
       birthDateLabel: 'Fecha de nacimiento',
       birthTimeLabel: 'Hora (opcional)',
       birthCityLabel: 'Ciudad de nacimiento (opcional)',
-      birthCityPlaceholder: 'Valparaíso',
+      birthCityPlaceholder: 'Escribe y elige tu ciudad',
+      // The birth place picked from suggestions (16 Oct 2026); proposed texts.
+      birthCityNeedsCountry: 'Primero elige el país',
+      birthCitySearching: 'Buscando…',
+      birthCityPick: 'Elige tu ciudad de la lista.',
+      birthCityNone:
+        'No encontramos esa ciudad. Prueba con su nombre completo o con la ciudad grande más cercana.',
+      birthCityOptions: 'Ciudades',
       birthCountryLabel: 'País de nacimiento',
       birthCountryPlaceholder: 'Elige un país',
       birthCountryHelper: 'Con la ciudad y el país calculamos tu carta natal.',
@@ -313,6 +320,10 @@ export const es = {
     previousShow: 'Ver la versión anterior',
     previousHide: 'Ocultar la versión anterior',
     previousFrom: (date: string) => `Versión del ${date}`,
+    // Proposed (16 Oct 2026): the chart could not be calculated.
+    chartMissing:
+      'No pudimos calcular tu carta natal esta vez, así que este mapa se escribió con tus números y lo que contaste.',
+    chartMissingCta: 'Revisar mi lugar de nacimiento',
   },
   recommendations: {
     kicker: 'Caminos posibles',
@@ -682,6 +693,7 @@ export const es = {
             'Supabase guarda la base de datos y ejecuta nuestras funciones, en servidores de São Paulo, Brasil.',
             'Anthropic (Claude) genera los textos: tu mapa, tus caminos, tu rutina, las conversaciones con Davraz, las meditaciones y la memoria. Recibe lo necesario para cada respuesta y, según sus condiciones para empresas, no lo usa para entrenar sus modelos.',
             'Astrologer API, a través de RapidAPI, recibe tu fecha, hora y lugar de nacimiento para calcular tu carta natal.',
+            'Open-Meteo recibe el nombre de la ciudad que escribes y su país, para sugerirte tu lugar de nacimiento y saber dónde queda.',
             'Google gestiona el inicio de sesión. Si dictas en la bitácora, el dictado lo hace tu navegador: Chrome lo envía a Google y Safari a Apple. Natus no guarda audio.',
             'PayPal procesa los pagos de Premium. Natus nunca ve los datos de tu tarjeta.',
             'GitHub Pages sirve la aplicación.',

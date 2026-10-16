@@ -1,6 +1,6 @@
 export { parseAstrologerSubject, type AstrologerSubject } from './lib/astrology.ts';
 
-const GEOCODING_ENDPOINT = 'https://geocoding-api.open-meteo.com/v1/search';
+import { GEOCODING_ENDPOINT, bestPlace, searchTermFor, type GeocoderResult } from './lib/places.ts';
 
 export type Located = { latitude: number; longitude: number; timezone: string };
 
@@ -9,11 +9,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * City and ISO country to coordinates and an IANA timezone.
+ * City and ISO country to coordinates and an IANA timezone, for a draft saved
+ * before the person picked the place from suggestions (16 Oct 2026); a picked
+ * place arrives with its coordinates and never comes here.
  *
  * Open-Meteo rather than a second astrology credential: the chart provider
  * would geocode too, through GeoNames, which is another account to hold and
- * another thing to be down.
+ * another thing to be down. Ten candidates, and only one whose name carries
+ * what was typed (`bestPlace`): no chart is better than a wrong one.
  *
  * Returns null rather than throwing. Every caller has the same recovery — say
  * the place could not be found and carry on without a chart — and an
@@ -25,9 +28,9 @@ export async function resolveLocation(
   signal: AbortSignal,
 ): Promise<Located | null> {
   const url = new URL(GEOCODING_ENDPOINT);
-  url.searchParams.set('name', city);
+  url.searchParams.set('name', searchTermFor(city, nation));
   url.searchParams.set('countryCode', nation);
-  url.searchParams.set('count', '1');
+  url.searchParams.set('count', '10');
   url.searchParams.set('language', 'es');
   url.searchParams.set('format', 'json');
 
@@ -36,23 +39,6 @@ export async function resolveLocation(
 
   const payload: unknown = await response.json().catch(() => null);
   if (!isRecord(payload) || !Array.isArray(payload.results)) return null;
-  const result = payload.results[0];
-  if (!isRecord(result)) return null;
-
-  const { latitude, longitude, timezone } = result;
-  if (
-    typeof latitude !== 'number' ||
-    latitude < -90 ||
-    latitude > 90 ||
-    typeof longitude !== 'number' ||
-    longitude < -180 ||
-    longitude > 180 ||
-    typeof timezone !== 'string' ||
-    timezone.trim() === ''
-  ) {
-    return null;
-  }
-
-  return { latitude, longitude, timezone };
+  const place = bestPlace(payload.results as GeocoderResult[], city, nation);
+  return place ? { latitude: place.latitude, longitude: place.longitude, timezone: place.timezone } : null;
 }
-

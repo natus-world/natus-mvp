@@ -3,6 +3,7 @@ import { authenticate, Unauthorized } from '../_shared/auth.ts';
 import { parseAstrologerSubject, resolveLocation } from '../_shared/astrology.ts';
 import { withoutBirthTime } from '../_shared/lib/astrology.ts';
 import { buildNatalChart, ChartParseError } from '../_shared/lib/natal-chart.ts';
+import { parseBirthPlace } from '../_shared/lib/places.ts';
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
 const ENDPOINT = 'https://astrologer.p.rapidapi.com/api/v6/context/birth-chart';
@@ -112,7 +113,13 @@ Deno.serve(async (request) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const location = await resolveLocation(subject.city, subject.nation, controller.signal);
+    // The place the person picked, when they did (16 Oct 2026); else the name
+    // they typed, looked up. A picked place must be in the country sent.
+    const picked = isRecord(body) ? parseBirthPlace(body.place) : null;
+    const location =
+      picked && picked.country === subject.nation
+        ? { latitude: picked.latitude, longitude: picked.longitude, timezone: picked.timezone }
+        : await resolveLocation(subject.city, subject.nation, controller.signal);
     if (!location) return json(request, { error: 'birth_place_not_found' }, 422);
 
     const response = await fetch(ENDPOINT, {

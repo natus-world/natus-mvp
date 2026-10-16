@@ -28,8 +28,17 @@ const t = copy.profile.birth;
 
 const BIRTH_FIELDS = ['legal_birth_name', 'birth_date', 'birth_time', 'birth_city', 'birth_country', 'chart_without_time'] as const;
 
+/** Two «San Fernando» in one country are two places: compared by where they are. */
+function samePlace(a: OnboardingDraft['birth_place'], b: OnboardingDraft['birth_place']): boolean {
+  if (!a || !b) return !a && !b;
+  return Math.abs(a.latitude - b.latitude) < 0.01 && Math.abs(a.longitude - b.longitude) < 0.01;
+}
+
 function birthChanged(before: OnboardingDraft, after: OnboardingDraft): boolean {
-  return BIRTH_FIELDS.some((field) => (before[field] ?? '') !== (after[field] ?? ''));
+  return (
+    BIRTH_FIELDS.some((field) => (before[field] ?? '') !== (after[field] ?? '')) ||
+    !samePlace(before.birth_place, after.birth_place)
+  );
 }
 
 export function BirthDataEdit() {
