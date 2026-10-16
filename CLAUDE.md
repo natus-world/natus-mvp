@@ -201,9 +201,9 @@ What is left outside the code, in rough order of weight:
 
 - The sixteen crisis numbers carry `2026-08-19`, which records the product
   owner accepting them as transcribed from the PDR — not a call placed to each
-  line. The calls are still owed, and the PDR calls telephone verification an
-  absolute launch blocker. Verify by calling, not by searching, then set the
-  date again; re-verify every six months.
+  line. The PDR calls telephone verification an absolute launch blocker; the
+  owner decided on 16 Oct 2026 to launch without the calls, with the numbers
+  shown and dialled on touch. The calls are still the way to verify them.
 - Eight of those sixteen — 1515, 131, 911, 192, 106, 135, 113, 123 — are short
   codes and cannot be dialled from abroad. Nothing in the data records that, so
   somebody living abroad who selected their home country is shown a number they
@@ -235,7 +235,8 @@ What is left outside the code, in rough order of weight:
   It works. It is still duplication held together by tooling, and the fix is
   a pnpm workspace package — the shape `waterplan-frontend` already uses.
 - **A protocol for a panic or anxiety attack — the owner calls it of the
-  highest importance (15 Oct 2026).** To be designed, nothing built yet. Today
+  highest importance (15 Oct 2026); to be designed over the long term (16 Oct
+  2026).** Nothing built yet. Today
   the detector has a `panico` category in `crisis-keywords.json` and routes it
   like any other crisis; there is no dedicated in-the-moment response.
 - A chart without the hour is calculated at noon, so for somebody born on a
@@ -251,9 +252,11 @@ What is left outside the code, in rough order of weight:
   ("matarse" is not "matarme"). Fourteen phrasings that slipped through
   were added. Known false alarms the clinician should weigh: "me pega el
   sol", "no puedo respirar bien con la mascarilla", "no cortarme las uñas".
-- There is no privacy policy or terms page. Google's OAuth consent screen
-  requires one before the door can close, and the app stores birth data and
-  clinical answers. The text is the owner's.
+- The privacy policy and the terms are at `/privacidad` and `/terminos`
+  (`screens/Legal.tsx`, texts in `copy.legal`), readable at the door. Written
+  on 16 Oct 2026 to launch, from what the code does; the owner's lawyer
+  reviews them. The contact address (`copy.legal.contact`) is empty until the
+  owner names one, and its line is hidden meanwhile.
 
 **What each plan gets (F-01) is built (15 Oct 2026)** and lives in
 `plan_quotas`, edited there without a deploy: free has 3 chat questions as a
@@ -310,6 +313,13 @@ reform requires five days); until there is an email service it is sent by
 hand. Record in the funnel which place each free month started from. The
 «¿No te alcanza?» free-premium request is out for now. Visuals come from
 the branding conversation.
+
+**The launch (owner, 16 Oct 2026): today, with Google sign-in only and without
+notifications** (N-01 goes last). Left for the evening of 16 Oct, in
+Supabase's dashboard: switch on the Google provider with the client id and
+secret from Google Cloud, allow manual linking, set the Site URL to
+https://app.natus.world and add https://app.natus.world/** to the redirect
+URLs; then walk a Google sign-in end to end on the deployed site.
 
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces

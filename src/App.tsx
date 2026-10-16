@@ -38,6 +38,7 @@ import { completeLinkedSignup } from '@/store/account-link';
 const LEARN_EVERY_MS = 10 * 60 * 1000;
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
+import { Legal } from '@/screens/Legal';
 import { NotFound } from '@/screens/NotFound';
 import { Journal, NewJournalEntry } from '@/screens/Journal';
 import { BirthDataEdit } from '@/screens/BirthDataEdit';
@@ -57,6 +58,8 @@ const TITLES: [prefix: string, title: string][] = [
   ['/meditaciones', copy.chrome.titles.meditations],
   ['/biblioteca', copy.chrome.titles.library],
   ['/comparacion', copy.chrome.titles.comparison],
+  ['/privacidad', copy.legal.otherPrivacy],
+  ['/terminos', copy.legal.otherTerms],
   ...(isDemoMode ? [['/lab', 'Safety lab'] as [string, string]] : []),
 ];
 
@@ -143,7 +146,10 @@ export function App() {
   // `admitted` comes from hydration having found a session, which it now never
   // creates — an identity arrives only by walking through Google, and Google
   // refuses anyone off the consent screen's list before the redirect returns.
-  if (isBackendConfigured && requiresInvite && !admitted) {
+  // The privacy policy and the terms stay readable at the door: Google's
+  // consent screen links to them.
+  const legal = pathname === '/privacidad' || pathname === '/terminos';
+  if (isBackendConfigured && requiresInvite && !admitted && !legal) {
     return (
       <PhoneFrame>
         <Gate />
@@ -216,6 +222,8 @@ export function App() {
             <Route path={PATHS.comparison} element={<ComparisonHome />} />
             <Route path="/comparacion/:friendshipId" element={<Result />} />
             <Route path="/amigos/:token" element={<FriendInvite />} />
+            <Route path="/privacidad" element={<Legal doc="privacy" />} />
+            <Route path="/terminos" element={<Legal doc="terms" />} />
             {Object.entries(LEGACY_PATHS).map(([from, to]) => (
               <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
             ))}

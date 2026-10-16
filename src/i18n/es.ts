@@ -614,6 +614,171 @@ export const es = {
     signIn: 'Ya tengo cuenta: entrar con Google',
     restart: 'Empezar de nuevo',
   },
+  // Privacy policy and terms (owner, 16 Oct 2026): written to launch, to be
+  // reviewed by the owner's lawyer. CONTACT is the address people write to.
+  legal: {
+    updated: 'Vigente desde el 16 de octubre de 2026',
+    contactLead: 'Escríbenos a ',
+    // Empty until the owner names the address; the line is hidden meanwhile.
+    contact: '' as string,
+    back: 'Volver',
+    otherPrivacy: 'Política de privacidad',
+    otherTerms: 'Términos y condiciones',
+    privacy: {
+      kicker: 'Natus',
+      title: 'Política de privacidad',
+      intro:
+        'Natus es una aplicación de autoconocimiento. Para acompañarte te pedimos datos personales, algunos de ellos sensibles. Aquí explicamos cuáles, para qué, con quién se comparten y cómo puedes verlos, corregirlos o borrarlos.',
+      sections: [
+        {
+          heading: 'Quién es responsable',
+          body: [
+            'El responsable de tus datos es Natus, con sede en Chile. Si tienes cualquier pregunta sobre esta política o sobre tus datos, puedes escribirnos al correo de contacto que aparece al final de esta página.',
+          ],
+        },
+        {
+          heading: 'Qué datos tratamos',
+          body: [
+            'Datos de nacimiento: tu nombre, fecha, hora (si la sabes), ciudad y país de nacimiento, y el país donde vives. Con ellos calculamos tu carta natal y tus números.',
+            'Lo que nos cuentas: lo que estás buscando, cómo quieres que te hablemos, tus respuestas a las preguntas sobre tu salud emocional, lo que escribes o dictas en tu bitácora, tus conversaciones con Davraz, tus valoraciones y comentarios sobre las prácticas, y lo que pides a las meditaciones.',
+            'Lo que Natus sabe de ti: si tienes Premium y das tu consentimiento, Natus guarda una memoria con lo que aprende de tus conversaciones, tu bitácora y tus prácticas. Puedes verla, corregirla y borrarla desde tu perfil.',
+            'Amistades: si invitas a alguien o aceptas una invitación, guardamos la amistad y las comparaciones entre sus cartas.',
+            'Tu cuenta: el correo y el identificador de tu cuenta de Google.',
+            'Datos técnicos: registros de uso de la aplicación (qué paso se dio y cuándo, nunca el contenido), registros del costo de cada respuesta generada y, cuando algo que escribes indica una posible crisis, un registro de ese aviso con un extracto del texto.',
+          ],
+        },
+        {
+          heading: 'Datos sensibles',
+          body: [
+            'Tus respuestas sobre salud emocional, tu bitácora y tus conversaciones son datos sensibles. Los usamos solo para cuidarte dentro de la aplicación: decidir qué terapias no recomendarte, mostrarte líneas de ayuda cuando hace falta y adaptar las respuestas. Tus respuestas clínicas nunca se envían tal cual a un modelo de inteligencia artificial: solo un nivel de cuidado derivado de ellas.',
+            'Al usar Natus y responder esas preguntas, das tu consentimiento expreso para este tratamiento. Puedes retirarlo en cualquier momento borrando tus datos.',
+          ],
+        },
+        {
+          heading: 'Para qué los usamos',
+          body: [
+            'Para escribir tu Mapa del Alma, recomendarte caminos y una rutina, conversar contigo, crear meditaciones y comparar cartas con tus amistades. Para detectar señales de crisis y mostrarte líneas de ayuda. Para administrar tu plan y tus pagos. Para entender, en conjunto y sin contenido, cómo se usa la aplicación y mejorarla.',
+            'No vendemos tus datos. No los usamos para publicidad ni los compartimos con plataformas de anuncios, y no hay rastreadores publicitarios en la aplicación.',
+          ],
+        },
+        {
+          heading: 'Con quién los compartimos',
+          body: [
+            'Solo con los servicios que hacen funcionar Natus, y solo lo necesario:',
+            'Supabase guarda la base de datos y ejecuta nuestras funciones, en servidores de São Paulo, Brasil.',
+            'Anthropic (Claude) genera los textos: tu mapa, tus caminos, tu rutina, las conversaciones con Davraz, las meditaciones y la memoria. Recibe lo necesario para cada respuesta y, según sus condiciones para empresas, no lo usa para entrenar sus modelos.',
+            'Astrologer API, a través de RapidAPI, recibe tu fecha, hora y lugar de nacimiento para calcular tu carta natal.',
+            'Google gestiona el inicio de sesión. Si dictas en la bitácora, el dictado lo hace tu navegador: Chrome lo envía a Google y Safari a Apple. Natus no guarda audio.',
+            'PayPal procesa los pagos de Premium. Natus nunca ve los datos de tu tarjeta.',
+            'GitHub Pages sirve la aplicación.',
+            'Algunos de estos servicios están fuera de Chile, por lo que tus datos se transfieren a otros países. Lo hacemos con proveedores que ofrecen garantías de seguridad y confidencialidad.',
+          ],
+        },
+        {
+          heading: 'Cuánto tiempo los guardamos',
+          body: [
+            'Mientras tengas tu cuenta. Si borras una entrada de tu bitácora, se borra de verdad; si borras algo de tu memoria, también. Si borras todo desde tu perfil, se elimina tu cuenta con todo lo que contiene.',
+          ],
+        },
+        {
+          heading: 'Tus derechos',
+          body: [
+            'Puedes acceder a tus datos, corregirlos, borrarlos, oponerte a su tratamiento y llevártelos. Desde tu perfil puedes descargar todo en un archivo («Descargar mis datos»), corregir tus datos de nacimiento y borrar tu cuenta («Borrar todo»). Para cualquier otra solicitud, escríbenos y te respondemos en un plazo máximo de 30 días.',
+            'Si crees que no respondimos bien, puedes acudir a la autoridad de protección de datos de tu país.',
+          ],
+        },
+        {
+          heading: 'Almacenamiento en tu navegador',
+          body: [
+            'Natus guarda en tu navegador una copia de tus datos y tu sesión para funcionar más rápido y sin conexión. No usamos cookies de publicidad ni de terceros.',
+          ],
+        },
+        {
+          heading: 'Seguridad',
+          body: [
+            'Cada persona solo puede leer sus propios datos: la base de datos lo impide por regla, no por confianza. Las claves de los servicios viven en el servidor, nunca en la aplicación. Ningún sistema es perfecto; si ocurre un problema que afecte tus datos, te avisaremos.',
+          ],
+        },
+        {
+          heading: 'Edad',
+          body: ['Natus es para personas mayores de 18 años. No tratamos a sabiendas datos de menores de edad.'],
+        },
+        {
+          heading: 'Cambios',
+          body: [
+            'Si cambiamos esta política de forma importante, te lo diremos dentro de la aplicación antes de que el cambio rija.',
+          ],
+        },
+      ],
+    },
+    terms: {
+      kicker: 'Natus',
+      title: 'Términos y condiciones',
+      intro:
+        'Estos términos rigen el uso de Natus. Al crear tu cuenta o usar la aplicación, los aceptas.',
+      sections: [
+        {
+          heading: 'Qué es Natus',
+          body: [
+            'Natus es una aplicación de autoconocimiento que usa la astrología, la numerología y otras tradiciones como un espejo para mirarte. No predice el futuro ni dice qué está bien o mal en ti.',
+            'Los textos de Natus, incluido Davraz, los genera una inteligencia artificial. Pueden equivocarse. Tómalos como una invitación a reflexionar, no como una verdad sobre ti.',
+          ],
+        },
+        {
+          heading: 'Natus no es un servicio de salud',
+          body: [
+            'Natus no diagnostica, no da tratamiento y no reemplaza a un profesional de la salud mental ni a un médico. Las terapias que te muestra son modalidades para explorar, no indicaciones.',
+            'Natus no es un servicio de emergencia y nadie revisa en tiempo real lo que escribes. Si estás en peligro o piensas en hacerte daño, llama a una línea de ayuda o al número de emergencias de tu país. La aplicación te muestra líneas de ayuda, pero no podemos garantizar que cada número esté disponible en todo momento.',
+          ],
+        },
+        {
+          heading: 'Tu cuenta',
+          body: [
+            'Necesitas tener 18 años o más. Entras con tu cuenta de Google y eres responsable de lo que ocurra con ella. Puedes borrar tu cuenta cuando quieras desde tu perfil.',
+          ],
+        },
+        {
+          heading: 'Cómo usarla',
+          body: [
+            'Úsala para ti. No intentes acceder a datos de otras personas, ni interferir con el servicio, ni usarlo para dañar a alguien. Si invitas a una amistad, la comparación entre sus cartas la leen solo ustedes dos mientras la amistad siga activa.',
+          ],
+        },
+        {
+          heading: 'Planes y pagos',
+          body: [
+            'El plan gratuito incluye un número limitado de preguntas a Davraz, meditaciones y comparaciones, que se muestran en la aplicación.',
+            'Premium cuesta US$10 al mes, IVA incluido, y el primer mes es gratis. El cobro se hace a través de PayPal y se renueva cada mes hasta que canceles. Puedes cancelar cuando quieras desde PayPal; conservas Premium hasta el final del período ya pagado y no se te vuelve a cobrar.',
+            'Premium tiene un límite de uso razonable al mes para que el servicio sea sostenible; si lo alcanzas, la aplicación te dice cuándo se renueva.',
+            'Lo que la ley de tu país te garantiza como consumidor se mantiene siempre, incluido tu derecho a retracto cuando corresponda.',
+          ],
+        },
+        {
+          heading: 'Lo que es tuyo y lo que es nuestro',
+          body: [
+            'Lo que escribes es tuyo. Nos das permiso para guardarlo y procesarlo solo para darte el servicio, como explica la política de privacidad. La aplicación, su diseño, sus textos e imágenes son de Natus o de sus licenciantes.',
+          ],
+        },
+        {
+          heading: 'Cambios y disponibilidad',
+          body: [
+            'Natus está en una etapa temprana y va a cambiar. Podemos agregar, modificar o quitar funciones. Si cambiamos estos términos de forma importante, te avisaremos en la aplicación antes de que rijan. Hacemos lo posible para que el servicio funcione siempre, pero no podemos garantizarlo.',
+          ],
+        },
+        {
+          heading: 'Responsabilidad',
+          body: [
+            'En la medida que la ley lo permita, Natus no responde por las decisiones que tomes a partir de sus textos. Nada en estos términos limita los derechos que la ley te da como consumidor.',
+          ],
+        },
+        {
+          heading: 'Ley aplicable',
+          body: [
+            'Estos términos se rigen por las leyes de Chile, sin perjuicio de los derechos que te dé la ley del país donde vives.',
+          ],
+        },
+      ],
+    },
+  },
   notFound: {
     title: 'Esta página no existe.',
     body: 'Puede que el enlace esté mal escrito o sea de una versión anterior.',
