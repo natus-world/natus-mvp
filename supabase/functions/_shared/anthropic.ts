@@ -114,9 +114,10 @@ export async function generate<T>(call: {
 
   let last: unknown;
   let billed: Usage | undefined;
+  let user = call.user;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const response = await post(call.model, call.system, call.user, call.effort ?? 'medium', call.maxTokens, apiKey);
+      const response = await post(call.model, call.system, user, call.effort ?? 'medium', call.maxTokens, apiKey);
       const json = readJson(response.text);
 
       // Parsed separately from the JSON read so the two failures stop being
@@ -163,8 +164,13 @@ export async function generate<T>(call: {
       // timeout is a property of the contract's length — the second attempt
       // takes as long as the first and ends the same way, having billed for
       // every token it produced before being cut off.
-      if (error instanceof ModelError && (error.kind === 'copy_violation' || error.kind === 'timeout')) {
-        break;
+      if (error instanceof ModelError && error.kind === 'timeout') break;
+      // A copy violation is retried once, telling the model which rule the
+      // first answer broke (owner, 16 Oct 2026): a single «tienes que» used to
+      // leave the person with an error screen.
+      if (error instanceof ModelError && error.kind === 'copy_violation') {
+        if (attempt > 0) break;
+        user = `${call.user}\n\nTU RESPUESTA ANTERIOR NO SE PUDO USAR. ${error.message}\nEscríbela de nuevo entera, cumpliendo esa regla.`;
       }
     }
   }

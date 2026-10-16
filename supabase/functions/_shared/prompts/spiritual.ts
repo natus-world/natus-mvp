@@ -162,6 +162,36 @@ export function describeCorrespondences(chart: NatalChart): string {
   return lines.join('\n');
 }
 
+/**
+ * Numerology speaks of stones and colours too (owner, 16 Oct 2026: «si desde
+ * la numerología se habla, sí»): each number has a ruling planet, and the
+ * stone and colour follow it. A master number reads as its reduction.
+ */
+const NUMBER_CORRESPONDENCES: Record<number, { planet: string; stones: string; colours: string }> = {
+  1: { planet: 'el Sol', stones: 'rubí, granate, cornalina', colours: 'rojo, dorado' },
+  2: { planet: 'la Luna', stones: 'piedra de luna, perla', colours: 'blanco, plateado' },
+  3: { planet: 'Júpiter', stones: 'citrino, topacio', colours: 'amarillo' },
+  4: { planet: 'Urano', stones: 'granate hessonita, cuarzo ahumado', colours: 'verde, tonos tierra' },
+  5: { planet: 'Mercurio', stones: 'esmeralda, aventurina', colours: 'verde claro, celeste' },
+  6: { planet: 'Venus', stones: 'cuarzo rosa, cuarzo blanco', colours: 'rosa, blanco' },
+  7: { planet: 'Neptuno', stones: 'ojo de gato, amatista', colours: 'violeta, lila' },
+  8: { planet: 'Saturno', stones: 'zafiro azul, amatista, ónix', colours: 'azul oscuro, negro' },
+  9: { planet: 'Marte', stones: 'coral rojo, cornalina', colours: 'rojo, coral' },
+};
+
+function reduceMaster(n: number): number {
+  return n > 9 ? reduceMaster(String(n).split('').reduce((a, d) => a + Number(d), 0)) : n;
+}
+
+/** The life path's stones and colours, when the numbers are known. */
+export function describeNumberCorrespondences(lifePath: number | null): string | null {
+  if (lifePath === null || !Number.isInteger(lifePath) || lifePath < 1) return null;
+  const c = NUMBER_CORRESPONDENCES[reduceMaster(lifePath)];
+  if (!c) return null;
+  const master = lifePath > 9 ? ` (número maestro, se lee desde ${reduceMaster(lifePath)})` : '';
+  return `Camino de vida ${lifePath}${master}: lo rige ${c.planet}; piedras ${c.stones}; colores ${c.colours}`;
+}
+
 export const SPIRITUAL_RULES = `
 CUARZOS, AROMAS, COLORES, PLANTAS Y OTRAS PRÁCTICAS ESPIRITUALES
 - Si la persona pregunta por cuarzos, piedras, aromas, inciensos, aceites,
@@ -170,7 +200,8 @@ CUARZOS, AROMAS, COLORES, PLANTAS Y OTRAS PRÁCTICAS ESPIRITUALES
   su carta. También puedes sugerirlo cuando busca algo para acompañar una
   práctica. No lo agregues a cada respuesta.
 - Recomienda desde la tabla CORRESPONDENCIAS de su mensaje: di de dónde sale
-  ("con tu Luna en Cáncer, la tradición asocia la piedra de luna"). Si su
+  ("con tu Luna en Cáncer, la tradición asocia la piedra de luna"; "en la
+  numerología, tu camino de vida 4 se asocia con el cuarzo ahumado"). Si su
   carta tiene poco de un elemento, puedes sugerir lo que lo trae. No inventes
   correspondencias fuera de la tabla; si te pregunta por algo que no está,
   di lo que la tradición suele decir, como tradición.

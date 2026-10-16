@@ -72,7 +72,8 @@ export function emptyDraft(): OnboardingDraft {
     birth_time: '',
     birth_city: '',
     birth_country: '',
-    country: 'CL',
+    // Chosen, never assumed: it decides which help lines appear (16 Oct 2026).
+    country: '',
     locale: 'es',
     presenting_need_text: '',
     presenting_need_slugs: [],

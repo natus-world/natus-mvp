@@ -37,6 +37,9 @@ export const es = {
       birthCountryPlaceholder: 'Elige un país',
       birthCountryHelper: 'Con la ciudad y el país calculamos tu carta natal.',
       countryLabel: 'País donde vives',
+      countryPlaceholder: 'Elige un país',
+      // Owner, 16 Oct 2026: only adults; proposed text.
+      underage: 'Natus es para personas mayores de 18 años.',
       countryHelper: 'Define qué líneas de ayuda ves',
       countries: [
         ['CL', 'Chile'],

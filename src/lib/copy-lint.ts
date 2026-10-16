@@ -213,7 +213,9 @@ const RULES: Rule[] = [
     id: 'command',
     // PDR 7.5 anti-pattern: "Debes meditar 10 minutos al día" is an order,
     // not an invitation. Every tip closes on a question instead.
-    pattern: /\b(?:deb[eé]s|debes|ten[eé]s\s+que|tienes\s+que|hac[eé]lo\s+ya|es\s+obligatorio)\b/i,
+    // A negation is the opposite of an order: «no tienes que hacerlo
+    // perfecto» frees, and it was failing whole answers (16 Oct 2026).
+    pattern: /(?<!\b(?:no|nunca|ni)\s+)\b(?:deb[eé]s|debes|ten[eé]s\s+que|tienes\s+que|hac[eé]lo\s+ya|es\s+obligatorio)\b/i,
     why: 'An order. Recommendations are invitations — PDR 1.5.',
   },
   {

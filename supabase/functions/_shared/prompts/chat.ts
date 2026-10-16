@@ -3,7 +3,7 @@ import type { ComparisonResult, Numerology, SoulMapSynthesis } from '@/lib/schem
 import type { GrammaticalGender } from '@/lib/model-input.ts';
 import type { NatalChart } from '@/lib/natal-chart.ts';
 import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
-import { SPIRITUAL_RULES, describeCorrespondences } from './spiritual.ts';
+import { SPIRITUAL_RULES, describeCorrespondences, describeNumberCorrespondences } from './spiritual.ts';
 
 /**
  * The conversation of PDR section 10. Reconstructed — see `shared.ts` for
@@ -182,7 +182,7 @@ export function buildChatUserMessage(input: {
           '',
           'SU CARTA NATAL',
           person.chart ? describeChart(person.chart) : 'Sin carta calculada.',
-          ...(person.chart ? ['', 'CORRESPONDENCIAS (tabla de Natus)', describeCorrespondences(person.chart)] : []),
+          ...correspondences(person.chart, input.numerology?.life_path ?? null),
           '',
           'LO QUE CONTÓ AL EMPEZAR',
           person.told ? personText(person.told) : '(nada)',
@@ -212,6 +212,14 @@ export function buildChatUserMessage(input: {
     'SU PREGUNTA AHORA',
     personText(input.question),
   ].join('\n');
+}
+
+function correspondences(chart: NatalChart | null, lifePath: number | null): string[] {
+  const lines = [
+    ...(chart ? [describeCorrespondences(chart)] : []),
+    ...(describeNumberCorrespondences(lifePath) ? [describeNumberCorrespondences(lifePath)!] : []),
+  ];
+  return lines.length ? ['', 'CORRESPONDENCIAS (tabla de Natus)', ...lines] : [];
 }
 
 function describeComparison(c: ComparisonResult): string {

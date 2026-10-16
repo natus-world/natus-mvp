@@ -4,6 +4,7 @@ import { BirthPlaceField } from '@/components/onboarding/BirthPlaceField';
 import type { OnboardingDraft } from '@/store/session';
 import { copy } from '@/i18n';
 import { hasBirthTime, hasNatalChartInput } from '@/astrology/natal-chart';
+import { isAdultOn, latestAdultBirthDate } from '@/lib/age';
 
 const text = copy.onboarding.basicData;
 
@@ -29,8 +30,14 @@ export function BasicData({
   // A city typed but not picked from the list would be guessed at; the chart
   // is cast only for a place the person chose (16 Oct 2026).
   const placeUnpicked = draft.birth_city.trim() !== '' && !draft.birth_place;
+  // Adults only, and no date to come (owner, 16 Oct 2026).
+  const today = new Date();
+  const dateGiven = /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date);
+  const underage = dateGiven && !isAdultOn(draft.birth_date, today);
   const canContinue =
     !placeUnpicked &&
+    !underage &&
+    draft.country !== '' &&
     draft.legal_birth_name.trim().length > 1 &&
     /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date) &&
     (!askWithoutTime || draft.chart_without_time !== undefined);
@@ -79,6 +86,8 @@ export function BasicData({
             <input
               id="birth-date"
               type="date"
+              max={latestAdultBirthDate(today)}
+              aria-describedby="birth-date-helper"
               className={fieldClass}
               value={draft.birth_date}
               onChange={(e) => onChange({ birth_date: e.target.value, natal_chart: null })}
@@ -97,6 +106,12 @@ export function BasicData({
             />
           </div>
         </div>
+
+        {underage && (
+          <p id="birth-date-helper" role="alert" className="-mt-2 text-[length:var(--fs-body-12)] leading-relaxed text-error">
+            {text.underage}
+          </p>
+        )}
 
         <div>
           <label className={labelClass} htmlFor="birth-country">
@@ -144,6 +159,9 @@ export function BasicData({
             onChange={(e) => onChange({ country: e.target.value })}
             aria-describedby="country-helper"
           >
+            <option value="" disabled>
+              {text.countryPlaceholder}
+            </option>
             {text.countries.map(([code, name]) => (
               <option key={code} value={code}>
                 {name}

@@ -1,4 +1,4 @@
-export const CHAT_PROMPT_VERSION = 'chat-v1.7';
+export const CHAT_PROMPT_VERSION = 'chat-v1.8';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
@@ -8,6 +8,12 @@ export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chat-v1.8',
+    date: '2026-10-16',
+    change:
+      'Numerology speaks of stones and colours too (owner): the life path\'s ruling planet, stones and colours join the correspondences, a master number read from its reduction.',
+  },
   {
     version: 'chat-v1.7',
     date: '2026-10-16',

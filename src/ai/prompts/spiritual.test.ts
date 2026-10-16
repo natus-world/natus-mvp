@@ -81,3 +81,12 @@ describe('stones, aromas and colours from the chart (chat-v1.7)', () => {
     expect(message).not.toMatch(/ideation|ideaci[oó]n|clinical/i);
   });
 });
+
+describe('numerology speaks of stones too', () => {
+  it('gives the life path its stones and colours', async () => {
+    const { describeNumberCorrespondences } = await import('./spiritual.ts');
+    expect(describeNumberCorrespondences(4)).toContain('cuarzo ahumado');
+    expect(describeNumberCorrespondences(11)).toContain('número maestro, se lee desde 2');
+    expect(describeNumberCorrespondences(null)).toBeNull();
+  });
+});

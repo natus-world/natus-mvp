@@ -364,11 +364,21 @@ owner's review. Before, the chat saw only the Soul Map's summary and said
 crystals were not part of the map. `lintChartJudgement` still holds only the
 answers about a comparison.
 
-**Two open questions with the data now being collected for them:** whether the
+**Adults only, the home country chosen, a second try (owner, 16 Oct 2026).**
+The birth step refuses a date that is not 18 years past (`lib/age.ts`), so
+also any date to come, with «Natus es para personas mayores de 18 años»
+(proposed). «País donde vives» starts empty and must be chosen: it decides
+the help lines. Accounts and sessions made before by people under 18 were
+left as they are — the owner's call. A copy violation is retried once,
+telling the model the rule it broke (closes the open question about
+retries); the `command` rule lets a negation through («no tienes que hacerlo
+perfecto»), which had failed a person's Caminos and gift meditation.
+Numerology joins the correspondences (chat-v1.8): the life path's ruling
+planet, stones and colours.
+
+**An open question with the data now being collected for it:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
-(`cache_read_tokens` answers it), and whether a retry should tell the model
-what the first attempt got wrong (that adds text to the user message, so it is
-the owner's call).
+(`cache_read_tokens` answers it).
 
 **The prompts in the repo are the official ones** (S-06, decided 14 Oct 2026;
 the vault versions are reference only). Every change bumps the version in
