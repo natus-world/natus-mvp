@@ -255,8 +255,7 @@ What is left outside the code, in rough order of weight:
 - The privacy policy and the terms are at `/privacidad` and `/terminos`
   (`screens/Legal.tsx`, texts in `copy.legal`), readable at the door. Written
   on 16 Oct 2026 to launch, from what the code does; the owner's lawyer
-  reviews them. The contact address (`copy.legal.contact`) is empty until the
-  owner names one, and its line is hidden meanwhile.
+  reviews them. The contact address is hola@natus.world (owner, 16 Oct 2026).
 
 **What each plan gets (F-01) is built (15 Oct 2026)** and lives in
 `plan_quotas`, edited there without a deploy: free has 3 chat questions as a

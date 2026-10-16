@@ -632,8 +632,7 @@ export const es = {
   legal: {
     updated: 'Vigente desde el 16 de octubre de 2026',
     contactLead: 'Escríbenos a ',
-    // Empty until the owner names the address; the line is hidden meanwhile.
-    contact: '' as string,
+    contact: 'hola@natus.world' as string,
     back: 'Volver',
     otherPrivacy: 'Política de privacidad',
     otherTerms: 'Términos y condiciones',
