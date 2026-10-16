@@ -315,11 +315,22 @@ hand. Record in the funnel which place each free month started from. The
 the branding conversation.
 
 **The launch (owner, 16 Oct 2026): today, with Google sign-in only and without
-notifications** (N-01 goes last). Left for the evening of 16 Oct, in
-Supabase's dashboard: switch on the Google provider with the client id and
-secret from Google Cloud, allow manual linking, set the Site URL to
-https://app.natus.world and add https://app.natus.world/** to the redirect
-URLs; then walk a Google sign-in end to end on the deployed site.
+notifications** (N-01 goes last). Google is switched on in production
+(16 Oct 2026, 09:47): consent screen published, web client created, the
+provider on in Supabase, Site URL and redirect set. Manual linking was asked
+for; confirm it in the dashboard. A real Google round trip has not been
+walked yet — only the owner can.
+
+**Google first, for the evening of 16 Oct 2026 (owner leaning yes, not yet
+built).** Ask for the Google account before the onboarding instead of after
+the map: more serious for the brand, and no anonymous rows piling up (nothing
+purges them today). Most of it exists as the invite door
+(`VITE_REQUIRE_INVITE`, `Gate`, `signInWithGoogle`). Left to do: create the
+account on the way back from Google rather than when the map is saved; send
+a returning person on a new device straight to their space; keep «Guardar con
+Google» for anybody who already started anonymously; turn the gate's «no
+está abierto» copy into the landing. The landing's «Sin cuenta, sin
+diagnóstico» must change — the owner gives the text.
 
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
