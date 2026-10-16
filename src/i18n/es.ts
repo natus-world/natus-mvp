@@ -624,6 +624,8 @@ export const es = {
     back: 'Volver',
     otherPrivacy: 'Política de privacidad',
     otherTerms: 'Términos y condiciones',
+    linkPrivacy: 'Privacidad',
+    linkTerms: 'Términos',
     privacy: {
       kicker: 'Natus',
       title: 'Política de privacidad',

@@ -5,6 +5,7 @@ import { buildExport, exportFileName } from '@/lib/export';
 import { clearAll, exportAll } from '@/store/db';
 import { clearStoredBlobs } from '@/store/blobs';
 import { hasRemoteIdentity, purgeRemote } from '@/store/hydrate.ts';
+import { LegalLinks } from '@/components/LegalLinks';
 import { signOut } from '@/supabase/session.ts';
 import { activeProfile, getClient, updateActiveProfile } from '@/store/account';
 import { copy, type GrammaticalGender } from '@/i18n';
@@ -250,6 +251,7 @@ export function Profile() {
             <p className="mt-2 text-[length:var(--fs-body-11)] leading-relaxed text-crema/60">{t.signOutNote}</p>
           </section>
         )}
+        <LegalLinks className="mt-6 mb-2" />
       </div>
     </Screen>
   );

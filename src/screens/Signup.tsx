@@ -5,6 +5,7 @@ import { copy } from '@/i18n';
 import { SignupError, isSignedIn, signUp } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { googleSignInEnabled, isBackendConfigured } from '@/supabase/client.ts';
+import { LegalLinks } from '@/components/LegalLinks';
 import { linkGoogle, oauthErrorInUrl, upgradeToEmail } from '@/supabase/session.ts';
 
 /**
@@ -184,6 +185,7 @@ export function Signup() {
               <Link to="/hoy" className="chip chip-p10 text-center text-crema/60 no-underline">
                 {text.later}
               </Link>
+              <LegalLinks className="pt-1" />
             </div>
           </>
         ) : (
