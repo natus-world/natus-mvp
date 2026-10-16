@@ -335,6 +335,50 @@ check('routine: a therapy that is not in the catalogue is refused', unknownThera
 const strayReason = await call('routine', { synthesis: SYNTHESIS, modalitySlugs: MODALITIES, reasons: { 'no-enviada': 'Un porqué suelto.' } });
 check('routine: a reason for a therapy that was not sent is refused', strayReason.status === 400, `status=${strayReason.status}`);
 
+// ── the plan's quotas (v1.2 F-01) ───────────────────────────────────────────
+//
+// Two fresh people, so nothing above shifts. Checked before the key, so this
+// runs without a model too.
+if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  const elevated = createClient(API, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const fresh = async () => {
+    const someone = createClient(API, ANON, { auth: { persistSession: false } });
+    const { data } = await someone.auth.signInAnonymously();
+    return {
+      id: data.session.user.id,
+      headers: { Authorization: `Bearer ${data.session.access_token}`, 'Content-Type': 'application/json' },
+    };
+  };
+
+  const free = await fresh();
+  await elevated.from('claude_api_calls').insert({
+    user_id: free.id, purpose: 'meditation', prompt_version: 'verify', model: 'verify', mode: 'server', outcome: 'ok',
+  });
+  const usedUp = await call('meditation', BODIES.meditation, free.headers);
+  const usedUpBody = await usedUp.json();
+  check(
+    'meditation: a free person who used their one is asked to upgrade, not served',
+    usedUp.status === 402 && usedUpBody.error === 'quota_exhausted' && usedUpBody.feature === 'meditation',
+    `status=${usedUp.status} error=${usedUpBody.error}`,
+  );
+
+  const premium = await fresh();
+  await elevated.from('subscriptions').upsert({ user_id: premium.id, status: 'active', activated_at: new Date().toISOString() });
+  await elevated.from('claude_api_calls').insert(
+    Array.from({ length: 4 }, () => ({
+      user_id: premium.id, purpose: 'chat', prompt_version: 'verify', model: 'claude-sonnet-5-5',
+      mode: 'server', outcome: 'ok', charged: true, output_tokens: 100_000,
+    })),
+  );
+  const atCap = await call('meditation', BODIES.meditation, premium.headers);
+  const atCapBody = await atCap.json();
+  check(
+    'meditation: premium at its monthly cap is told when it renews',
+    atCap.status === 429 && atCapBody.scope === 'cap' && /^\d{4}-\d{2}-01$/.test(atCapBody.renews_on ?? ''),
+    `status=${atCap.status} scope=${atCapBody.scope} renews_on=${atCapBody.renews_on}`,
+  );
+}
+
 // ── the chart by whole sign, rebuilt from what is stored (v1.2 A-01) ───────
 //
 // No provider call: the positions are in the stored text, so this runs here

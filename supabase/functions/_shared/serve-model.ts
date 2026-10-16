@@ -10,6 +10,8 @@ import { scanText } from './lib/safety.ts';
 import { modelCrisisReply } from './lib/crisis-resources.ts';
 import { MAX_OUTPUT_TOKENS, modelFor } from './lib/budget.ts';
 import { refuseForSpend, reserveModelCall } from './spend.ts';
+import { overPlanCap, planQuota } from './quota.ts';
+import type { PlanFeature } from './lib/quota.ts';
 
 /**
  * The shape four of the five functions share.
@@ -96,6 +98,13 @@ export type ModelRoute<I, O> = {
     context: { caller: SupabaseClient; userId: string },
   ) => string | null | Promise<string | null>;
   crisis?: (output: O, input: I) => { response: string; country: string | undefined } | null;
+  /**
+   * v1.2 F-01: the plan feature this surface spends, if any. Its quota is
+   * read from `plan_quotas` and the ledger before the call (402 when used),
+   * premium's monthly cap is checked (429, scope `cap`), and the reservation
+   * checks the quota again under its lock.
+   */
+  plan?: PlanFeature;
   /** Operational counts to return beside the token usage. Never content. */
   meta?: (input: I) => Record<string, number>;
   effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
@@ -168,6 +177,31 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
       return json(request, { error: 'refused', reason: withheld.reason }, 403);
     }
 
+    // Before the key check, like the chat's quota: what the plan allows does
+    // not depend on whether this deployment has a model.
+    if (route.plan) {
+      const quota = await planQuota(elevated, userId, route.plan);
+      if (quota.remaining === 0) {
+        await logCall(elevated, {
+          ...record,
+          outcome: 'refused_quota',
+          latencyMs: Date.now() - started,
+          errorKind: 'plan',
+        });
+        return json(request, { error: 'quota_exhausted', feature: route.plan, remaining: 0 }, 402);
+      }
+      const cap = quota.tier === 'premium' ? await overPlanCap(elevated, userId) : null;
+      if (cap?.over) {
+        await logCall(elevated, {
+          ...record,
+          outcome: 'refused_quota',
+          latencyMs: Date.now() - started,
+          errorKind: 'plan_cap',
+        });
+        return json(request, { error: 'spend_limit', scope: 'cap', renews_on: cap.renewsOn }, 429);
+      }
+    }
+
     // A declared state, not a failure: `runAi` reads this and falls back to
     // the curated fixtures, which is a supported way to run a deployment.
     if (!hasKey()) return json(request, { error: 'no_model' }, 503);
@@ -192,7 +226,13 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
     } catch {
       return json(request, { error: 'quota_unavailable' }, 500);
     }
-    if (reservedId === null) return json(request, { error: 'spend_limit', scope: 'person' }, 429);
+    if (reservedId === null) {
+      // The plan was checked again under the lock; say which limit it was.
+      if (route.plan && (await planQuota(elevated, userId, route.plan)).remaining === 0) {
+        return json(request, { error: 'quota_exhausted', feature: route.plan, remaining: 0 }, 402);
+      }
+      return json(request, { error: 'spend_limit', scope: 'person' }, 429);
+    }
 
     try {
       const input = route.enrich

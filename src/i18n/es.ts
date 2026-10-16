@@ -345,7 +345,6 @@ export const es = {
       'Dejamos la conversación aquí por ahora. No es un castigo y no se borró nada: esto merece hablarse con una persona.',
     notMyCase: 'Esto no aplica a mi caso',
     thinking: 'Pensando…',
-    subscribedLimit: 'Llegaste al máximo de preguntas de estos treinta días. Lo que escribiste sigue aquí.',
     spendLimit: 'Por hoy no podemos responder más. Lo que escribiste sigue aquí: inténtalo más tarde.',
     placeholder: 'Escribe lo que se te venga…',
     messageLabel: 'Tu mensaje',
@@ -354,16 +353,46 @@ export const es = {
     start: 'Empezar',
   },
   paywall: {
-    label: 'Se terminaron tus preguntas incluidas',
+    label: 'Se terminó lo incluido',
     kicker: 'Hasta aquí llega lo incluido',
-    title: (used: number) => `Usaste tus ${used} preguntas.`,
-    body: 'Lo que escribiste sigue guardado en el cuadro de abajo. Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
+    title: {
+      chat: 'Usaste las preguntas incluidas.',
+      meditation: 'Ya usaste tu meditación de regalo.',
+      comparison: 'Usaste las comparaciones de este mes.',
+    },
+    body: {
+      chat: 'Lo que escribiste sigue guardado en el cuadro de abajo. Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
+      meditation: 'Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
+      comparison: 'Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
+    },
     offerTitle: 'Premium: el primer mes es gratis',
     offerBody: 'Después, US$10 al mes. Puedes cancelar cuando quieras desde PayPal.',
     approved:
       'Listo. Tu suscripción quedó registrada en PayPal. Activamos tu Premium en cuanto lo confirmemos.',
     unavailable: 'Ahora no pudimos cargar el pago. Prueba de nuevo en un rato.',
     back: 'Volver',
+  },
+  /** v1.2 F-01: what a plan has left, said before it is used. */
+  quota: {
+    meditations: (n: number) => (n === 1 ? 'Te queda 1 meditación' : `Te quedan ${n} meditaciones`),
+    comparisons: (n: number) =>
+      n === 1 ? 'Te queda 1 comparación este mes' : `Te quedan ${n} comparaciones este mes`,
+    usedThisMonth: (date: string) => `Usaste las de este mes. Se renuevan el ${date}.`,
+    cap: (date: string) => `Llegaste al tope de este mes. Se renueva el ${date}.`,
+    months: [
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
+    ],
   },
   meditation: {
     kicker: 'Meditaciones',

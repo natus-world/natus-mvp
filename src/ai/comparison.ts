@@ -20,7 +20,7 @@ export async function compareWithFriend(friendshipId: string): Promise<AiResult<
   });
 
   // Rule 5, from this side: aspects can only come from the server, which is
-  // the only place holding an ephemeris. The strong check — every aspect the
+  // the only place holding both charts. The strong check — every aspect the
   // model returned matches one that was computed — runs in the function.
   const dialogue = result.value.astro_dialogue;
   if (result.mode !== 'server' && (dialogue.available || dialogue.aspects.length > 0)) {
@@ -37,13 +37,11 @@ const DEMO_PAYLOAD = buildComparisonPayload({
     numerology: computeNumerology({ legalBirthName: 'Ana Prueba', birthDate: '1992-05-14' }),
     soul_map_themes: [],
     chart: null,
-    birth: null,
   },
   b: {
     display_name: 'Beto',
     numerology: computeNumerology({ legalBirthName: 'Beto Prueba', birthDate: '1990-11-02' }),
     soul_map_themes: [],
     chart: null,
-    birth: null,
   },
 });

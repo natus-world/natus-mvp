@@ -2,6 +2,7 @@ import { copy } from '@/i18n';
 import { useEffect } from 'react';
 import { PayPalSubscribe } from './PayPalSubscribe';
 import { track } from '@/store/funnel';
+import type { PlanFeature } from '@/lib/quota';
 
 const text = copy.paywall;
 
@@ -19,10 +20,10 @@ const text = copy.paywall;
  * can make anybody premium. The simulated subscription it used to offer is
  * gone: it changed nothing on the server.
  */
-export function Paywall({ used, onDismiss }: { used: number; onDismiss: () => void }) {
+export function Paywall({ feature, onDismiss }: { feature: PlanFeature; onDismiss: () => void }) {
   useEffect(() => {
-    track('paywall_seen', 'chat');
-  }, []);
+    track('paywall_seen', feature);
+  }, [feature]);
 
   return (
     <div
@@ -32,10 +33,10 @@ export function Paywall({ used, onDismiss }: { used: number; onDismiss: () => vo
     >
       <p className="eyebrow mb-2">{text.kicker}</p>
       <h2 className="mb-2 text-[length:var(--fs-heading-17)] leading-snug text-blanco">
-        {text.title(used)}
+        {text.title[feature]}
       </h2>
       <p className="mb-3.5 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-        {text.body}
+        {text.body[feature]}
       </p>
 
       <div className="mb-3.5 border-t border-crema/15 pt-3">

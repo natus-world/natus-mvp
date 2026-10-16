@@ -119,7 +119,8 @@ if (ordinary.status === 503) {
   );
   check(
     'and reports the remaining allowance',
-    ordinaryBody.remaining === 3,
+    // The gift of three and this month's one (v1.2 F-01).
+    ordinaryBody.remaining === 4,
     `remaining=${ordinaryBody.remaining}`,
   );
   console.log('note  the model path is UNVERIFIED — serve with ANTHROPIC_API_KEY to cover it');
@@ -155,7 +156,7 @@ if (ordinary.status === 503) {
   );
   check(
     'and reports the remaining allowance',
-    ordinaryBody.remaining === 2,
+    ordinaryBody.remaining === 3,
     `remaining=${ordinaryBody.remaining}`,
   );
   check(
@@ -198,7 +199,7 @@ const spend = async (n) => {
   );
 };
 
-await spend(3);
+await spend(4);
 
 // Everything the person can reach, tried before asking again.
 await client.from('messages').delete().eq('user_id', userId);
@@ -263,23 +264,25 @@ const subHeaders = { Authorization: `Bearer ${subAuth.session.access_token}` };
 await elevated
   .from('subscriptions')
   .upsert({ user_id: subId, status: 'active', activated_at: new Date().toISOString() });
+// Four dollars this month at Sonnet's output price: premium's cap (v1.2 F-01).
 await elevated.from('claude_api_calls').insert(
-  Array.from({ length: 9 }, () => ({
+  Array.from({ length: 4 }, () => ({
     user_id: subId,
     purpose: 'chat',
     prompt_version: 'verify',
-    model: 'verify',
+    model: 'claude-sonnet-5-5',
     mode: 'server',
     outcome: 'ok',
     charged: true,
+    output_tokens: 100_000,
   })),
 );
 const capped = await call({ message: 'una pregunta mas' }, subHeaders);
 const cappedBody = await capped.json();
 check(
   'a subscriber past the ceiling is refused, not charged',
-  capped.status === 429 && cappedBody.error === 'spend_limit',
-  `status=${capped.status} error=${cappedBody.error}`,
+  capped.status === 429 && cappedBody.error === 'spend_limit' && cappedBody.scope === 'cap',
+  `status=${capped.status} error=${cappedBody.error} scope=${cappedBody.scope}`,
 );
 const cappedCrisis = await call({ message: 'hace semanas que me quiero morir', country: 'CL' }, subHeaders);
 const cappedCrisisBody = await cappedCrisis.json();

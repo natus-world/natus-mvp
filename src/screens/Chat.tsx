@@ -12,9 +12,8 @@ import { activeProfile } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { currentMatchFor } from '@/store/matches';
 import { activeHighSeverityEvent, hadCrisisWithin30Days, markFalsePositive, recordCrisisEvent } from '@/store/crisis';
-import { isSubscribed } from '@/store/subscription';
+import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
 import {
-  FREE_QUESTIONS,
   appendAssistantMessage,
   appendUserMessage,
   conversationFor,
@@ -60,10 +59,17 @@ export function Chat() {
     () => activeHighSeverityEvent()?.id ?? null,
   );
   const endRef = useRef<HTMLDivElement>(null);
+  // v1.2 F-01: what the plan has left, as the server counts it. Null in the
+  // fixture demo, which counts on its own.
+  const [quota, setQuota] = useState<Quota | null>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' });
   }, [messages.length, thinking]);
+
+  useEffect(() => {
+    void fetchQuota('chat').then(setQuota);
+  }, []);
 
   if (!synthesis || !profile || !conversation) {
     return (
@@ -80,7 +86,7 @@ export function Chat() {
     );
   }
 
-  const remaining = remainingQuestions();
+  const remaining = quota ? (quota.remaining ?? Number.POSITIVE_INFINITY) : remainingQuestions();
   const match = currentMatchFor(synthesis.id);
   const vulnerable = isClinicallyVulnerable({
     clinicalBasics: profile.draft.clinical_basics,
@@ -114,7 +120,8 @@ export function Chat() {
     // Read the quota now rather than trusting the value this render closed
     // over: a subscription the server activated arrives with the next load,
     // and a stale zero would bounce the person back to the paywall.
-    if (remainingQuestions() <= 0) {
+    const left = quota ? (quota.remaining ?? Number.POSITIVE_INFINITY) : remainingQuestions();
+    if (left <= 0) {
       // The draft is deliberately left where it is.
       setShowPaywall(true);
       return;
@@ -144,6 +151,7 @@ export function Chat() {
       });
       appendAssistantMessage(conversation.id, result.value);
       setMessages(listMessages(conversation.id));
+      void fetchQuota('chat').then(setQuota);
     } catch (err) {
       if (err instanceof AiError && err.kind === 'crisis' && err.crisis) {
         const event = recordCrisisEvent(
@@ -167,11 +175,12 @@ export function Chat() {
       setDraft(question);
 
       if (err instanceof AiError && err.kind === 'quota') {
-        if (isSubscribed()) {
-          setError(text.subscribedLimit);
-        } else {
-          setShowPaywall(true);
-        }
+        void fetchQuota('chat').then(setQuota);
+        setShowPaywall(true);
+        return;
+      }
+      if (err instanceof AiError && err.kind === 'plan_cap') {
+        setError(copy.quota.cap(renewalDate(err.renewsOn ?? '')));
         return;
       }
       setError(
@@ -289,10 +298,7 @@ export function Chat() {
               </button>
             </div>
           ) : showPaywall ? (
-            <Paywall
-              used={FREE_QUESTIONS}
-              onDismiss={() => setShowPaywall(false)}
-            />
+            <Paywall feature="chat" onDismiss={() => setShowPaywall(false)} />
           ) : null}
 
           {!containment && (

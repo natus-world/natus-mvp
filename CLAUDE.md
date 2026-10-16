@@ -178,14 +178,23 @@ clinical questions. The free-text "¿Hay algo más…?" was removed for being bo
 to nothing; bringing it back means storing clinical free text, scanning it for
 crisis and keeping it out of every model payload.
 
-**What a subscription buys** is set by v1.2 (F-01: free gets 3 questions plus
-1 a month, premium an unlimited chat under a high technical cap, every quota
-configurable without a deploy), but its cost is still open (F-03). Until F-01
-is built, `src/lib/quota.ts` keeps the interim numbers — 3 free, 6 subscribed
-per thirty days — because `budget.test.ts` holds one person's worst month
-under a third of `MONTHLY_BUDGET_USD`; the test fails until any new numbers
-fit too. The paywall's button still activates a simulated subscription for
-free. P-01 replaces it: only the server decides who is premium.
+**What each plan gets (F-01) is built (15 Oct 2026)** and lives in
+`plan_quotas`, edited there without a deploy: free has 3 chat questions as a
+gift + 1 a month, 1 meditation in all and 2 comparisons a month; premium has
+unlimited chat, 10 meditations a month and unlimited comparisons. The first
+month a free person therefore has 4 questions. "Unlimited" is bounded by
+`plan_caps`: US$4 of model use per premium person per calendar month (UTC),
+priced with `src/lib/budget.ts` (`PREMIUM_MONTHLY_CAP_USD` is the seed, and
+`budget.test.ts` prices the worst month with it — change both). Usage is
+counted from `claude_api_calls`: only answers that worked, plus those in
+flight; `quota_remaining` does the arithmetic, `my_quota` shows the person
+theirs, and the reservations check it under their lock. A used quota is a
+402 and shows the paywall to free; premium's cap is a 429 with `scope: cap`
+and the day it renews. Premium is read from `subscriptions`, which only the
+server writes. Payment is PayPal, US$10 a month with the first month free,
+shown in dollars because that is what PayPal charges (owner, 15 Oct 2026);
+activating premium automatically from PayPal's notifications is decided and
+not built yet.
 
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces

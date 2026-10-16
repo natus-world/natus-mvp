@@ -1,6 +1,6 @@
 import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
-import { currentQuota, overSubscribedLimit, reserveChatTurn } from '../_shared/quota.ts';
+import { overPlanCap, planQuota, reserveChatTurn } from '../_shared/quota.ts';
 import { overDeploymentBudget } from '../_shared/spend.ts';
 import { MAX_OUTPUT_TOKENS, modelFor } from '../_shared/lib/budget.ts';
 import { isChargeable } from '../_shared/lib/quota.ts';
@@ -107,8 +107,9 @@ Deno.serve(async (request) => {
   }
 
   // ── 4. Quota, after safety ────────────────────────────────────────────────
-  const quota = await currentQuota(elevated, userId);
-  if (quota.remaining <= 0) {
+  // v1.2 F-01: the plan's quota, from `plan_quotas` and the ledger.
+  const quota = await planQuota(elevated, userId, 'chat');
+  if (quota.remaining === 0) {
     await logCall(elevated, {
       userId,
       purpose: 'chat',
@@ -118,13 +119,14 @@ Deno.serve(async (request) => {
       outcome: 'refused_quota',
       latencyMs: Date.now() - started,
     });
-    return json(request, { error: 'quota_exhausted', used: quota.used, remaining: 0 }, 402);
+    return json(request, { error: 'quota_exhausted', remaining: 0 }, 402);
   }
 
-  // A subscriber is past the paywall, not past the budget. While the
-  // subscription is simulated, "unlimited" is bounded here. A 429 rather than
-  // the 402 above: this is not a state the product asks money for.
-  if (quota.unlimited && (await overSubscribedLimit(elevated, userId))) {
+  // Premium is past the paywall, not past the cap: US$4 of model use a month
+  // (owner, 15 Oct 2026). A 429 rather than the 402 above: this is not a state
+  // the product asks money for.
+  const cap = quota.tier === 'premium' ? await overPlanCap(elevated, userId) : null;
+  if (cap?.over) {
     await logCall(elevated, {
       userId,
       purpose: 'chat',
@@ -133,9 +135,9 @@ Deno.serve(async (request) => {
       mode: 'fixture',
       outcome: 'refused_quota',
       latencyMs: Date.now() - started,
-      errorKind: 'subscribed',
+      errorKind: 'plan_cap',
     });
-    return json(request, { error: 'spend_limit', scope: 'person' }, 429);
+    return json(request, { error: 'spend_limit', scope: 'cap', renews_on: cap.renewsOn }, 429);
   }
 
   // ── 5. The model ──────────────────────────────────────────────────────────
@@ -148,7 +150,7 @@ Deno.serve(async (request) => {
   if (!hasKey()) {
     return json(
       request,
-      { error: 'no_model', remaining: quota.remaining, unlimited: quota.unlimited },
+      { error: 'no_model', remaining: quota.remaining, unlimited: quota.remaining === null },
       503,
     );
   }
@@ -186,15 +188,11 @@ Deno.serve(async (request) => {
   // it, whatever the rest of the file says it is.
   let reservedId: string | null;
   try {
-    reservedId = await reserveChatTurn(elevated, userId, quota.unlimited, PROMPT_VERSION, MODEL);
+    reservedId = await reserveChatTurn(elevated, userId, PROMPT_VERSION, MODEL);
   } catch {
     return json(request, { error: 'quota_unavailable' }, 500);
   }
-  if (reservedId === null) {
-    return quota.unlimited
-      ? json(request, { error: 'spend_limit', scope: 'person' }, 429)
-      : json(request, { error: 'quota_exhausted', used: quota.used, remaining: 0 }, 402);
-  }
+  if (reservedId === null) return json(request, { error: 'quota_exhausted', remaining: 0 }, 402);
 
   try {
     const generated = await generate({
@@ -266,8 +264,8 @@ Deno.serve(async (request) => {
       ...(generated.value.type === 'crisis' ? { resources: resourcesForCountry(country) } : {}),
       input_tokens: generated.inputTokens,
       output_tokens: generated.outputTokens,
-      remaining: quota.remaining - (charged ? 1 : 0),
-      unlimited: quota.unlimited,
+      remaining: quota.remaining === null ? null : Math.max(0, quota.remaining - (charged ? 1 : 0)),
+      unlimited: quota.remaining === null,
     });
   } catch (error) {
     const kind = error instanceof ModelError ? error.kind : 'api_error';

@@ -44,3 +44,12 @@ describe('isChargeable', () => {
     expect(isChargeable('crisis')).toBe(false);
   });
 });
+
+describe('the month a plan counts (v1.2 F-01)', () => {
+  it('starts on the first, in UTC', async () => {
+    const { monthStart, renewsOn } = await import('./quota.ts');
+    expect(monthStart(new Date('2026-10-15T23:30:00-03:00')).toISOString()).toBe('2026-10-01T00:00:00.000Z');
+    expect(renewsOn(new Date('2026-10-15T12:00:00Z'))).toBe('2026-11-01');
+    expect(renewsOn(new Date('2026-12-31T23:59:00Z'))).toBe('2027-01-01');
+  });
+});

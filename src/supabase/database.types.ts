@@ -800,6 +800,42 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_caps: {
+        Row: {
+          monthly_usd: number
+          tier: string
+        }
+        Insert: {
+          monthly_usd: number
+          tier: string
+        }
+        Update: {
+          monthly_usd?: number
+          tier?: string
+        }
+        Relationships: []
+      }
+      plan_quotas: {
+        Row: {
+          feature: string
+          initial: number | null
+          monthly: number | null
+          tier: string
+        }
+        Insert: {
+          feature: string
+          initial?: number | null
+          monthly?: number | null
+          tier: string
+        }
+        Update: {
+          feature?: string
+          initial?: number | null
+          monthly?: number | null
+          tier?: string
+        }
+        Relationships: []
+      }
       preferences: {
         Row: {
           bed_volume: number
@@ -1024,6 +1060,12 @@ export type Database = {
         }[]
       }
       my_invite_token: { Args: never; Returns: string }
+      my_quota: { Args: { p_feature: string }; Returns: Json }
+      plan_tier: { Args: { p_user: string }; Returns: string }
+      quota_remaining: {
+        Args: { p_feature: string; p_now?: string; p_user: string }
+        Returns: number
+      }
       record_step: {
         Args: {
           p_campaign?: string
@@ -1056,6 +1098,10 @@ export type Database = {
         }
         Returns: string
       }
+      reserve_plan_chat_turn: {
+        Args: { p_model: string; p_prompt_version: string; p_user: string }
+        Returns: string
+      }
       track_step: {
         Args: {
           p_campaign?: string
@@ -1064,6 +1110,16 @@ export type Database = {
           p_step: string
         }
         Returns: undefined
+      }
+      user_token_totals: {
+        Args: { p_user: string; since: string }
+        Returns: {
+          cache_read_tokens: number
+          cache_write_tokens: number
+          input_tokens: number
+          model: string
+          output_tokens: number
+        }[]
       }
     }
     Enums: {

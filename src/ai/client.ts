@@ -56,6 +56,8 @@ export type AiErrorKind =
   | 'copy_violation'
   | 'quota'
   | 'spend_limit'
+  /** v1.2 F-01: premium reached its monthly cap; `renewsOn` says when it ends. */
+  | 'plan_cap'
   | 'crisis';
 
 export class AiError extends Error {
@@ -64,6 +66,7 @@ export class AiError extends Error {
     readonly kind: AiErrorKind,
     readonly crisis?: { severity: CrisisSeverity; category: CrisisCategory },
     readonly crisisResponse?: string,
+    readonly renewsOn?: string,
   ) {
     super(message);
   }
@@ -145,7 +148,19 @@ async function runOnEdge<T>(call: AiCall<T>, started: number): Promise<AiResult<
     // with the error state everywhere else.
     if (status === 503 || status === 404) return null;
     if (status === 402) throw new AiError(`The ${edge.fn} quota is exhausted.`, 'quota');
-    if (status === 429) throw new AiError(`The ${edge.fn} spend limit was reached.`, 'spend_limit');
+    if (status === 429) {
+      const body = await errorBody(context);
+      if (body?.['scope'] === 'cap') {
+        throw new AiError(
+          `The ${edge.fn} monthly cap was reached.`,
+          'plan_cap',
+          undefined,
+          undefined,
+          typeof body['renews_on'] === 'string' ? body['renews_on'] : undefined,
+        );
+      }
+      throw new AiError(`The ${edge.fn} spend limit was reached.`, 'spend_limit');
+    }
     if (status === 403 && (await errorCode(context)) === 'refused_crisis') {
       throw new AiError(`The ${edge.fn} function saw a crisis the caller did not.`, 'crisis', {
         severity: 'high',
@@ -197,6 +212,16 @@ const CATEGORIES = new Set<CrisisCategory>([
   'panico',
   'indirecto',
 ]);
+
+async function errorBody(context: unknown): Promise<Record<string, unknown> | null> {
+  if (!(context instanceof Response)) return null;
+  try {
+    const body: unknown = await context.clone().json();
+    return body && typeof body === 'object' ? (body as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
 
 async function errorCode(context: unknown): Promise<string | null> {
   if (!(context instanceof Response)) return null;

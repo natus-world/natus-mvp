@@ -26,6 +26,7 @@ const ACTIVE_BEDS = BED_TRACKS.filter((bed) => bed.is_active);
 Deno.serve(
   serveModel({
     purpose: 'meditation',
+    plan: 'meditation',
     promptVersion: MEDITATION_PROMPT_VERSION,
     input: meditationInputSchema,
     output: meditationScriptSchema,

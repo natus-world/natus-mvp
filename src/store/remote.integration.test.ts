@@ -110,17 +110,11 @@ function pick<T extends Record<string, unknown>>(rows: T[], columns: string[]): 
  * resolve — the Edge runtime checks those, and `pnpm test:db` exercises them.
  */
 async function edgeShared(): Promise<{
-  currentQuota: (client: unknown, userId: string) => Promise<{ used: number }>;
+  planQuota: (client: unknown, userId: string, feature: string) => Promise<{ tier: string; remaining: number | null }>;
   logCall: (client: unknown, record: Record<string, unknown>) => Promise<void>;
   overDeploymentBudget: (client: unknown) => Promise<boolean>;
-  overSubscribedLimit: (client: unknown, userId: string) => Promise<boolean>;
-  reserveChatTurn: (
-    client: unknown,
-    userId: string,
-    subscribed: boolean,
-    promptVersion: string,
-    model: string,
-  ) => Promise<string | null>;
+  overPlanCap: (client: unknown, userId: string) => Promise<{ over: boolean; renewsOn: string }>;
+  reserveChatTurn: (client: unknown, userId: string, promptVersion: string, model: string) => Promise<string | null>;
   reserveModelCall: (
     client: unknown,
     userId: string,
@@ -136,10 +130,10 @@ async function edgeShared(): Promise<{
     import(/* @vite-ignore */ `${base}/spend.ts`),
   ]);
   return {
-    currentQuota: quota.currentQuota,
+    planQuota: quota.planQuota,
     logCall: log.logCall,
     overDeploymentBudget: spend.overDeploymentBudget,
-    overSubscribedLimit: quota.overSubscribedLimit,
+    overPlanCap: quota.overPlanCap,
     reserveChatTurn: quota.reserveChatTurn,
     reserveModelCall: spend.reserveModelCall,
   };
@@ -292,16 +286,34 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
     expect(user.user).toBeNull();
   });
 
-  it('a simulated subscription is bounded, counting the free turns too', async () => {
+  it('premium is unlimited up to its monthly money cap (v1.2 F-01)', async () => {
     const { userId } = await person();
-    const { logCall, overSubscribedLimit } = await edgeShared();
-    const turn = { userId, purpose: 'chat', promptVersion: 'test', model: 'test', latencyMs: 0 };
+    const { logCall, overPlanCap, planQuota } = await edgeShared();
+    await admin().from('subscriptions').upsert({ user_id: userId, status: 'active', activated_at: new Date().toISOString() });
+    expect(await planQuota(admin(), userId, 'chat')).toEqual({ tier: 'premium', remaining: null });
 
-    for (let i = 0; i < 8; i++) await logCall(admin(), { ...turn, mode: 'server', outcome: 'ok', charged: true });
-    expect(await overSubscribedLimit(admin(), userId)).toBe(false);
+    // US$1 a call with Sonnet's output price: the cap is US$4.
+    const turn = {
+      userId,
+      purpose: 'chat',
+      promptVersion: 'test',
+      model: 'claude-sonnet-5-5',
+      latencyMs: 0,
+      mode: 'server',
+      outcome: 'ok',
+      charged: true,
+      inputTokens: 0,
+      outputTokens: 100_000,
+    };
+    for (let i = 0; i < 3; i++) await logCall(admin(), turn);
+    expect((await overPlanCap(admin(), userId)).over).toBe(false);
 
-    await logCall(admin(), { ...turn, mode: 'server', outcome: 'ok', charged: true });
-    expect(await overSubscribedLimit(admin(), userId)).toBe(true);
+    await logCall(admin(), turn);
+    expect((await overPlanCap(admin(), userId)).over).toBe(true);
+
+    // Four dollars of pretend spend would otherwise count against the
+    // deployment's own budget in the tests below.
+    asOwner(`delete from public.claude_api_calls where user_id = '${userId}'`);
   });
 
   it('parallel chat turns cannot spend more than the free questions', async () => {
@@ -309,10 +321,22 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
     const { reserveChatTurn } = await edgeShared();
 
     const reserved = await Promise.all(
-      Array.from({ length: 10 }, () => reserveChatTurn(admin(), userId, false, 'test', 'test')),
+      Array.from({ length: 10 }, () => reserveChatTurn(admin(), userId, 'test', 'test')),
     );
 
-    expect(reserved.filter((id) => id !== null)).toHaveLength(3);
+    // The gift of three and this month's one (v1.2 F-01).
+    expect(reserved.filter((id) => id !== null)).toHaveLength(4);
+  });
+
+  it('parallel meditations cannot pass the free one (v1.2 F-01)', async () => {
+    const { userId } = await person();
+    const { reserveModelCall } = await edgeShared();
+
+    const reserved = await Promise.all(
+      Array.from({ length: 5 }, () => reserveModelCall(admin(), userId, 'meditation', 'test', 'test')),
+    );
+
+    expect(reserved.filter((id) => id !== null)).toHaveLength(1);
   });
 
   it('parallel generations cannot pass the per-purpose ceiling', async () => {
@@ -328,7 +352,7 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
 
   it('the chat quota cannot be given back by the person it limits', async () => {
     const { client, userId } = await person();
-    const { currentQuota, logCall } = await edgeShared();
+    const { planQuota, logCall } = await edgeShared();
 
     // What the chat function records: two answered turns and one crisis turn,
     // which is never charged.
@@ -337,15 +361,15 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
     await logCall(admin(), { ...turn, mode: 'server', outcome: 'ok', charged: true });
     await logCall(admin(), { ...turn, mode: 'fixture', outcome: 'refused_crisis' });
 
-    const before = await currentQuota(admin(), userId);
-    expect(before.used).toBe(2);
+    const before = await planQuota(admin(), userId, 'chat');
+    expect(before.remaining).toBe(2);
 
     // Everything the browser can reach, tried.
     await client.from('messages').delete().eq('user_id', userId);
     await client.from('claude_api_calls').delete().eq('user_id', userId);
     await client.from('claude_api_calls').update({ charged: false }).eq('user_id', userId);
 
-    expect(await currentQuota(admin(), userId)).toEqual(before);
+    expect(await planQuota(admin(), userId, 'chat')).toEqual(before);
   });
 });
 

@@ -1,88 +1,104 @@
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
-import {
-  FREE_QUESTIONS,
-  SUBSCRIBED_QUESTIONS,
-  SUBSCRIBED_WINDOW_HOURS,
-  quotaState,
-  type QuotaState,
-} from './lib/quota.ts';
+import { costUsd } from './lib/budget.ts';
+import { PREMIUM_MONTHLY_CAP_USD, monthStart, renewsOn, type PlanFeature } from './lib/quota.ts';
 
 /**
- * The quota, counted where the person cannot reach it.
+ * The plan, counted where the person cannot reach it (v1.2 F-01).
  *
- * A server-side model call must not be a spend-anything endpoint on a public
- * URL; this file is what stops the chat from being one.
+ * The quotas are rows in `plan_quotas`, the usage is the ledger
+ * (`claude_api_calls`), which only the functions write, and the tier is
+ * `subscriptions`, which only the server writes (P-01). Nothing here trusts
+ * the browser.
  *
- * Counted from `claude_api_calls`, which only the functions write. It used to
- * count `messages where counted` — rows the browser writes and may delete, so
- * deleting your own messages gave the free questions back. Running that
- * select with the service role made it look protected; it was not. The chat
- * function marks a call `charged` where the model answered, and nowhere else.
+ * The checks before a call fail open, like the spend ceilings in `spend.ts`:
+ * a database hiccup is not a runaway. The reservation that follows takes a
+ * lock and checks the plan again inside it, and that one does not.
  */
 
-export async function currentQuota(
+export type PlanQuota = {
+  tier: 'free' | 'premium';
+  /** Null when unlimited. */
+  remaining: number | null;
+};
+
+export async function planQuota(
   elevated: SupabaseClient,
   userId: string,
-): Promise<QuotaState> {
-  const [{ count }, { data: subscription }] = await Promise.all([
-    elevated
-      .from('claude_api_calls')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('purpose', 'chat')
-      .eq('charged', true),
-    elevated.from('subscriptions').select('status').eq('user_id', userId).maybeSingle(),
-  ]);
-
-  return quotaState(count ?? 0, subscription?.status === 'active');
-}
-
-/**
- * Whether a subscriber has used what a simulated subscription buys.
- *
- * `quotaState` calls a subscriber unlimited, and while the subscription is a
- * free button that means unlimited model calls on somebody else's key. The
- * ceiling counts every charged turn in the window — the free three included —
- * because that total is what `budget.test.ts` prices. Fails open, like the
- * other spend ceilings in `spend.ts`, and for the reason given there.
- */
-export async function overSubscribedLimit(
-  elevated: SupabaseClient,
-  userId: string,
-  now = Date.now(),
-): Promise<boolean> {
-  const since = new Date(now - SUBSCRIBED_WINDOW_HOURS * 3_600_000).toISOString();
+  feature: PlanFeature,
+): Promise<PlanQuota> {
   try {
-    const { count, error } = await elevated
-      .from('claude_api_calls')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('purpose', 'chat')
-      .eq('charged', true)
-      .gte('created_at', since);
-    if (error) return false;
-    return (count ?? 0) >= FREE_QUESTIONS + SUBSCRIBED_QUESTIONS;
+    const [tier, remaining] = await Promise.all([
+      elevated.rpc('plan_tier', { p_user: userId }),
+      elevated.rpc('quota_remaining', { p_user: userId, p_feature: feature }),
+    ]);
+    if (tier.error || remaining.error) return { tier: 'free', remaining: null };
+    return {
+      tier: tier.data === 'premium' ? 'premium' : 'free',
+      remaining: typeof remaining.data === 'number' ? remaining.data : null,
+    };
   } catch {
-    return false;
+    return { tier: 'free', remaining: null };
   }
 }
 
+/**
+ * Whether a premium person has used this month's cap on "unlimited": US$4 of
+ * model use (owner, 15 Oct 2026), read from `plan_caps` and priced with the
+ * same table as the deployment's budget. Every server row of theirs counts,
+ * whatever it was for.
+ */
+export async function overPlanCap(
+  elevated: SupabaseClient,
+  userId: string,
+  now = new Date(),
+): Promise<{ over: boolean; renewsOn: string }> {
+  const answer = { renewsOn: renewsOn(now) };
+  try {
+    const [cap, totals] = await Promise.all([
+      elevated.from('plan_caps').select('monthly_usd').eq('tier', 'premium').maybeSingle(),
+      elevated.rpc('user_token_totals', { p_user: userId, since: monthStart(now).toISOString() }),
+    ]);
+    if (totals.error || !totals.data) return { ...answer, over: false };
+    const limit = Number(cap.data?.monthly_usd ?? PREMIUM_MONTHLY_CAP_USD);
+    const rows = totals.data as {
+      model: string | null;
+      input_tokens: number;
+      output_tokens: number;
+      cache_write_tokens: number;
+      cache_read_tokens: number;
+    }[];
+    const spent = rows.reduce(
+      (total, row) =>
+        total +
+        costUsd(
+          {
+            inputTokens: row.input_tokens,
+            outputTokens: row.output_tokens,
+            cacheWriteTokens: row.cache_write_tokens,
+            cacheReadTokens: row.cache_read_tokens,
+          },
+          row.model,
+        ),
+      0,
+    );
+    return { ...answer, over: spent >= limit };
+  } catch {
+    return { ...answer, over: false };
+  }
+}
+
+/** A chat turn, reserved under the plan's lock. Null when the month is used. */
 export async function reserveChatTurn(
   elevated: SupabaseClient,
   userId: string,
-  subscribed: boolean,
   promptVersion: string,
   model: string,
 ): Promise<string | null> {
-  const { data, error } = await elevated.rpc('reserve_chat_turn', {
+  const { data, error } = await elevated.rpc('reserve_plan_chat_turn', {
     p_user: userId,
-    p_limit: subscribed ? FREE_QUESTIONS + SUBSCRIBED_QUESTIONS : FREE_QUESTIONS,
-    p_since: subscribed
-      ? new Date(Date.now() - SUBSCRIBED_WINDOW_HOURS * 3_600_000).toISOString()
-      : null,
     p_prompt_version: promptVersion,
     p_model: model,
   });
-  if (error) throw new Error(`reserve_chat_turn: ${error.message}`);
+  if (error) throw new Error(`reserve_plan_chat_turn: ${error.message}`);
   return (data as string | null) ?? null;
 }

@@ -141,6 +141,7 @@ function built(input: Request): NonNullable<Request['built']> {
 Deno.serve(
   serveModel<Request, ReturnType<typeof comparisonResultSchema.parse>>({
     purpose: 'comparison',
+    plan: 'comparison',
     // How many aspects were computed, alongside the token counts. Operational
     // metadata: it names a count, never a placement.
     meta: (input) => ({ aspects_computed: built(input).payload.aspects.length }),

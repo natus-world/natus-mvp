@@ -5,6 +5,9 @@ import { Ouroboros } from '@/design/Ouroboros';
 import { PATHS } from '@/components/routes';
 import { copy } from '@/i18n';
 import { compareWithFriend } from '@/ai/comparison';
+import { AiError } from '@/ai/client';
+import { Paywall } from '@/components/Paywall';
+import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
 import type { ComparisonResult } from '@/lib/schemas';
 import { latestComparison } from '@/store/comparison';
 import { listFriends } from '@/store/friends';
@@ -18,7 +21,7 @@ type State =
   | { kind: 'not-friends' }
   | { kind: 'none'; friend: string }
   | { kind: 'generating'; friend: string }
-  | { kind: 'failed'; friend: string }
+  | { kind: 'failed'; friend: string; message?: string }
   | { kind: 'ready'; friend: string; result: ComparisonResult };
 
 /**
@@ -35,6 +38,9 @@ type State =
 export function Result() {
   const { friendshipId = '' } = useParams();
   const [state, setState] = useState<State>({ kind: 'loading' });
+  // v1.2 F-01: what the plan has left, said before it is used.
+  const [quota, setQuota] = useState<Quota | null>(null);
+  const [paywallDismissed, setPaywallDismissed] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -56,6 +62,7 @@ export function Result() {
 
   useEffect(() => {
     void load();
+    void fetchQuota('comparison').then(setQuota);
   }, [load]);
 
   const generate = async (friend: string) => {
@@ -63,8 +70,21 @@ export function Result() {
     try {
       const outcome = await compareWithFriend(friendshipId);
       setState({ kind: 'ready', friend, result: outcome.value });
-    } catch {
-      setState({ kind: 'failed', friend });
+      void fetchQuota('comparison').then(setQuota);
+    } catch (err) {
+      if (err instanceof AiError && err.kind === 'quota') {
+        setPaywallDismissed(false);
+        void fetchQuota('comparison').then(setQuota);
+        setState({ kind: 'none', friend });
+        return;
+      }
+      setState({
+        kind: 'failed',
+        friend,
+        ...(err instanceof AiError && err.kind === 'plan_cap'
+          ? { message: copy.quota.cap(renewalDate(err.renewsOn ?? '')) }
+          : {}),
+      });
     }
   };
 
@@ -94,11 +114,30 @@ export function Result() {
     return (
       <Centered>
         <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/70">
-          {state.kind === 'failed' ? copy.chrome.aiError.message : text.intro(state.friend)}
+          {state.kind === 'failed' ? (state.message ?? copy.chrome.aiError.message) : text.intro(state.friend)}
         </p>
-        <button type="button" className="cta" onClick={() => void generate(state.friend)}>
-          {state.kind === 'failed' ? copy.chrome.aiError.retry : text.compare}
-        </button>
+        {quota && quota.remaining !== null && quota.remaining > 0 && (
+          <p className="text-[length:var(--fs-body-11)] text-crema/70">{copy.quota.comparisons(quota.remaining)}</p>
+        )}
+        {quota?.remaining === 0 && quota.tier === 'premium' && (
+          <p className="text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/70">
+            {copy.quota.usedThisMonth(renewalDate(quota.renewsOn))}
+          </p>
+        )}
+        {quota?.remaining === 0 && quota.tier === 'free' && !paywallDismissed ? (
+          <div className="w-full text-left">
+            <Paywall feature="comparison" onDismiss={() => setPaywallDismissed(true)} />
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="cta"
+            disabled={quota?.remaining === 0}
+            onClick={() => void generate(state.friend)}
+          >
+            {state.kind === 'failed' ? copy.chrome.aiError.retry : text.compare}
+          </button>
+        )}
         <Link to={PATHS.comparison} className="chip chip-p10 text-crema/60 no-underline">
           {text.back}
         </Link>

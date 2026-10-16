@@ -14,6 +14,8 @@ import { MEDITATION_PROMPT_VERSION } from '@/ai/prompts/versions';
 import { activeProfile } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { markFalsePositive, recordCrisisEvent } from '@/store/crisis';
+import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
+import { Paywall } from '@/components/Paywall';
 import { getPreferences, setVolumes } from '@/store/preferences';
 import { meditationById, saveMeditation, type StoredMeditation } from '@/store/meditations';
 
@@ -48,6 +50,12 @@ export function Meditation() {
   const [meditation, setMeditation] = useState<StoredMeditation | undefined>(() =>
     existingId ? meditationById(existingId) : undefined,
   );
+  // v1.2 F-01: what the plan has left, said before it is used.
+  const [quota, setQuota] = useState<Quota | null>(null);
+  const [paywallDismissed, setPaywallDismissed] = useState(false);
+  useEffect(() => {
+    void fetchQuota('meditation').then(setQuota);
+  }, [meditation]);
 
   if (crisisEventId) {
     return (
@@ -106,8 +114,15 @@ export function Meditation() {
         }),
       );
     } catch (err) {
+      if (err instanceof AiError && err.kind === 'quota') {
+        setPaywallDismissed(false);
+        void fetchQuota('meditation').then(setQuota);
+        return;
+      }
       setError(
-        err instanceof AiError && err.kind === 'spend_limit'
+        err instanceof AiError && err.kind === 'plan_cap'
+          ? copy.quota.cap(renewalDate(err.renewsOn ?? ''))
+          : err instanceof AiError && err.kind === 'spend_limit'
           ? copy.meditation.spendLimit
           : err instanceof AiError && err.kind === 'crisis'
             ? copy.meditation.crisis
@@ -166,6 +181,20 @@ export function Meditation() {
           </p>
         )}
 
+        {quota && quota.remaining !== null && quota.remaining > 0 && (
+          <p className="mt-4 text-[length:var(--fs-body-11)] text-crema/70">{copy.quota.meditations(quota.remaining)}</p>
+        )}
+        {quota?.remaining === 0 && quota.tier === 'premium' && (
+          <p className="mt-4 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/70">
+            {copy.quota.usedThisMonth(renewalDate(quota.renewsOn))}
+          </p>
+        )}
+        {quota?.remaining === 0 && quota.tier === 'free' && !paywallDismissed && (
+          <div className="mt-4">
+            <Paywall feature="meditation" onDismiss={() => setPaywallDismissed(true)} />
+          </div>
+        )}
+
         {error && (
           <div role="alert" className="mt-4 flex items-center gap-3">
             <p className="flex-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-error">{error}</p>
@@ -181,7 +210,7 @@ export function Meditation() {
           <button
             type="button"
             className="cta"
-            disabled={intent.trim() === '' || generating}
+            disabled={intent.trim() === '' || generating || quota?.remaining === 0}
             onClick={() => void generate()}
           >
             {generating ? text.generating : text.generate}

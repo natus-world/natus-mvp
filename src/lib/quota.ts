@@ -14,10 +14,9 @@
  */
 
 /**
- * PDR section 3 describes a free tier with a small number of questions and a
- * paywall after it; the exact figure was not to hand. Three is small enough
- * that the paywall is reachable in a demo and large enough to show the
- * conversation working first. One constant to change.
+ * The free gift of questions (v1.2 F-01), as the demo counts it. With a
+ * backend the number comes from `plan_quotas` through the functions; this is
+ * only what the fixture demo shows offline.
  */
 export const FREE_QUESTIONS = 3;
 
@@ -41,24 +40,28 @@ export function quotaState(used: number, subscribed: boolean): QuotaState {
 }
 
 /**
- * What a subscription buys, while the subscription is simulated.
+ * v1.2 F-01: the features a plan counts, and the cap on "unlimited".
  *
- * The paywall's button activates it for free — there is no payment provider —
- * and `quotaState` reads it as unlimited. Every question past the free three
- * is a real model call paid for by whoever holds the Anthropic key, so
- * "unlimited" was one person's way to spend the whole deployment budget.
- *
- * The number is not a product choice; it is what fits. `budget.test.ts` holds
- * one person's worst month under a third of the deployment budget, and with
- * every other purpose at its ceiling that leaves room for nine chat turns at
- * the output maximum: the three free ones and these six. Offering more means
- * raising the budget or lowering another ceiling, and that test says which.
- *
- * Thirty days, like every other ceiling: `budget.ts` records why daily
- * windows were a mistake.
+ * The quotas themselves live in the `plan_quotas` table and change there
+ * without a deploy; the functions read them. The cap's value is seeded in
+ * `plan_caps` too — this constant is the seed, kept here because
+ * `budget.test.ts` prices one person's worst month with it. Change both, or
+ * the test is pricing a number the deployment no longer uses.
  */
-export const SUBSCRIBED_QUESTIONS = 6;
-export const SUBSCRIBED_WINDOW_HOURS = 720;
+export const PLAN_FEATURES = ['chat', 'meditation', 'comparison'] as const;
+export type PlanFeature = (typeof PLAN_FEATURES)[number];
+
+export const PREMIUM_MONTHLY_CAP_USD = 4;
+
+/** The first instant of the calendar month (UTC) that `now` falls in. */
+export function monthStart(now: Date): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+}
+
+/** The day a monthly quota renews, as YYYY-MM-DD (UTC). */
+export function renewsOn(now: Date): string {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
+}
 
 export function hasQuestionsLeft(used: number, subscribed: boolean): boolean {
   return quotaState(used, subscribed).remaining > 0;

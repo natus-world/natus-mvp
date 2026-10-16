@@ -12,7 +12,7 @@ import {
   type Purpose,
   type Usage,
 } from './budget.ts';
-import { FREE_QUESTIONS, SUBSCRIBED_QUESTIONS, SUBSCRIBED_WINDOW_HOURS } from './quota.ts';
+import { PREMIUM_MONTHLY_CAP_USD } from './quota.ts';
 
 const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison', 'routine'];
 
@@ -139,8 +139,8 @@ describe('every purpose has a ceiling on what one answer can cost', () => {
 
 describe('per-person limits', () => {
   it('covers every purpose except the chat', () => {
-    // The chat's limit is FREE_QUESTIONS and lives in `quota.ts`. Two numbers
-    // answering the same question is how they come to disagree.
+    // The chat's limit is its plan quota (`plan_quotas`) and premium's money
+    // cap. Two numbers answering the same question is how they disagree.
     const covered = Object.keys(PURPOSE_LIMITS).sort();
     expect(covered).toEqual(['comparison', 'match', 'meditation', 'routine', 'soul_map']);
   });
@@ -161,7 +161,6 @@ describe('per-person limits', () => {
     for (const limit of Object.values(PURPOSE_LIMITS)) {
       expect(limit.windowHours).toBe(720);
     }
-    expect(SUBSCRIBED_WINDOW_HOURS).toBe(720);
   });
 
   it('bounds one person to a fraction of the deployment budget', () => {
@@ -169,23 +168,30 @@ describe('per-person limits', () => {
     // ceiling and every answer at its maximum length. One person must not be
     // able to consume the deployment, or the deployment budget is the only
     // limit there is and it arrives as an outage for everyone else.
-    const worst = Object.entries(PURPOSE_LIMITS).reduce(
-      (total, [purpose, limit]) =>
-        total +
-        limit.calls *
-          priced(
-            { inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS[purpose as Purpose] },
-            purpose === 'soul_map' ? OPUS : modelFor(purpose as Purpose),
-          ),
-      0,
+    //
+    // v1.2 F-01: the chat, the meditations and the comparisons are bounded by
+    // premium's money cap, checked before each call — so the worst is the cap
+    // plus the one call that may start just under it. The surfaces outside
+    // the plan (Soul Map, match, routine) stay at their ceilings.
+    const PLANNED = new Set<Purpose>(['chat', 'meditation', 'comparison']);
+    const outsidePlan = Object.entries(PURPOSE_LIMITS)
+      .filter(([purpose]) => !PLANNED.has(purpose as Purpose))
+      .reduce(
+        (total, [purpose, limit]) =>
+          total +
+          limit.calls *
+            priced(
+              { inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS[purpose as Purpose] },
+              purpose === 'soul_map' ? OPUS : modelFor(purpose as Purpose),
+            ),
+        0,
+      );
+    const lastCall = Math.max(
+      ...[...PLANNED].map((purpose) =>
+        priced({ inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS[purpose] }, modelFor(purpose)),
+      ),
     );
-    // The chat was left out of this sum on the reasoning that FREE_QUESTIONS
-    // bounds it — true until the simulated subscription, which is one tap
-    // away on the paywall, made it unbounded. Both counts are in now.
-    const chat =
-      (FREE_QUESTIONS + SUBSCRIBED_QUESTIONS) *
-      priced({ inputTokens: 4_000, outputTokens: MAX_OUTPUT_TOKENS.chat }, modelFor('chat'));
-    expect(worst + chat).toBeLessThan(DEFAULT_MONTHLY_BUDGET_USD / 3);
+    expect(outsidePlan + PREMIUM_MONTHLY_CAP_USD + lastCall).toBeLessThan(DEFAULT_MONTHLY_BUDGET_USD / 3);
   });
 
   it('leaves room for a fifty-person pilot inside the budget', () => {
