@@ -209,6 +209,26 @@ account even to pay a subscription by card** (the owner tried it, 15 Oct
 currency), pending the owner's check with them (P-02); the premium logic
 stays and only the notifier changes.
 
+**Where Premium is offered — decided 15 Oct 2026, not built.** Three
+levels, never pressure: (1) always at hand — «Tu plan» in the profile (what
+each plan includes, the free month, and for premium the next charge and
+«Cancelar» in the same place: Chile's Ley 21.398) and a «Ver Premium» link
+beside each quota counter; (2) once each, in the moment — under the chat
+counter when one question is left, after the gift meditation has played,
+after a comparison; «Ahora no» means it does not come back; (3) full screen
+only twice — after the Soul Map at the end of onboarding, and when a free
+quota runs out. Not in Carta, Caminos, Rutina or Bitácora; no notification
+or email to sell. After a crisis alert (chat, journal or the clinical
+answers) no invitation and no «Ver Premium» for that session and the 7 days
+after, decided by the server. The premium screen says what is kept («Tu
+mapa, tus caminos y tu rutina siguen siendo tuyos»), what is added (only
+what works), a day-by-day calendar of the free month, and two buttons of
+equal weight. A reminder before the first charge is owed (Mexico's 2025
+reform requires five days); until there is an email service it is sent by
+hand. Record in the funnel which place each free month started from. The
+«¿No te alcanza?» free-premium request is out for now. Visuals come from
+the branding conversation.
+
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
 (`cache_read_tokens` answers it), and whether a retry should tell the model
