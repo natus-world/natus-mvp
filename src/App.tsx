@@ -34,6 +34,7 @@ import { activeProfile } from '@/store/account';
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { NotFound } from '@/screens/NotFound';
+import { Journal, NewJournalEntry } from '@/screens/Journal';
 import { FriendInvite } from '@/screens/friends/FriendInvite';
 
 const TITLES: [prefix: string, title: string][] = [
@@ -42,6 +43,7 @@ const TITLES: [prefix: string, title: string][] = [
   ['/cuidarte', 'Para cuidarte'],
   [PATHS.paths, copy.nav.paths],
   [PATHS.journey, copy.nav.journey],
+  [PATHS.journal, copy.nav.journal],
   [PATHS.today, copy.nav.today],
   ['/registro', 'Guardar mi mapa'],
   [PATHS.profile, copy.nav.profile],
@@ -179,6 +181,8 @@ export function App() {
                 </RequireCare>
               }
             />
+            <Route path={PATHS.journal} element={<Journal />} />
+            <Route path={`${PATHS.journal}/nueva`} element={<NewJournalEntry />} />
             <Route path={PATHS.today} element={<Today />} />
             <Route path="/registro" element={<Signup />} />
             <Route path={PATHS.profile} element={<Profile />} />

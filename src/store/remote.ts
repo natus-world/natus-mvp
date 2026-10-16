@@ -6,6 +6,7 @@ export type { RemoteNamespace } from './namespaces.ts';
 import type { AnonymousSession, OnboardingDraft } from './session.ts';
 import type { Client } from './account.ts';
 import type { StoredSynthesis } from './soulMap.ts';
+import type { JournalEntry } from './journal.ts';
 import type { CheckIn, StoredMatch } from './matches.ts';
 import type { Conversation, StoredMessage } from './chat.ts';
 import type { StoredMeditation } from './meditations.ts';
@@ -618,6 +619,43 @@ const practices: Adapter<StoredPractice[]> = {
     ),
 };
 
+const journal: Adapter<JournalEntry[]> = {
+  async load(client, userId) {
+    return (await selectAll(client, 'journal_entries', userId)).map((r) => ({
+      id: r.id,
+      entry_date: r.entry_date,
+      body: r.body,
+      source: enumerated<JournalEntry['source']>(r.source),
+      mood: r.mood,
+      practice_id: r.practice_id,
+      modality_slug: r.modality_slug,
+      crisis_flagged: r.crisis_flagged,
+      created_at: ms(r.created_at),
+    }));
+  },
+  save: (client, userId, value) =>
+    replaceRows(
+      client,
+      'journal_entries',
+      userId,
+      // Only what the browser may write: entries typed here.
+      value
+        .filter((e) => e.source === 'escrito')
+        .map((e) => ({
+          id: e.id,
+          user_id: userId,
+          entry_date: e.entry_date,
+          body: e.body,
+          source: e.source,
+          mood: e.mood,
+          practice_id: e.practice_id,
+          modality_slug: e.modality_slug,
+          crisis_flagged: e.crisis_flagged,
+          created_at: iso(e.created_at),
+        })),
+    ),
+};
+
 const crisisEvents: Adapter<CrisisEvent[]> = {
   async load(client, userId) {
     return (await selectAll(client, 'crisis_events', userId)).map((r) => {
@@ -671,6 +709,7 @@ export const ADAPTERS: Record<RemoteNamespace, Adapter<any>> = {
   messages,
   meditations,
   routine_practices: practices,
+  journal_entries: journal,
   crisis_events: crisisEvents,
   subscription,
   preferences,

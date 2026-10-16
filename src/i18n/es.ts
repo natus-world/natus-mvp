@@ -111,6 +111,7 @@ export const es = {
     chart: 'Carta',
     paths: 'Caminos',
     journey: 'Rutina',
+    journal: 'Bitácora',
     chat: 'Chat',
     profile: 'Perfil',
   },
@@ -324,6 +325,44 @@ export const es = {
       commentPlaceholder: 'Qué notaste, qué te costó, qué cambiarías',
       saveComment: 'Guardar comentario',
       commentSaved: 'Guardado',
+    },
+  },
+  journal: {
+    kicker: 'Tu bitácora',
+    titleLead: 'Lo que vas ',
+    titleEmphasis: 'viviendo',
+    write: 'Escribir hoy →',
+    empty: 'Aquí va quedando lo que vas viviendo, con tus palabras y a tu ritmo.',
+    // Guide 9.8 has a notice per plan, both about Davraz reading the journal.
+    // That reading is the memory (M-01), not built yet, so until it is this
+    // says only what is true today.
+    notice: 'Tu bitácora es tuya. Puedes borrar cualquier entrada.',
+    voicePremium: 'La entrada por voz está incluida en Premium',
+    voiceLabel: 'Grabar por voz',
+    mood: 'Ánimo',
+    moodLabel: (n: number) => `Ánimo ${n} de 5`,
+    moodQuestion: '¿Cómo está tu ánimo? (opcional)',
+    moodLow: 'Bajo',
+    moodHigh: 'Alto',
+    newKicker: 'Nueva entrada',
+    newTitleLead: '¿Qué estás ',
+    newTitleEmphasis: 'viviendo?',
+    dateLabel: 'Fecha',
+    bodyLabel: 'Lo que quieras contar',
+    placeholder: 'Cómo estuviste, qué notaste, qué te movió…',
+    linkLabel: '¿Tiene que ver con una práctica o una terapia? (opcional)',
+    save: 'Guardar',
+    cancel: 'Volver',
+    delete: 'Borrar',
+    deleteConfirm: 'Se borra esta entrada y lo que Natus aprendió de ella. No se puede deshacer.',
+    deleteYes: 'Sí, borrar',
+    deleteNo: 'No, dejarla',
+    /** "16 de octubre", or "16 de octubre de 2025" for another year. */
+    date: (iso: string, thisYear: number) => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+      if (!m) return iso;
+      const day = `${Number(m[3])} de ${es.quota.months[Number(m[2]) - 1]}`;
+      return Number(m[1]) === thisYear ? day : `${day} de ${m[1]}`;
     },
   },
   chat: {

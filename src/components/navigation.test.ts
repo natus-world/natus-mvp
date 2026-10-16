@@ -57,9 +57,9 @@ describe('the profile button', () => {
 });
 
 describe('the bar', () => {
-  it('carries the five tabs that exist, in the guide order', () => {
-    expect(TABS.map((tab) => tab.label)).toEqual(['Hoy', 'Carta', 'Caminos', 'Rutina', 'Chat']);
-    expect(TABS.map((tab) => tab.to)).toEqual(['/hoy', '/carta', '/caminos', '/recorrido', '/chat']);
+  it('carries the six tabs that exist, in the guide order', () => {
+    expect(TABS.map((tab) => tab.label)).toEqual(['Hoy', 'Carta', 'Caminos', 'Rutina', 'Bitácora', 'Chat']);
+    expect(TABS.map((tab) => tab.to)).toEqual(['/hoy', '/carta', '/caminos', '/recorrido', '/bitacora', '/chat']);
   });
 
   it('leaves the profile, the meditations and the comparison out of it', () => {

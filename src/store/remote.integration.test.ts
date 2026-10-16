@@ -49,6 +49,8 @@ const OWNED_TABLES = [
   'client_errors',
   'funnel_events',
   'routine_practices',
+  'journal_entries',
+  'system_audit_log',
 ] as const satisfies ReadonlyArray<keyof Database['public']['Tables']>;
 
 type Person = { client: TypedClient; userId: string };

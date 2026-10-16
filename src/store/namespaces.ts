@@ -13,6 +13,7 @@ export type Namespace =
   | 'recommendation_checkins'
   | 'modality_matches'
   | 'routine_practices'
+  | 'journal_entries'
   | 'conversations'
   | 'messages'
   | 'meditations'
@@ -43,6 +44,7 @@ export const REMOTE_NAMESPACES = [
   'recommendation_checkins',
   'modality_matches',
   'routine_practices',
+  'journal_entries',
   'conversations',
   'messages',
   'meditations',

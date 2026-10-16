@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { ChartIcon, ChatIcon, ConstellationIcon, SproutIcon, SunriseIcon } from '@/design/icons';
+import { ChartIcon, ChatIcon, ConstellationIcon, NotebookIcon, SproutIcon, SunriseIcon } from '@/design/icons';
 import { copy } from '@/i18n';
 import { PATHS } from './routes';
 
@@ -10,5 +10,6 @@ export const TABS: readonly Tab[] = [
   { to: PATHS.chart, label: copy.nav.chart, Icon: ChartIcon },
   { to: PATHS.paths, label: copy.nav.paths, Icon: ConstellationIcon },
   { to: PATHS.journey, label: copy.nav.journey, Icon: SproutIcon },
+  { to: PATHS.journal, label: copy.nav.journal, Icon: NotebookIcon },
   { to: PATHS.chat, label: copy.nav.chat, Icon: ChatIcon },
 ];

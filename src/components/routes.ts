@@ -3,6 +3,7 @@ export const PATHS = {
   chart: '/carta',
   paths: '/caminos',
   journey: '/recorrido',
+  journal: '/bitacora',
   chat: '/chat',
   profile: '/perfil',
   meditations: '/meditaciones',

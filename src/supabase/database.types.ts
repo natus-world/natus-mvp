@@ -545,6 +545,53 @@ export type Database = {
         }
         Relationships: []
       }
+      journal_entries: {
+        Row: {
+          body: string
+          created_at: string
+          crisis_flagged: boolean
+          entry_date: string
+          id: string
+          modality_slug: string | null
+          mood: number | null
+          practice_id: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          crisis_flagged?: boolean
+          entry_date: string
+          id?: string
+          modality_slug?: string | null
+          mood?: number | null
+          practice_id?: string | null
+          source?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          crisis_flagged?: boolean
+          entry_date?: string
+          id?: string
+          modality_slug?: string | null
+          mood?: number | null
+          practice_id?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_entries_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "routine_practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_reactions: {
         Row: {
           modality_slug: string
@@ -800,6 +847,27 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_events: {
+        Row: {
+          event_type: string
+          id: string
+          received_at: string
+          user_id: string | null
+        }
+        Insert: {
+          event_type: string
+          id: string
+          received_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          received_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       plan_caps: {
         Row: {
           monthly_usd: number
@@ -985,18 +1053,48 @@ export type Database = {
       subscriptions: {
         Row: {
           activated_at: string | null
+          ends_at: string | null
+          provider: string | null
+          provider_subscription_id: string | null
           status: string
           user_id: string
         }
         Insert: {
           activated_at?: string | null
+          ends_at?: string | null
+          provider?: string | null
+          provider_subscription_id?: string | null
           status?: string
           user_id: string
         }
         Update: {
           activated_at?: string | null
+          ends_at?: string | null
+          provider?: string | null
+          provider_subscription_id?: string | null
           status?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      system_audit_log: {
+        Row: {
+          event: string
+          id: string
+          occurred_at: string
+          user_id: string | null
+        }
+        Insert: {
+          event: string
+          id?: string
+          occurred_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          event?: string
+          id?: string
+          occurred_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
