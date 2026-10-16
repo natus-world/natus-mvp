@@ -41,6 +41,7 @@ const LEARN_EVERY_MS = 10 * 60 * 1000;
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { Legal } from '@/screens/Legal';
+import { RevealFirst } from '@/screens/Revelation';
 import { NotFound } from '@/screens/NotFound';
 import { Journal, NewJournalEntry } from '@/screens/Journal';
 import { BirthDataEdit } from '@/screens/BirthDataEdit';
@@ -179,7 +180,11 @@ export function App() {
 
   return (
     <AppFrame>
-      <header className="app-header" data-sub={sub ? '' : undefined}>
+      <header
+        className="app-header"
+        data-sub={sub ? '' : undefined}
+        data-norail={!sub && !showsNav(pathname, takeoverShown) ? '' : undefined}
+      >
         <div className="min-w-0 flex-1">
           {sub && !takeoverShown ? (
             <>
@@ -197,12 +202,13 @@ export function App() {
                 </Link>
               )}
             </>
+          ) : showsNav(pathname, takeoverShown) ? (
+            <Link to={PATHS.today} className="header-brand">
+              {copy.chrome.brand}
+            </Link>
           ) : (
-            showsNav(pathname, takeoverShown) && (
-              <Link to={PATHS.today} className="header-brand">
-                {copy.chrome.brand}
-              </Link>
-            )
+            // The entrance draws NATUS on desktop, where there is no rail.
+            !takeoverShown && <span className="header-brand desk-only">{copy.chrome.brand}</span>
           )}
         </div>
         <HelpNowButton onOpen={openHelp} />
@@ -227,7 +233,14 @@ export function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route path={PATHS.chart} element={<SoulMap />} />
+            <Route
+              path={PATHS.chart}
+              element={
+                <RevealFirst>
+                  <SoulMap />
+                </RevealFirst>
+              }
+            />
             <Route path="/cuidarte" element={<Care />} />
             <Route
               path={PATHS.paths}

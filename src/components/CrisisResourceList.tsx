@@ -1,53 +1,112 @@
 import { copy } from '@/i18n';
 import { resourcesForCountry, telHref } from '@/lib/crisis-resources';
 
+const t = copy.crisisResources;
+
+/** The package's telephone (package 12, 16 Oct 2026). */
+export function PhoneIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z" />
+    </svg>
+  );
+}
+
+function directoryHost(url: string): string {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
 /**
- * The list of places to call. Shared by the full-screen takeover and the
- * banner so the two can never drift apart.
+ * The list of places to call. Shared by «Necesito ayuda», the crisis screen,
+ * the banner and the error screen, so they can never drift apart.
+ *
+ * `paper` is the package's cream sheet (package 12): the lines of the
+ * person's country, each with a dark button that dials on touch, then the
+ * emergency number in its own box. `dark` is the same list over a photo or
+ * the night background, as the chat draws its lines (package 10).
+ *
+ * The numbers come from `data/crisis-resources.json`, never from the package
+ * and never from a model.
  */
 export function CrisisResourceList({
   country,
-  compact = false,
+  tone = 'dark',
 }: {
   country: string | undefined;
-  compact?: boolean;
+  tone?: 'paper' | 'dark';
 }) {
   const set = resourcesForCountry(country);
+  const paper = tone === 'paper';
+  const lines = paper ? set.resources.filter((r) => r.type !== 'emergency') : set.resources;
+  const emergencies = paper ? set.resources.filter((r) => r.type === 'emergency') : [];
 
   return (
-    <div className={compact ? 'flex flex-col gap-1.5' : 'flex flex-col gap-2'}>
-      {set.resources.map((r) => (
-        <a
-          key={`${r.country}-${r.name}`}
-          href={telHref(r.contact)}
-          className="surface surface-p12 flex items-center gap-3 no-underline"
-        >
-          <div className="min-w-0 flex-1">
-            <p className="text-[length:var(--fs-body-14)] leading-5 break-words text-blanco">{r.name}</p>
-            {r.note && <p className="text-[length:var(--fs-body-11)] leading-snug break-words text-crema/75">{r.note}</p>}
-          </div>
-          <span className="shrink-0 font-sans text-[length:var(--fs-numeral-18)] leading-7 font-medium whitespace-nowrap text-blanco tabular-nums">
-            {r.contact}
-          </span>
-        </a>
-      ))}
+    <div className={`ayuda-pz recursos ${paper ? 'papel' : 'oscuro'}`}>
+      <ul className="lista-a">
+        {lines.map((r) => (
+          <li key={`${r.country}-${r.name}`} className="la">
+            <div className="tx">
+              <p className="nm">{r.name}</p>
+              {r.note && <p className="ds">{r.note}</p>}
+            </div>
+            <a href={telHref(r.contact)} className="llamar" aria-label={t.call(r.name, r.contact)}>
+              <PhoneIcon />
+              {r.contact}
+            </a>
+          </li>
+        ))}
 
-      {/* PDR 6.4: never leave the list empty, and always offer a way out of
-          the five MVP countries. */}
-      <a
-        href={set.fallback.url}
-        target="_blank"
-        rel="noreferrer noopener"
-        className="surface surface-p12 flex items-center gap-3 no-underline"
-      >
-        <div className="min-w-0 flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-5 break-words text-blanco">{set.fallback.name}</p>
-          <p className="text-[length:var(--fs-body-11)] leading-snug break-words text-crema/75">{set.fallback.note}</p>
-        </div>
-        <span aria-hidden="true" className="shrink-0 text-crema/60">
-          ↗
-        </span>
-      </a>
+        {/* PDR 6.4: never leave the list empty, and always offer a way out of
+            the five MVP countries. */}
+        <li className="la">
+          <div className="tx">
+            <p className="nm">{set.fallback.name}</p>
+            <p className="ds">{set.fallback.note}</p>
+          </div>
+          <a
+            href={set.fallback.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="llamar ext"
+            aria-label={t.openDirectory(set.fallback.name)}
+          >
+            {directoryHost(set.fallback.url)}
+            <span aria-hidden="true">↗</span>
+          </a>
+        </li>
+      </ul>
+
+      {paper &&
+        (emergencies.length > 0 ? (
+          emergencies.map((r) => (
+            <div key={`${r.country}-${r.name}`} className="emerg">
+              <p className="tx">{t.emergency}</p>
+              <a href={telHref(r.contact)} className="llamar" aria-label={t.callEmergency(r.contact)}>
+                <PhoneIcon />
+                {r.contact}
+              </a>
+            </div>
+          ))
+        ) : (
+          // A country without lines in the table (or «Otro país»): the
+          // instruction to call the local emergency number, never nothing.
+          <div className="emerg">
+            <p className="tx">{set.fallback.emergency_instruction}</p>
+          </div>
+        ))}
 
       {set.unverified && (
         /*
@@ -57,10 +116,10 @@ export function CrisisResourceList({
          * these numbers were checked. Deleting this notice is not the fix —
          * verifying the numbers is.
          */
-        <p className="px-1 pt-1 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          {copy.crisisResources.unverifiedLead}
-          <span className="text-crema/70">{copy.crisisResources.unverifiedSite}</span>
-          {copy.crisisResources.unverifiedTail}
+        <p className="sin-verificar">
+          {t.unverifiedLead}
+          <span className="sitio">{t.unverifiedSite}</span>
+          {t.unverifiedTail}
         </p>
       )}
     </div>

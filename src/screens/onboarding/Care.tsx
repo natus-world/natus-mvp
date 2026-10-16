@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { activeProfile } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
@@ -55,11 +55,16 @@ export function Care() {
     navigate(next, { replace: true });
   };
 
+  // Package 01, «Para cuidarte»: the candle, with no veil.
   return (
-    <Screen backdrop="ella" scrim="even" opacity={PHOTO.veil55}>
-      <div className="flex flex-col px-[22px] pt-[var(--top-inset)] pb-8 h-full">
-        <p className="eyebrow mb-5">{copy.onboarding.care.kicker}</p>
-        <ClinicalBasics initial={answers} busy={busy} onSubmit={(a) => void submit(a)} />
+    <Screen photo="vela" veil={0} glassAlpha={0.32}>
+      <div className="pz entrada cuidarte">
+        <ClinicalBasics
+          initial={answers}
+          busy={busy}
+          actionLabel={next === '/caminos' ? copy.onboarding.care.toPaths : copy.common.continue}
+          onSubmit={(a) => void submit(a)}
+        />
       </div>
     </Screen>
   );

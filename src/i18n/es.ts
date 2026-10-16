@@ -8,6 +8,8 @@ export const es = {
   onboarding: {
     kicker: 'Empezar',
     stepOf: 'de',
+    // Package 01 (16 Oct 2026): the names under the progress line.
+    steps: ['Quién eres', 'Lo que te preguntas', 'Cómo trabajar'],
     basicData: {
       titleLead: '¿Quién ',
       titleEmphasis: 'eres',
@@ -24,6 +26,22 @@ export const es = {
       ] as [GrammaticalGender, string][],
       birthDateLabel: 'Fecha de nacimiento',
       birthTimeLabel: 'Hora (opcional)',
+      // Package 01 (16 Oct 2026): the date and the hour share one row.
+      birthDateTimeLabel: 'Fecha de nacimiento · Hora (opcional)',
+      // Package 01, proposed: the example under the gender (from Perfil).
+      genderExample: 'Por ejemplo: «Hoy podrías sentir más calma».',
+      // «País donde vives» read as the package draws it: «Vivo en Chile».
+      livesIn: 'Vivo en ',
+      livesElsewhere: 'Vivo en otro país',
+      // Under the button, what is still missing. `date` is the package's; the
+      // others are proposed (16 Oct 2026).
+      missing: {
+        name: 'Falta tu nombre',
+        date: 'Falta tu fecha de nacimiento',
+        country: 'Falta el país donde vives',
+        place: 'Falta elegir tu ciudad de la lista',
+        withoutTime: 'Falta decidir si calculamos tu carta sin la hora',
+      },
       birthCityLabel: 'Ciudad de nacimiento (opcional)',
       birthCityPlaceholder: 'Escribe y elige tu ciudad',
       // The birth place picked from suggestions (16 Oct 2026); proposed texts.
@@ -64,6 +82,11 @@ export const es = {
       otherPlaceholder: 'Otro: cuéntanos cuál',
     },
     generating: {
+      // Package 01 (16 Oct 2026), proposed: the kicker, the title, «Cargando».
+      kicker: 'Tu mapa',
+      titleLead: 'Leyendo lo que ',
+      titleEmphasis: 'contaste',
+      loading: 'Cargando',
       stages: [
         'Calculando tus números',
         'Calculando tu carta natal',
@@ -87,8 +110,11 @@ export const es = {
     },
     care: {
       kicker: 'Para cuidarte',
-      titleLead: 'Cuatro preguntas',
-      titleTail: 'más delicadas.',
+      titleLead: 'Cuatro preguntas ',
+      titleEmphasis: 'más delicadas',
+      titleTail: '.',
+      // Package 01: the button when Caminos comes next.
+      toPaths: 'Ver mis caminos',
       intro:
         'Preguntamos esto para no recomendarte algo que en tu momento actual podría hacer más daño que bien. No es un diagnóstico y no hay respuestas mejores que otras.',
       privacy: 'Lo que respondas aquí solo lo ve tu terapeuta.',
@@ -120,9 +146,14 @@ export const es = {
     helpNow: {
       button: 'Necesito ayuda',
       label: 'Necesito ayuda ahora',
-      title: 'Líneas de ayuda',
-      body: 'Si necesitas hablar con alguien ahora, toca un número para llamar.',
+      // Package 12 (16 Oct 2026): the sheet's title, «Hablar con *alguien* ahora».
+      titleLead: 'Hablar con ',
+      titleEmphasis: 'alguien',
+      titleTail: ' ahora',
+      body: 'Personas preparadas para escucharte, a cualquier hora.',
       close: 'Cerrar',
+      countryLines: (name: string) => `Líneas de ${name}.`,
+      changeCountry: 'Puedes cambiar tu país en Perfil.',
     },
     /** The browser tab's title, by section. */
     titles: {
@@ -447,6 +478,17 @@ export const es = {
     generated: 'Generado con Claude',
     pool: 'pool',
   },
+  /** Package 02, option B (16 Oct 2026): the map seen once, after «Generando». */
+  revelation: {
+    // The package's short labels under the five numbers.
+    numbers: {
+      life_path: 'Camino',
+      expression: 'Expresión',
+      soul_urge: 'Alma',
+      personality: 'Person.',
+      birthday: 'Cumple',
+    },
+  },
   soulMap: {
     kicker: 'Tu mapa del alma',
     titleWithName: (name: string) => `${name}, esto es `,
@@ -457,10 +499,26 @@ export const es = {
       lo_que_estas_trabajando: 'Lo que estás trabajando',
       que_necesitas_ahora: 'Qué necesitas ahora',
     },
-    toTry: 'Para probar',
-    toTryEmpty: 'Las prácticas aparecen cuando tengas tu rutina.',
-    toTryCta: 'Ver mi rutina',
-    numbers: 'Tus números',
+    // Package 04 (16 Oct 2026): carta.para_probar, carta.numeros, carta.lecturas.
+    toTry: 'Para probar · de tu rutina',
+    // Package 04, proposed: no routine yet.
+    toTryEmpty: 'Elige un camino para armar tu rutina.',
+    numbers: 'Tus 5 números',
+    master: 'Número maestro',
+    readings: 'Tus lecturas',
+    readingsBy: 'Davraz',
+    readingsAi: 'IA',
+    trio: { sun: 'Sol', moon: 'Luna', ascendant: 'Ascendente' },
+    wheelAxes: { ac: 'AC', dc: 'DC', mc: 'MC', fc: 'FC' },
+    wheelLabel: (sun: string | null, moon: string | null, ascendant: string | null) =>
+      [
+        'Tu carta natal',
+        sun && `Sol en ${sun}`,
+        moon && `Luna en ${moon}`,
+        ascendant && `Ascendente en ${ascendant}`,
+      ]
+        .filter(Boolean)
+        .join('. '),
     masterNumbersLead: 'Aparecen números maestros en tu mapa: ',
     masterNumbersTail:
       '. En la tradición pitagórica no se reducen, y se leen como una intensidad que pide más de ti.',
@@ -473,7 +531,9 @@ export const es = {
     save: 'Guardar mi mapa',
     // v1.2 M-02, proposed (not in the guide): when the map was last written
     // and the version before it.
-    updatedOn: (date: string) => `Actualizado el ${date}`,
+    // Package 04 (proposed): «Tu Mapa se actualizó el …», and the first map's date.
+    updatedOn: (date: string) => `Tu Mapa se actualizó el ${date}`,
+    generatedOn: (date: string) => `Tu Mapa se generó el ${date}`,
     previousShow: 'Ver la versión anterior',
     previousHide: 'Ocultar la versión anterior',
     previousFrom: (date: string) => `Versión del ${date}`,
@@ -832,18 +892,45 @@ export const es = {
   paywall: {
     label: 'Se terminó lo incluido',
     kicker: 'Hasta aquí llega lo incluido',
+    /** The chat's sheet when the offer is held back after a crisis alert. */
     title: {
       chat: 'Usaste las preguntas incluidas.',
-      meditation: 'Ya usaste tu meditación de regalo.',
-      comparison: 'Usaste las comparaciones de este mes.',
     },
     body: {
       chat: 'Lo que escribiste sigue guardado en el cuadro de abajo. Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
-      meditation: 'Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
-      comparison: 'Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
     },
-    offerTitle: 'Premium: el primer mes es gratis',
-    offerBody: 'Después, US$10 al mes, IVA incluido. Puedes cancelar cuando quieras desde PayPal.',
+    /** Package 13 (16 Oct 2026): the sheet over meditations and comparisons. US$ 10, not the package's 7. */
+    titleLead: {
+      meditation: 'Ya usaste tu meditación ',
+      comparison: 'Usaste las comparaciones ',
+    },
+    titleEmphasis: {
+      meditation: 'de regalo',
+      comparison: 'de este mes',
+    },
+    kept: 'Tu mapa, tus caminos y tu rutina siguen disponibles sin pagar nada.',
+    includes: [
+      'Conversar con Davraz sin límite',
+      '10 meditaciones al mes',
+      'Comparaciones sin límite',
+      'Bitácora por voz y una memoria que te conoce',
+      'Tu rutina revisada cada semana',
+    ],
+    price: 'US$ 10',
+    period: 'al mes · el primer mes es gratis',
+    cancel: 'Cancelas cuando quieras',
+    trial: 'Probar un mes gratis',
+    notNow: 'Ahora no',
+    renew: (date: string) => `Tus comparaciones se renuevan el ${date}.`,
+    /** Proposal, not in package 13: the free month day by day, shown once «Probar un mes gratis» is touched. */
+    calendar: {
+      label: 'Tu mes gratis, día a día',
+      today: 'Hoy',
+      start: 'Empieza tu mes gratis, con todo Premium.',
+      until: (date: string) => `Hasta el ${date}`,
+      cancel: 'Cancelas desde PayPal cuando quieras, sin pagar nada.',
+      charge: 'Primer cobro: US$ 10, IVA incluido. Después, cada mes ese mismo día.',
+    },
     approved: 'Listo. Tu suscripción quedó registrada en PayPal y tu Premium se activa en unos segundos.',
     unavailable: 'Ahora no pudimos cargar el pago. Prueba de nuevo en un rato.',
     back: 'Volver',
@@ -931,6 +1018,12 @@ export const es = {
     sentLead: 'Te enviamos un correo a ',
     sentTail: '. Ábrelo para confirmar la dirección.',
     sentNote: 'Tu mapa ya está guardado. Confirmar sirve para que puedas volver desde otro dispositivo.',
+    // Package 01, «Revisa tu correo» (proposed there, 16 Oct 2026).
+    sentKicker: 'Revisa tu correo',
+    sentTitleLead: 'Te escribimos a tu ',
+    sentTitleEmphasis: 'correo',
+    sentSpam: 'Si no llega en unos minutos, revisa la carpeta de spam.',
+    or: 'o',
     kicker: 'Guardar tu mapa',
     titleLead: 'Para volver ',
     titleEmphasis: 'cuando quieras',
@@ -945,7 +1038,8 @@ export const es = {
     saving: 'Guardando…',
     create: 'Crear mi cuenta',
     // Launch with Google only (owner, 16 Oct 2026); proposed texts.
-    google: 'Guardar con Google',
+    // Package 01, proposed there («la demo decía Entrar con Google»).
+    google: 'Seguir con Google',
     googleNote: 'Usamos tu cuenta de Google solo para que puedas volver a entrar, desde este o desde otro dispositivo.',
     googleTaken:
       'Esa cuenta de Google ya tiene su propio espacio en Natus. Para usarla, entra con ella desde el inicio.',
@@ -979,11 +1073,15 @@ export const es = {
   },
   landing: {
     kicker: 'Te damos la bienvenida',
-    titleLines: ['El Inicio', 'de Una', 'Nueva Vida'],
-    helper: 'Un espejo para lo que estás atravesando. Sin cuenta, sin diagnóstico.',
+    // Package 01 (16 Oct 2026).
+    brand: 'NATUS',
+    phraseLead: 'Un espejo para conocerte y personas reales para ',
+    phraseEmphasis: 'acompañarte',
+    phraseTail: '.',
+    // Also the link for somebody with an account on another device, which
+    // signs in with Google (package 01: «es para quien ya tiene una»).
     returning: 'Volver a mi espacio',
     start: 'Comenzar',
-    signIn: 'Ya tengo cuenta: entrar con Google',
     restart: 'Empezar de nuevo',
   },
   // Privacy policy and terms (owner, 16 Oct 2026): written to launch, to be
@@ -1159,11 +1257,12 @@ export const es = {
     home: 'Ir al inicio',
   },
   crisisScreen: {
-    kicker: 'Antes de seguir',
-    titleLead: 'Lo que estás contando ',
-    titleEmphasis: 'importa',
+    // Package 12 (16 Oct 2026).
+    kicker: 'Un momento',
+    titleLead: 'No tienes que pasar por esto en ',
+    titleEmphasis: 'soledad',
     message:
-      'Por lo que escribiste, esto no es algo para atravesar sin compañía y no es algo que un mapa simbólico pueda acompañar. Hay personas disponibles ahora mismo para hablar contigo.',
+      'Lo que escribiste nos dice que puede ser un momento muy difícil. Hablar ahora con alguien puede ayudar. Estas líneas atienden a cualquier hora.',
     back: 'Volver',
     notMyCase: 'Esto no aplica a mi caso',
     data: 'Descargar o borrar mis datos',
@@ -1176,6 +1275,11 @@ export const es = {
       'Estos números están tomados de fuentes públicas y todavía no se verificaron uno por uno. Si alguno no responde, entra a ',
     unverifiedSite: 'findahelpline.com',
     unverifiedTail: ' o llama al número de emergencias de tu país.',
+    // Package 12 (16 Oct 2026): the box around the emergency number.
+    emergency: 'Si tu vida o la de otra persona está en peligro ahora, llama a emergencias.',
+    call: (name: string, contact: string) => `Llamar a ${name}, ${contact}`,
+    callEmergency: (contact: string) => `Llamar a emergencias, ${contact}`,
+    openDirectory: (name: string) => `Abrir ${name} en otra pestaña`,
   },
   saveFailure: {
     offline: 'No pudimos conectar con tu cuenta. Lo que hagas ahora queda solo en este navegador y no se guarda.',
@@ -1272,6 +1376,13 @@ export const es = {
       empty: 'Todavía no tienes amigos en Natus. Invita a alguien desde Perfil con tu link.',
       toProfile: 'Ir a Perfil',
       unavailable: 'No pudimos cargar tus amigos. Intenta de nuevo en un momento.',
+      // Package 15 (16 Oct 2026). «Invitar a alguien» and the desktop table's
+      // texts are proposals.
+      invite: 'Invitar a alguien',
+      dragHint: 'Arrastra a alguien hasta tu círculo',
+      dragOr: 'o haz clic en su nombre',
+      you: 'Tú',
+      compareWith: (name: string) => `Comparar con ${name}`,
     },
     result: {
       kind: {
@@ -1285,7 +1396,16 @@ export const es = {
       loading: 'Cruzando los mapas',
       kicker: 'El cruce',
       intro: (name: string) =>
-        `Tú y ${name}, lado a lado. Los dos pueden leer esta comparación mientras sean amigos en Natus.`,
+        `Tú y ${name}, lado a lado. Pueden leer esta comparación mientras sigan siendo amigos en Natus.`,
+      // Package 15: «Tú y Camila» and «Cruzando los mapas» as titles.
+      introTitleLead: 'Tú y ',
+      generatingTitleLead: 'Cruzando los ',
+      generatingTitleEmphasis: 'mapas',
+      generatingLabel: 'Cargando',
+      tapCard: 'Toca una carta para leerla',
+      cardOf: (n: number, total: number) => `${n} de ${total}`,
+      bodyOf: (body: string, name: string) => (name ? `${body} de ${name}` : body),
+      chartsLinked: 'Las dos cartas unidas por sus aspectos',
       compare: 'Comparar nuestras cartas',
       notFriends: 'Ya no son amigos en Natus, así que esta comparación no se puede leer.',
       numbers: 'Los números, en diálogo',
@@ -1298,7 +1418,7 @@ export const es = {
       loBueno: 'Lo bueno',
       tenerEnCuenta: 'Qué tener en cuenta',
       queTrabajar: 'Qué trabajar',
-      disfrutarJuntos: 'Qué disfrutar juntos',
+      disfrutarJuntos: 'Qué disfrutar en conjunto',
       disclaimer: 'Esto es un espejo para conversar, no un veredicto sobre la relación.',
       talkOver: 'Conversar sobre esto con Davraz',
     },

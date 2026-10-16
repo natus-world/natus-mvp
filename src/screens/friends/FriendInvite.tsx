@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { PATHS } from '@/components/routes';
 import { copy } from '@/i18n';
 import { getClient } from '@/store/account';
@@ -63,57 +63,65 @@ export function FriendInvite() {
 
   const later = () => clearPendingInvite();
 
+  // No design of its own in the package: the door to Comparar cartas, on
+  // that screen's photo and with its pieces.
   return (
-    <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content45}>
-      <div className="flex flex-col justify-center gap-5 px-6 flex-1">
-        <p className="eyebrow">{t.kicker}</p>
+    <Screen photo="bote" veil={0.38} glassAlpha={0.39}>
+      <div className="pz comparar aviso mar">
+        <div className="sc">
+          <div className="d-izq">
+            <p className="k">{t.kicker}</p>
 
-        {state.kind === 'loading' && <p className="text-[length:var(--fs-body-14)] text-crema/60">…</p>}
+            {state.kind === 'loading' && <p className="cuerpo">…</p>}
 
-        {state.kind === 'invalid' && <Message text={t.invalid} to={PATHS.today} cta={t.toToday} />}
-        {state.kind === 'failed' && <Message text={t.failed} to={PATHS.today} cta={t.toToday} />}
-        {state.kind === 'own' && <Message text={t.own} to={PATHS.profile} cta={t.toFriends} />}
-        {state.kind === 'already' && (
-          <Message text={t.already(state.inviter)} to={PATHS.profile} cta={t.toFriends} />
-        )}
-        {state.kind === 'accepted' && (
-          <Message text={t.accepted(state.inviter)} to={PATHS.profile} cta={t.toFriends} />
-        )}
-
-        {state.kind === 'open' && (
-          <>
-            <h1 className="text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-              {t.titleLead(state.inviter)}
-              <em className="font-serif text-crema italic">{t.titleEmphasis}</em>
-            </h1>
-            <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/70">{t.body}</p>
-
-            {hasAccount ? (
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void accept(state.inviter)}
-                  className="cta disabled:opacity-50"
-                >
-                  {t.accept}
-                </button>
-                <Link to={PATHS.today} onClick={later} className="chip chip-p10 text-center text-crema/70 no-underline">
-                  {t.later}
-                </Link>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/60">
-                  {hasMap ? t.needAccount : t.needMap}
-                </p>
-                <Link to={hasMap ? '/registro' : '/onboarding'} className="cta no-underline">
-                  {hasMap ? t.createAccount : t.startMap}
-                </Link>
-              </div>
+            {state.kind === 'invalid' && <Message text={t.invalid} to={PATHS.today} cta={t.toToday} />}
+            {state.kind === 'failed' && <Message text={t.failed} to={PATHS.today} cta={t.toToday} />}
+            {state.kind === 'own' && <Message text={t.own} to={PATHS.profile} cta={t.toFriends} />}
+            {state.kind === 'already' && (
+              <Message text={t.already(state.inviter)} to={PATHS.profile} cta={t.toFriends} />
             )}
-          </>
-        )}
+            {state.kind === 'accepted' && (
+              <Message text={t.accepted(state.inviter)} to={PATHS.profile} cta={t.toFriends} />
+            )}
+
+            {state.kind === 'open' && (
+              <>
+                <h1 className="t mt">
+                  {t.titleLead(state.inviter)}
+                  <em>{t.titleEmphasis}</em>
+                </h1>
+                <div className="vid bloque-c">
+                  <p className="cuerpo">{t.body}</p>
+                </div>
+
+                {hasAccount ? (
+                  <div className="acciones">
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void accept(state.inviter)}
+                      className="btn p"
+                    >
+                      {t.accept}
+                    </button>
+                    <p className="link">
+                      <Link to={PATHS.today} onClick={later}>
+                        <u>{t.later}</u>
+                      </Link>
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="cuerpo">{hasMap ? t.needAccount : t.needMap}</p>
+                    <Link to={hasMap ? '/registro' : '/onboarding'} className="btn p sola">
+                      {hasMap ? t.createAccount : t.startMap}
+                    </Link>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </Screen>
   );
@@ -122,8 +130,10 @@ export function FriendInvite() {
 function Message({ text, to, cta }: { text: string; to: string; cta: string }) {
   return (
     <>
-      <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/70">{text}</p>
-      <Link to={to} className="cta no-underline">
+      <div className="vid bloque-c">
+        <p className="cuerpo">{text}</p>
+      </div>
+      <Link to={to} className="btn s sola">
         {cta}
       </Link>
     </>

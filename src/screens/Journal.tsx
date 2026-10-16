@@ -303,7 +303,7 @@ function Glyphs({ planets, x, y }: { planets: GlyphPlanet[]; x: number; y: numbe
       {planets.map((p, i) => {
         const at = left;
         left += (widths[i] ?? 0) + GLYPH_GAP;
-        return <path key={p} d={PLANET_GLYPHS[p].d} transform={`translate(${at.toFixed(1)} ${baseline.toFixed(1)}) scale(${scale} ${-scale})`} />;
+        return <path key={p} d={PLANET_GLYPHS[p].d} fillRule={p === 'Sun' ? 'evenodd' : undefined} transform={`translate(${at.toFixed(1)} ${baseline.toFixed(1)}) scale(${scale} ${-scale})`} />;
       })}
     </g>
   );

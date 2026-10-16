@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { hadCrisisWithin30Days, markFalsePositive } from '@/store/crisis';
@@ -41,34 +41,33 @@ export function ComparisonGate({ children }: { children: ReactNode }) {
   }
 
   if (!profile || !currentSynthesis()) {
-    return (
-      <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {copy.comparison.gate.noMap}
-          </p>
-          <Link to="/onboarding" className="cta no-underline">
-            {copy.comparison.gate.start}
-          </Link>
-        </div>
-      </Screen>
-    );
+    return <Notice text={copy.comparison.gate.noMap} to="/onboarding" cta={copy.comparison.gate.start} />;
   }
 
   if (comparisonWithheld(profile)) {
-    return (
-      <Screen backdrop="cruce" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {copy.comparison.gate.withheld}
-          </p>
-          <Link to={PATHS.today} className="cta no-underline">
-            {copy.comparison.gate.back}
-          </Link>
-        </div>
-      </Screen>
-    );
+    return <Notice text={copy.comparison.gate.withheld} to={PATHS.today} cta={copy.comparison.gate.back} />;
   }
 
   return <>{children}</>;
+}
+
+/** Why the comparison is not on offer, on the screen's own photo (package 15). */
+function Notice({ text, to, cta }: { text: string; to: string; cta: string }) {
+  return (
+    <Screen photo="bote" veil={0.38} glassAlpha={0.39}>
+      <div className="pz comparar aviso mar">
+        <div className="sc">
+          <div className="d-izq">
+            <p className="k">{copy.comparison.home.kicker}</p>
+            <div className="vid bloque-c">
+              <p className="cuerpo">{text}</p>
+            </div>
+            <Link to={to} className="btn s sola">
+              {cta}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </Screen>
+  );
 }

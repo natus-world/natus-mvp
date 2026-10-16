@@ -17,7 +17,6 @@ export function BirthPlaceField({
   country,
   place,
   fieldClass,
-  labelClass,
   helperClass,
   onChange,
 }: {
@@ -25,7 +24,6 @@ export function BirthPlaceField({
   country: string;
   place: BirthPlace | null;
   fieldClass: string;
-  labelClass: string;
   helperClass: string;
   onChange: (city: string, place: BirthPlace | null) => void;
 }) {
@@ -81,8 +79,8 @@ export function BirthPlaceField({
           : null;
 
   return (
-    <div>
-      <label className={labelClass} htmlFor={`${id}-city`}>
+    <div className="ciudad">
+      <label className="sr-only" htmlFor={`${id}-city`}>
         {text.birthCityLabel}
       </label>
       <input
@@ -94,6 +92,7 @@ export function BirthPlaceField({
         aria-activedescendant={options.length > 0 ? `${id}-option-${active}` : undefined}
         aria-describedby={`${id}-helper`}
         autoComplete="off"
+        spellCheck={false}
         className={fieldClass}
         disabled={!ready}
         value={city}
@@ -120,29 +119,25 @@ export function BirthPlaceField({
         }}
       />
       {options.length > 0 && (
-        <ul id={`${id}-options`} role="listbox" aria-label={text.birthCityOptions} className="surface rows mt-1.5 list-none p-0">
+        <ul id={`${id}-options`} role="listbox" aria-label={text.birthCityOptions} className="sug">
           {options.map((option, index) => (
             <li
               key={`${option.name}-${option.region}-${option.latitude}`}
               id={`${id}-option-${index}`}
               role="option"
               aria-selected={index === active}
-              className={['cursor-pointer px-1 py-2.5', index === active ? 'text-crema' : 'text-blanco/85'].join(' ')}
               onClick={() => choose(option)}
             >
-              <span className="block text-[length:var(--fs-body-14)] leading-5">{option.name}</span>
-              {option.region && option.region !== option.name && (
-                <span className="block text-[length:var(--fs-body-11)] leading-snug text-crema/55">{option.region}</span>
-              )}
+              <span className="v">{option.name}</span>
+              {option.region && option.region !== option.name && <span className="l">{option.region}</span>}
             </li>
           ))}
         </ul>
       )}
-      {helper && (
-        <p id={`${id}-helper`} className={helperClass} aria-live="polite">
-          {helper}
-        </p>
-      )}
+      {/* The label until there is something to say about the search. */}
+      <p id={`${id}-helper`} className={helperClass} aria-live="polite">
+        {helper ?? text.birthCityLabel}
+      </p>
     </div>
   );
 }

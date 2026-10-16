@@ -1,1 +1,325 @@
 /* Package screen: carta. Ported from the branding package (16 Oct 2026). */
+/*
+ * Carta, level 1 (package 04). On the phone one column that scrolls: title,
+ * wheel, the three signs in words, then the numbers, the readings, the
+ * practices and the date of the map. On desktop the wheel stays still and
+ * large on the left, and the right column scrolls on its own.
+ */
+
+.carta :is(h1, h2, h3) {
+  margin: 0;
+}
+
+/* ── The wheel ────────────────────────────────────────────────────────── */
+
+.carta .rueda {
+  position: relative;
+  width: calc(var(--u) * 342);
+  height: calc(var(--u) * 342);
+  align-self: center;
+  flex: none;
+}
+
+/* The dark circle behind the wheel, part of the figure. */
+.carta .rueda::before {
+  content: '';
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(var(--v) / 0.82) 62%, rgb(var(--v) / 0.5) 82%, rgb(var(--v) / 0));
+}
+
+.carta .rueda svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.carta .rueda text {
+  font-family: var(--font-sans);
+  font-variant-numeric: lining-nums;
+}
+
+.carta .rueda .eje-t {
+  letter-spacing: 0.1em;
+}
+
+.carta .trio {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--u) * 24);
+  text-align: center;
+  font: 300 calc(var(--u) * 13) / 1.3 var(--font-sans);
+  color: var(--t2);
+}
+
+.carta .trio b {
+  display: block;
+  font: 400 calc(var(--u) * 20) / 1.1 var(--font-serif);
+  color: var(--t1);
+}
+
+.carta .aviso {
+  font: 300 calc(var(--u) * 14) / 1.45 var(--font-sans);
+  color: var(--t2);
+  text-align: center;
+}
+
+.carta .falta {
+  display: grid;
+  gap: calc(var(--u) * 14);
+  justify-items: start;
+}
+
+/* ── Cards ────────────────────────────────────────────────────────────── */
+
+.carta .cabv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: calc(var(--u) * 10);
+  padding: calc(var(--u) * 16) calc(var(--u) * 16) calc(var(--u) * 4);
+}
+
+.carta .ia {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t2);
+}
+
+.carta .ia b {
+  font-weight: 500;
+  border: 1px solid rgb(236 226 208 / 0.4);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 3) calc(var(--u) * 5);
+  letter-spacing: 0.1em;
+  color: var(--t1);
+}
+
+/* The five numbers, one to a row. */
+.carta .nfila {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 46) minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 12);
+  align-items: center;
+  padding: calc(var(--u) * 12) calc(var(--u) * 16);
+}
+
+.carta .nfila + .nfila {
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+}
+
+.carta .nfila b {
+  font: 300 calc(var(--u) * 34) / 1 var(--font-serif);
+  text-align: center;
+  font-variant-numeric: lining-nums tabular-nums !important;
+  font-feature-settings:
+    'lnum' 1,
+    'tnum' 1;
+}
+
+.carta .nfila .ft {
+  margin-top: 0;
+}
+
+.carta .maestro {
+  font: 500 calc(var(--u) * 10) / 1 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--t2);
+  border: 1px solid rgb(236 226 208 / 0.3);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 5) calc(var(--u) * 8);
+}
+
+/* What the numbers are, kept from the screen before the package: said once,
+   at the end, in the voice of the date line. */
+.carta .nnota {
+  display: grid;
+  gap: calc(var(--u) * 6);
+  padding: 0 calc(var(--u) * 4);
+  font: 300 calc(var(--u) * 13) / 1.4 var(--font-sans);
+  color: var(--t2);
+}
+
+/* Readings: two lines, the whole text on touch. */
+.carta button.fila {
+  width: 100%;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.carta .vid > button.fila:last-child {
+  border-radius: 0 0 calc(var(--u) * 12) calc(var(--u) * 12);
+}
+
+.carta .lect .fd {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.carta .lect [aria-expanded='true'] .fd {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.carta .lect .chev svg {
+  transition: transform 0.2s ease;
+}
+
+.carta .lect [aria-expanded='true'] .chev svg {
+  transform: rotate(90deg);
+}
+
+.carta .tip {
+  font: italic 300 calc(var(--u) * 17) / 1.4 var(--font-serif);
+  color: var(--t1);
+}
+
+/* Para probar: the routine seen from the chart. */
+.carta .conv {
+  font: 300 calc(var(--u) * 13) / 1.35 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 4);
+}
+
+/* When the map was written, and the version before. */
+.carta .actu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: calc(var(--u) * 6) calc(var(--u) * 12);
+  font: 300 calc(var(--u) * 13) / 1.4 var(--font-sans);
+  color: var(--t2);
+  padding: 0 calc(var(--u) * 4);
+}
+
+.carta .actu button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--t1);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-color: rgb(236 226 208 / 0.4);
+  cursor: pointer;
+}
+
+.carta .pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--u) * 10);
+}
+
+.carta .demo {
+  font: 500 calc(var(--u) * 10) / 1.3 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--t2);
+  padding: 0 calc(var(--u) * 4);
+}
+
+/* No map yet. */
+.carta.vacio {
+  justify-content: center;
+  text-align: center;
+}
+
+.carta .p1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 10);
+  height: calc(var(--u) * 54);
+  border-radius: calc(var(--u) * 8);
+  background: var(--t1);
+  color: #0b120e;
+  font: 500 calc(var(--u) * 16) / 1 var(--font-sans);
+  flex: none;
+  text-shadow: none;
+}
+
+/* ── Desktop: the wheel on the left, the readings on the right ────────── */
+
+@media (min-width: 1024px) {
+  .carta.scroll:not(.vacio) {
+    position: relative;
+    display: block;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .carta .col1 {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: min(calc(var(--d) * 580), calc(100% - var(--d) * 500 - 24px));
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 16);
+  }
+
+  .carta .col1 .t {
+    font-size: calc(var(--d) * 52);
+  }
+
+  .carta .rueda {
+    width: calc(var(--d) * 470);
+    height: calc(var(--d) * 470);
+    align-self: flex-start;
+    margin-left: calc(var(--d) * 30);
+  }
+
+  .carta .trio {
+    justify-content: flex-start;
+    margin-left: calc(var(--d) * 30);
+    gap: calc(var(--d) * 40);
+  }
+
+  .carta .col1 .aviso {
+    text-align: left;
+    margin-left: calc(var(--d) * 30);
+  }
+
+  .carta .col2 {
+    position: absolute;
+    right: 0;
+    top: calc(var(--d) * -8);
+    bottom: 0;
+    width: calc(var(--d) * 500);
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: calc(var(--d) * 8) 0 calc(var(--d) * 40);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 16);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 16), #000 92%, transparent);
+    mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 16), #000 92%, transparent);
+  }
+
+  .carta .col2::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* On the phone the two columns are one, in the package's order. */
+@media (max-width: 1023.98px) {
+  .carta :is(.col1, .col2) {
+    display: contents;
+  }
+}

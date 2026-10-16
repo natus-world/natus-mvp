@@ -1,25 +1,34 @@
-import { shouldCalculateNatalChart } from '@/astrology/natal-chart';
+import { hasBirthTime, shouldCalculateNatalChart } from '@/astrology/natal-chart';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isDemoMode } from '@/supabase/client';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
+import { ChartWheel } from '@/design/ChartWheel';
+import { CheckIcon, ChevronIcon } from '@/design/icons';
 import { copy } from '@/i18n';
+import { buildNatalChart, type NatalChart } from '@/lib/natal-chart';
 import { activeProfile, isSignedIn } from '@/store/account';
 import { currentSynthesis, listSyntheses, type StoredSynthesis } from '@/store/soulMap';
-import { currentMatchFor } from '@/store/matches';
+import { currentMatchFor, isCheckedToday, toggleCheckIn, totalCheckIns } from '@/store/matches';
 import { routineFor } from '@/store/routine';
+import type { OnboardingDraft } from '@/store/session';
 import { PATHS } from '@/components/routes';
+import { connectsLabel } from '@/screens/Routine';
 import type { Numerology } from '@/lib/schemas';
 
 /**
- * Screen 8 of PDR 6.1: the narrative synthesis in three sections, the tips,
- * and the five numbers underneath.
+ * Carta, level 1 (package 04, 16 Oct 2026): the wheel in simple mode, the
+ * Sun, Moon and Ascendant in words, then the five numbers, Davraz's three
+ * readings, the practices of the routine that converse with the chart, and
+ * when the map was written.
  *
- * The account is asked for after this screen, never before — PDR section 3.
- * The person has already put in the time and now has something to lose.
+ * «Ver mi carta completa» is the package's one primary pill; it opens level 2,
+ * which is not built yet, so it is left out until it is. The first showing of
+ * the map (the revelation) is its own screen.
  */
 
 const text = copy.soulMap;
+const SIGN_NAMES = copy.chat.signs;
 
 const NUMBER_ORDER: (keyof typeof copy.practice.numberLabels)[] = [
   'life_path',
@@ -30,35 +39,10 @@ const NUMBER_ORDER: (keyof typeof copy.practice.numberLabels)[] = [
 ];
 
 const SECTION_TITLES = text.sections;
+const SECTION_KEYS = Object.keys(SECTION_TITLES) as (keyof typeof SECTION_TITLES)[];
 
-function Numbers({ numerology }: { numerology: Numerology }) {
-  return (
-    <>
-      <div className="flex flex-col gap-2">
-        {NUMBER_ORDER.map((key) => (
-          <div
-            key={key}
-            className="surface surface-p12 flex items-center justify-between"
-          >
-            <span className="text-[length:var(--fs-body-13)] text-blanco/85">{copy.practice.numberLabels[key]}</span>
-            <span className="font-serif text-[length:var(--fs-numeral-24)] leading-8 font-light text-crema">{numerology[key]}</span>
-          </div>
-        ))}
-      </div>
-
-      {numerology.master_numbers_present.length > 0 && (
-        <p className="mt-4 px-1 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-          {text.masterNumbersLead}
-          <span className="text-crema">{numerology.master_numbers_present.join(', ')}</span>
-          {text.masterNumbersTail}
-        </p>
-      )}
-
-      <p className="mt-3 px-1 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-        {text.numbersNote}
-      </p>
-    </>
-  );
+function firstNameOf(fullName: string): string {
+  return fullName.trim().split(/\s+/)[0] ?? '';
 }
 
 function dayOf(ms: number): string {
@@ -67,53 +51,243 @@ function dayOf(ms: number): string {
   return copy.journal.date(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, new Date().getFullYear());
 }
 
-function PreviousVersion({ stored, previous }: { stored: StoredSynthesis; previous: StoredSynthesis }) {
-  const [open, setOpen] = useState(false);
+/** The stored chart, read the same way the prompts read it. Null when there is none to draw. */
+function chartOf(draft: OnboardingDraft): NatalChart | null {
+  const stored = draft.natal_chart;
+  if (!stored || stored.parse_status !== 'parsed') return null;
+  try {
+    return buildNatalChart(stored.context, hasBirthTime(draft));
+  } catch {
+    return null;
+  }
+}
+
+function signOf(chart: NatalChart, name: string): string | null {
+  const sign = chart.points.find((p) => p.name === name)?.sign;
+  return sign ? (SIGN_NAMES[sign] ?? sign) : null;
+}
+
+function Wheel({ chart }: { chart: NatalChart }) {
+  const sun = signOf(chart, 'Sun');
+  const moon = signOf(chart, 'Moon');
+  const ascendant = chart.ascendant ? (SIGN_NAMES[chart.ascendant.sign] ?? chart.ascendant.sign) : null;
   return (
-    <div className="mt-6 flex flex-col gap-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <p className="text-[length:var(--fs-body-11)] text-crema/60">{text.updatedOn(dayOf(stored.created_at))}</p>
-        <button
-          type="button"
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-          className="text-[length:var(--fs-body-11)] text-crema/70 underline-offset-4 hover:text-crema hover:underline"
-        >
-          {open ? text.previousHide : text.previousShow}
-        </button>
+    <>
+      <div className="rueda">
+        <ChartWheel
+          chart={chart}
+          labels={{ label: text.wheelLabel(sun, moon, ascendant), signs: SIGN_NAMES, axes: text.wheelAxes }}
+        />
       </div>
-      {open && (
-        <div className="surface surface-p14 flex flex-col gap-4">
-          <p className="eyebrow">{text.previousFrom(dayOf(previous.created_at))}</p>
-          {(Object.keys(SECTION_TITLES) as (keyof typeof SECTION_TITLES)[]).map((key) => (
-            <section key={key}>
-              <h3 className="mb-1.5 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
-                {SECTION_TITLES[key]}
-              </h3>
-              <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/75">
-                {previous.synthesis.soul_map_synthesis[key]}
-              </p>
-            </section>
-          ))}
+      <div className="trio">
+        {sun && (
+          <div>
+            <b>{sun}</b>
+            {text.trio.sun}
+          </div>
+        )}
+        {moon && (
+          <div>
+            <b>{moon}</b>
+            {text.trio.moon}
+          </div>
+        )}
+        {ascendant && (
+          <div>
+            <b>{ascendant}</b>
+            {text.trio.ascendant}
+          </div>
+        )}
+      </div>
+      {/* Without the hour: no Ascendant and no houses, and it says so. */}
+      {!ascendant && <p className="aviso">{copy.onboarding.basicData.notice}</p>}
+    </>
+  );
+}
+
+function Numbers({ numerology }: { numerology: Numerology | null }) {
+  return (
+    <section className="vid">
+      <div className="cabv">
+        <h2 className="k">{text.numbers}</h2>
+      </div>
+      {numerology ? (
+        <>
+          {NUMBER_ORDER.map((key) => {
+            const value = numerology[key];
+            return (
+              <div key={key} className="nfila">
+                <b>{value}</b>
+                <p className="ft">{copy.practice.numberLabels[key]}</p>
+                {numerology.master_numbers_present.includes(value) ? <span className="maestro">{text.master}</span> : <span />}
+              </div>
+            );
+          })}
+        </>
+      ) : (
+        <div className="nfila">
+          <span />
+          <p className="fd">{text.numbersFailed}</p>
         </div>
       )}
+    </section>
+  );
+}
+
+/** What the numbers are: kept from the screen before the package, at the end. */
+function NumbersNote({ numerology }: { numerology: Numerology | null }) {
+  if (!numerology) return null;
+  return (
+    <div className="nnota">
+      {numerology.master_numbers_present.length > 0 && (
+        <p>
+          {text.masterNumbersLead}
+          {numerology.master_numbers_present.join(', ')}
+          {text.masterNumbersTail}
+        </p>
+      )}
+      <p>{text.numbersNote}</p>
     </div>
+  );
+}
+
+function Readings({ stored }: { stored: StoredSynthesis }) {
+  const [open, setOpen] = useState<string | null>(null);
+  const { synthesis } = stored;
+  return (
+    <section className="vid lect">
+      <div className="cabv">
+        <h2 className="k">{text.readings}</h2>
+        <p className="ia">
+          {text.readingsBy} <b>{text.readingsAi}</b>
+        </p>
+      </div>
+      {SECTION_KEYS.map((key) => (
+        <button
+          key={key}
+          type="button"
+          className="fila"
+          aria-expanded={open === key}
+          onClick={() => setOpen((o) => (o === key ? null : key))}
+        >
+          <div>
+            <h3 className="ft">{SECTION_TITLES[key]}</h3>
+            <p className="fd">{synthesis.soul_map_synthesis[key]}</p>
+          </div>
+          <span className="chev" aria-hidden="true">
+            <ChevronIcon />
+          </span>
+        </button>
+      ))}
+      <div className="fila">
+        <p className="tip">{synthesis.follow_up_invitation}</p>
+      </div>
+    </section>
+  );
+}
+
+function ToTry({ synthesisId }: { synthesisId: string }) {
+  const [, force] = useState(0);
+  const practices = routineFor(currentMatchFor(synthesisId));
+  // v1.2 O-07: the same routine, seen from the chart — not a second list.
+  const toTry = practices.filter((p) => p.connects_to.soul_map);
+  const date = new Date().toISOString().slice(0, 10);
+
+  if (practices.length === 0) {
+    return (
+      <section className="vid">
+        <div className="cabv">
+          <h2 className="k">{text.toTry}</h2>
+        </div>
+        <Link to={PATHS.paths} className="fila">
+          <p className="ft">{text.toTryEmpty}</p>
+          <span className="chev">
+            <ChevronIcon />
+          </span>
+        </Link>
+      </section>
+    );
+  }
+  // None converses with the chart: no empty card.
+  if (toTry.length === 0) return null;
+
+  return (
+    <section className="vid">
+      <div className="cabv">
+        <h2 className="k">{text.toTry}</h2>
+      </div>
+      {toTry.map((practice) => {
+        const done = isCheckedToday(practice.title, date);
+        return (
+          <div key={practice.title} className="fila">
+            <div>
+              <p className="fk">{copy.practice.cadence[practice.cadence]}</p>
+              <h3 className="ft">{practice.title}</h3>
+              {/* A total, never a consecutive run. */}
+              <p className="conv">
+                {connectsLabel(practice)} · {copy.practice.totalDays(totalCheckIns(practice.title))}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-pressed={done}
+              className={done ? 'p2 on' : 'p2'}
+              onClick={() => {
+                toggleCheckIn(practice.title, date);
+                force((n) => n + 1);
+              }}
+            >
+              {done && <CheckIcon />}
+              {done ? copy.routine.doneToday : copy.routine.markToday}
+            </button>
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
+function Updated({ stored, previous }: { stored: StoredSynthesis; previous: StoredSynthesis | undefined }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div className="actu">
+        <span>{previous ? text.updatedOn(dayOf(stored.created_at)) : text.generatedOn(dayOf(stored.created_at))}</span>
+        {previous && (
+          <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+            {open ? text.previousHide : text.previousShow}
+          </button>
+        )}
+      </div>
+      {open && previous && (
+        <section className="vid anterior">
+          <div className="cabv">
+            <h2 className="k">{text.previousFrom(dayOf(previous.created_at))}</h2>
+          </div>
+          {SECTION_KEYS.map((key) => (
+            <div key={key} className="fila">
+              <div>
+                <h3 className="ft">{SECTION_TITLES[key]}</h3>
+                <p className="fd">{previous.synthesis.soul_map_synthesis[key]}</p>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
+    </>
   );
 }
 
 export function SoulMap() {
   const profile = activeProfile();
   const stored = currentSynthesis();
-  const firstName = (profile?.draft.legal_birth_name ?? '').trim().split(/\s+/)[0] ?? '';
 
   if (!stored) {
     return (
-      <Screen backdrop="mar" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {text.empty}
-          </p>
-          <Link to="/onboarding" className="cta no-underline">
+      <Screen photo="cieloEstrellas" veil={0.15} glassAlpha={0.32}>
+        <div className="pz carta scroll vacio">
+          <p className="cuerpo">{text.empty}</p>
+          <Link to="/onboarding" className="p1">
             {text.start}
           </Link>
         </div>
@@ -121,115 +295,61 @@ export function SoulMap() {
     );
   }
 
-  const { synthesis, numerology } = stored;
+  const name = firstNameOf(profile?.draft.legal_birth_name ?? '');
+  const chart = profile ? chartOf(profile.draft) : null;
+  // The chart was asked for and is not there: said, not hidden (16 Oct 2026).
+  const chartMissing = profile !== null && !chart && shouldCalculateNatalChart(profile.draft) && !profile.draft.natal_chart;
   // v1.2 M-02: the version before this one, if the map has been written again.
   const previous = listSyntheses()
     .filter((s) => s.id !== stored.id && s.created_at < stored.created_at)
     .sort((a, b) => b.created_at - a.created_at)[0];
-  const toTry = routineFor(currentMatchFor(stored.id)).filter((p) => p.connects_to.soul_map);
 
   return (
-    <Screen backdrop="mar" scrim="heavy" opacity={PHOTO.content45}>
-      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
-        <p className="eyebrow mb-3">{text.kicker}</p>
+    <Screen photo="cieloEstrellas" veil={0.15} glassAlpha={0.32}>
+      <div className="pz carta scroll">
+        <div className="col1">
+          <p className="k">{text.kicker}</p>
+          <h1 className="t">
+            {name ? text.titleWithName(name) : text.titleWithoutName}
+            <em>{text.titleEmphasis}</em>
+          </h1>
 
-        <h1 className="mb-7 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {firstName ? text.titleWithName(firstName) : text.titleWithoutName}
-          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
-        </h1>
+          {chart && <Wheel chart={chart} />}
 
-        <div className="flex flex-col gap-6">
-          {(Object.keys(SECTION_TITLES) as (keyof typeof SECTION_TITLES)[]).map((key) => (
-            <section key={key}>
-              <h2 className="eyebrow mb-2.5">{SECTION_TITLES[key]}</h2>
-              <p className="text-[length:var(--fs-body-13_5)] leading-relaxed text-blanco/85">
-                {synthesis.soul_map_synthesis[key]}
-              </p>
-            </section>
-          ))}
+          {chartMissing && (
+            <div className="vid pad falta">
+              <p className="cuerpo">{text.chartMissing}</p>
+              <Link to={`${PATHS.profile}/nacimiento`} className="p2">
+                {text.chartMissingCta}
+              </Link>
+            </div>
+          )}
         </div>
 
-        {previous && <PreviousVersion stored={stored} previous={previous} />}
+        <div className="col2">
+          <Numbers numerology={stored.numerology} />
+          <Readings stored={stored} />
+          <ToTry synthesisId={stored.id} />
+          <Updated stored={stored} previous={previous} />
+          <NumbersNote numerology={stored.numerology} />
 
-        <div className="my-7 h-px w-10 bg-crema/25" />
-
-        <h2 className="eyebrow mb-3">{text.toTry}</h2>
-        {/* v1.2 O-07: the same routine, seen from the chart — the practices that
-            converse with the map. Not a second list. */}
-        {toTry.length > 0 ? (
-          <div className="flex flex-col gap-2.5">
-            {toTry.map((practice) => (
-              <article key={practice.title} className="surface surface-p14">
-                <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                  <h3 className="text-[length:var(--fs-heading-13)] text-blanco">{practice.title}</h3>
-                  <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                    {copy.practice.cadence[practice.cadence]}
-                  </span>
-                </div>
-                <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{practice.body}</p>
-                {/* PDR 1.5: every practice closes on a micro-invitation. */}
-                <p className="mt-2.5 font-serif text-[length:var(--fs-voice-15)] leading-snug text-crema italic">
-                  {practice.invitation}
-                </p>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-start gap-2.5">
-            <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/60">{text.toTryEmpty}</p>
-            <Link to={PATHS.journey} className="chip chip-p6 px-3 text-crema/75 no-underline">
-              {text.toTryCta}
+          <div className="pie">
+            <Link to={PATHS.paths} className="p2">
+              {text.toPaths}
+              <span aria-hidden="true">→</span>
             </Link>
+
+            {/* PDR section 3: the account is offered, never required here. */}
+            {!isSignedIn() && (
+              <Link to="/registro" className="p2">
+                {text.save}
+              </Link>
+            )}
           </div>
-        )}
-
-        <div className="my-7 h-px w-10 bg-crema/25" />
-
-        <h2 className="eyebrow mb-3">{text.numbers}</h2>
-        {numerology ? (
-          <Numbers numerology={numerology} />
-        ) : (
-          <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-            {text.numbersFailed}
-          </p>
-        )}
-
-        {/* The chart was asked for and is not there: said, not hidden (16 Oct 2026). */}
-        {profile && shouldCalculateNatalChart(profile.draft) && !profile.draft.natal_chart && (
-          <div className="mt-5 flex flex-col items-start gap-2.5">
-            <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/60">{text.chartMissing}</p>
-            <Link to={`${PATHS.profile}/nacimiento`} className="chip chip-p6 px-3 text-crema/75 no-underline">
-              {text.chartMissingCta}
-            </Link>
-          </div>
-        )}
-
-        <p className="mt-8 mb-3 px-1 font-serif text-[length:var(--fs-voice-17)] leading-snug text-crema/80 italic">
-          {synthesis.follow_up_invitation}
-        </p>
-
-        <div className="mt-auto flex flex-col gap-2.5 pt-4">
-          <Link to="/caminos" className="cta no-underline">
-            {text.toPaths}
-            <span aria-hidden="true">→</span>
-          </Link>
-
-          {/* PDR section 3: the account is offered here and nowhere earlier —
-              the person now has something they would rather not lose. It is a
-              secondary control, not a gate; the flow continues without it. */}
-          {!isSignedIn() && (
-            <Link
-              to="/registro"
-              className="chip chip-p10 text-center text-crema/60 no-underline"
-            >
-              {text.save}
-            </Link>
-          )}
 
           {isDemoMode && (
-            <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-              {stored.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} ·{' '}
-              {stored.prompt_version}
+            <p className="demo">
+              {stored.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} · {stored.prompt_version}
             </p>
           )}
         </div>

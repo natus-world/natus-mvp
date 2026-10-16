@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StepBody } from '@/components/onboarding/StepChrome';
+import { NextButton, StepBody, emphasizeLast } from '@/components/onboarding/StepChrome';
 import { OptionItem } from '@/components/onboarding/OptionItem';
 import { expandOpenness, opennessFile, opennessOptionsFor } from '@/lib/catalog';
 import type { OnboardingDraft } from '@/store/session';
@@ -46,18 +46,15 @@ export function Openness({
 
   const canContinue = draft.openness_to_modalities.length > 0;
 
+  // Package 01: five options in one glass card, «Me da lo mismo» in its own
+  // (it clears the others), and «Otro» to write.
   return (
     <StepBody
-      title={opennessFile.prompt_es}
+      title={emphasizeLast(opennessFile.prompt_es)}
       helper={opennessFile.helper_es}
-      action={
-        <button type="button" className="cta" disabled={!canContinue} onClick={onNext}>
-          {copy.common.continue}
-          <span aria-hidden="true">→</span>
-        </button>
-      }
+      action={<NextButton disabled={!canContinue} onClick={onNext} />}
     >
-      <div className="flex flex-col gap-2">
+      <div className="vid bq">
         {opennessFile.options.map((option) => (
           <OptionItem
             key={option.slug}
@@ -67,9 +64,9 @@ export function Openness({
             onToggle={() => toggle(option.slug)}
           />
         ))}
+      </div>
 
-        <div className="mt-1 mb-1 h-px bg-crema/10" />
-
+      <div className="vid sigue">
         {opennessFile.special.map((option) => (
           <OptionItem
             key={option.slug}
@@ -79,13 +76,15 @@ export function Openness({
             onToggle={() => toggle(option.slug)}
           />
         ))}
+      </div>
 
+      <div className="vid campo solo sigue">
         <label className="sr-only" htmlFor="openness-other">
           {copy.onboarding.openness.otherLabel}
         </label>
         <input
           id="openness-other"
-          className="field mt-1 w-full text-[length:var(--fs-body-13)] placeholder:text-crema/55"
+          className="v"
           placeholder={copy.onboarding.openness.otherPlaceholder}
           value={other}
           onChange={(e) => {

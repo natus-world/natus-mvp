@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
+import { EnvelopeIcon, GoogleMark } from '@/components/onboarding/icons';
 import { copy } from '@/i18n';
 import { SignupError, isSignedIn, signUp } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
@@ -34,8 +35,18 @@ const text = copy.signup;
  * email form shows only while Google is not switched on in the project.
  */
 
-const fieldClass =
-  'field w-full text-[length:var(--fs-body-14)] leading-5 placeholder:text-crema/55';
+/** Package 01, «Crear cuenta»: the incense; «Revisa tu correo»: the night ocean. */
+function Page({ photo = 'incienso', children }: { photo?: 'incienso' | 'oceanoNoche'; children: ReactNode }) {
+  return (
+    <Screen photo={photo} veil={0.14} glassAlpha={0.3}>
+      <div className="pz entrada cuenta">
+        <div className="sc">
+          <div className="d-izq medio">{children}</div>
+        </div>
+      </div>
+    </Screen>
+  );
+}
 
 export function Signup() {
   const navigate = useNavigate();
@@ -64,29 +75,29 @@ export function Signup() {
 
   if (isSignedIn()) {
     return (
-      <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">{text.alreadySignedIn}</p>
-          <Link to="/hoy" className="cta no-underline">
+      <Page>
+        <p className="k">{text.kicker}</p>
+        <p className="cuerpo">{text.alreadySignedIn}</p>
+        <div className="botones">
+          <Link to="/hoy" className="btn p">
             {text.toHome}
           </Link>
         </div>
-      </Screen>
+      </Page>
     );
   }
 
   if (!currentSynthesis()) {
     return (
-      <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {text.noMap}
-          </p>
-          <Link to="/onboarding" className="cta no-underline">
+      <Page>
+        <p className="k">{text.kicker}</p>
+        <p className="cuerpo">{text.noMap}</p>
+        <div className="botones">
+          <Link to="/onboarding" className="btn p">
             {text.start}
           </Link>
         </div>
-      </Screen>
+      </Page>
     );
   }
 
@@ -132,136 +143,131 @@ export function Signup() {
 
   if (sent) {
     return (
-      <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {text.sentLead}
-            <span className="text-blanco">{email}</span>
-            {text.sentTail}
-          </p>
-          <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {text.sentNote}
-          </p>
-          <Link to="/hoy" className="cta no-underline">
+      <Page photo="oceanoNoche">
+        <p className="k">{text.sentKicker}</p>
+        <h1 className="t mt">
+          {text.sentTitleLead}
+          <em>{text.sentTitleEmphasis}</em>
+        </h1>
+        <p className="cuerpo">
+          {text.sentLead}
+          <span className="dir">{email}</span>
+          {text.sentTail}
+        </p>
+        <div className="vid correo-b bq">
+          <EnvelopeIcon />
+          <p className="l">{text.sentSpam}</p>
+        </div>
+        <p className="aviso">{text.sentNote}</p>
+        <div className="botones abajo">
+          <Link to="/hoy" className="btn p">
             {text.toHome}
           </Link>
         </div>
-      </Screen>
+      </Page>
     );
   }
 
   return (
-    <Screen backdrop="nebulosa" scrim="heavy" opacity={PHOTO.content50}>
-      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9">
-        <p className="eyebrow mb-3">{text.kicker}</p>
+    <Page>
+      <p className="k">{text.kicker}</p>
+      <h1 className="t mt">
+        {required ? r.titleLead : text.titleLead}
+        <em>{required ? r.titleEmphasis : text.titleEmphasis}</em>
+      </h1>
+      <p className="cuerpo">{required ? r.helper : text.helper}</p>
 
-        <h1 className="mb-3 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {required ? r.titleLead : text.titleLead}
-          <span className="font-serif text-crema italic">{required ? r.titleEmphasis : text.titleEmphasis}</span>
-        </h1>
-
-        <p className="mb-7 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          {required ? r.helper : text.helper}
-        </p>
-
-        {google ? (
-          <>
-            {googleError && (
-              <p role="alert" className="mb-3 text-[length:var(--fs-body-12)] leading-relaxed text-error">
-                {googleError}
-              </p>
-            )}
-            <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-              {required ? r.note : text.googleNote}
+      {google ? (
+        <div className="botones ancho">
+          {googleError && (
+            <p role="alert" className="falta">
+              {googleError}
             </p>
-            <div className="mt-auto flex flex-col gap-2.5 pt-8">
-              <button
-                type="button"
-                className="cta"
-                disabled={sending}
-                onClick={() => {
-                  setSending(true);
-                  setGoogleError(null);
-                  linkGoogle().catch(() => {
-                    setSending(false);
-                    setGoogleError(text.googleFailed);
-                  });
-                }}
-              >
-                {sending ? text.saving : required ? r.cta : text.google}
-              </button>
-              {required ? (
-                taken && (
-                  <button
-                    type="button"
-                    className="chip chip-p10 text-center text-crema/70"
-                    onClick={() => void signInWithGoogle().catch(() => setGoogleError(text.googleFailed))}
-                  >
-                    {r.useThatAccount}
-                  </button>
-                )
-              ) : (
-                <Link to="/hoy" className="chip chip-p10 text-center text-crema/60 no-underline">
-                  {text.later}
-                </Link>
-              )}
-              <LegalLinks className="pt-1" />
-            </div>
-          </>
-        ) : (
-        <>
-        <label className="mb-1.5 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase" htmlFor="email">
-          {text.emailLabel}
-        </label>
-        <input
-          id="email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          className={fieldClass}
-          value={email}
-          placeholder={text.emailPlaceholder}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setError(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') submit();
-          }}
-          aria-describedby="email-note"
-          aria-invalid={error !== null}
-        />
-
-        {error && (
-          <p role="alert" className="mt-2 text-[length:var(--fs-body-12)] leading-relaxed text-error">
-            {error}
-          </p>
-        )}
-
-        <p id="email-note" className="mt-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-          {isBackendConfigured ? text.noteBackend : text.noteOffline}
-        </p>
-
-        <div className="mt-auto flex flex-col gap-2.5 pt-8">
+          )}
           <button
             type="button"
-            className="cta"
+            className="btn p"
+            disabled={sending}
+            onClick={() => {
+              setSending(true);
+              setGoogleError(null);
+              linkGoogle().catch(() => {
+                setSending(false);
+                setGoogleError(text.googleFailed);
+              });
+            }}
+          >
+            <GoogleMark />
+            {sending ? text.saving : required ? r.cta : text.google}
+          </button>
+          <p className="aviso">{required ? r.note : text.googleNote}</p>
+          {required ? (
+            taken && (
+              <button
+                type="button"
+                className="btn s"
+                onClick={() => void signInWithGoogle().catch(() => setGoogleError(text.googleFailed))}
+              >
+                {r.useThatAccount}
+              </button>
+            )
+          ) : (
+            <Link to="/hoy" className="link">
+              <u>{text.later}</u>
+            </Link>
+          )}
+          <LegalLinks className="legal" />
+        </div>
+      ) : (
+        <div className="botones ancho">
+          <div className="vid campo solo correo">
+            <label className="l" htmlFor="email">
+              {text.emailLabel}
+            </label>
+            <input
+              id="email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              className="v"
+              value={email}
+              placeholder={text.emailPlaceholder}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') submit();
+              }}
+              aria-describedby="email-note"
+              aria-invalid={error !== null}
+            />
+          </div>
+
+          {error && (
+            <p role="alert" className="falta">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="button"
+            className="btn p"
             onClick={submit}
             disabled={email.trim() === '' || sending}
           >
             {sending ? text.saving : text.create}
           </button>
 
-          <Link
-            to="/hoy"
-            className="chip chip-p10 text-center text-crema/60 no-underline"
-          >
-            {text.later}
+          <p id="email-note" className="aviso">
+            {isBackendConfigured ? text.noteBackend : text.noteOffline}
+          </p>
+
+          <Link to="/hoy" className="link">
+            <u>{text.later}</u>
           </Link>
         </div>
-        </>
-        )}
-      </div>
-    </Screen>
+      )}
+    </Page>
   );
 }

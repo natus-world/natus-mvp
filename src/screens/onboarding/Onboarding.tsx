@@ -4,9 +4,9 @@ import { requireAccount } from '@/store/account-required';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { track } from '@/store/funnel';
 import { useNavigate } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { CrisisBanner } from '@/components/CrisisBanner';
-import { ProgressRow } from '@/components/onboarding/StepChrome';
+import { StepContext, type StepPlace } from '@/components/onboarding/StepChrome';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { detectCrisis } from '@/lib/safety';
 import { computeNumerology, NumerologyInputError } from '@/lib/numerology';
@@ -22,7 +22,7 @@ import { copy } from '@/i18n';
 import { BasicData } from './BasicData';
 import { PresentingNeed } from './PresentingNeed';
 import { Openness } from './Openness';
-import { Generating } from './Generating';
+import { Generating, GeneratingFailed } from './Generating';
 
 /**
  * The three steps of O-06 and the generation that follows them. The landing
@@ -40,10 +40,14 @@ import { Generating } from './Generating';
 const STEPS = ['quien', 'pregunta', 'apertura', 'generando'] as const;
 type StepName = (typeof STEPS)[number];
 
-const BACKDROPS = {
-  quien: 'sala',
-  pregunta: 'sala',
-  apertura: 'sala',
+/**
+ * Package 01 (16 Oct 2026): one photo per step, with its veil and its glass,
+ * and a class for what differs between them.
+ */
+const LOOKS = {
+  quien: { photo: 'concretoSombra', veil: 0.4, alpha: 0.7 },
+  pregunta: { photo: 'maderaOscura', veil: 0.3, alpha: 0.3 },
+  apertura: { photo: 'surcosArena', veil: 0.46, alpha: 0.3 },
 } as const;
 
 type Crisis = { eventId: string; message: string; layer: 'text' | 'model' };
@@ -74,8 +78,6 @@ export function Onboarding() {
     setIndex(next);
     setSession(setStep(next));
   }, [index]);
-
-  const back = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
 
   // The funnel's first step. Recorded once per person by the database.
   useEffect(() => {
@@ -171,21 +173,13 @@ export function Onboarding() {
   if (step === 'generando') {
     if (failure) {
       return (
-        <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil60}>
-          <div className="flex flex-col items-center justify-center gap-6 px-8 text-center flex-1">
-            <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{failure}</p>
-            <button
-              type="button"
-              className="cta"
-              onClick={() => {
-                setFailure(null);
-                setAttempt((a) => a + 1);
-              }}
-            >
-              {copy.onboarding.generating.retry}
-            </button>
-          </div>
-        </Screen>
+        <GeneratingFailed
+          message={failure}
+          onRetry={() => {
+            setFailure(null);
+            setAttempt((n) => n + 1);
+          }}
+        />
       );
     }
 
@@ -201,42 +195,39 @@ export function Onboarding() {
     );
   }
 
-  return (
-    <Screen backdrop={BACKDROPS[step]} scrim="even" opacity={PHOTO.veil55}>
-      <div className="flex flex-col px-[22px] pt-[var(--top-inset)] pb-8 h-full">
-        <ProgressRow
-          label={copy.onboarding.kicker}
-          step={index + 1}
-          total={STEPS.length - 1}
-          onBack={index > 0 ? back : undefined}
-        />
+  const look = LOOKS[step];
+  const place: StepPlace = { step: index + 1, total: STEPS.length - 1, onGoTo: setIndex };
 
+  return (
+    <Screen photo={look.photo} veil={look.veil} glassAlpha={look.alpha}>
+      <div className={`pz entrada paso ${step}`}>
         {lowSeverity && (
-          <div className="-mx-1 mb-4">
+          <div className="aviso-crisis">
             <CrisisBanner country={draft.country} />
           </div>
         )}
-
-        {step === 'quien' && (
-          <BasicData
-            draft={draft}
-            onChange={change}
-            onNext={() => {
-              track('birth_data_done');
-              advance();
-            }}
-          />
-        )}
-        {step === 'pregunta' && (
-          <PresentingNeed
-            draft={draft}
-            onChange={change}
-            onNext={() => {
-              if (runSafety()) advance();
-            }}
-          />
-        )}
-        {step === 'apertura' && <Openness draft={draft} onChange={change} onNext={advance} />}
+        <StepContext.Provider value={place}>
+          {step === 'quien' && (
+            <BasicData
+              draft={draft}
+              onChange={change}
+              onNext={() => {
+                track('birth_data_done');
+                advance();
+              }}
+            />
+          )}
+          {step === 'pregunta' && (
+            <PresentingNeed
+              draft={draft}
+              onChange={change}
+              onNext={() => {
+                if (runSafety()) advance();
+              }}
+            />
+          )}
+          {step === 'apertura' && <Openness draft={draft} onChange={change} onNext={advance} />}
+        </StepContext.Provider>
       </div>
     </Screen>
   );

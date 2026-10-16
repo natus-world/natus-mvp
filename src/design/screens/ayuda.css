@@ -1,1 +1,459 @@
-/* Package screen: ayuda. Ported from the branding package (16 Oct 2026). */
+/*
+ * Package screen: ayuda (package 12, 16 Oct 2026). «Necesito ayuda» — a
+ * cream sheet over any screen — and the crisis screen — the same paper, full
+ * screen, no photograph. Maximum legibility: plain background, numbers in
+ * DM Sans with tabular figures, high contrast, nothing truncated. The numbers
+ * come from data/crisis-resources.json, never from the model.
+ *
+ * Measures are the package's, in `--u` (1px at 390 wide); on desktop the
+ * sheet and the crisis column are drawn at `--u = --d`, as the package does.
+ * `.ayuda-pz`, not `.ayuda`: the package uses `.ayuda` for the header pill.
+ */
+
+/* ── The sheet ────────────────────────────────────────────────────────── */
+
+.ayuda-pz.capa {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+}
+
+/* Behind the sheet only a neutral black dim, so the sheet stands out. */
+.ayuda-pz .velo-a {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.ayuda-pz .hoja-a {
+  position: absolute;
+  left: calc(var(--u) * 10);
+  right: calc(var(--u) * 10);
+  bottom: calc(var(--u) * 10 + env(safe-area-inset-bottom, 0px));
+  max-height: calc(100% - var(--u) * 20 - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  border-radius: calc(var(--u) * 20);
+  padding: calc(var(--u) * 12) calc(var(--u) * 22) calc(var(--u) * 22);
+  background: #f1e9da;
+  border: 1px solid rgb(11 18 14 / 0.12);
+  box-shadow: 0 calc(var(--u) * -12) calc(var(--u) * 40) rgb(0 0 0 / 0.5);
+  color: #0b120e;
+  text-shadow: none;
+  animation: ayuda-sube 360ms var(--ease) both;
+}
+
+.ayuda-pz .hoja-a::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes ayuda-sube {
+  from {
+    transform: translateY(24%);
+    opacity: 0;
+  }
+}
+
+@keyframes ayuda-aparece {
+  from {
+    opacity: 0;
+  }
+}
+
+.ayuda-pz .asa {
+  width: calc(var(--u) * 40);
+  height: calc(var(--u) * 4);
+  border-radius: 99px;
+  background: rgb(11 18 14 / 0.25);
+  margin: 0 auto calc(var(--u) * 18);
+}
+
+.ayuda-pz .fila-t {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--u) * 12);
+}
+
+.ayuda-pz :is(.hoja-a, .cuerpo-c) .t {
+  font: 300 calc(var(--u) * 32) / 1.08 var(--font-serif);
+  color: #0b120e;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.ayuda-pz :is(.hoja-a, .cuerpo-c) .t em {
+  font-style: italic;
+}
+
+.ayuda-pz .cerrar-x {
+  flex: none;
+  width: calc(var(--u) * 40);
+  height: calc(var(--u) * 40);
+  border-radius: 50%;
+  border: 1px solid rgb(11 18 14 / 0.4);
+  background: none;
+  display: grid;
+  place-items: center;
+  color: #0b120e;
+  cursor: pointer;
+}
+
+.ayuda-pz .cerrar-x svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
+.ayuda-pz :is(.hoja-a, .cuerpo-c) .x {
+  font: 400 calc(var(--u) * 16) / 1.5 var(--font-sans);
+  color: rgb(11 18 14 / 0.8);
+  margin-top: calc(var(--u) * 10);
+}
+
+.ayuda-pz .pie-a {
+  font: 400 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: rgb(11 18 14 / 0.7);
+  text-align: center;
+  margin-top: calc(var(--u) * 14);
+}
+
+/* Paper and ink focus ring: the global one is cream. */
+.ayuda-pz :is(.hoja-a, .cuerpo-c) :focus-visible {
+  outline: 2px solid #0b120e;
+  outline-offset: 3px;
+}
+
+/* ── The lines, on paper ──────────────────────────────────────────────── */
+
+.ayuda-pz.recursos .lista-a {
+  list-style: none;
+  margin: calc(var(--u) * 16) 0 0;
+  padding: 0;
+  display: grid;
+}
+
+.ayuda-pz.papel .la {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  padding: calc(var(--u) * 14) 0;
+  border-top: 1px solid rgb(11 18 14 / 0.14);
+}
+
+.ayuda-pz.recursos .la .tx {
+  flex: 1;
+  min-width: 0;
+}
+
+.ayuda-pz.papel .nm {
+  font: 500 calc(var(--u) * 16) / 1.3 var(--font-sans);
+  color: #0b120e;
+  overflow-wrap: break-word;
+}
+
+.ayuda-pz.papel .ds {
+  font: 400 calc(var(--u) * 14) / 1.4 var(--font-sans);
+  color: rgb(11 18 14 / 0.75);
+  margin-top: calc(var(--u) * 2);
+  overflow-wrap: break-word;
+}
+
+.ayuda-pz.papel .llamar {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  height: calc(var(--u) * 48);
+  padding: 0 calc(var(--u) * 16);
+  border-radius: calc(var(--u) * 8);
+  background: #0b120e;
+  color: #f1e9da;
+  font: 500 calc(var(--u) * 17) / 1 var(--font-sans);
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+  flex: none;
+  text-shadow: none;
+}
+
+.ayuda-pz.recursos .llamar svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
+/* The international directory: a way out, not a number — so outlined, and
+   the numbers stay the first thing the eye finds. */
+.ayuda-pz.papel .llamar.ext {
+  background: none;
+  color: #0b120e;
+  border: 1px solid rgb(11 18 14 / 0.5);
+  font-size: calc(var(--u) * 14);
+  font-weight: 400;
+}
+
+.ayuda-pz.papel .emerg {
+  margin-top: calc(var(--u) * 4);
+  padding: calc(var(--u) * 14) calc(var(--u) * 16);
+  border-radius: calc(var(--u) * 12);
+  border: 1px solid rgb(11 18 14 / 0.35);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+}
+
+.ayuda-pz.papel .emerg .tx {
+  flex: 1;
+  font: 400 calc(var(--u) * 14) / 1.4 var(--font-sans);
+  color: #0b120e;
+}
+
+.ayuda-pz.papel .sin-verificar {
+  font: 400 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: rgb(11 18 14 / 0.75);
+  margin-top: calc(var(--u) * 14);
+}
+
+.ayuda-pz.papel .sin-verificar .sitio {
+  color: #0b120e;
+}
+
+/* ── The lines, dark: over a photo or the night (the chat's, package 10) ── */
+
+.ayuda-pz.oscuro .lista-a {
+  margin-top: 0;
+}
+
+.ayuda-pz.oscuro .la {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  padding: calc(var(--u) * 12) 0;
+  border-top: 1px solid rgb(236 226 208 / 0.16);
+}
+
+.ayuda-pz.oscuro .la:first-child {
+  border-top: 0;
+}
+
+.ayuda-pz.oscuro .nm {
+  font: 500 calc(var(--u) * 15) / 1.3 var(--font-sans);
+  color: #f5efe6;
+  overflow-wrap: break-word;
+}
+
+.ayuda-pz.oscuro .ds {
+  font: 400 calc(var(--u) * 13) / 1.35 var(--font-sans);
+  color: rgb(236 226 208 / 0.82);
+  margin-top: calc(var(--u) * 2);
+  overflow-wrap: break-word;
+}
+
+.ayuda-pz.oscuro .llamar {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 7);
+  height: calc(var(--u) * 44);
+  padding: 0 calc(var(--u) * 14);
+  border-radius: calc(var(--u) * 8);
+  background: #ece2d0;
+  color: #0b120e;
+  font: 500 calc(var(--u) * 16) / 1 var(--font-sans);
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+  flex: none;
+  text-shadow: none;
+}
+
+.ayuda-pz.oscuro .llamar svg {
+  width: calc(var(--u) * 15);
+  height: calc(var(--u) * 15);
+}
+
+.ayuda-pz.oscuro .llamar.ext {
+  background: none;
+  color: #ece2d0;
+  border: 1px solid rgb(236 226 208 / 0.4);
+  font-size: calc(var(--u) * 14);
+  font-weight: 400;
+}
+
+.ayuda-pz.oscuro .sin-verificar {
+  font: 400 calc(var(--u) * 12) / 1.45 var(--font-sans);
+  color: rgb(236 226 208 / 0.7);
+  padding: calc(var(--u) * 4) 0 calc(var(--u) * 8);
+}
+
+.ayuda-pz.oscuro .sin-verificar .sitio {
+  color: #ece2d0;
+}
+
+/* The low-signal banner: the chat's box of lines, collapsed by default. */
+.ayuda-pz.lineas {
+  border-radius: calc(var(--u) * 12);
+  padding: calc(var(--u) * 14) calc(var(--u) * 16);
+  background: rgb(8 14 18 / 0.72);
+  border: 1px solid rgb(236 226 208 / 0.3);
+}
+
+.ayuda-pz .lineas-cab {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 10);
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: #ece2d0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ayuda-pz .lineas-cab .punto {
+  width: calc(var(--u) * 6);
+  height: calc(var(--u) * 6);
+  flex: none;
+  border-radius: 50%;
+  background: #ece2d0;
+}
+
+.ayuda-pz .lineas-cab .lt {
+  flex: 1;
+  font: 400 calc(var(--u) * 14) / 1.4 var(--font-sans);
+  color: #ece2d0;
+}
+
+.ayuda-pz .lineas-cab .mas {
+  font: 400 calc(var(--u) * 16) / 1 var(--font-sans);
+  color: rgb(236 226 208 / 0.75);
+}
+
+.ayuda-pz.lineas > .recursos {
+  margin-top: calc(var(--u) * 6);
+}
+
+/* ── The crisis screen ────────────────────────────────────────────────── */
+
+.ayuda-pz.crisis {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #f1e9da;
+  color: #0b120e;
+  text-shadow: none;
+}
+
+.ayuda-pz.crisis .cuerpo-c {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: calc(var(--header-h) + var(--u) * 24) calc(var(--u) * 24)
+    calc(var(--u) * 30 + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+}
+
+.ayuda-pz.crisis .cuerpo-c::-webkit-scrollbar {
+  display: none;
+}
+
+.ayuda-pz.crisis .k {
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(11 18 14 / 0.7);
+}
+
+.ayuda-pz.crisis .cuerpo-c .t {
+  margin-top: calc(var(--u) * 10);
+  font-size: calc(var(--u) * 36);
+}
+
+.ayuda-pz.crisis .lista-a {
+  margin-top: calc(var(--u) * 20);
+}
+
+.ayuda-pz.crisis .volver-b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 100%;
+  height: calc(var(--u) * 52);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(11 18 14 / 0.5);
+  background: none;
+  color: #0b120e;
+  font: 400 calc(var(--u) * 16) / 1 var(--font-sans);
+  margin-top: calc(var(--u) * 22);
+  cursor: pointer;
+}
+
+.ayuda-pz.crisis .no-aplica {
+  display: block;
+  align-self: center;
+  margin-top: calc(var(--u) * 16);
+  padding: 0;
+  background: none;
+  border: 0;
+  text-align: center;
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: rgb(11 18 14 / 0.72);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* The chrome over the cream sheet: «Necesito ayuda» and the initial in ink
+   (rule 4 of 16 Oct: on cream sheets the pill is rgb(241 233 218 / .6)). */
+:root:has(.pz.ayuda-pz.crisis) .app-header .help-pill {
+  background: rgb(241 233 218 / 0.6);
+  color: #0b120e;
+  border-color: rgb(11 18 14 / 0.45);
+}
+
+:root:has(.pz.ayuda-pz.crisis) .app-header .help-pill::before {
+  background: #0b120e;
+}
+
+:root:has(.pz.ayuda-pz.crisis) .app-header :is(.profile-button, .header-brand, .header-back) {
+  color: #0b120e;
+  border-color: rgb(11 18 14 / 0.45);
+  text-shadow: none;
+}
+
+/* ── Desktop: the same, at the centre ─────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .ayuda-pz .hoja-a {
+    --u: var(--d);
+    left: 50%;
+    right: auto;
+    top: 50%;
+    bottom: auto;
+    width: calc(var(--d) * 520);
+    max-height: calc(100% - 48px);
+    transform: translate(-50%, -50%);
+    border-radius: calc(var(--d) * 20);
+    padding-top: calc(var(--d) * 26);
+    animation-name: ayuda-aparece;
+  }
+
+  .ayuda-pz .hoja-a .asa {
+    display: none;
+  }
+
+  .ayuda-pz.crisis .cuerpo-c {
+    --u: var(--d);
+    left: 50%;
+    right: auto;
+    width: calc(var(--d) * 600);
+    transform: translateX(-50%);
+    padding: calc(var(--d) * 110) 0 calc(var(--d) * 30);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ayuda-pz .hoja-a {
+    animation: none;
+  }
+}

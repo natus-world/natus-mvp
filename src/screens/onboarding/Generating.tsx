@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { Ouroboros } from '@/design/Ouroboros';
 import { generateSoulMap } from '@/ai/soul-map';
 import type { SynthesisTrigger } from '@/lib/model-input';
@@ -10,6 +10,7 @@ import {
 } from '@/astrology/natal-chart';
 import { saveSynthesis } from '@/store/soulMap';
 import { attachSoulMap } from '@/store/session';
+import { markRevelationPending } from '@/store/revelation';
 import { attachSoulMapToClient, updateActiveProfile } from '@/store/account';
 import { AiError } from '@/ai/client';
 import type { Numerology } from '@/lib/schemas';
@@ -104,6 +105,9 @@ export function Generating({
         // ends up on the current map rather than the one it was created with.
         attachSoulMap(stored.id);
         attachSoulMapToClient(stored.id);
+        // Package 02: a map written in onboarding is revealed once before
+        // Carta shows it. A rewrite from the profile goes straight to Carta.
+        if (trigger === 'onboarding') markRevelationPending(stored.id);
         onDone();
       } catch (error) {
         await floor;
@@ -118,18 +122,66 @@ export function Generating({
     };
   }, [draft, numerology, onDone, onFailed, onCrisis, trigger]);
 
+  // Package 01 «Generando» (16 Oct 2026): the leaf with drops, an even veil
+  // of .14, the serpent turning once every 14 s and the stages lighting up.
   return (
-    <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil70}>
-      <div className="flex flex-col items-center justify-center gap-9 px-8 text-center flex-1">
-        <Ouroboros size={112} />
+    <Screen photo="hojaGotas" veil={0.14} glassAlpha={0.3}>
+      <div className="pz generando">
+        <div className="sc">
+          <p className="k">{text.kicker}</p>
+          <h1 className="t mt">
+            {text.titleLead}
+            <em>{text.titleEmphasis}</em>
+          </h1>
+          <p className="cuerpo">{text.wait}</p>
+        </div>
 
-        <div aria-live="polite" className="min-h-12">
-          <p className="font-serif text-[length:var(--fs-voice-22)] leading-snug font-light text-blanco">
-            {STAGES[stage]}
+        <div className="gen-m">
+          <div className="serp" aria-hidden="true">
+            <Ouroboros size={110} />
+          </div>
+          <p className="k">{text.loading}</p>
+        </div>
+
+        <p role="status" aria-live="polite" className="sr-only">
+          {STAGES[stage]}
+        </p>
+        <ul className="etapas">
+          {STAGES.map((label, i) => (
+            <li
+              key={label}
+              className={i < stage ? 'ya' : i === stage ? 'ahora' : undefined}
+              aria-current={i === stage ? 'step' : undefined}
+            >
+              <i aria-hidden="true" />
+              {label}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Screen>
+  );
+}
+
+/**
+ * The same screen when the generation failed (PDR 6.5): the message, that
+ * nothing was lost, and «Reintentar». The flows that run `Generating` keep
+ * their own failure state; this is what they show for it.
+ */
+export function GeneratingFailed({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <Screen photo="hojaGotas" veil={0.14} glassAlpha={0.3}>
+      <div className="pz generando">
+        <div className="sc">
+          <p className="k">{text.kicker}</p>
+          <p role="alert" className="fr mt">
+            {message}
           </p>
-          <p className="mt-2 text-[length:var(--fs-body-11)] tracking-wide text-crema/55">
-            {text.wait}
-          </p>
+        </div>
+        <div className="abajo">
+          <button type="button" className="btn p" onClick={onRetry}>
+            {text.retry}
+          </button>
         </div>
       </div>
     </Screen>

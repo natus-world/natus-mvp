@@ -1,1 +1,769 @@
-/* Package screen: entrada. Ported from the branding package (16 Oct 2026). */
+/*
+ * Entrada (package 01, 16 Oct 2026): Bienvenida, Crear cuenta / Revisa tu
+ * correo, the three steps and «Para cuidarte». Ported with the package's own
+ * class names and numbers. On the phone one column that scrolls, with the
+ * step's button held at the bottom; on desktop the text on the left over the
+ * veil and the form on the right in glass, as the package places them at
+ * 1440 — shifted by where the screen body starts (164 left, 48 right, 112 top).
+ *
+ * The form pieces are scoped to `.en-paso` as well as `.entrada`, because the
+ * birth data in Perfil is the same «¿Quién eres?» step.
+ */
+
+.pz.entrada {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Type ─────────────────────────────────────────────────────────────── */
+
+.entrada .t {
+  font-size: calc(var(--u) * 40);
+}
+
+/* The titles are headings here; they wrap as the package's paragraphs do. */
+:is(.entrada, .en-paso) h1 {
+  text-wrap: pretty;
+}
+
+.entrada .fr {
+  font-size: calc(var(--u) * 28);
+}
+
+:is(.entrada, .en-paso) .cuerpo {
+  margin-top: calc(var(--u) * 12);
+}
+
+:is(.entrada, .en-paso) .mt {
+  margin-top: calc(var(--u) * 14);
+}
+
+.entrada .logo {
+  font: 400 calc(var(--u) * 46) / 1 var(--font-serif);
+  letter-spacing: 0.2em;
+  color: var(--t1);
+  margin-bottom: 0;
+}
+
+.entrada .paso {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 12);
+  margin-top: calc(var(--u) * 10);
+}
+
+.entrada .paso b {
+  font: 300 calc(var(--u) * 84) / 0.9 var(--font-serif);
+  font-feature-settings: 'lnum' 1;
+  font-variant-numeric: lining-nums;
+}
+
+.entrada .paso span {
+  font: 500 calc(var(--u) * 12) / 1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--t2);
+}
+
+/* ── The progress line ────────────────────────────────────────────────── */
+
+.entrada .hz {
+  margin-top: calc(var(--u) * 24);
+}
+
+.entrada .hz .ln {
+  position: relative;
+  height: calc(var(--u) * 16);
+}
+
+.entrada .hz .ln::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--u) * 8);
+  right: calc(var(--u) * 4);
+  top: 50%;
+  height: 1px;
+  background: rgb(236 226 208 / 0.3);
+}
+
+.entrada .hz .ln i {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(var(--u) * 7);
+  height: calc(var(--u) * 7);
+  border-radius: 50%;
+  background: rgb(236 226 208 / 0.55);
+}
+
+.entrada .hz .ln i.on {
+  width: calc(var(--u) * 12);
+  height: calc(var(--u) * 12);
+  background: var(--t1);
+  box-shadow: 0 0 0 calc(var(--u) * 6) rgb(236 226 208 / 0.18);
+}
+
+.entrada .hz .ln em {
+  position: absolute;
+  left: calc(var(--u) * 8);
+  top: 50%;
+  height: 1px;
+  background: var(--t1);
+}
+
+.entrada .hz .nm {
+  display: flex;
+  justify-content: space-between;
+  margin-top: calc(var(--u) * 10);
+  font: 400 calc(var(--u) * 12) / 1 var(--font-sans);
+  color: var(--t3);
+}
+
+.entrada .hz .nm span.on {
+  color: var(--t1);
+}
+
+/* A step already done is how one goes back to it. */
+.entrada .hz .nm button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.entrada .hz .nm button:hover {
+  color: var(--t2);
+}
+
+/* ── Glass, fields and rows ───────────────────────────────────────────── */
+
+:is(.entrada, .en-paso) .bq {
+  margin-top: calc(var(--u) * 24);
+}
+
+:is(.entrada, .en-paso) .sigue {
+  margin-top: calc(var(--u) * 10);
+}
+
+:is(.entrada, .en-paso) .lista {
+  margin-top: calc(var(--u) * 14);
+}
+
+:is(.entrada, .en-paso) .campo {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 24) minmax(0, 1fr);
+  gap: calc(var(--u) * 14);
+  align-items: center;
+  padding: calc(var(--u) * 15) calc(var(--u) * 18);
+}
+
+:is(.entrada, .en-paso) :is(.campo + .campo, .opc + .opc) {
+  border-top: 1px solid rgb(236 226 208 / 0.12);
+}
+
+:is(.entrada, .en-paso) .campo > svg {
+  width: calc(var(--u) * 24);
+  height: calc(var(--u) * 24);
+}
+
+:is(.entrada, .en-paso) .campo:has(:focus-visible) {
+  background: rgb(236 226 208 / 0.04);
+}
+
+:is(.entrada, .en-paso) .campo.solo {
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--u) * 10);
+}
+
+:is(.entrada, .en-paso) .v {
+  display: block;
+  font: 400 calc(var(--u) * 16) / 1.3 var(--font-sans);
+  color: var(--t1);
+}
+
+/* What the person writes or picks is the value: no box of its own. */
+:is(.entrada, .en-paso) :is(input, select, textarea).v {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  outline: none;
+  appearance: none;
+  color-scheme: dark;
+}
+
+:is(.entrada, .en-paso) .v::placeholder,
+:is(.entrada, .en-paso) .v.ph {
+  color: var(--t3);
+}
+
+:is(.entrada, .en-paso) select.v {
+  cursor: pointer;
+}
+
+:is(.entrada, .en-paso) option {
+  background: #0b120e;
+  color: #ece2d0;
+}
+
+:is(.entrada, .en-paso) .v:disabled {
+  cursor: not-allowed;
+}
+
+:is(.entrada, .en-paso) .fecha {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 6);
+}
+
+:is(.entrada, .en-paso) .fecha input.v {
+  width: auto;
+  flex: none;
+  field-sizing: content;
+}
+
+:is(.entrada, .en-paso) .fecha span {
+  font: 400 calc(var(--u) * 16) / 1.3 var(--font-sans);
+  color: var(--t3);
+}
+
+:is(.entrada, .en-paso) .fecha input.v {
+  cursor: pointer;
+}
+
+/* No icon in the row: the picker opens on touch (package 01). */
+:is(.entrada, .en-paso) .fecha ::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+:is(.entrada, .en-paso) .l {
+  display: block;
+  font: 300 calc(var(--u) * 13) / 1.35 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 3);
+}
+
+:is(.entrada, .en-paso) .campo.solo .l {
+  margin: 0;
+}
+
+:is(.entrada, .en-paso) .l.error {
+  color: var(--natus-error);
+}
+
+/* The birth city: its suggestions open under it, inside the same row. */
+:is(.entrada, .en-paso) .ciudad {
+  margin-top: calc(var(--u) * 12);
+}
+
+:is(.entrada, .en-paso) .sug {
+  list-style: none;
+  margin: calc(var(--u) * 8) 0 0;
+  padding: 0;
+  border-top: 1px solid rgb(236 226 208 / 0.12);
+}
+
+:is(.entrada, .en-paso) .sug li {
+  padding: calc(var(--u) * 10) 0;
+  cursor: pointer;
+}
+
+:is(.entrada, .en-paso) .sug li + li {
+  border-top: 1px solid rgb(236 226 208 / 0.08);
+}
+
+:is(.entrada, .en-paso) .sug li[aria-selected='true'] .v {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+:is(.entrada, .en-paso) .chips {
+  display: flex;
+  gap: calc(var(--u) * 8);
+  flex-wrap: wrap;
+}
+
+:is(.entrada, .en-paso) .chip {
+  height: calc(var(--u) * 36);
+  padding: 0 calc(var(--u) * 14);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  font: 400 calc(var(--u) * 14) / 1 var(--font-sans);
+  color: var(--t1);
+  cursor: pointer;
+}
+
+:is(.entrada, .en-paso) .chip.on {
+  background: var(--t1);
+  color: #0b120e;
+  border-color: var(--t1);
+}
+
+:is(.entrada, .en-paso) .aviso {
+  font: 300 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 14);
+}
+
+:is(.entrada, .en-paso) .area {
+  display: block;
+  width: 100%;
+  min-height: calc(var(--u) * 120);
+  padding: calc(var(--u) * 16) calc(var(--u) * 18);
+  font: 300 calc(var(--u) * 16) / 1.5 var(--font-sans);
+  color: var(--t1);
+  resize: none;
+  outline: none;
+  field-sizing: content;
+}
+
+:is(.entrada, .en-paso) .area::placeholder {
+  color: var(--t3);
+}
+
+/* An option: a row of a glass card, a circle that fills when chosen. */
+:is(.entrada, .en-paso) .opc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) calc(var(--u) * 24);
+  gap: calc(var(--u) * 12);
+  align-items: center;
+  width: 100%;
+  padding: calc(var(--u) * 14) calc(var(--u) * 18);
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+:is(.entrada, .en-paso) .opc .v {
+  font-size: calc(var(--u) * 15);
+}
+
+:is(.entrada, .en-paso) .ck {
+  width: calc(var(--u) * 22);
+  height: calc(var(--u) * 22);
+  border-radius: 50%;
+  border: 1px solid rgb(236 226 208 / 0.45);
+  display: grid;
+  place-items: center;
+}
+
+:is(.entrada, .en-paso) .ck svg {
+  width: calc(var(--u) * 12);
+  height: calc(var(--u) * 12);
+}
+
+:is(.entrada, .en-paso) .opc.on .ck {
+  background: var(--t1);
+  border-color: var(--t1);
+  color: #0b120e;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+
+:is(.entrada, .en-paso) .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 10);
+  width: 100%;
+  height: calc(var(--u) * 56);
+  border: 0;
+  border-radius: calc(var(--u) * 8);
+  font: 500 calc(var(--u) * 17) / 1 var(--font-sans);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+:is(.entrada, .en-paso) .btn svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
+:is(.entrada, .en-paso) .btn .g {
+  width: calc(var(--u) * 18);
+  height: calc(var(--u) * 18);
+}
+
+:is(.entrada, .en-paso) .btn.p {
+  background: var(--t1);
+  color: #0b120e;
+}
+
+:is(.entrada, .en-paso) .btn.s {
+  background: none;
+  border: 1px solid rgb(236 226 208 / 0.45);
+  color: var(--t1);
+}
+
+:is(.entrada, .en-paso) :is(.btn.off, .btn:disabled) {
+  background: rgb(var(--v));
+  border: 1px solid rgb(236 226 208 / 0.28);
+  color: var(--t3);
+  cursor: not-allowed;
+}
+
+:is(.entrada, .en-paso) .link {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  font: 400 calc(var(--u) * 14) / 1.3 var(--font-sans);
+  color: var(--t2);
+  cursor: pointer;
+}
+
+:is(.entrada, .en-paso) .link u {
+  color: var(--t1);
+  text-underline-offset: 3px;
+}
+
+:is(.entrada, .en-paso) .falta {
+  font: 400 calc(var(--u) * 13) / 1.3 var(--font-sans);
+  color: var(--natus-error);
+  text-align: center;
+}
+
+/* The filled parts and what is written read without the photo's shadow. */
+.entrada :is(.btn.p, .ck, .on, .btn.off, .btn:disabled) {
+  text-shadow: none;
+}
+
+/* ── A step: on the phone, the button held at the bottom ──────────────── */
+
+.en-paso .pie {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 12);
+  margin-top: calc(var(--u) * 24);
+}
+
+.entrada .sc {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--u) * 8) calc(var(--u) * 24) 0;
+}
+
+.entrada .sc::-webkit-scrollbar {
+  display: none;
+}
+
+.entrada .sc > * {
+  flex: none;
+}
+
+@media (max-width: 1023.98px) {
+  .entrada .en-paso :is(.d-izq, .d-der, .d-lista) {
+    display: contents;
+  }
+
+  .entrada .en-paso .d-lista > :last-child {
+    margin-bottom: calc(var(--u) * 28);
+  }
+
+  .entrada .en-paso .pie {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    margin: auto calc(var(--u) * -24) 0;
+    padding: calc(var(--u) * 30) calc(var(--u) * 24) calc(var(--u) * 26);
+    background: linear-gradient(180deg, rgb(var(--v) / 0), rgb(var(--v) / 0.82) 38%, rgb(var(--v) / 0.9));
+  }
+}
+
+/* A low-severity signal in what was written: the banner stays above. */
+.entrada .aviso-crisis {
+  flex: none;
+  padding: calc(var(--u) * 8) calc(var(--u) * 16) 0;
+}
+
+/* ── Para cuidarte ────────────────────────────────────────────────────── */
+
+:is(.entrada, .en-paso) .priv {
+  display: flex;
+  gap: calc(var(--u) * 10);
+  align-items: flex-start;
+  font: 300 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 14);
+}
+
+:is(.entrada, .en-paso) .priv svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+  flex: none;
+  margin-top: calc(var(--u) * 1);
+}
+
+.cuidarte .sc > .d-izq > .k {
+  margin-top: calc(var(--u) * 40);
+}
+
+:is(.entrada, .en-paso) .preg {
+  margin-top: calc(var(--u) * 14);
+  padding: calc(var(--u) * 16) calc(var(--u) * 18);
+  display: grid;
+  gap: calc(var(--u) * 12);
+}
+
+:is(.entrada, .en-paso) .preg .q {
+  font: 400 calc(var(--u) * 16) / 1.4 var(--font-sans);
+  color: var(--t1);
+}
+
+:is(.entrada, .en-paso) .preg .l {
+  margin: 0;
+}
+
+:is(.entrada, .en-paso) .lista-r {
+  display: grid;
+  gap: calc(var(--u) * 8);
+}
+
+:is(.entrada, .en-paso) .lista-r .chip {
+  justify-content: flex-start;
+  width: 100%;
+  height: auto;
+  min-height: calc(var(--u) * 40);
+  padding: calc(var(--u) * 9) calc(var(--u) * 14);
+  line-height: 1.3;
+  text-align: left;
+}
+
+/* The optional note: the package draws the question; the field is ours. */
+:is(.entrada, .en-paso) .preg .nota {
+  display: block;
+  width: 100%;
+  min-height: calc(var(--u) * 72);
+  padding: calc(var(--u) * 10) calc(var(--u) * 12);
+  border: 1px solid rgb(236 226 208 / 0.3);
+  border-radius: calc(var(--u) * 8);
+  background: none;
+  font: 300 calc(var(--u) * 15) / 1.5 var(--font-sans);
+  color: var(--t1);
+  resize: none;
+  outline: none;
+  field-sizing: content;
+}
+
+:is(.entrada, .en-paso) .preg .nota:focus-visible {
+  border-color: rgb(236 226 208 / 0.6);
+}
+
+/* ── Bienvenida ───────────────────────────────────────────────────────── */
+
+.bienvenida .d-izq {
+  padding: calc(var(--u) * 128) calc(var(--u) * 24) 0;
+}
+
+.bienvenida .botones {
+  position: absolute;
+  left: calc(var(--u) * 24);
+  right: calc(var(--u) * 24);
+  bottom: calc(var(--u) * 34);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 14);
+}
+
+/* ── Crear cuenta / Revisa tu correo ──────────────────────────────────── */
+
+.cuenta .sc {
+  padding-bottom: calc(var(--u) * 40);
+}
+
+.cuenta .d-izq > .k:first-child {
+  margin-top: calc(var(--u) * 40);
+}
+
+.cuenta .botones {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 12);
+  margin-top: calc(var(--u) * 28);
+}
+
+.cuenta .botones .aviso {
+  margin-top: calc(var(--u) * 2);
+}
+
+.cuenta .botones .campo.correo {
+  padding: calc(var(--u) * 14) calc(var(--u) * 18);
+}
+
+.cuenta .botones .campo.correo .l {
+  margin: 0;
+}
+
+.cuenta .dir {
+  color: var(--t1);
+}
+
+.cuenta .correo-b {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  padding: calc(var(--u) * 16) calc(var(--u) * 18);
+}
+
+.cuenta .correo-b svg {
+  width: calc(var(--u) * 24);
+  height: calc(var(--u) * 24);
+  flex: none;
+}
+
+.cuenta .correo-b .l {
+  margin: 0;
+}
+
+.cuenta .legal {
+  margin-top: calc(var(--u) * 4);
+}
+
+@media (max-width: 1023.98px) {
+  .cuenta .botones.abajo {
+    position: absolute;
+    left: calc(var(--u) * 24);
+    right: calc(var(--u) * 24);
+    bottom: calc(var(--u) * 34);
+    margin: 0;
+  }
+}
+
+/* ── Desktop: text on the left, the form on the right ─────────────────── */
+
+@media (min-width: 1024px) {
+  .entrada .t {
+    font-size: calc(var(--d) * 60);
+    line-height: 1.02;
+  }
+
+  .entrada .fr {
+    font-size: calc(var(--d) * 40);
+  }
+
+  .entrada .logo {
+    font-size: calc(var(--d) * 72);
+  }
+
+  .entrada .paso b {
+    font-size: calc(var(--d) * 110);
+  }
+
+  .entrada .cuerpo {
+    font-size: calc(var(--d) * 17);
+  }
+
+  .entrada .sc {
+    position: relative;
+    display: block;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .entrada .d-izq {
+    position: absolute;
+    left: calc(var(--d) * 96 - var(--desk-left));
+    top: calc(var(--d) * 150 - var(--header-h));
+    width: calc(var(--d) * 560);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  /* Centred on the whole screen, not on the body under the header. */
+  .entrada .d-izq.medio {
+    top: calc(50vh - var(--header-h));
+    transform: translateY(-50%);
+  }
+
+  .entrada .d-der {
+    position: absolute;
+    right: calc(var(--d) * 96 - var(--desk-right));
+    top: calc(var(--d) * 112 - var(--header-h));
+    bottom: calc(var(--d) * 40);
+    width: calc(var(--d) * 500);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 14);
+  }
+
+  .entrada .d-lista {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: calc(var(--d) * 8) 0 calc(var(--d) * 24);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 12), #000 90%, transparent);
+    mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 12), #000 90%, transparent);
+  }
+
+  .entrada .d-lista::-webkit-scrollbar {
+    display: none;
+  }
+
+  .entrada .d-lista > :first-child {
+    margin-top: 0;
+  }
+
+  .entrada .en-paso .pie {
+    display: contents;
+  }
+
+  .entrada .falta {
+    margin: 0;
+  }
+
+  .cuidarte .sc > .d-izq > .k {
+    margin-top: 0;
+  }
+
+  .entrada .botones {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 14);
+    width: calc(var(--d) * 380);
+    margin-top: calc(var(--d) * 40);
+  }
+
+  .entrada .botones.ancho {
+    width: calc(var(--d) * 420);
+  }
+
+  .cuenta .d-izq > .k:first-child {
+    margin-top: 0;
+  }
+
+  .cuenta .botones .aviso {
+    margin: 0;
+  }
+
+  .entrada .aviso-crisis {
+    position: absolute;
+    left: calc(var(--d) * 96 - var(--desk-left));
+    bottom: calc(var(--d) * 40);
+    width: calc(var(--d) * 560);
+    z-index: 2;
+    padding: 0;
+  }
+}

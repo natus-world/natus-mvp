@@ -16,6 +16,9 @@ export type StoredComparison = {
   friendshipId: string;
   result: ComparisonResult;
   createdAt: string;
+  /** Whether the reader asked for it. The function writes the one who asked
+   *  as `a` and the friend as `b`, so this says which side is whose. */
+  askedByMe: boolean;
 };
 
 export class ComparisonsUnavailable extends Error {}
@@ -25,7 +28,7 @@ export async function latestComparison(friendshipId: string): Promise<StoredComp
   if (!supabase) throw new ComparisonsUnavailable('There is no backend configured.');
   const { data, error } = await supabase
     .from('chart_comparisons')
-    .select('id, friendship_id, result, created_at')
+    .select('id, friendship_id, user_id, result, created_at')
     .eq('friendship_id', friendshipId)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -38,10 +41,13 @@ export async function latestComparison(friendshipId: string): Promise<StoredComp
   const parsed = comparisonResultSchema.safeParse(data.result);
   if (!parsed.success) return null;
 
+  const { data: session } = await supabase.auth.getSession();
+
   return {
     id: data.id,
     friendshipId: data.friendship_id,
     result: parsed.data,
     createdAt: data.created_at,
+    askedByMe: data.user_id === session.session?.user.id,
   };
 }

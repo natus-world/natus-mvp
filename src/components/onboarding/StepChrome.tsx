@@ -1,82 +1,138 @@
-import type { ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { copy } from '@/i18n';
+import { ForwardIcon } from './icons';
 
 const twoDigits = (n: number) => String(n).padStart(2, '0');
 
-export function ProgressRow({
-  label,
-  step,
-  total,
-  onBack,
-}: {
-  label: string;
+/**
+ * Where the person is in the three steps (package 01, 16 Oct 2026). The
+ * onboarding provides it; a step rendered elsewhere — the birth data in
+ * Perfil, «Para cuidarte» — has none, and shows no number and no line.
+ */
+export type StepPlace = {
   step: number;
   total: number;
-  onBack?: (() => void) | undefined;
-}) {
+  /** Going back to a step already done: today's back button, on its name. */
+  onGoTo: (index: number) => void;
+};
+
+export const StepContext = createContext<StepPlace | null>(null);
+
+/**
+ * A question's title with its last word in italics, as the package sets
+ * every title: «¿Qué te estás preguntando *últimamente*?».
+ */
+export function emphasizeLast(sentence: string): ReactNode {
+  const match = /^(.*\s)(\S+?)([?.!»]*)$/u.exec(sentence);
+  if (!match) return sentence;
+  const [, lead, last, tail] = match;
   return (
-    <div className="mb-5">
-      <div className="mb-3 flex items-center gap-3">
-        {onBack ? (
-          <button
-            type="button"
-            onClick={onBack}
-            aria-label={copy.common.back}
-            className="circle-chip flex size-8 shrink-0 items-center justify-center text-[length:var(--fs-body-14)] leading-5 text-crema"
-          >
-            ←
-          </button>
-        ) : null}
-        <p className="eyebrow min-w-0 flex-1 truncate">{label}</p>
-      </div>
+    <>
+      {lead}
+      <em>{last}</em>
+      {tail}
+    </>
+  );
+}
 
-      <p
-        className="flex items-baseline gap-2.5"
-        aria-label={`${step} ${copy.onboarding.stepOf} ${total}`}
-      >
-        <span
-          aria-hidden="true"
-          className="font-serif text-[length:var(--fs-display)] leading-[var(--lh-heading-1_12)] font-light text-crema"
-        >
-          {twoDigits(step)}
-        </span>
-        <span aria-hidden="true" className="eyebrow">
-          {copy.onboarding.stepOf} {twoDigits(total)}
-        </span>
-      </p>
-
-      <div aria-hidden="true" className="mt-3 flex gap-1.5">
+/** The line under the title: three dots, the one on view lit, the way done filled. */
+function Progress({ step, total, onGoTo }: StepPlace) {
+  const names = copy.onboarding.steps;
+  const at = (i: number) => (i === 0 ? 'calc(var(--u) * 8)' : i === total - 1 ? 'calc(100% - var(--u) * 4)' : '50%');
+  const filled = step === 1 ? 'calc(var(--u) * 80)' : step === total ? 'calc(100% - var(--u) * 12)' : 'calc(50% - var(--u) * 8)';
+  return (
+    <div className="hz">
+      <div className="ln" aria-hidden="true">
+        <em style={{ width: filled }} />
         {Array.from({ length: total }, (_, i) => (
-          <span
-            key={i}
-            className={['h-px flex-1', i < step ? 'bg-crema/70' : 'bg-crema/20'].join(' ')}
-          />
+          <i key={i} className={i === step - 1 ? 'on' : undefined} style={{ left: at(i) }} />
         ))}
+      </div>
+      <div className="nm">
+        {names.slice(0, total).map((name, i) =>
+          i < step - 1 ? (
+            <button key={name} type="button" onClick={() => onGoTo(i)} aria-label={`${copy.common.back}: ${name}`}>
+              {name}
+            </button>
+          ) : (
+            <span key={name} className={i === step - 1 ? 'on' : undefined} aria-current={i === step - 1 ? 'step' : undefined}>
+              {name}
+            </span>
+          ),
+        )}
       </div>
     </div>
   );
 }
 
+/**
+ * One step of the entrance, as package 01 lays it out. On the phone one
+ * column that scrolls, with the button held at the bottom; on desktop the
+ * question on the left and the form on the right, in glass.
+ */
 export function StepBody({
+  kicker,
   title,
   helper,
+  aside,
   children,
   action,
+  missing,
 }: {
+  kicker?: string;
   title: ReactNode;
   helper?: string;
+  /** Under the helper, on the left on desktop (the privacy line of «Para cuidarte»). */
+  aside?: ReactNode;
   children: ReactNode;
   action: ReactNode;
+  /** What is still missing, said under the button. */
+  missing?: string | null;
+}) {
+  const place = useContext(StepContext);
+  const label = kicker ?? (place ? copy.onboarding.kicker : undefined);
+  return (
+    <div className="sc en-paso">
+      <div className="d-izq">
+        {label && <p className="k">{label}</p>}
+        {place && (
+          <p className="paso" aria-label={`${place.step} ${copy.onboarding.stepOf} ${place.total}`}>
+            <b aria-hidden="true">{twoDigits(place.step)}</b>
+            <span aria-hidden="true">
+              {copy.onboarding.stepOf} {twoDigits(place.total)}
+            </span>
+          </p>
+        )}
+        <h1 className={label ? 't mt' : 't'}>{title}</h1>
+        {helper && <p className="cuerpo">{helper}</p>}
+        {aside}
+        {place && <Progress {...place} />}
+      </div>
+      <div className="d-der">
+        <div className="d-lista">{children}</div>
+        <div className="pie">
+          {action}
+          {missing && <p className="falta">{missing}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** The step's one button: cream when it can go on, dark until then. */
+export function NextButton({
+  disabled,
+  onClick,
+  children = copy.common.continue,
+}: {
+  disabled: boolean;
+  onClick: () => void;
+  children?: ReactNode;
 }) {
   return (
-    <>
-      <h2 className="mb-2 text-[length:var(--fs-heading-28)] leading-[var(--lh-heading-1_18)] text-blanco">{title}</h2>
-      {helper && <p className="mb-5 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">{helper}</p>}
-      {!helper && <div className="mb-5" />}
-
-      <div className="-mx-1 flex-1 overflow-y-auto px-1 pb-2">{children}</div>
-
-      <div className="shrink-0 pt-4">{action}</div>
-    </>
+    <button type="button" className={disabled ? 'btn off' : 'btn p'} disabled={disabled} onClick={onClick}>
+      {children}
+      <ForwardIcon />
+    </button>
   );
 }

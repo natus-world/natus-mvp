@@ -11,35 +11,29 @@ import { CrisisResourceList } from './CrisisResourceList';
  * the plan proposes. Persistent, not dismissible for the session — it can be
  * collapsed, not removed, because the whole point is that it stays available
  * while the person keeps using the product.
+ *
+ * The package draws no banner; open, it is the chat's box of lines for a low
+ * signal (package 10), so the two read as one thing.
  */
 export function CrisisBanner({ country }: { country: string | undefined }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="banner mx-2 px-3.5 py-2.5">
+    <div className="pz ayuda-pz lineas">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center gap-2.5 text-left"
+        className="lineas-cab"
       >
-        <span
-          aria-hidden="true"
-          className="size-2 shrink-0 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]"
-        />
-        <span className="flex-1 text-[length:var(--fs-body-12)] leading-snug text-crema/80">
-          {copy.crisisBanner.label}
-        </span>
-        <span aria-hidden="true" className="shrink-0 text-[length:var(--fs-micro-12)] leading-4 text-crema/55">
+        <span aria-hidden="true" className="punto" />
+        <span className="lt">{copy.crisisBanner.label}</span>
+        <span aria-hidden="true" className="mas">
           {open ? '−' : '+'}
         </span>
       </button>
 
-      {open && (
-        <div className="pt-3">
-          <CrisisResourceList country={country} compact />
-        </div>
-      )}
+      {open && <CrisisResourceList country={country} tone="dark" />}
     </div>
   );
 }

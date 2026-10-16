@@ -413,6 +413,10 @@
     .app-header .phone-only {
       display: none;
     }
+
+    .app-header[data-norail] {
+      left: 96px;
+    }
   }
 
   /* On the phone a sub-screen has no initial and no tab bar. */

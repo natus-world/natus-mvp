@@ -1,14 +1,63 @@
 import { copy } from '@/i18n';
 import { useEffect, useState } from 'react';
-import { fetchQuota } from '@/store/quota';
+import { fetchQuota, renewalDate } from '@/store/quota';
 import { PayPalSubscribe } from './PayPalSubscribe';
 import { track } from '@/store/funnel';
-import type { PlanFeature } from '@/lib/quota';
 
 const text = copy.paywall;
 
+/** Where this sheet is shown; the chat draws its own («Seguir conversando», package 10). */
+type SheetFeature = 'meditation' | 'comparison';
+
+/** The package's check (`OK`, stroke 1.4). */
+function CheckGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
+
+/** «16 de noviembre», from a local date. */
+function dayName(date: Date): string {
+  return `${date.getDate()} de ${copy.quota.months[date.getMonth()]}`;
+}
+
 /**
- * The end of the free questions. PDR section 3.
+ * The free month day by day, from today: PayPal's trial is one month, and the
+ * first charge falls on the same day of the next one.
+ */
+function FreeMonth() {
+  const today = new Date();
+  // The 31st of a shorter month is its last day, not the 1st of the next.
+  const charge = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+  if (charge.getDate() !== today.getDate()) charge.setDate(0);
+  const eve = new Date(charge.getFullYear(), charge.getMonth(), charge.getDate() - 1);
+  const cal = text.calendar;
+  return (
+    <div className="mes" role="group" aria-label={cal.label}>
+      <p className="k">{cal.label}</p>
+      <ol>
+        <li>
+          <b>{cal.today}</b>
+          <span>{cal.start}</span>
+        </li>
+        <li>
+          <b>{cal.until(dayName(eve))}</b>
+          <span>{cal.cancel}</span>
+        </li>
+        <li>
+          <b>{dayName(charge)}</b>
+          <span>{cal.charge}</span>
+        </li>
+      </ol>
+    </div>
+  );
+}
+
+/**
+ * The end of what a free plan includes, over meditations and comparisons:
+ * package 13 (16 Oct 2026), the chat's sheet with what Premium adds.
  *
  * Two rules shape this component. It never appears over a crisis turn — the
  * caller checks safety first, and PDR 1.6 forbids a commercial fallback in
@@ -17,19 +66,22 @@ const text = copy.paywall;
  * this.
  *
  * Premium is taken out with PayPal for now (one free month, then US$10), a
- * bridge until dLocal Go (v1.2 P-01). Activation is manual and only the server
- * can make anybody premium. The simulated subscription it used to offer is
- * gone: it changed nothing on the server.
+ * bridge until dLocal Go (v1.2 P-01). Only the server can make anybody
+ * premium.
  */
-export function Paywall({ feature, onDismiss }: { feature: PlanFeature; onDismiss: () => void }) {
+export function Paywall({ feature, onDismiss }: { feature: SheetFeature; onDismiss: () => void }) {
   // After a crisis alert the server holds the offer back for seven days
   // (decided 15 Oct 2026): what is used up is still said, Premium is not.
   // Unknown until the server answers, so the offer never flashes.
   const [offer, setOffer] = useState<boolean | null>(null);
+  const [renewsOn, setRenewsOn] = useState('');
+  const [trying, setTrying] = useState(false);
   useEffect(() => {
     let live = true;
     void fetchQuota(feature).then((q) => {
-      if (live) setOffer(q ? q.offerPremium : true);
+      if (!live) return;
+      setOffer(q ? q.offerPremium : true);
+      setRenewsOn(q?.renewsOn ?? '');
     });
     return () => {
       live = false;
@@ -40,37 +92,64 @@ export function Paywall({ feature, onDismiss }: { feature: PlanFeature; onDismis
     if (offer) track('paywall_seen', feature);
   }, [feature, offer]);
 
+  if (offer === null) return null;
+  // Free meditations do not renew; the comparisons say when they come back,
+  // so nobody feels they have to pay now.
+  const next = feature === 'comparison' && renewsOn ? text.renew(renewalDate(renewsOn)) : null;
+
   return (
-    <div
-      role="dialog"
-      aria-label={text.label}
-      className="surface surface-p16"
-    >
-      <p className="eyebrow mb-2">{text.kicker}</p>
-      <h2 className="mb-2 text-[length:var(--fs-heading-17)] leading-snug text-blanco">
-        {text.title[feature]}
-      </h2>
-      <p className="mb-3.5 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-        {text.body[feature]}
-      </p>
-
-      {offer && (
-        <div className="mb-3.5 border-t border-crema/15 pt-3">
-          <p className="text-[length:var(--fs-body-13)] text-blanco">{text.offerTitle}</p>
-          <p className="mt-1 mb-3 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-            {text.offerBody}
-          </p>
-          <PayPalSubscribe />
-        </div>
-      )}
-
-      <button
-        type="button"
-        onClick={onDismiss}
-        className="chip chip-p10 w-full text-crema/60"
-      >
-        {text.back}
-      </button>
+    <div className="premium">
+      <div className="velo-p" aria-hidden="true" />
+      <div className="hoja-p" role="dialog" aria-label={text.label}>
+        <p className="k">{text.kicker}</p>
+        <p className="t">
+          {text.titleLead[feature]}
+          <em>{text.titleEmphasis[feature]}</em>
+        </p>
+        <p className="x">{text.kept}</p>
+        {offer ? (
+          <>
+            <ul className="incluye">
+              {text.includes.map((line) => (
+                <li key={line}>
+                  <CheckGlyph />
+                  {line}
+                </li>
+              ))}
+            </ul>
+            <div className="precio">
+              <b>{text.price}</b>
+              <span>
+                {text.period}
+                <br />
+                {text.cancel}
+              </span>
+            </div>
+            {trying && <FreeMonth />}
+            <div className="bts">
+              {trying ? (
+                <div className="pago">
+                  <PayPalSubscribe />
+                </div>
+              ) : (
+                <button type="button" className="bt-c" onClick={() => setTrying(true)}>
+                  {text.trial}
+                </button>
+              )}
+              <button type="button" className="bt-o" onClick={onDismiss}>
+                {text.notNow}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="bts">
+            <button type="button" className="bt-o" onClick={onDismiss}>
+              {text.back}
+            </button>
+          </div>
+        )}
+        {next && <p className="prox">{next}</p>}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { StepBody } from '@/components/onboarding/StepChrome';
+import { NextButton, StepBody, emphasizeLast } from '@/components/onboarding/StepChrome';
 import { OptionItem } from '@/components/onboarding/OptionItem';
 import { presentingNeedsFile, PRESENTING_NEEDS } from '@/lib/catalog';
 import type { OnboardingDraft } from '@/store/session';
@@ -34,40 +34,33 @@ export function PresentingNeed({
   const canContinue =
     draft.presenting_need_text.trim().length > 2 || draft.presenting_need_slugs.length > 0;
 
+  // Package 01: free text that grows with what is written, and eight
+  // shortcuts in one glass card. Either, or both.
   return (
     <StepBody
-      title={presentingNeedsFile.prompt_es}
+      title={emphasizeLast(presentingNeedsFile.prompt_es)}
       helper={presentingNeedsFile.helper_es}
-      action={
-        <button type="button" className="cta" disabled={!canContinue} onClick={onNext}>
-          {copy.common.continue}
-          <span aria-hidden="true">→</span>
-        </button>
-      }
+      action={<NextButton disabled={!canContinue} onClick={onNext} />}
     >
-      <div className="flex flex-col gap-3">
-        <label className="sr-only" htmlFor="presenting-need">
-          {presentingNeedsFile.prompt_es}
-        </label>
-        <textarea
-          id="presenting-need"
-          rows={3}
-          className="field w-full resize-none text-[length:var(--fs-body-14)] leading-relaxed placeholder:text-crema/55"
-          placeholder={copy.onboarding.presentingNeed.placeholder}
-          value={draft.presenting_need_text}
-          onChange={(e) => onChange({ presenting_need_text: e.target.value })}
-        />
+      <textarea
+        id="presenting-need"
+        aria-label={presentingNeedsFile.prompt_es}
+        rows={3}
+        className="vid area bq"
+        placeholder={copy.onboarding.presentingNeed.placeholder}
+        value={draft.presenting_need_text}
+        onChange={(e) => onChange({ presenting_need_text: e.target.value })}
+      />
 
-        <div className="flex flex-col gap-2">
-          {PRESENTING_NEEDS.map((need) => (
-            <OptionItem
-              key={need.slug}
-              label={need.label_es}
-              selected={draft.presenting_need_slugs.includes(need.slug)}
-              onToggle={() => toggle(need.slug)}
-            />
-          ))}
-        </div>
+      <div className="vid lista">
+        {PRESENTING_NEEDS.map((need) => (
+          <OptionItem
+            key={need.slug}
+            label={need.label_es}
+            selected={draft.presenting_need_slugs.includes(need.slug)}
+            onToggle={() => toggle(need.slug)}
+          />
+        ))}
       </div>
     </StepBody>
   );

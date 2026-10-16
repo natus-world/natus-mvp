@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { StepBody } from '@/components/onboarding/StepChrome';
-import { OptionItem } from '@/components/onboarding/OptionItem';
+import { useState, type ReactNode } from 'react';
+import { NextButton, StepBody } from '@/components/onboarding/StepChrome';
+import { LockIcon } from '@/components/onboarding/icons';
 import type { ClinicalBasics as Answers, IdeationAnswer } from '@/lib/safety';
 import { answerYesNo, type Skippable } from '@/store/care';
 import { copy } from '@/i18n';
@@ -21,6 +21,9 @@ import { copy } from '@/i18n';
  *
  * The fourth question (v1.2 O-06) is free text and optional. It is scanned for
  * crisis on submit and never reaches a model.
+ *
+ * Drawn as package 01 «Para cuidarte» (16 Oct 2026): each question in its own
+ * glass card, the answers as pills.
  */
 
 const text = copy.onboarding.care;
@@ -30,110 +33,128 @@ const NOTES_MAX = 2000;
 
 const IDEATION_ORDER: IdeationAnswer[] = ['no', 'fugaces_sin_plan', 'frecuentes', 'plan_o_intencion'];
 
-function Question({ children, label }: { label: string; children: React.ReactNode }) {
+function Question({
+  id,
+  label,
+  stacked = false,
+  children,
+}: {
+  id: string;
+  label: string;
+  stacked?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <fieldset className="border-0 p-0">
-      <legend className="mb-2.5 text-[length:var(--fs-body-13)] leading-snug text-blanco">{label}</legend>
-      <div className="flex flex-col gap-2">{children}</div>
-    </fieldset>
+    <div className="vid preg" role="radiogroup" aria-labelledby={id}>
+      <p className="q" id={id}>
+        {label}
+      </p>
+      <div className={stacked ? 'lista-r' : 'chips'}>{children}</div>
+    </div>
+  );
+}
+
+function Answer({ label, selected, onChoose }: { label: string; selected: boolean; onChoose: () => void }) {
+  return (
+    <button type="button" role="radio" aria-checked={selected} onClick={onChoose} className={selected ? 'chip on' : 'chip'}>
+      {label}
+    </button>
   );
 }
 
 export function ClinicalBasics({
   initial,
   busy,
+  actionLabel,
   onSubmit,
 }: {
   initial: Answers;
   busy: boolean;
+  /** «Ver mis caminos» when Caminos comes next, «Continuar» otherwise. */
+  actionLabel: string;
   onSubmit: (answers: Answers) => void;
 }) {
   const [basics, setBasics] = useState<Answers>(initial);
   const skipped = new Set(basics.prefer_not_to_say ?? []);
 
   const yesNo = (field: Skippable, label: string) => (
-    <Question label={label}>
-      <OptionItem
+    <Question id={`care-${field}`} label={label}>
+      <Answer
         label={text.yes}
-        multi={false}
         selected={basics[field] === true}
-        onToggle={() => setBasics(answerYesNo(basics, field, true))}
+        onChoose={() => setBasics(answerYesNo(basics, field, true))}
       />
-      <OptionItem
+      <Answer
         label={text.no}
-        multi={false}
         selected={basics[field] === false}
-        onToggle={() => setBasics(answerYesNo(basics, field, false))}
+        onChoose={() => setBasics(answerYesNo(basics, field, false))}
       />
-      <OptionItem
+      <Answer
         label={text.preferNotToSay}
-        multi={false}
         selected={skipped.has(field)}
-        onToggle={() => setBasics(answerYesNo(basics, field, 'skip'))}
+        onChoose={() => setBasics(answerYesNo(basics, field, 'skip'))}
       />
     </Question>
   );
 
   return (
     <StepBody
+      kicker={text.kicker}
       title={
         <>
           {text.titleLead}
-          <br />
+          <em>{text.titleEmphasis}</em>
           {text.titleTail}
         </>
       }
+      helper={text.intro}
+      aside={
+        <p className="priv">
+          <LockIcon />
+          {text.privacy}
+        </p>
+      }
       action={
-        <button
-          type="button"
-          className="cta"
-          disabled={basics.ideation_6m === undefined || busy}
-          onClick={() => onSubmit(basics)}
-        >
-          {busy ? text.saving : copy.common.continue}
-          <span aria-hidden="true">→</span>
-        </button>
+        <NextButton disabled={basics.ideation_6m === undefined || busy} onClick={() => onSubmit(basics)}>
+          {busy ? text.saving : actionLabel}
+        </NextButton>
       }
     >
-      <div className="flex flex-col gap-6">
-        <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/60">
-          {text.intro}
-          <br />
-          <br />
-          <span className="text-crema/55">{text.privacy}</span>
-        </p>
-
-        <Question label={text.ideationLabel}>
-          {IDEATION_ORDER.map((value) => (
-            <OptionItem
-              key={value}
-              label={text.ideationOptions[value]}
-              multi={false}
-              selected={basics.ideation_6m === value}
-              onToggle={() => setBasics({ ...basics, ideation_6m: value })}
-            />
-          ))}
-        </Question>
-
-        {yesNo('in_treatment', text.treatmentLabel)}
-        {yesNo('psychiatric_medication', text.medicationLabel)}
-
-        <label className="flex flex-col gap-2">
-          <span className="text-[length:var(--fs-body-13)] leading-snug text-blanco">{text.notesLabel}</span>
-          <span className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">{text.notesHint}</span>
-          <textarea
-            className="field min-h-24 resize-none text-[length:var(--fs-body-14)] leading-relaxed"
-            maxLength={NOTES_MAX}
-            value={basics.additional_notes ?? ''}
-            onChange={(event) => {
-              const next: Answers = { ...basics };
-              const value = event.target.value;
-              if (value.trim() === '') delete next.additional_notes;
-              else next.additional_notes = value;
-              setBasics(next);
-            }}
+      <Question id="care-ideation" label={text.ideationLabel} stacked>
+        {IDEATION_ORDER.map((value) => (
+          <Answer
+            key={value}
+            label={text.ideationOptions[value]}
+            selected={basics.ideation_6m === value}
+            onChoose={() => setBasics({ ...basics, ideation_6m: value })}
           />
+        ))}
+      </Question>
+
+      {yesNo('in_treatment', text.treatmentLabel)}
+      {yesNo('psychiatric_medication', text.medicationLabel)}
+
+      <div className="vid preg">
+        <label className="q" htmlFor="care-notes">
+          {text.notesLabel}
         </label>
+        <p className="l" id="care-notes-hint">
+          {text.notesHint}
+        </p>
+        <textarea
+          id="care-notes"
+          className="nota"
+          aria-describedby="care-notes-hint"
+          maxLength={NOTES_MAX}
+          value={basics.additional_notes ?? ''}
+          onChange={(event) => {
+            const next: Answers = { ...basics };
+            const value = event.target.value;
+            if (value.trim() === '') delete next.additional_notes;
+            else next.additional_notes = value;
+            setBasics(next);
+          }}
+        />
       </div>
     </StepBody>
   );

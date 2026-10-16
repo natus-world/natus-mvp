@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { CrisisResourceList } from '@/components/CrisisResourceList';
 import { useTakeover } from '@/components/takeover';
 
 /**
  * The full-screen takeover for high severity. PDR 6.4.
+ *
+ * Package 12 (16 Oct 2026): a cream sheet, no photograph — plain background,
+ * large letters, clear numbers, nothing to distract. Containment, the lines,
+ * «Volver» and, discreet, «Esto no aplica a mi caso».
  *
  * What this screen deliberately does not do: interpret, symbolise, offer a
  * reading of the natal chart, suggest a modality, or upsell anything. PDR 1.6
@@ -31,55 +34,39 @@ export function CrisisScreen({
   useTakeover();
 
   return (
-    <Screen backdrop="rio" scrim="diagonal" opacity={PHOTO.content50}>
-      <div className="flex flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-9">
-        <div className="mb-6 flex items-center gap-2.5">
-          <span aria-hidden="true" className="size-2 rounded-full bg-error shadow-[0_0_8px_var(--natus-error)]" />
-          <p className="eyebrow">{copy.crisisScreen.kicker}</p>
-        </div>
-
-        <h1 className="mb-5 text-[length:var(--fs-title-30)] text-blanco">
+    <div className="pz ayuda-pz crisis">
+      <div className="cuerpo-c">
+        <p className="k">{copy.crisisScreen.kicker}</p>
+        <h1 className="t">
           {copy.crisisScreen.titleLead}
-          <span className="font-serif text-crema italic">{copy.crisisScreen.titleEmphasis}</span>
+          <em>{copy.crisisScreen.titleEmphasis}</em>
         </h1>
+        <p className="x">{message ?? copy.crisisScreen.message}</p>
 
-        <p className="mb-8 text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">
-          {message ?? copy.crisisScreen.message}
-        </p>
+        <CrisisResourceList country={country} tone="paper" />
 
-        <CrisisResourceList country={country} />
+        {onBack && (
+          <button type="button" className="volver-b" onClick={onBack}>
+            {copy.crisisScreen.back}
+          </button>
+        )}
 
-        <div className="mt-8 flex flex-col gap-3">
-          {onBack && (
-            <button type="button" className="cta" onClick={onBack}>
-              {copy.crisisScreen.back}
-            </button>
-          )}
+        {onNotMyCase && (
+          /*
+           * PDR 6.4. Discreet on purpose: it must exist, and it must not
+           * read as an invitation to dismiss the screen. Without it,
+           * someone who wrote "ya no aguanto este trabajo" is locked out of
+           * the product with no way back.
+           */
+          <button type="button" className="no-aplica" onClick={onNotMyCase}>
+            {copy.crisisScreen.notMyCase}
+          </button>
+        )}
 
-          {onNotMyCase && (
-            /*
-             * PDR 6.4. Discreet on purpose: it must exist, and it must not
-             * read as an invitation to dismiss the screen. Without it,
-             * someone who wrote "ya no aguanto este trabajo" is locked out of
-             * the product with no way back.
-             */
-            <button
-              type="button"
-              onClick={onNotMyCase}
-              className="self-center px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
-            >
-              {copy.crisisScreen.notMyCase}
-            </button>
-          )}
-
-          <Link
-            to="/perfil"
-            className="self-center px-2 py-1 text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
-          >
-            {copy.crisisScreen.data}
-          </Link>
-        </div>
+        <Link to="/perfil" className="no-aplica">
+          {copy.crisisScreen.data}
+        </Link>
       </div>
-    </Screen>
+    </div>
   );
 }
