@@ -133,6 +133,40 @@ export async function signInWithGoogle(): Promise<void> {
   if (error) throw new AuthError(error.message);
 }
 
+/**
+ * Keep everything already answered and give it a Google account (launch,
+ * owner, 16 Oct 2026: Google only until there is a mail service).
+ *
+ * Links Google to the anonymous `auth.users` row that has existed since the
+ * first page load, so its id — and every row keyed to it — stays. Needs
+ * manual linking enabled in the project's Auth settings. After the round
+ * trip, `completeLinkedSignup` (store/account-link.ts) creates the account
+ * from the address Google returns.
+ */
+export async function linkGoogle(): Promise<void> {
+  if (!supabase) throw new AuthError('There is no backend configured.');
+
+  const { error } = await supabase.auth.linkIdentity({
+    provider: 'google',
+    options: {
+      redirectTo: new URL(import.meta.env.BASE_URL, window.location.origin).toString(),
+    },
+  });
+
+  if (error) throw new AuthError(error.message);
+}
+
+/**
+ * What came back in the address after a Google round trip that failed, if
+ * anything: `identity_already_exists` means that Google account already has
+ * its own Natus space.
+ */
+export function oauthErrorInUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, '') || window.location.search);
+  return params.get('error_code') ?? params.get('error');
+}
+
 export async function signOut(): Promise<void> {
   await supabase?.auth.signOut();
 }

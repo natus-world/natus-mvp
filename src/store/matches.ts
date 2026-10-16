@@ -192,3 +192,4 @@ export function rateCheckIn(title: string, today: string, rating: number, commen
 export function totalCheckIns(title: string): number {
   return listCheckIns().filter((c) => c.practice_title === title).length;
 }
+

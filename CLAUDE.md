@@ -140,13 +140,27 @@ holds the answer to `lintChartJudgement`. The Soul Map is written again every
 keeps the paths, the routine and the conversation (`onlyMonthlySince`), and
 Carta shows «Actualizado el …» and the previous version. Texts approved by
 the owner, 16 Oct 2026.
-Decided and not built: editing the birth data in the profile (owner, 16 Oct
-2026) recalculates the chart and numbers, regenerates the Soul Map with Opus
-(M-02) and chooses the therapies and the routine again, because the why of
-each therapy cites the chart.
-Sign-in (owner, 16 Oct 2026): Google plus a link by email now, Apple once
-there is an Apple developer account. The email link waits on a mail service
-the owner opens (Resend) and connects to natus.world as Supabase's SMTP. The
+The birth data is editable in the profile (M-02, built 16 Oct 2026,
+`/perfil/nacimiento`, the onboarding's own «¿Quién eres?» step): a change to
+the birth fields recalculates the chart and numbers and writes the Soul Map
+again with Opus (`base_data_changed`); Caminos then chooses the therapies
+again (`currentMatchFor` stops matching across such a rewrite, the
+reactions carry over) and the routine follows, because the why of each
+therapy cites the chart (owner, 16 Oct 2026). Until Caminos runs, Rutina
+shows its empty state rather than the old routine.
+Sign-in for the launch is Google only (owner, 16 Oct 2026); the email link
+and Apple come later. Saving the map links Google to the anonymous row
+(`linkGoogle`, which needs manual linking on in the project's Auth settings)
+and `completeLinkedSignup` creates the account on the way back; the landing
+offers «Ya tengo cuenta: entrar con Google» for another device. Both appear
+only once the project has Google switched on (`googleSignInEnabled` reads
+the published Auth settings); until then the email form stays. **Google is
+not switched on in production** (checked 16 Oct 2026): the owner has to
+create the OAuth client and consent screen in Google Cloud (it asks for a
+privacy policy URL), paste the client id and secret into Supabase's Google
+provider, allow manual linking, and add https://app.natus.world to the
+redirect URLs. The texts «Guardar con Google», «Ya tengo cuenta: entrar con
+Google» and the note under the button are proposals. The
 plan, its order and the questions still open for the owner are in his doc
 «Guía de actualización de la app Natus»
 (https://claude.ai/artifact/9rw3grB3r7FQ6FVmnWfbbw); the requirements as agreed,

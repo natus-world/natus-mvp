@@ -162,6 +162,15 @@ export const es = {
     noAccountBody: 'Todo lo tuyo vive en este navegador y caduca a los siete días.',
     saveMap: 'Guardar mi mapa',
     genderKicker: 'Cómo quieres que te hablemos',
+    // v1.2 M-02, approved by the owner (16 Oct 2026).
+    birth: {
+      kicker: 'Tus datos de nacimiento',
+      change: 'Cambiar',
+      confirm:
+        'Al cambiar tus datos recalculamos tu carta y tus números, y escribimos de nuevo tu Mapa del Alma. El anterior queda guardado.',
+      save: 'Guardar',
+      noTime: 'Sin hora',
+    },
     exportKicker: 'Descargar mis datos',
     exportBody:
       'Un archivo JSON con todo: tus respuestas, tu mapa, tus caminos y tus marcas de rutina. Descargarlo no borra nada.',
@@ -576,6 +585,12 @@ export const es = {
       'En esta versión no se envía ningún correo ni se crea ninguna cuenta en ningún servidor. La dirección queda escrita en este navegador y nada más. Puedes borrar todo en un clic desde tu perfil.',
     saving: 'Guardando…',
     create: 'Crear mi cuenta',
+    // Launch with Google only (owner, 16 Oct 2026); proposed texts.
+    google: 'Guardar con Google',
+    googleNote: 'Usamos tu cuenta de Google solo para que puedas volver a entrar, desde este o desde otro dispositivo.',
+    googleTaken:
+      'Esa cuenta de Google ya tiene su propio espacio en Natus. Para usarla, entra con ella desde el inicio.',
+    googleFailed: 'No pudimos abrir el ingreso con Google. Inténtalo de nuevo en un momento.',
     later: 'Ahora no',
   },
   gate: {
@@ -596,6 +611,7 @@ export const es = {
     helper: 'Un espejo para lo que estás atravesando. Sin cuenta, sin diagnóstico.',
     returning: 'Volver a mi espacio',
     start: 'Comenzar',
+    signIn: 'Ya tengo cuenta: entrar con Google',
     restart: 'Empezar de nuevo',
   },
   notFound: {

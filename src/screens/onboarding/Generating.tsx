@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { PHOTO, Screen } from '@/design/Screen';
 import { Ouroboros } from '@/design/Ouroboros';
 import { generateSoulMap } from '@/ai/soul-map';
+import type { SynthesisTrigger } from '@/lib/model-input';
 import {
   calculateNatalChart,
   shouldCalculateNatalChart,
   NatalChartError,
 } from '@/astrology/natal-chart';
 import { saveSynthesis } from '@/store/soulMap';
-import { attachSoulMap, updateDraft } from '@/store/session';
-import { attachSoulMapToClient } from '@/store/account';
+import { attachSoulMap } from '@/store/session';
+import { attachSoulMapToClient, updateActiveProfile } from '@/store/account';
 import { AiError } from '@/ai/client';
 import type { Numerology } from '@/lib/schemas';
 import type { OnboardingDraft } from '@/store/session';
@@ -41,9 +42,12 @@ export function Generating({
   onDone,
   onFailed,
   onCrisis,
+  trigger = 'onboarding',
 }: {
   draft: OnboardingDraft;
   numerology: Numerology | null;
+  /** v1.2 M-02: `base_data_changed` when the person edited their birth data. */
+  trigger?: SynthesisTrigger;
   onDone: () => void;
   onFailed: (message: string) => void;
   onCrisis: (error: AiError) => void;
@@ -74,14 +78,15 @@ export function Generating({
           if (!draft.natal_chart && shouldCalculateNatalChart(draft)) {
             try {
               const chart = await calculateNatalChart(draft);
-              updateDraft({ natal_chart: chart });
+              // The account's profile after signup, the session's before it.
+              updateActiveProfile({ natal_chart: chart });
               enrichedDraft = { ...draft, natal_chart: chart };
             } catch (error) {
               if (!(error instanceof NatalChartError)) throw error;
             }
           }
 
-          return generateSoulMap({ draft: enrichedDraft, numerology });
+          return generateSoulMap({ draft: enrichedDraft, numerology, trigger });
         };
 
         const [result] = await Promise.all([generation(), floor]);
@@ -92,7 +97,7 @@ export function Generating({
           mode: result.mode,
           latencyMs: result.latencyMs,
           model: result.model,
-          trigger: 'onboarding',
+          trigger,
         });
         // Both records point at the synthesis, so a signup that happens after
         // this carries the map with it — and one that happened before still
@@ -111,7 +116,7 @@ export function Generating({
     return () => {
       for (const t of timers) clearTimeout(t);
     };
-  }, [draft, numerology, onDone, onFailed, onCrisis]);
+  }, [draft, numerology, onDone, onFailed, onCrisis, trigger]);
 
   return (
     <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil70}>

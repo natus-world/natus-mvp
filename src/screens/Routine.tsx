@@ -12,7 +12,7 @@ import { activeProfile } from '@/store/account';
 import { markFalsePositive, recordCrisisEvent } from '@/store/crisis';
 import {
   checkInToday,
-  currentMatch,
+  currentMatchFor,
   isCheckedToday,
   rateCheckIn,
   toggleCheckIn,
@@ -158,7 +158,10 @@ function PracticeRating({
 }
 
 export function Routine() {
-  const match = currentMatch();
+  // The match of the current map: after the birth data changes (M-02) the
+  // paths are chosen again, and until they are there is no routine to show.
+  const synthesisNow = currentSynthesis();
+  const match = synthesisNow ? currentMatchFor(synthesisNow.id) : undefined;
   const navigate = useNavigate();
   const [, force] = useState(0);
   const [crisisEventId, setCrisisEventId] = useState<string | null>(null);

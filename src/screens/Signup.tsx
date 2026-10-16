@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { SignupError, isSignedIn, signUp } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
-import { isBackendConfigured } from '@/supabase/client.ts';
-import { upgradeToEmail } from '@/supabase/session.ts';
+import { googleSignInEnabled, isBackendConfigured } from '@/supabase/client.ts';
+import { linkGoogle, oauthErrorInUrl, upgradeToEmail } from '@/supabase/session.ts';
 
 /**
  * The conversion moment of PDR section 3: the account is asked for *after* the
@@ -26,6 +26,12 @@ import { upgradeToEmail } from '@/supabase/session.ts';
 
 const text = copy.signup;
 
+/**
+ * Launch with Google only (owner, 16 Oct 2026): the email link needs a mail
+ * service, and Supabase's built-in mail refuses anyone outside the team. The
+ * email form shows only while Google is not switched on in the project.
+ */
+
 const fieldClass =
   'field w-full text-[length:var(--fs-body-14)] leading-5 placeholder:text-crema/55';
 
@@ -35,6 +41,19 @@ export function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [google, setGoogle] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void googleSignInEnabled().then((on) => {
+      if (live) setGoogle(on);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  const [googleError, setGoogleError] = useState<string | null>(() =>
+    oauthErrorInUrl() === 'identity_already_exists' ? text.googleTaken : null,
+  );
 
   if (isSignedIn()) {
     return (
@@ -138,6 +157,37 @@ export function Signup() {
           {text.helper}
         </p>
 
+        {google ? (
+          <>
+            {googleError && (
+              <p role="alert" className="mb-3 text-[length:var(--fs-body-12)] leading-relaxed text-error">
+                {googleError}
+              </p>
+            )}
+            <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">{text.googleNote}</p>
+            <div className="mt-auto flex flex-col gap-2.5 pt-8">
+              <button
+                type="button"
+                className="cta"
+                disabled={sending}
+                onClick={() => {
+                  setSending(true);
+                  setGoogleError(null);
+                  linkGoogle().catch(() => {
+                    setSending(false);
+                    setGoogleError(text.googleFailed);
+                  });
+                }}
+              >
+                {sending ? text.saving : text.google}
+              </button>
+              <Link to="/hoy" className="chip chip-p10 text-center text-crema/60 no-underline">
+                {text.later}
+              </Link>
+            </div>
+          </>
+        ) : (
+        <>
         <label className="mb-1.5 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase" htmlFor="email">
           {text.emailLabel}
         </label>
@@ -187,6 +237,8 @@ export function Signup() {
             {text.later}
           </Link>
         </div>
+        </>
+        )}
       </div>
     </Screen>
   );

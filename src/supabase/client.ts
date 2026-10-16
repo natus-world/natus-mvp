@@ -75,3 +75,21 @@ function create(): TypedClient | null {
  * decision into places that should not be making it.
  */
 export const supabase: TypedClient | null = create();
+
+/**
+ * Whether the project has Google sign-in switched on, read from the Auth
+ * settings every project publishes. The sign-up offers Google once it is, and
+ * the email form until then, so the release and the console work can land in
+ * either order. False on any doubt.
+ */
+export async function googleSignInEnabled(): Promise<boolean> {
+  if (!url || !anonKey) return false;
+  try {
+    const response = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: anonKey } });
+    if (!response.ok) return false;
+    const settings = (await response.json()) as { external?: { google?: boolean } };
+    return settings.external?.google === true;
+  } catch {
+    return false;
+  }
+}

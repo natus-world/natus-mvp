@@ -33,12 +33,14 @@ import { ensureWholeSignChart } from '@/store/chart';
 import { activeProfile } from '@/store/account';
 import { learnFromPending } from '@/store/memory';
 import { refreshMapMonthly } from '@/store/monthly-map';
+import { completeLinkedSignup } from '@/store/account-link';
 
 const LEARN_EVERY_MS = 10 * 60 * 1000;
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { NotFound } from '@/screens/NotFound';
 import { Journal, NewJournalEntry } from '@/screens/Journal';
+import { BirthDataEdit } from '@/screens/BirthDataEdit';
 import { FriendInvite } from '@/screens/friends/FriendInvite';
 
 const TITLES: [prefix: string, title: string][] = [
@@ -98,6 +100,8 @@ export function App() {
     void hydrate().then((result) => {
       if (result.kind === 'remote') {
         track('app_opened');
+        // Back from Google with a map to keep: the account is created now.
+        void completeLinkedSignup();
         const profile = activeProfile();
         if (profile) void ensureWholeSignChart(profile.draft);
         // v1.2 M-01: whatever the memory has not read yet, and every few
@@ -198,6 +202,7 @@ export function App() {
             <Route path={PATHS.today} element={<Today />} />
             <Route path="/registro" element={<Signup />} />
             <Route path={PATHS.profile} element={<Profile />} />
+            <Route path={`${PATHS.profile}/nacimiento`} element={<BirthDataEdit />} />
             <Route
               path={PATHS.chat}
               element={

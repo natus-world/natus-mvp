@@ -1,14 +1,28 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { BrandMark } from '@/design/BrandMark';
 import { copy } from '@/i18n';
 import { currentSynthesis } from '@/store/soulMap';
 import { restartOnboarding } from '@/store/session';
+import { isSignedIn } from '@/store/account';
+import { googleSignInEnabled } from '@/supabase/client';
+import { signInWithGoogle } from '@/supabase/session';
 
 const text = copy.landing;
 
 /** Screen 1 of PDR 6.1, built from mockup screen 01. */
 export function Landing() {
+  const [google, setGoogle] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void googleSignInEnabled().then((on) => {
+      if (live) setGoogle(on);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
   const navigate = useNavigate();
   // Someone who already has a map should not be met by a first-run screen.
   const returning = currentSynthesis() !== undefined;
@@ -53,6 +67,18 @@ export function Landing() {
             →
           </span>
         </button>
+
+        {/* Launch with Google (owner, 16 Oct 2026): somebody coming back on a
+            new device signs in and finds their space. */}
+        {!returning && google && !isSignedIn() && (
+          <button
+            type="button"
+            onClick={() => void signInWithGoogle().catch(() => {})}
+            className="mt-3 px-2 py-1 text-[length:var(--fs-body-11)] text-crema/60 underline underline-offset-4 hover:text-crema/80"
+          >
+            {text.signIn}
+          </button>
+        )}
 
         {returning && (
           <button

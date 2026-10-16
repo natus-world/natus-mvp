@@ -10,6 +10,7 @@ import { activeProfile, getClient, updateActiveProfile } from '@/store/account';
 import { copy, type GrammaticalGender } from '@/i18n';
 import { FriendsSection } from '@/screens/friends/FriendsSection';
 import { MemorySection } from '@/screens/MemorySection';
+import { PATHS } from '@/components/routes';
 import { serverOnlyData } from '@/store/server-export';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { markFalsePositive } from '@/store/crisis';
@@ -134,6 +135,30 @@ export function Profile() {
         )}
 
         {client && hasRemoteIdentity() && <FriendsSection />}
+
+        {/* v1.2 M-02: the birth data, editable; changing it writes the map again. */}
+        {activeProfile()?.draft.birth_date && (
+          <section className="surface surface-p14 mb-3">
+            <div className="mb-1.5 flex items-baseline justify-between gap-3">
+              <p className="eyebrow">{t.birth.kicker}</p>
+              <Link to={`${PATHS.profile}/nacimiento`} className="text-[length:var(--fs-body-11)] text-crema/70 no-underline hover:text-crema">
+                {t.birth.change}
+              </Link>
+            </div>
+            <p className="text-[length:var(--fs-body-13)] leading-snug text-blanco">
+              {activeProfile()?.draft.legal_birth_name}
+            </p>
+            <p className="mt-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/60">
+              {[
+                copy.journal.date(activeProfile()?.draft.birth_date ?? '', 0),
+                activeProfile()?.draft.birth_time || t.birth.noTime,
+                activeProfile()?.draft.birth_city,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+          </section>
+        )}
 
         {gender && (
           <section className="surface surface-p14 mb-3">
