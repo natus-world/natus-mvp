@@ -112,6 +112,29 @@ export const routineResultSchema = z.object({
 });
 export type RoutineResult = z.infer<typeof routineResultSchema>;
 
+/** v1.2 M-01: the five kinds of thing the memory keeps. */
+export const MEMORY_CATEGORIES = ['lo_que_vive', 'le_funciona', 'no_le_funciona', 'tema_recurrente', 'contexto'] as const;
+export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
+export const MAX_MEMORY_ITEM_CHARS = 300;
+
+const memoryItemSchema = z.object({
+  category: z.enum(MEMORY_CATEGORIES),
+  content: z.string().trim().min(1).max(MAX_MEMORY_ITEM_CHARS),
+});
+
+/**
+ * v1.2 M-01. What one new source changes in the memory: items to add, items
+ * it confirms (their `ref` from the prompt) and items it corrects. Refs, not
+ * ids: the function maps them back, so the model never handles a database id.
+ */
+export const memoryResultSchema = z.object({
+  prompt_version: z.string().min(1),
+  add: z.array(memoryItemSchema).max(5),
+  support: z.array(z.string().min(1)).max(30),
+  revise: z.array(memoryItemSchema.extend({ ref: z.string().min(1) })).max(5),
+});
+export type MemoryResult = z.infer<typeof memoryResultSchema>;
+
 /** PDR 10.3. */
 export const chatResponseSchema = z.object({
   type: z.enum(['reflection', 'recommendation', 'clarifying_question', 'crisis']),

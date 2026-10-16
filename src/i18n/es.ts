@@ -162,6 +162,40 @@ export const es = {
     signOut: 'Cerrar sesión',
     signOutNote: 'Tus datos quedan en tu cuenta. Al volver a entrar con el mismo acceso, está todo.',
   },
+  memory: {
+    kicker: 'Lo que Natus sabe de ti',
+    explain:
+      'Natus guarda aquí lo que le cuentas en tu bitácora, en el chat y al decir cómo te resultan tus prácticas. Davraz lo lee para conocerte mejor y no hacerte repetir lo que ya contaste. Puedes corregir o borrar cualquier cosa.',
+    freeBody:
+      'Con Premium, Natus recuerda lo que le cuentas en tu bitácora, en el chat y en tu rutina, para conocerte mejor. Tú decides si lo activas.',
+    consentBody:
+      'Para recordar, Natus necesita tu permiso para aprender de lo que escribes. Lo que escribas en un momento de crisis nunca entra a tu memoria. Puedes ver, corregir y borrar todo, y quitar el permiso cuando quieras.',
+    consentCta: 'Sí, que Natus aprenda de lo que escribo',
+    withdraw: 'Quitar el permiso',
+    withdrawNote:
+      'Natus deja de aprender y Davraz deja de leer tu memoria. Lo guardado queda en pausa hasta que lo borres.',
+    paused: 'Tu memoria está en pausa: Natus no aprende y Davraz no la lee.',
+    empty: 'Todavía no hay nada. Se va llenando a medida que escribes.',
+    unavailable: 'No pudimos cargar tu memoria. Intenta de nuevo más tarde.',
+    byYou: 'Escrito por ti',
+    correct: 'Corregir',
+    save: 'Guardar',
+    cancel: 'Cancelar',
+    delete: 'Borrar',
+    deleteConfirm: '¿Borramos esto de tu memoria? No se puede deshacer.',
+    deleteYes: 'Sí, borrar',
+    deleteNo: 'No',
+    add: 'Agregar algo',
+    addLabel: 'Algo que quieras que Natus sepa de ti',
+    addCategory: '¿De qué tipo es?',
+    categories: {
+      lo_que_vive: 'Lo que estás viviendo',
+      le_funciona: 'Lo que te funciona',
+      no_le_funciona: 'Lo que no te funciona',
+      tema_recurrente: 'Lo que vuelve',
+      contexto: 'Tu contexto',
+    },
+  },
   friends: {
     kicker: 'Amigos',
     body: 'Comparte tu link con quien quieras comparar tu carta. Si acepta, los dos pueden comparar sus cartas: solo astrología y numerología. Nadie ve lo que escribe el otro.',
@@ -333,10 +367,13 @@ export const es = {
     titleEmphasis: 'viviendo',
     write: 'Escribir hoy →',
     empty: 'Aquí va quedando lo que vas viviendo, con tus palabras y a tu ritmo.',
-    // Guide 9.8 has a notice per plan, both about Davraz reading the journal.
-    // That reading is the memory (M-01), not built yet, so until it is this
-    // says only what is true today.
+    // Guide 9.8, one notice per plan. The premium one is true only while the
+    // memory is alive (M-01: premium and consent); premium without consent
+    // gets the one that is.
     notice: 'Tu bitácora es tuya. Puedes borrar cualquier entrada.',
+    noticePremium:
+      'Davraz lee lo que escribes para conocerte mejor y ajustar tus recomendaciones. Puedes borrar cualquier entrada.',
+    noticeFree: 'Tu bitácora es tuya. Con Premium, Davraz la lee para conocerte mejor y ajustar tus recomendaciones.',
     voicePremium: 'La entrada por voz está incluida en Premium',
     voiceLabel: 'Grabar por voz',
     mood: 'Ánimo',

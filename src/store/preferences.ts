@@ -20,9 +20,15 @@ export type Preferences = {
   locale: Locale;
   voice_volume: number;
   bed_volume: number;
+  /**
+   * v1.2 M-01: when the person agreed that Natus learns from what they write
+   * (ISO), or null. Express consent, Ley 21.719; withdrawing it pauses the
+   * memory without deleting it.
+   */
+  memory_consent_at: string | null;
 };
 
-const DEFAULT: Preferences = { locale: 'es', voice_volume: 1, bed_volume: 0.45 };
+const DEFAULT: Preferences = { locale: 'es', voice_volume: 1, bed_volume: 0.45, memory_consent_at: null };
 
 function clampVolume(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value)
@@ -36,7 +42,12 @@ export function getPreferences(): Preferences {
     locale: stored.locale === 'en' ? 'en' : 'es',
     voice_volume: clampVolume(stored.voice_volume, DEFAULT.voice_volume),
     bed_volume: clampVolume(stored.bed_volume, DEFAULT.bed_volume),
+    memory_consent_at: typeof stored.memory_consent_at === 'string' ? stored.memory_consent_at : null,
   };
+}
+
+export function setMemoryConsent(given: boolean, now = new Date()): Preferences {
+  return patch({ memory_consent_at: given ? now.toISOString() : null });
 }
 
 export function setLocale(locale: Locale): Preferences {

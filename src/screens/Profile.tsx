@@ -9,8 +9,14 @@ import { signOut } from '@/supabase/session.ts';
 import { activeProfile, getClient, updateActiveProfile } from '@/store/account';
 import { copy, type GrammaticalGender } from '@/i18n';
 import { FriendsSection } from '@/screens/friends/FriendsSection';
+import { MemorySection } from '@/screens/MemorySection';
+import { CrisisScreen } from '@/screens/CrisisScreen';
+import { markFalsePositive } from '@/store/crisis';
 
 const t = copy.profile;
+
+/** The memory section waits for the owner's approval of its texts (16 Oct 2026). */
+const SHOW_MEMORY = false;
 
 export function Profile() {
   const navigate = useNavigate();
@@ -22,6 +28,7 @@ export function Profile() {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [exported, setExported] = useState<string | null>(null);
+  const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
 
   const chooseGender = (value: GrammaticalGender) => {
     if (updateActiveProfile({ grammatical_gender: value })) setGender(value);
@@ -78,6 +85,19 @@ export function Profile() {
     window.location.assign(import.meta.env.BASE_URL);
   };
 
+  if (crisisEventId) {
+    return (
+      <CrisisScreen
+        country={activeProfile()?.draft.country}
+        onNotMyCase={() => {
+          markFalsePositive(crisisEventId);
+          setCrisisEventId(null);
+        }}
+        onBack={() => setCrisisEventId(null)}
+      />
+    );
+  }
+
   return (
     <Screen backdrop="montana" scrim="heavy" opacity={PHOTO.content40} mono>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-6 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
@@ -108,6 +128,11 @@ export function Profile() {
             </>
           )}
         </section>
+
+        {/* v1.2 M-01: mounted once the owner approves its texts (not in the guide). */}
+        {SHOW_MEMORY && client && hasRemoteIdentity() && (
+          <MemorySection country={activeProfile()?.draft.country} onCrisis={setCrisisEventId} />
+        )}
 
         {client && hasRemoteIdentity() && <FriendsSection />}
 

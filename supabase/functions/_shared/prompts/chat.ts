@@ -74,6 +74,14 @@ calibrar cuánto empujas: en "elevated" o "high", nada removedor, nada de
 prácticas intensas, y baja el umbral para nombrar el trabajo con un
 profesional.
 
+MEMORIA
+Si la persona tiene Premium, te llega lo que Natus recuerda de ella: cosas
+que contó antes en su bitácora, en otras conversaciones o al decir cómo le
+resultaron sus prácticas. Úsalo para entenderla y para no hacerle repetir lo
+que ya contó. No lo recites ni lo enumeres: tráelo solo cuando sirva a lo que
+pregunta ahora, y nunca de una forma que suene a que la estás vigilando. Si
+algo de la memoria choca con lo que dice ahora, manda lo de ahora.
+
 ${PHYSICAL_RISK_RULES}
 
 CONTRATO
@@ -98,6 +106,11 @@ export function buildChatUserMessage(input: {
   recommendedSlugs: readonly string[];
   history: readonly ChatTurn[];
   gender: GrammaticalGender;
+  /**
+   * v1.2 M-01: what Natus remembers of the person, when the memory is alive
+   * (premium and consent). Absent otherwise, and then the block is too.
+   */
+  memory?: readonly { category: string; content: string }[] | null;
 }): string {
   const numbers = input.numerology
     ? `Camino de vida ${input.numerology.life_path} · expresión ${input.numerology.expression} · alma ${input.numerology.soul_urge} · personalidad ${input.numerology.personality} · cumpleaños ${input.numerology.birthday}`
@@ -117,6 +130,15 @@ export function buildChatUserMessage(input: {
     // PDR 10.2. The derived level, never the answers it came from.
     `NIVEL DE RIESGO DERIVADO: ${input.risk}`,
     `MODALIDADES YA SUGERIDAS (únicos slugs permitidos): ${input.recommendedSlugs.join(', ') || 'ninguna'}`,
+    ...(input.memory
+      ? [
+          '',
+          'LO QUE NATUS RECUERDA DE LA PERSONA',
+          input.memory.length === 0
+            ? '(nada todavía)'
+            : input.memory.map((item) => `${item.category}: ${personText(item.content)}`).join('\n'),
+        ]
+      : []),
     '',
     'CONVERSACIÓN HASTA AQUÍ',
     input.history.length === 0

@@ -227,6 +227,7 @@ const preferences: Adapter<Preferences> = {
       locale: data?.locale === 'en' ? 'en' : 'es',
       voice_volume: data?.voice_volume ?? 1,
       bed_volume: data?.bed_volume ?? 0.45,
+      memory_consent_at: data?.memory_consent_at ?? null,
     };
   },
   async save(client, userId, value) {
@@ -468,26 +469,35 @@ const checkins: Adapter<CheckIn[]> = {
     }));
   },
   async save(client, userId, value) {
-    // No client-side id on a check-in — it is identified by
-    // (practice, day), which is the unique constraint PDR 5.4 names. Replace
-    // wholesale rather than reconcile: the set is a handful of rows.
-    const { error: delErr } = await client
-      .from('recommendation_checkins')
-      .delete()
-      .eq('user_id', userId);
-    if (delErr) throw new Error(`recommendation_checkins (clear): ${delErr.message}`);
+    // No client-side id on a check-in — it is identified by (practice, day),
+    // the unique constraint PDR 5.4 names. Reconciled on that key rather
+    // than replaced wholesale: the memory (M-01) points at a check-in's row,
+    // and a row deleted and inserted again on every save would take what the
+    // memory learnt from it along with it.
+    if (value.length > 0) {
+      const { error } = await client.from('recommendation_checkins').upsert(
+        value.map((c) => ({
+          user_id: userId,
+          practice_title: c.practice_title,
+          checked_on: c.checked_on,
+          rating: c.rating ?? null,
+          comment: c.comment ?? null,
+        })),
+        { onConflict: 'user_id,practice_title,checked_on' },
+      );
+      if (error) throw new Error(`recommendation_checkins: ${error.message}`);
+    }
 
-    if (value.length === 0) return;
-    const { error } = await client.from('recommendation_checkins').insert(
-      value.map((c) => ({
-        user_id: userId,
-        practice_title: c.practice_title,
-        checked_on: c.checked_on,
-        rating: c.rating ?? null,
-        comment: c.comment ?? null,
-      })),
-    );
-    if (error) throw new Error(`recommendation_checkins: ${error.message}`);
+    const { data, error: readErr } = await client
+      .from('recommendation_checkins')
+      .select('id, practice_title, checked_on')
+      .eq('user_id', userId);
+    if (readErr) throw new Error(`recommendation_checkins (read): ${readErr.message}`);
+    const kept = new Set(value.map((c) => `${c.practice_title}\u0000${c.checked_on}`));
+    const gone = (data ?? []).filter((r) => !kept.has(`${r.practice_title}\u0000${r.checked_on}`)).map((r) => r.id);
+    if (gone.length === 0) return;
+    const { error: delErr } = await client.from('recommendation_checkins').delete().in('id', gone);
+    if (delErr) throw new Error(`recommendation_checkins (unmark): ${delErr.message}`);
   },
 };
 

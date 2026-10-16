@@ -19,6 +19,7 @@ import {
   totalCheckIns,
 } from '@/store/matches';
 import { routineFor, saveRoutine } from '@/store/routine';
+import { learnFromPending } from '@/store/memory';
 import { currentSynthesis } from '@/store/soulMap';
 
 /**
@@ -95,6 +96,8 @@ function PracticeRating({
       }
     }
     rateCheckIn(title, date, rating, value);
+    // v1.2 M-01: a rated practice, with what the person said about it.
+    void learnFromPending({ checkinsToday: true });
     onChange();
   };
 

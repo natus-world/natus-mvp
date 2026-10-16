@@ -1,3 +1,4 @@
+import { memoryConsented, readMemory } from '../_shared/memory.ts';
 import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
 import { overPlanCap, planQuota, reserveChatTurn } from '../_shared/quota.ts';
@@ -175,9 +176,12 @@ Deno.serve(async (request) => {
   const context = chatContextSchema.safeParse(body);
   if (!context.success) return json(request, { error: 'invalid_context' }, 400);
 
-  const [vulnerable, gender] = await Promise.all([
+  const [vulnerable, gender, memory] = await Promise.all([
     callerIsClinicallyVulnerable(caller, userId),
     callerGrammaticalGender(caller, userId),
+    // v1.2 M-01: premium with consent reads the memory on every answer;
+    // otherwise it is paused and the block is left out.
+    quota.tier === 'premium' && (await memoryConsented(caller, userId)) ? readMemory(caller, userId) : null,
   ]);
   const recommendedSlugs = withoutClinicalExclusions(context.data.recommendedSlugs, vulnerable).kept;
   const risk = vulnerable && context.data.risk === 'none' ? 'elevated' : context.data.risk;
@@ -206,6 +210,7 @@ Deno.serve(async (request) => {
         recommendedSlugs,
         history: context.data.history,
         gender,
+        memory,
       }),
       schema: chatResponseSchema,
       maxTokens: MAX_OUTPUT_TOKENS.chat,

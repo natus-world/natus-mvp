@@ -190,6 +190,17 @@ export const matchInputSchema = z
  * person — its own reasoning, so the routine understands the choice and not
  * only the therapy. Optional, keyed by a slug that was sent.
  */
+/**
+ * v1.2 M-01. Which source to learn from, and nothing else: the function reads
+ * the text itself, as the person, so nobody can feed the memory a text that
+ * is not in their own record.
+ */
+export const memoryInputSchema = z.object({
+  source: z.enum(['journal', 'checkin', 'conversation']),
+  id: z.string().uuid(),
+});
+export type MemoryInput = z.infer<typeof memoryInputSchema>;
+
 export const routineInputSchema = z
   .object({
     synthesis: soulMapSynthesisSchema,

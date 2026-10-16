@@ -14,7 +14,7 @@ import {
 } from './budget.ts';
 import { PREMIUM_MONTHLY_CAP_USD } from './quota.ts';
 
-const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison', 'routine'];
+const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison', 'routine', 'memory'];
 
 const costUsd = (usage: Usage) => priced(usage, OPUS);
 
@@ -142,7 +142,7 @@ describe('per-person limits', () => {
     // The chat's limit is its plan quota (`plan_quotas`) and premium's money
     // cap. Two numbers answering the same question is how they disagree.
     const covered = Object.keys(PURPOSE_LIMITS).sort();
-    expect(covered).toEqual(['comparison', 'match', 'meditation', 'routine', 'soul_map']);
+    expect(covered).toEqual(['comparison', 'match', 'meditation', 'memory', 'routine', 'soul_map']);
   });
 
   it('sits far enough above ordinary use to mean something went wrong', () => {
@@ -172,8 +172,9 @@ describe('per-person limits', () => {
     // v1.2 F-01: the chat, the meditations and the comparisons are bounded by
     // premium's money cap, checked before each call — so the worst is the cap
     // plus the one call that may start just under it. The surfaces outside
-    // the plan (Soul Map, match, routine) stay at their ceilings.
-    const PLANNED = new Set<Purpose>(['chat', 'meditation', 'comparison']);
+    // the plan (Soul Map, match, routine) stay at their ceilings. The memory
+    // (M-01) is premium's alone and checks the same cap before each call.
+    const PLANNED = new Set<Purpose>(['chat', 'meditation', 'comparison', 'memory']);
     const outsidePlan = Object.entries(PURPOSE_LIMITS)
       .filter(([purpose]) => !PLANNED.has(purpose as Purpose))
       .reduce(

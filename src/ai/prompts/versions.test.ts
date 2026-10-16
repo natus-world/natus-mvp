@@ -8,6 +8,7 @@ import {
   MATCH_PROMPT_VERSION,
   MEDITATION_PROMPT_VERSION,
   PROMPT_HISTORY,
+  MEMORY_PROMPT_VERSION,
   ROUTINE_PROMPT_VERSION,
   SOUL_MAP_PROMPT_VERSION,
 } from './versions';
@@ -36,6 +37,7 @@ const SURFACES = [
   ['meditation.ts', MEDITATION_PROMPT_VERSION],
   ['comparison.ts', COMPARISON_PROMPT_VERSION],
   ['routine.ts', ROUTINE_PROMPT_VERSION],
+  ['memory.ts', MEMORY_PROMPT_VERSION],
 ] as const;
 
 function withoutComments(source: string): string {

@@ -72,10 +72,14 @@ export type ModelRoute<I, O> = {
    * uses it for rule 6 of PDR 8.5 (`safety: true`, logged as a crisis
    * refusal) and for a friendship that is not accepted (`safety: false`, not
    * logged: nothing was asked of the model). Returns null to serve.
+   *
+   * `memory` is handed the elevated client too: the plan tier and the money
+   * cap are read with it, and a source with nothing it may learn from is
+   * marked as read so it is not offered again.
    */
   refuse?: (
     input: I,
-    context: { caller: SupabaseClient; userId: string },
+    context: { caller: SupabaseClient; userId: string; elevated: SupabaseClient },
   ) => Promise<{ reason: string; safety: boolean } | null>;
   /**
    * Keeps the answer where the browser cannot write it. Runs after the call is
@@ -163,7 +167,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
     }
 
     const withheld = route.refuse
-      ? await route.refuse(parsed.data, { caller: auth.caller, userId })
+      ? await route.refuse(parsed.data, { caller: auth.caller, userId, elevated })
       : null;
     if (withheld) {
       if (withheld.safety) {

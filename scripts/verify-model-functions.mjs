@@ -377,6 +377,77 @@ if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
     atCap.status === 429 && atCapBody.scope === 'cap' && /^\d{4}-\d{2}-01$/.test(atCapBody.renews_on ?? ''),
     `status=${atCap.status} scope=${atCapBody.scope} renews_on=${atCapBody.renews_on}`,
   );
+
+  // ── the memory (v1.2 M-01) ─────────────────────────────────────────────
+  // Premium and consent are read on the server's side, the text is read
+  // from the person's own record, and a crisis never reaches the model.
+  const person = async ({ premium: isPremium, consent }) => {
+    const someone = createClient(API, ANON, { auth: { persistSession: false } });
+    const { data } = await someone.auth.signInAnonymously();
+    const id = data.session.user.id;
+    if (isPremium) {
+      await elevated.from('subscriptions').upsert({ user_id: id, status: 'active', activated_at: new Date().toISOString() });
+    }
+    if (consent) await someone.from('preferences').upsert({ user_id: id, memory_consent_at: new Date().toISOString() });
+    const entry = async (body) => {
+      const { data: row, error } = await someone
+        .from('journal_entries')
+        .insert({ user_id: id, entry_date: '2026-10-16', body })
+        .select('id')
+        .single();
+      if (error) throw new Error(`could not write a journal entry: ${error.message}`);
+      return row.id;
+    };
+    return {
+      id,
+      client: someone,
+      entry,
+      headers: { Authorization: `Bearer ${data.session.access_token}`, 'Content-Type': 'application/json' },
+    };
+  };
+  const ENTRY = 'Hoy caminé veinte minutos antes del trabajo y llegué más tranquila.';
+
+  {
+    const freeOne = await person({ premium: false, consent: true });
+    const r = await call('memory', { source: 'journal', id: await freeOne.entry(ENTRY) }, freeOne.headers);
+    const b = await r.json();
+    check('memory: free keeps it paused', r.status === 403 && b.reason === 'memory_paused', `status=${r.status} reason=${b.reason}`);
+  }
+  {
+    const noConsent = await person({ premium: true, consent: false });
+    const r = await call('memory', { source: 'journal', id: await noConsent.entry(ENTRY) }, noConsent.headers);
+    const b = await r.json();
+    check('memory: premium without consent keeps it paused', r.status === 403 && b.reason === 'memory_paused', `status=${r.status} reason=${b.reason}`);
+  }
+  {
+    const active = await person({ premium: true, consent: true });
+    const crisisId = await active.entry('no sirve de nada, quiero morirme');
+    const r = await call('memory', { source: 'journal', id: crisisId }, active.headers);
+    const b = await r.json();
+    const { data: row } = await active.client.from('journal_entries').select('memory_processed_at').eq('id', crisisId).single();
+    check(
+      'memory: an entry the browser did not flag is scanned again, refused and never offered again',
+      r.status === 403 && b.reason === 'crisis' && Boolean(row?.memory_processed_at),
+      `status=${r.status} reason=${b.reason} read=${Boolean(row?.memory_processed_at)}`,
+    );
+
+    const missing = await call('memory', { source: 'journal', id: crypto.randomUUID() }, active.headers);
+    check('memory: an entry that is not theirs does not exist for them', missing.status === 403 && (await missing.json()).reason === 'not_found', `status=${missing.status}`);
+
+    const someoneElse = await person({ premium: false, consent: false });
+    const theirs = await call('memory', { source: 'journal', id: await someoneElse.entry(ENTRY) }, active.headers);
+    check("memory: nobody learns from somebody else's journal", theirs.status === 403 && (await theirs.json()).reason === 'not_found', `status=${theirs.status}`);
+
+    const bad = await call('memory', { source: 'diario', id: crisisId }, active.headers);
+    check('memory: only the three sources', bad.status === 400, `status=${bad.status}`);
+
+    const fine = await call('memory', { source: 'journal', id: await active.entry(ENTRY) }, active.headers);
+    check(
+      'memory: premium with consent reaches the model',
+      fine.status === 503 || fine.status === 200,
+      `status=${fine.status}${fine.status === 503 ? ' (no model here)' : ''}`,
+    );
+  }
 }
 
 // ── PayPal's notifications (v1.2 P-01) ─────────────────────────────────────

@@ -355,18 +355,21 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          memory_processed_at: string | null
           synthesis_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          memory_processed_at?: string | null
           synthesis_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          memory_processed_at?: string | null
           synthesis_id?: string
           user_id?: string
         }
@@ -552,6 +555,7 @@ export type Database = {
           crisis_flagged: boolean
           entry_date: string
           id: string
+          memory_processed_at: string | null
           modality_slug: string | null
           mood: number | null
           practice_id: string | null
@@ -564,6 +568,7 @@ export type Database = {
           crisis_flagged?: boolean
           entry_date: string
           id?: string
+          memory_processed_at?: string | null
           modality_slug?: string | null
           mood?: number | null
           practice_id?: string | null
@@ -576,6 +581,7 @@ export type Database = {
           crisis_flagged?: boolean
           entry_date?: string
           id?: string
+          memory_processed_at?: string | null
           modality_slug?: string | null
           mood?: number | null
           practice_id?: string | null
@@ -656,6 +662,95 @@ export type Database = {
           prompt_version?: string
           requested_minutes?: number
           script?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      memory_item_sources: {
+        Row: {
+          checkin_id: string | null
+          conversation_id: string | null
+          created_at: string
+          id: string
+          journal_entry_id: string | null
+          memory_item_id: string
+          user_id: string
+        }
+        Insert: {
+          checkin_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          journal_entry_id?: string | null
+          memory_item_id: string
+          user_id: string
+        }
+        Update: {
+          checkin_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          journal_entry_id?: string | null
+          memory_item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_item_sources_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "recommendation_checkins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_item_sources_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_item_sources_journal_entry_id_fkey"
+            columns: ["journal_entry_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memory_item_sources_memory_item_id_fkey"
+            columns: ["memory_item_id"]
+            isOneToOne: false
+            referencedRelation: "memory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memory_items: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          edited_by_user: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          edited_by_user?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          edited_by_user?: boolean
+          id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -908,18 +1003,21 @@ export type Database = {
         Row: {
           bed_volume: number
           locale: string
+          memory_consent_at: string | null
           user_id: string
           voice_volume: number
         }
         Insert: {
           bed_volume?: number
           locale?: string
+          memory_consent_at?: string | null
           user_id: string
           voice_volume?: number
         }
         Update: {
           bed_volume?: number
           locale?: string
+          memory_consent_at?: string | null
           user_id?: string
           voice_volume?: number
         }
@@ -930,6 +1028,7 @@ export type Database = {
           checked_on: string
           comment: string | null
           id: string
+          memory_processed_at: string | null
           practice_title: string
           rating: number | null
           user_id: string
@@ -938,6 +1037,7 @@ export type Database = {
           checked_on: string
           comment?: string | null
           id?: string
+          memory_processed_at?: string | null
           practice_title: string
           rating?: number | null
           user_id: string
@@ -946,6 +1046,7 @@ export type Database = {
           checked_on?: string
           comment?: string | null
           id?: string
+          memory_processed_at?: string | null
           practice_title?: string
           rating?: number | null
           user_id?: string

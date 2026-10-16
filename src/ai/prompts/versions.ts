@@ -1,11 +1,24 @@
-export const CHAT_PROMPT_VERSION = 'chat-v1.3';
+export const CHAT_PROMPT_VERSION = 'chat-v1.4';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
 export const COMPARISON_PROMPT_VERSION = 'comparison-v2.1';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.6';
+export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chat-v1.4',
+    date: '2026-10-16',
+    change:
+      'v1.2 M-01: when the memory is alive (premium and consent), what Natus remembers of the person arrives in the user message, and one rule on how to use it: to understand and not make the person repeat themselves, never recited, never as if watching; what the person says now prevails.',
+  },
+  {
+    version: 'memory-v1.0',
+    date: '2026-10-16',
+    change:
+      'v1.2 M-01, new: from one journal entry, rated practice or quiet conversation, what to add to the memory, what it confirms and what it corrects, in five categories. Only what the person said, nothing clinical, written to them with tú; items the person wrote are never rewritten.',
+  },
   {
     version: 'comparison-v2.1',
     date: '2026-10-15',

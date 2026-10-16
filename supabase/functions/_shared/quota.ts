@@ -41,6 +41,16 @@ export async function planQuota(
   }
 }
 
+/** The tier alone, failing closed: an error reads as free. */
+export async function planTier(elevated: SupabaseClient, userId: string): Promise<'free' | 'premium'> {
+  try {
+    const { data, error } = await elevated.rpc('plan_tier', { p_user: userId });
+    return !error && data === 'premium' ? 'premium' : 'free';
+  } catch {
+    return 'free';
+  }
+}
+
 /**
  * Whether a premium person has used this month's cap on "unlimited": US$4 of
  * model use (owner, 15 Oct 2026), read from `plan_caps` and priced with the

@@ -8,7 +8,10 @@ import { detectCrisis } from '@/lib/safety';
 import { PATHS } from '@/components/routes';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { activeProfile } from '@/store/account';
-import { markFalsePositive, recordCrisisEvent } from '@/store/crisis';
+import { hasRecentLowSeverity, markFalsePositive, recordCrisisEvent } from '@/store/crisis';
+import { CrisisBanner } from '@/components/CrisisBanner';
+import { getPreferences } from '@/store/preferences';
+import { learnFromPending } from '@/store/memory';
 import { addEntry, deleteEntry, listEntries, MAX_ENTRY_CHARS, type JournalEntry } from '@/store/journal';
 import { currentMatch } from '@/store/matches';
 import { fetchQuota } from '@/store/quota';
@@ -120,16 +123,40 @@ function EntryCard({ entry, onDeleted }: { entry: JournalEntry; onDeleted: () =>
   );
 }
 
+/** Guide 9.8's honest notice, by plan and by whether the memory reads the journal. */
+function useNotice(): string {
+  const [tier, setTier] = useState<'free' | 'premium' | null>(null);
+  useEffect(() => {
+    let live = true;
+    void fetchQuota('chat').then((q) => {
+      if (live) setTier(q?.tier ?? null);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (tier === 'premium') return getPreferences().memory_consent_at ? text.noticePremium : text.notice;
+  if (tier === 'free') return text.noticeFree;
+  return text.notice;
+}
+
 export function Journal() {
   const [, force] = useState(0);
   const entries = listEntries();
+  const notice = useNotice();
 
   return (
     <Screen backdrop="plumas" scrim="heavy" opacity={PHOTO.content45}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
         <p className="eyebrow mb-3">{text.kicker}</p>
         <Title lead={text.titleLead} emphasis={text.titleEmphasis} />
-        <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">{text.notice}</p>
+        <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">{notice}</p>
+
+        {hasRecentLowSeverity() && (
+          <div className="-mx-2 mb-5">
+            <CrisisBanner country={activeProfile()?.draft.country} />
+          </div>
+        )}
 
         <Link to={`${PATHS.journal}/nueva`} className="cta mb-6 no-underline">
           {text.write}
@@ -192,6 +219,8 @@ export function NewJournalEntry() {
         return;
       }
     }
+    // Premium with consent: the memory learns from it, in the background.
+    void learnFromPending();
     navigate(PATHS.journal);
   };
 

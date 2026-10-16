@@ -31,6 +31,9 @@ import { hydrate } from '@/store/hydrate.ts';
 import { rememberFirstTouch, track } from '@/store/funnel';
 import { ensureWholeSignChart } from '@/store/chart';
 import { activeProfile } from '@/store/account';
+import { learnFromPending } from '@/store/memory';
+
+const LEARN_EVERY_MS = 10 * 60 * 1000;
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
 import { Gate } from '@/screens/Gate';
 import { NotFound } from '@/screens/NotFound';
@@ -90,11 +93,16 @@ export function App() {
   useEffect(() => {
     let live = true;
     rememberFirstTouch();
+    let memoryTimer: ReturnType<typeof setInterval> | null = null;
     void hydrate().then((result) => {
       if (result.kind === 'remote') {
         track('app_opened');
         const profile = activeProfile();
         if (profile) void ensureWholeSignChart(profile.draft);
+        // v1.2 M-01: whatever the memory has not read yet, and every few
+        // minutes after, which is how a conversation gone quiet is read.
+        void learnFromPending();
+        memoryTimer = setInterval(() => void learnFromPending(), LEARN_EVERY_MS);
       }
       if (!live) return;
       setAdmitted(result.kind === 'remote');
@@ -103,6 +111,7 @@ export function App() {
     });
     return () => {
       live = false;
+      if (memoryTimer) clearInterval(memoryTimer);
     };
   }, []);
 
