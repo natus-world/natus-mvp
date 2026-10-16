@@ -15,9 +15,6 @@ import { markFalsePositive } from '@/store/crisis';
 
 const t = copy.profile;
 
-/** The memory section waits for the owner's approval of its texts (16 Oct 2026). */
-const SHOW_MEMORY = false;
-
 export function Profile() {
   const navigate = useNavigate();
   const client = getClient();
@@ -129,8 +126,7 @@ export function Profile() {
           )}
         </section>
 
-        {/* v1.2 M-01: mounted once the owner approves its texts (not in the guide). */}
-        {SHOW_MEMORY && client && hasRemoteIdentity() && (
+        {client && hasRemoteIdentity() && (
           <MemorySection country={activeProfile()?.draft.country} onCrisis={setCrisisEventId} />
         )}
 

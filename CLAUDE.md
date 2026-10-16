@@ -66,11 +66,10 @@ real generation, all walked on the deployed site.
 
 **v1.2 is being implemented, and most of it is not built yet:** today's
 sky, notifications, the full chart.
-The memory (M-01) is built (16 Oct 2026) and waits on one thing: the profile
-section that shows it and asks for consent is written but not mounted
-(`SHOW_MEMORY` in `Profile.tsx`) until the owner approves its texts, which
-the guide does not give. Without that section nobody can consent, so the
-memory is inert in production. How it works: `memory_items` and
+The memory (M-01) is built (16 Oct 2026). «Lo que Natus sabe de ti» in the
+profile shows it, asks for consent and lets the person correct, delete and
+add; its texts are not in the guide and were approved by the owner on
+16 Oct 2026. How it works: `memory_items` and
 `memory_item_sources`; the `memory` function (Sonnet, memory-v1.0) reads one
 source — a journal entry, a rated check-in, a conversation quiet for 30
 minutes — as the person, scans it for crisis again, and adds, confirms or
@@ -88,8 +87,9 @@ The journal (B-01) is built (16 Oct 2026): its own tab, typed entries in
 `journal_entries`, each scanned for crisis and kept either way with
 `crisis_flagged` so the memory never reads it; deleting leaves only a
 `journal_entry_deleted` row in `system_audit_log`. Voice (premium) is not
-built. The guide's notices about Davraz reading the journal wait for the
-memory; until then the screen says only that it is theirs and deletable. Friends and the
+built. The guide's notice is shown by plan: premium with consent is told
+Davraz reads it, free is told premium would, and premium without consent
+only that it is theirs and deletable. Friends and the
 comparison between them (C-01, C-02) are built, and so is the routine
 (R-01): written after the therapies, by its own function, each practice
 saying what it converses with and keeping its origin in `routine_practices`.
