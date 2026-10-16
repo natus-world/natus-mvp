@@ -76,7 +76,15 @@ A therapy card shows a one-or-two-sentence summary and opens, on touch, the
 full why — citing what the person told, a placement of their chart and one
 of their numbers when there are — and what happens in a session (R-02,
 match-v1.5). The browser sends the symbols; matches made before keep their
-reasoning on the card. Decided and not built: the
+reasoning on the card.
+The chart is read the Hellenistic way (A-02) by the Soul Map (soul-map-v2.6)
+and the comparison (comparison-v2.1): both receive the chart calculated by
+`src/lib/natal-chart.ts`, never the provider's text. The comparison reads
+both friends' rows in `natal_charts` and crosses them by sign between the
+visible planets and the Ascendant — no ephemeris call, no orb; a friend with
+no stored chart means no aspects. The model picks 3 to 8 and decides, for
+each, whether it flows naturally or asks for more work (owner, 15 Oct 2026).
+Decided and not built: the
 chat may talk over a comparison with a friend, receiving only its result and
 only while the friendship lasts; and Davraz redirects requests to do work
 (a thesis, code) back to how the person is living it. The

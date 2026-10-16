@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildComparisonFixture } from './comparison';
 import { buildComparisonPayload, type ComparisonScope, type ComparisonSource } from '@/lib/comparison-payload';
 import { comparisonResultSchema, type Numerology } from '@/lib/schemas';
-import { lintDeep } from '@/lib/copy-lint';
+import { lintChartJudgement, lintDeep } from '@/lib/copy-lint';
 
 function numbers(values: [number, number, number, number, number]): Numerology {
   const [life_path, expression, soul_urge, personality, birthday] = values;
@@ -27,7 +27,6 @@ function source(
     numerology: numbers(values),
     soul_map_themes: themes,
     chart: null,
-    birth: null,
     presenting_need_text: 'algo que no puede viajar',
   };
 }
@@ -123,6 +122,10 @@ describe('the rules of PDR 8.5 that v1.2 kept', () => {
     ]) {
       expect(line).toMatch(/\b(ambas partes|cada persona|cada lado|ustedes|comparten|ninguna|un lado)\b/i);
     }
+  });
+
+  it('rates nothing good or bad (v1.2 A-02)', () => {
+    expect(lintChartJudgement(result)).toEqual([]);
   });
 
   it('rule 5: never invents chart positions', () => {

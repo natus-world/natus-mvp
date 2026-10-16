@@ -4,14 +4,15 @@ import { comparisonRequestSchema, type GrammaticalGender } from '../_shared/lib/
 import { comparisonResultSchema } from '../_shared/lib/schemas/index.ts';
 import {
   buildComparisonPayload,
-  canComputeSynastry,
   inventedAspect,
-  toComparisonBirth,
+  readStoredChart,
+  withCrossAspects,
   type ComparisonPayload,
   type ComparisonSource,
 } from '../_shared/lib/comparison-payload.ts';
 import { computeNumerology } from '../_shared/lib/numerology.ts';
-import { resolveLocation, synastryAspects } from '../_shared/astrology.ts';
+import { lintChartJudgement } from '../_shared/lib/copy-lint.ts';
+import type { NatalChart } from '../_shared/lib/natal-chart.ts';
 import { callerIsClinicallyVulnerable } from '../_shared/clinical.ts';
 import {
   COMPARISON_PROMPT_VERSION,
@@ -38,8 +39,6 @@ import {
  * No `prose` hook: nothing in this payload was typed by anyone.
  */
 
-const TIMEOUT_MS = 25_000;
-
 type Request = {
   friendship_id: string;
   /** Filled by `enrich`. Never accepted from the browser: the schema strips it. */
@@ -50,9 +49,6 @@ type BirthRow = {
   user_id: string;
   legal_birth_name: string;
   birth_date: string | null;
-  birth_time: string | null;
-  birth_city: string;
-  birth_country: string;
   grammatical_gender: string;
 };
 
@@ -62,8 +58,8 @@ function firstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] ?? '';
 }
 
-function source(row: BirthRow | undefined): ComparisonSource {
-  if (!row) return { display_name: '—', numerology: null, soul_map_themes: [], chart: null, birth: null };
+function source(row: BirthRow | undefined, chart: NatalChart | null): ComparisonSource {
+  if (!row) return { display_name: '—', numerology: null, soul_map_themes: [], chart: null };
 
   let numerology = null;
   if (row.legal_birth_name.trim() && row.birth_date) {
@@ -78,13 +74,7 @@ function source(row: BirthRow | undefined): ComparisonSource {
     display_name: firstName(row.legal_birth_name) || '—',
     numerology,
     soul_map_themes: [],
-    chart: null,
-    birth: toComparisonBirth({
-      birth_date: row.birth_date ?? '',
-      birth_time: (row.birth_time ?? '').slice(0, 5),
-      birth_city: row.birth_city,
-      birth_country: row.birth_country,
-    }),
+    chart,
   };
 }
 
@@ -117,54 +107,30 @@ async function build(
 
   const { data } = await elevated
     .from('clients')
-    .select('user_id, legal_birth_name, birth_date, birth_time, birth_city, birth_country, grammatical_gender')
+    .select('user_id, legal_birth_name, birth_date, grammatical_gender')
     .in('user_id', [userId, friendId]);
   const rows = (data ?? []) as BirthRow[];
   const mine = rows.find((r) => r.user_id === userId);
   const theirs = rows.find((r) => r.user_id === friendId);
 
+  // v1.2 A-02: each person's chart as the natal-chart function stored it,
+  // read the Hellenistic way. No ephemeris call: the aspects between the two
+  // are by sign, from these.
+  const { data: charts } = await elevated
+    .from('natal_charts')
+    .select('user_id, chart')
+    .in('user_id', [userId, friendId]);
+  const chartOf = (id: string) =>
+    readStoredChart(((charts ?? []) as { user_id: string; chart: unknown }[]).find((c) => c.user_id === id)?.chart);
+
   const payload = buildComparisonPayload({
-    a: source(mine),
-    b: source(theirs),
+    a: source(mine, chartOf(userId)),
+    b: source(theirs, chartOf(friendId)),
     scope: { numerology: true, astro: true, soul_map_themes: false },
   });
 
   const friendGender = GENDERS.find((g) => g === theirs?.grammatical_gender) ?? 'neutro';
-  return { payload: await withAspects(payload), friendGender };
-}
-
-/**
- * The aspects, computed here and nowhere else.
- *
- * Two geocoding calls and one ephemeris call, all behind the deployment's
- * key. Every failure returns the payload unchanged with an empty aspect list,
- * which the prompt renders as "no hay dos cartas para cruzar" — the reading
- * still happens on the numbers. A comparison that errors because a geocoder
- * was slow would be worse than one that is quieter than it could be.
- */
-async function withAspects(payload: ComparisonPayload): Promise<ComparisonPayload> {
-  if (!canComputeSynastry(payload) || !payload.a.birth || !payload.b.birth) return payload;
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    const [here, there] = await Promise.all([
-      resolveLocation(payload.a.birth.city, payload.a.birth.nation, controller.signal),
-      resolveLocation(payload.b.birth.city, payload.b.birth.nation, controller.signal),
-    ]);
-    if (!here || !there) return payload;
-
-    const aspects = await synastryAspects(
-      { ...payload.a.birth, ...here },
-      { ...payload.b.birth, ...there },
-      controller.signal,
-    );
-    return aspects ? { ...payload, aspects } : payload;
-  } catch {
-    return payload;
-  } finally {
-    clearTimeout(timer);
-  }
+  return { payload: withCrossAspects(payload), friendGender };
 }
 
 function built(input: Request): NonNullable<Request['built']> {
@@ -175,7 +141,7 @@ function built(input: Request): NonNullable<Request['built']> {
 Deno.serve(
   serveModel<Request, ReturnType<typeof comparisonResultSchema.parse>>({
     purpose: 'comparison',
-    // How many the ephemeris returned, alongside the token counts. Operational
+    // How many aspects were computed, alongside the token counts. Operational
     // metadata: it names a count, never a placement.
     meta: (input) => ({ aspects_computed: built(input).payload.aspects.length }),
     promptVersion: COMPARISON_PROMPT_VERSION,
@@ -212,16 +178,27 @@ Deno.serve(
     check: (result, input) => {
       const { aspects } = built(input).payload;
       const dialogue = result.astro_dialogue;
+      // v1.2 A-02: nothing in a chart is rated good or bad.
+      const judged = lintChartJudgement(result)[0];
+      if (judged) return `${judged.rule} at ${judged.path}: "${judged.match}"`;
+
       if (aspects.length === 0) {
         return dialogue.available || dialogue.aspects.length > 0
-          ? 'The model described chart aspects when the ephemeris returned none.'
+          ? 'The model described chart aspects when none were computed.'
           : null;
       }
 
       const invented = inventedAspect(dialogue.aspects, aspects);
-      return invented
-        ? `The model invented an aspect the ephemeris did not return: ${invented.a_body} ${invented.type} ${invented.b_body}.`
-        : null;
+      if (invented) {
+        return `The model invented an aspect that was not computed: ${invented.a_body} ${invented.type} ${invented.b_body}.`;
+      }
+      const unread = dialogue.aspects.find((a) => !a.flow);
+      if (unread) return `${unread.a_body} ${unread.type} ${unread.b_body} came without flow.`;
+      const fewest = Math.min(3, aspects.length);
+      if (dialogue.aspects.length < fewest || dialogue.aspects.length > 8) {
+        return `Read ${dialogue.aspects.length} aspects; between ${fewest} and 8 were asked for.`;
+      }
+      return null;
     },
 
     store: async (result, input, { elevated, userId, promptVersion }) => {

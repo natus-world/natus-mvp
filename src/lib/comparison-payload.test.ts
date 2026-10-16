@@ -4,11 +4,20 @@ import {
   buildComparisonPayload,
   inventedAspect,
   isScopeUsable,
-  toComparisonBirth,
+  withCrossAspects,
   type ComparisonScope,
   type ComparisonSource,
 } from './comparison-payload.ts';
 import type { Numerology } from './schemas/index.ts';
+import { buildNatalChart } from './natal-chart.ts';
+
+const CHART = buildNatalChart(
+  `<point name="Sun" position="13.50" sign="Gemini" abs_pos="73.50" motion="direct" />
+<point name="Moon" position="2.00" sign="Scorpio" abs_pos="212.00" motion="direct" />
+<point name="Venus" position="20.00" sign="Leo" abs_pos="140.00" motion="direct" />
+<point name="Ascendant" position="5.00" sign="Virgo" abs_pos="155.00" motion="direct" />`,
+  true,
+);
 
 const NUMEROLOGY: Numerology = {
   life_path: 7,
@@ -30,11 +39,7 @@ function source(name: string): ComparisonSource {
     display_name: name,
     numerology: NUMEROLOGY,
     soul_map_themes: ['vinculos', 'autoestima'],
-    chart: {
-      available: true,
-      positions: [{ body: 'Luna', sign: 'Escorpio', house: 8 }],
-    },
-    birth: { year: 1990, month: 4, day: 12, hour: 14, minute: 30, city: 'Santiago', nation: 'CL' },
+    chart: CHART,
     // Everything below is in the local record and none of it may cross.
     presenting_need_text: `SECRETO_NEED_${name}`,
     clinical_basics: {
@@ -115,7 +120,7 @@ describe('the scope decides what is included', () => {
       b: source('B'),
       scope: { numerology: true, astro: false, soul_map_themes: true },
     });
-    expect(payload.a.chart).toEqual({ available: false, positions: [] });
+    expect(payload.a.chart).toBeNull();
   });
 
   it('never sends the Soul Map themes, even under a scope that asks for them (v1.2 C-01)', () => {
@@ -134,16 +139,16 @@ describe('the scope decides what is included', () => {
     expect(isScopeUsable({ numerology: false, astro: false, soul_map_themes: true })).toBe(false);
   });
 
-  it('reports an unavailable chart as unavailable rather than as empty positions', () => {
-    // The prompt forbids inventing chart positions. Saying "available: false"
-    // is what makes that rule followable rather than aspirational.
+  it('reports a missing chart as missing rather than as empty positions', () => {
+    // The prompt forbids inventing chart positions. A null chart is what
+    // makes that rule followable rather than aspirational.
     const withoutChart: ComparisonSource = { ...source('A'), chart: null };
     const payload = buildComparisonPayload({
       a: withoutChart,
       b: source('B'),
       scope: { numerology: true, astro: true, soul_map_themes: true },
     });
-    expect(payload.a.chart.available).toBe(false);
+    expect(payload.a.chart).toBeNull();
   });
 
   it('refuses a scope that permits nothing', () => {
@@ -161,31 +166,13 @@ describe('the payload does not alias the caller data', () => {
       scope: { numerology: true, astro: true, soul_map_themes: true },
     });
     expect(payload.a.soul_map_themes).not.toBe(a.soul_map_themes);
-    expect(payload.a.chart.positions[0]).not.toBe(a.chart?.positions[0]);
+    expect(payload.a.chart?.points[0]).not.toBe(a.chart?.points[0]);
+    expect(payload.a.chart?.points[0]).toEqual(a.chart?.points[0]);
   });
 });
 
-describe('birth data travels only under the astro scope', () => {
-  it.each(SCOPES.map((scope) => [label(scope), scope] as const))('%s', (_label, scope) => {
-    const payload = buildComparisonPayload({ a: source('A'), b: source('B'), scope });
-
-    if (scope.astro) {
-      expect(payload.a.birth).not.toBeNull();
-      expect(payload.b.birth).not.toBeNull();
-    } else {
-      // A birthday is not clinical material, and it is still somebody else's.
-      // The scope is what they consented to; a field that ignores it is a
-      // field nobody agreed to send.
-      expect(payload.a.birth).toBeNull();
-      expect(payload.b.birth).toBeNull();
-      expect(JSON.stringify(payload)).not.toContain('Santiago');
-    }
-  });
-
-  it('never arrives carrying aspects', () => {
-    // The ephemeris fills these, server-side. A payload built here that came
-    // with any would be a caller choosing which placements the model reads
-    // out as fact.
+describe('the aspects between the two charts (v1.2 A-02)', () => {
+  it('never arrive with the payload: they are computed from the two charts', () => {
     const payload = buildComparisonPayload({
       a: source('A'),
       b: source('B'),
@@ -193,47 +180,37 @@ describe('birth data travels only under the astro scope', () => {
     });
     expect(payload.aspects).toEqual([]);
   });
-});
 
-describe('what the ephemeris needs, and what it refuses', () => {
-  const complete = {
-    birth_date: '1990-04-12',
-    birth_time: '14:30',
-    birth_city: 'Santiago',
-    birth_country: 'CL',
-  };
-
-  it('reads a complete birth place', () => {
-    expect(toComparisonBirth(complete)).toEqual({
-      year: 1990,
-      month: 4,
-      day: 12,
-      hour: 14,
-      minute: 30,
-      city: 'Santiago',
-      nation: 'CL',
-    });
+  it('are by sign, between the visible planets and the Ascendant, with no orb', () => {
+    const payload = withCrossAspects(
+      buildComparisonPayload({ a: source('A'), b: source('B'), scope: { numerology: true, astro: true, soul_map_themes: false } }),
+    );
+    // Sun in Gemini of A and Venus in Leo of B are two signs apart: a sextile.
+    expect(payload.aspects).toContainEqual({ a_body: 'Sun', b_body: 'Venus', type: 'sextile' });
+    // Gemini and Virgo are three apart: a square, whatever the degrees.
+    expect(payload.aspects).toContainEqual({ a_body: 'Sun', b_body: 'Ascendant', type: 'square' });
+    // Gemini and Scorpio are five apart: aversion, no aspect.
+    expect(payload.aspects.find((a) => a.a_body === 'Sun' && a.b_body === 'Moon')).toBeUndefined();
+    expect(JSON.stringify(payload.aspects)).not.toContain('orb');
   });
 
-  it.each([
-    ['no time', { ...complete, birth_time: '' }],
-    ['no city', { ...complete, birth_city: '' }],
-    ['no country', { ...complete, birth_country: '' }],
-    ['no date', { ...complete, birth_date: '' }],
-    ['a country that is not a code', { ...complete, birth_country: 'Chile' }],
-  ])('refuses with %s', (_why, input) => {
-    // All or nothing. A date without a time gives a Moon that could be
-    // anywhere in a twelve-degree band, and an aspect computed from it would
-    // be stated as confidently as a real one.
-    expect(toComparisonBirth(input)).toBeNull();
+  it('are none when either chart is missing', () => {
+    const payload = withCrossAspects(
+      buildComparisonPayload({
+        a: { ...source('A'), chart: null },
+        b: source('B'),
+        scope: { numerology: true, astro: true, soul_map_themes: false },
+      }),
+    );
+    expect(payload.aspects).toEqual([]);
   });
 });
 
-describe('rule 5: an aspect the ephemeris did not compute', () => {
+describe('rule 5: an aspect that was not computed', () => {
   const computed = [
-    { a_body: 'Sun', b_body: 'Moon', type: 'conjunction', orb: 1.3 },
-    { a_body: 'Venus', b_body: 'Mars', type: 'trine', orb: 4.2 },
-  ];
+    { a_body: 'Sun', b_body: 'Moon', type: 'conjunction' },
+    { a_body: 'Venus', b_body: 'Mars', type: 'trine' },
+  ] as const;
 
   it('accepts an answer that stays inside the list', () => {
     expect(
@@ -273,8 +250,8 @@ describe('rule 5: an aspect the ephemeris did not compute', () => {
   });
 
   it('catches the pair stated backwards', () => {
-    // Synastry is directional: Sun-of-A to Moon-of-B is not the same reading
-    // as Moon-of-A to Sun-of-B, and the ephemeris returns whichever it found.
+    // Directional: Sun-of-A to Moon-of-B is not the same reading as
+    // Moon-of-A to Sun-of-B.
     const found = inventedAspect(
       [{ a_body: 'Moon', b_body: 'Sun', type: 'conjunction', reading: '...' }],
       computed,

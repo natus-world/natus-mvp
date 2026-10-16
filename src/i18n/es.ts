@@ -593,6 +593,8 @@ export const es = {
       balance: 'Entre las dos cartas',
       flow: 'Flujo',
       friction: 'Fricción',
+      aspectFlows: 'Fluye naturalmente',
+      aspectWork: 'Pide más trabajo',
       loBueno: 'Lo bueno',
       tenerEnCuenta: 'Qué tener en cuenta',
       queTrabajar: 'Qué trabajar',

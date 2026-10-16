@@ -154,6 +154,11 @@ export const comparisonResultSchema = z.object({
         a_body: z.string().min(1),
         b_body: z.string().min(1),
         type: z.string().min(1),
+        /** v1.2 A-02, decided by the model (owner, 15 Oct 2026): whether this
+         *  aspect flows naturally or asks for more work. Optional only so
+         *  comparisons made before it still read; the function refuses a new
+         *  one without it. Never a grade. */
+        flow: z.enum(['fluye', 'pide_trabajo']).optional(),
         reading: z.string().min(1),
       }),
     ),

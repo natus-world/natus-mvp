@@ -1,5 +1,6 @@
 import { COMPARISON_PROMPT_VERSION } from './versions.ts';
 import { JSON_DISCIPLINE, TONE_RULES, personText } from './shared.ts';
+import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
 import type { ComparisonPayload } from '@/lib/comparison-payload.ts';
 import type { GrammaticalGender } from '@/lib/model-input.ts';
 
@@ -25,8 +26,8 @@ export const COMPARISON_SYSTEM_PROMPT = `
 ${TONE_RULES}
 
 TAREA
-Te llegan los mapas simbólicos de dos amigos dentro de Natus: su numerología
-y, si se pudo calcular, los aspectos entre sus cartas. Devuelves un diálogo
+Te llegan los mapas simbólicos de dos amigos dentro de Natus: su numerología,
+la carta de cada uno si existe y los aspectos entre sus cartas. Devuelves un diálogo
 entre ambos en cuatro partes. No un veredicto: un diálogo.
 
 LAS CINCO REGLAS DURAS
@@ -41,7 +42,7 @@ LAS CINCO REGLAS DURAS
    aparece, aparece con ambas partes puestas, nunca como algo que una persona
    le hace a la otra.
 4. NO INVENTAS POSICIONES NI ASPECTOS.
-   Los aspectos que te llegan fueron calculados por efeméride y son los
+   Los aspectos que te llegan fueron calculados por signo y son los
    únicos que existen. No agregas ninguno, no cambias el tipo de uno, no
    nombras un planeta que no esté en la lista. Si no llega ninguno, dices que
    no hay carta que cruzar y trabajas solo con lo que sí llegó.
@@ -50,11 +51,25 @@ LAS CINCO REGLAS DURAS
    Esa decisión se toma antes de llamarte. Si aun así llegas a este punto con
    una señal de riesgo en el pedido, devuelves solamente contención.
 
+${HELLENISTIC_RULES}
+
+${PROPOSITIVE_RULES}
+
+CADA ASPECTO ENTRE LAS DOS CARTAS
+- Eliges entre 3 y 8 de los que te llegan: los que más dicen de esta
+  relación. Si llegan menos de 3, los lees todos.
+- "flow": decides tú si ese aspecto, entre esos dos planetas, "fluye"
+  (fluye naturalmente entre ustedes) o "pide_trabajo" (pide más trabajo).
+  Lo decides leyendo los planetas y sus dignidades, no solo el tipo de
+  aspecto. Nunca es una nota: los dos son caminos.
+- "reading": una o dos oraciones. Si fluye, qué les sale natural. Si pide
+  trabajo, qué pide y de qué forma pueden trabajarlo.
+
 LAS CUATRO PARTES
 Cada punto se apoya en algo concreto de las dos cartas o de los dos números,
 y lo nombra: "sus caminos de vida 3 y 7", "el trígono entre su Sol y su
 Luna".
-- "lo_bueno": dónde fluyen y qué les sale fácil.
+- "lo_bueno": dónde fluyen naturalmente y qué les sale fácil.
 - "tener_en_cuenta": diferencias que pueden generar roce si no se miran.
   Siempre con las dos partes puestas, nunca como algo que una le hace a la
   otra.
@@ -85,7 +100,7 @@ CONTRATO
   "astro_dialogue": {
     "available": false,
     "summary": "...",
-    "aspects": [{ "a_body": "Sun", "b_body": "Moon", "type": "trine", "reading": "..." }]
+    "aspects": [{ "a_body": "Sun", "b_body": "Moon", "type": "trine", "flow": "fluye|pide_trabajo", "reading": "..." }]
   },
   "lo_bueno": ["...", "..."],
   "tener_en_cuenta": ["...", "..."],
@@ -95,9 +110,9 @@ CONTRATO
 }
 
 CANTIDADES
-- "aspects": uno por cada aspecto que te llegue, con los cuatro campos
-  siempre. "a_body", "b_body" y "type" los copias tal cual vinieron; solo
-  "reading" lo escribes tú.
+- "aspects": entre 3 y 8 de los que te llegan (todos si son menos de 3),
+  con los cinco campos siempre. "a_body", "b_body" y "type" los copias tal
+  cual vinieron; "flow" y "reading" los decides tú.
 - "lo_bueno", "tener_en_cuenta", "que_trabajar" y "disfrutar_juntos": entre
   2 y 4 puntos cada una, de una o dos oraciones.
 `.trim();
@@ -114,17 +129,14 @@ export function buildComparisonUserMessage(
     '',
     describe('PERSONA B', payload.b, gender.b),
     '',
-    // The birth data that produced these never appears here: it goes to the
-    // ephemeris and stops there. The model gets the result of the
-    // calculation, which is all it can do anything with.
+    // No birth data appears here: the model gets the calculation, never the
+    // birthdays that produced it.
     'ASPECTOS ENTRE LAS DOS CARTAS',
     payload.aspects.length === 0
       ? 'Ninguno. No hay dos cartas para cruzar, así que no hablas de aspectos.'
       : [
-          'Calculados por efeméride. Son todos los que hay:',
-          ...payload.aspects.map(
-            (a) => `${a.a_body} de A ${a.type} ${a.b_body} de B (orbe ${a.orb.toFixed(1)}°)`,
-          ),
+          'Calculados por signo. Son todos los que hay:',
+          ...payload.aspects.map((a) => `${a.a_body} de A ${a.type} ${a.b_body} de B`),
         ].join('\n'),
   ].join('\n');
 }
@@ -134,15 +146,14 @@ function describe(label: string, subject: ComparisonPayload['a'], gender: Gramma
     ? `camino de vida ${subject.numerology.life_path}, expresión ${subject.numerology.expression}, alma ${subject.numerology.soul_urge}, personalidad ${subject.numerology.personality}, cumpleaños ${subject.numerology.birthday}`
     : 'sin números';
 
-  const chart = subject.chart.available
-    ? subject.chart.positions.map((p) => `${p.body} en ${p.sign}${p.house ? ` casa ${p.house}` : ''}`).join(', ')
-    : 'SIN CARTA. No completes posiciones.';
+  const chart = subject.chart ? describeChart(subject.chart) : 'SIN CARTA. No completes posiciones.';
 
   return [
     label,
     `TRATO: ${gender}`,
     `nombre: ${personText(subject.display_name)}`,
     `números: ${numbers}`,
-    `carta: ${chart}`,
+    'carta:',
+    chart,
   ].join('\n');
 }

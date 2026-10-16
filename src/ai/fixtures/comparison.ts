@@ -105,15 +105,15 @@ export function buildComparisonFixture(payload: ComparisonPayload): ComparisonRe
     },
     // Always empty, and it has to be.
     //
-    // The aspects are computed by the ephemeris inside the Edge Function; a
-    // fixture has no access to one and never will. A hand-written aspect here
+    // The aspects are computed by sign inside the Edge Function, from both
+    // people's stored charts (v1.2 A-02); a fixture has neither. A hand-written aspect here
     // would be a placement invented by us rather than by the model, presented
     // as a reading of two real charts — the same lie with a different author,
     // and `src/ai/comparison.ts` rejects it for exactly that reason.
     astro_dialogue: {
       available: false,
       summary:
-        'El cruce de las dos cartas se calcula por efeméride y esta lectura no la tiene, así que esta sección queda sin contenido. Nada aquí se completa por aproximación.',
+        'El cruce de las dos cartas se calcula con las cartas guardadas y esta lectura no las tiene, así que esta sección queda sin contenido. Nada aquí se completa por aproximación.',
       aspects: [],
     },
     lo_bueno: loBueno,

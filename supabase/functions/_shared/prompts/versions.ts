@@ -2,10 +2,16 @@ export const CHAT_PROMPT_VERSION = 'chat-v1.3';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
-export const COMPARISON_PROMPT_VERSION = 'comparison-v2.0';
+export const COMPARISON_PROMPT_VERSION = 'comparison-v2.1';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.6';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'comparison-v2.1',
+    date: '2026-10-15',
+    change:
+      'v1.2 A-02: each friend\'s chart arrives read the Hellenistic way, and the aspects between the two are by sign, computed from the stored charts (no ephemeris call). The model picks 3 to 8 and decides for each whether it flows naturally or asks for more work, and how (owner, 15 Oct 2026). The propositive rule: nothing is rated good or bad.',
+  },
   {
     version: 'soul-map-v2.6',
     date: '2026-10-15',

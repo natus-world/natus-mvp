@@ -152,10 +152,10 @@ export function Result() {
               {result.astro_dialogue.summary}
             </p>
             {/*
-             * Every aspect here was computed by the ephemeris and checked
-             * against that list server-side before this rendered. The bodies
-             * and the aspect are the calculation; only the reading is the
-             * model's.
+             * Every aspect here was computed by sign from the two stored charts
+             * and checked against that list server-side before this rendered.
+             * The bodies and the aspect are the calculation; whether it flows
+             * or asks for work, and the reading, are the model's (A-02).
              */}
             {result.astro_dialogue.aspects.length > 0 && (
               <div className="mt-3 flex flex-col gap-2.5">
@@ -164,6 +164,11 @@ export function Result() {
                     <p className="mb-1 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
                       {bodyName(aspect.a_body)} · {aspectName(aspect.type)} · {bodyName(aspect.b_body)}
                     </p>
+                    {aspect.flow && (
+                      <p className="mb-1 text-[length:var(--fs-label-11)] tracking-wide text-crema/75">
+                        {aspect.flow === 'fluye' ? text.aspectFlows : text.aspectWork}
+                      </p>
+                    )}
                     <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/70">{aspect.reading}</p>
                   </article>
                 ))}
@@ -213,13 +218,17 @@ const FRICTION = new Set(['square', 'opposition']);
 
 /**
  * v1.2 C-02: the balance between flow and friction, with no number on it and
- * friction drawn with the same weight as flow. Counted from the aspects the
- * ephemeris computed; a conjunction can go either way, so it counts for
- * neither. Hidden when there is nothing to count.
+ * friction drawn with the same weight as flow. Counted from what the model
+ * decided for each aspect (A-02); a comparison made before that is counted by
+ * type, where a conjunction goes either way and counts for neither. Hidden
+ * when there is nothing to count.
  */
 function Balance({ aspects }: { aspects: ComparisonResult['astro_dialogue']['aspects'] }) {
-  const flow = aspects.filter((a) => FLOW.has(a.type.toLowerCase())).length;
-  const friction = aspects.filter((a) => FRICTION.has(a.type.toLowerCase())).length;
+  const flows = (a: (typeof aspects)[number]) => (a.flow ? a.flow === 'fluye' : FLOW.has(a.type.toLowerCase()));
+  const works = (a: (typeof aspects)[number]) =>
+    a.flow ? a.flow === 'pide_trabajo' : FRICTION.has(a.type.toLowerCase());
+  const flow = aspects.filter(flows).length;
+  const friction = aspects.filter(works).length;
   if (flow + friction === 0) return null;
 
   return (

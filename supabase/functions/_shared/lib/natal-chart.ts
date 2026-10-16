@@ -161,6 +161,28 @@ export const MAIN_POINTS = [...TRADITIONAL, 'Ascendant'] as const;
 export type MainPoint = (typeof MAIN_POINTS)[number];
 export type Placement = { name: MainPoint; sign: Sign; house: number | null };
 
+/** An aspect between two charts, by sign. No orb: it is never shown. */
+export type CrossAspect = { a_body: MainPoint; b_body: MainPoint; type: ChartAspect['type'] };
+
+/**
+ * v1.2 A-02: the aspects between two charts, by sign, as in one chart. Read
+ * between the seven visible planets and the Ascendant of each — the points
+ * the tradition reads between two people — so the list stays one a reading
+ * can hold.
+ */
+export function aspectsBetween(a: readonly ChartPoint[], b: readonly ChartPoint[]): CrossAspect[] {
+  const main = (points: readonly ChartPoint[]) =>
+    points.filter((p): p is ChartPoint & { name: MainPoint } => (MAIN_POINTS as readonly string[]).includes(p.name));
+  const aspects: CrossAspect[] = [];
+  for (const pa of main(a)) {
+    for (const pb of main(b)) {
+      const type = ASPECT_BY_DISTANCE[(signIndex(pb.sign) - signIndex(pa.sign) + 12) % 12];
+      if (type) aspects.push({ a_body: pa.name, b_body: pb.name, type });
+    }
+  }
+  return aspects;
+}
+
 export function mainPlacements(chart: NatalChart): Placement[] {
   return chart.points
     .filter((p): p is ChartPoint & { name: MainPoint } => (MAIN_POINTS as readonly string[]).includes(p.name))

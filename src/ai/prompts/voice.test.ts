@@ -80,8 +80,8 @@ function builders(gender: GrammaticalGender, text: string): [string, string][] {
       buildComparisonUserMessage(
         {
           scope: { numerology: false, astro: false, soul_map_themes: true },
-          a: { display_name: text, numerology: null, soul_map_themes: [text], chart: { available: false, positions: [] }, birth: null },
-          b: { display_name: text, numerology: null, soul_map_themes: [text], chart: { available: false, positions: [] }, birth: null },
+          a: { display_name: text, numerology: null, soul_map_themes: [text], chart: null },
+          b: { display_name: text, numerology: null, soul_map_themes: [text], chart: null },
           aspects: [],
         },
         { a: gender, b: 'neutro' },
