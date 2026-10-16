@@ -64,8 +64,14 @@ The product runs end to end in production: onboarding, natal chart by
 ephemeris, Soul Map, recommendations, chat, meditations and synastry, all with
 real generation, all walked on the deployed site.
 
-**v1.2 is being implemented, and most of it is not built yet:** the journal,
-memory, today's sky, notifications, payments, the full chart. Friends and the
+**v1.2 is being implemented, and most of it is not built yet:** memory,
+today's sky, notifications, the full chart.
+The journal (B-01) is built (16 Oct 2026): its own tab, typed entries in
+`journal_entries`, each scanned for crisis and kept either way with
+`crisis_flagged` so the memory never reads it; deleting leaves only a
+`journal_entry_deleted` row in `system_audit_log`. Voice (premium) is not
+built. The guide's notices about Davraz reading the journal wait for the
+memory; until then the screen says only that it is theirs and deletable. Friends and the
 comparison between them (C-01, C-02) are built, and so is the routine
 (R-01): written after the therapies, by its own function, each practice
 saying what it converses with and keeping its origin in `routine_practices`.
