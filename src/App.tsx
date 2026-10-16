@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { accountRequired, clearAccountRequirement } from '@/store/account-required';
 import { PhoneFrame } from '@/components/PhoneFrame';
 import { SaveFailureNotice } from '@/components/SaveFailureNotice';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -70,7 +71,8 @@ function titleFor(pathname: string): string {
 }
 
 export function App() {
-  const { pathname } = useLocation();
+  const { pathname, search, hash } = useLocation();
+  const navigate = useNavigate();
   const takeoverShown = useTakeoverShown();
   const [helpOpen, setHelpOpen] = useState(false);
   const openHelp = useCallback(() => setHelpOpen(true), []);
@@ -100,11 +102,15 @@ export function App() {
     let live = true;
     rememberFirstTouch();
     let memoryTimer: ReturnType<typeof setInterval> | null = null;
-    void hydrate().then((result) => {
+    void hydrate().then(async (result) => {
       if (result.kind === 'remote') {
         track('app_opened');
-        // Back from Google with a map to keep: the account is created now.
-        void completeLinkedSignup();
+        // Back from Google with a map to keep: the account is created now,
+        // before anything renders, and the map it was asked for is shown.
+        if (await completeLinkedSignup()) {
+          clearAccountRequirement();
+          navigate('/carta', { replace: true });
+        }
         const profile = activeProfile();
         if (profile) void ensureWholeSignChart(profile.draft);
         // v1.2 M-01: whatever the memory has not read yet, and every few
@@ -159,6 +165,12 @@ export function App() {
         {helpOpen && <HelpNowPanel onClose={closeHelp} />}
       </PhoneFrame>
     );
+  }
+
+  // A map made after Google became required is saved before it is seen
+  // (owner, 16 Oct 2026). The policies stay readable on the way.
+  if (accountRequired() && !['/registro', '/privacidad', '/terminos'].includes(pathname)) {
+    return <Navigate to={{ pathname: '/registro', search, hash }} replace />;
   }
 
   return (

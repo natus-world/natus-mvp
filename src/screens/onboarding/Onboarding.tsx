@@ -1,3 +1,6 @@
+import { googleSignInEnabled } from '@/supabase/client.ts';
+import { isSignedIn } from '@/store/account';
+import { requireAccount } from '@/store/account-required';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { track } from '@/store/funnel';
 import { useNavigate } from 'react-router-dom';
@@ -110,7 +113,26 @@ export function Onboarding() {
     });
   }, []);
 
-  const onDone = useCallback(() => navigate('/carta'), [navigate]);
+  // Google before the map (owner, 16 Oct 2026), once the project has it on.
+  const [googleOn, setGoogleOn] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void googleSignInEnabled().then((on) => {
+      if (live) setGoogleOn(on);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const onDone = useCallback(() => {
+    if (googleOn && !isSignedIn()) {
+      requireAccount();
+      navigate('/registro');
+      return;
+    }
+    navigate('/carta');
+  }, [navigate, googleOn]);
 
   const numerologyPreview = useMemo(() => {
     if (!draft.legal_birth_name || !/^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date)) return null;

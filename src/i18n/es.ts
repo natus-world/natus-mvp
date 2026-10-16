@@ -592,6 +592,19 @@ export const es = {
       'Esa cuenta de Google ya tiene su propio espacio en Natus. Para usarla, entra con ella desde el inicio.',
     googleFailed: 'No pudimos abrir el ingreso con Google. Inténtalo de nuevo en un momento.',
     later: 'Ahora no',
+    // Google before the map (owner, 16 Oct 2026); approved texts.
+    required: {
+      titleLead: 'Tu mapa ',
+      titleEmphasis: 'está listo',
+      helper:
+        'Guárdalo en tu cuenta de Google para verlo y volver a él cuando quieras, desde cualquier dispositivo.',
+      cta: 'Continuar con Google',
+      note: 'Usamos tu cuenta de Google solo para que puedas volver a entrar.',
+      // Proposed: that Google account already has its own space.
+      taken:
+        'Esa cuenta de Google ya tiene su propio espacio en Natus. Puedes entrar con ella, o elegir otra cuenta para guardar este mapa.',
+      useThatAccount: 'Entrar con esa cuenta',
+    },
   },
   gate: {
     authFailed: 'No pudimos abrir el ingreso con Google. Inténtalo de nuevo en un momento.',

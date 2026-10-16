@@ -6,7 +6,8 @@ import { SignupError, isSignedIn, signUp } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { googleSignInEnabled, isBackendConfigured } from '@/supabase/client.ts';
 import { LegalLinks } from '@/components/LegalLinks';
-import { linkGoogle, oauthErrorInUrl, upgradeToEmail } from '@/supabase/session.ts';
+import { linkGoogle, oauthErrorInUrl, signInWithGoogle, upgradeToEmail } from '@/supabase/session.ts';
+import { accountRequired } from '@/store/account-required';
 
 /**
  * The conversion moment of PDR section 3: the account is asked for *after* the
@@ -42,7 +43,8 @@ export function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
-  const [google, setGoogle] = useState(false);
+  // Somebody sent here to save a new map already knows Google is on.
+  const [google, setGoogle] = useState(() => accountRequired());
   useEffect(() => {
     let live = true;
     void googleSignInEnabled().then((on) => {
@@ -52,8 +54,12 @@ export function Signup() {
       live = false;
     };
   }, []);
+  const taken = oauthErrorInUrl() === 'identity_already_exists';
+  // Google before the map (owner, 16 Oct 2026): no «Ahora no».
+  const required = accountRequired();
+  const r = text.required;
   const [googleError, setGoogleError] = useState<string | null>(() =>
-    oauthErrorInUrl() === 'identity_already_exists' ? text.googleTaken : null,
+    taken ? (required ? r.taken : text.googleTaken) : null,
   );
 
   if (isSignedIn()) {
@@ -150,12 +156,12 @@ export function Signup() {
         <p className="eyebrow mb-3">{text.kicker}</p>
 
         <h1 className="mb-3 text-[length:var(--fs-title-30)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {text.titleLead}
-          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
+          {required ? r.titleLead : text.titleLead}
+          <span className="font-serif text-crema italic">{required ? r.titleEmphasis : text.titleEmphasis}</span>
         </h1>
 
         <p className="mb-7 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          {text.helper}
+          {required ? r.helper : text.helper}
         </p>
 
         {google ? (
@@ -165,7 +171,9 @@ export function Signup() {
                 {googleError}
               </p>
             )}
-            <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">{text.googleNote}</p>
+            <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
+              {required ? r.note : text.googleNote}
+            </p>
             <div className="mt-auto flex flex-col gap-2.5 pt-8">
               <button
                 type="button"
@@ -180,11 +188,23 @@ export function Signup() {
                   });
                 }}
               >
-                {sending ? text.saving : text.google}
+                {sending ? text.saving : required ? r.cta : text.google}
               </button>
-              <Link to="/hoy" className="chip chip-p10 text-center text-crema/60 no-underline">
-                {text.later}
-              </Link>
+              {required ? (
+                taken && (
+                  <button
+                    type="button"
+                    className="chip chip-p10 text-center text-crema/70"
+                    onClick={() => void signInWithGoogle().catch(() => setGoogleError(text.googleFailed))}
+                  >
+                    {r.useThatAccount}
+                  </button>
+                )
+              ) : (
+                <Link to="/hoy" className="chip chip-p10 text-center text-crema/60 no-underline">
+                  {text.later}
+                </Link>
+              )}
               <LegalLinks className="pt-1" />
             </div>
           </>

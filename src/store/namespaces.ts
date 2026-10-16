@@ -25,7 +25,9 @@ export type Namespace =
   /** Where this browser first came from (utm_source, utm_campaign), if the link said. */
   | 'first_touch'
   /** Which stored chart was last rebuilt by whole sign (v1.2 A-01). */
-  | 'whole_sign_chart';
+  | 'whole_sign_chart'
+  /** The map was made after Google became required: save it before seeing it. */
+  | 'account_required';
 
 /**
  * `ai_mode` used to live at the end of that union and held a pasted Anthropic

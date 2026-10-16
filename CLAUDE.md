@@ -321,16 +321,17 @@ provider on in Supabase, Site URL and redirect set. Manual linking was asked
 for; confirm it in the dashboard. A real Google round trip has not been
 walked yet — only the owner can.
 
-**Google first, for the evening of 16 Oct 2026 (owner leaning yes, not yet
-built).** Ask for the Google account before the onboarding instead of after
-the map: more serious for the brand, and no anonymous rows piling up (nothing
-purges them today). Most of it exists as the invite door
-(`VITE_REQUIRE_INVITE`, `Gate`, `signInWithGoogle`). Left to do: create the
-account on the way back from Google rather than when the map is saved; send
-a returning person on a new device straight to their space; keep «Guardar con
-Google» for anybody who already started anonymously; turn the gate's «no
-está abierto» copy into the landing. The landing's «Sin cuenta, sin
-diagnóstico» must change — the owner gives the text.
+**Google before the map is seen (owner, 16 Oct 2026, built).** Once the
+project has Google on, a map made from then on is saved before it is shown:
+the onboarding ends on `/registro` with «Tu mapa está listo» and «Continuar
+con Google», no «Ahora no», and every other route sends there until the
+account exists (`store/account-required.ts`; the policies stay readable).
+Back from Google, the account is created and the map opens. Somebody who
+started without an account before keeps «Guardar mi mapa» as an offer. When
+the Google account already has its own space, «Entrar con esa cuenta»
+signs into it and the new map stays behind on the anonymous row (that text
+and the message above it are proposals). Anonymous rows are still created at
+the first page load and nothing purges them.
 
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
