@@ -90,6 +90,12 @@ export const chatContextSchema = z.object({
     .array(z.object({ role: z.enum(['user', 'assistant']), text: z.string().max(MAX_TURN_CHARS) }))
     .max(MAX_TURNS)
     .default([]),
+  /**
+   * A comparison with a friend the person wants to talk over. Only the id
+   * crosses: the function reads the result itself, as the person, and only
+   * while the friendship is accepted.
+   */
+  comparisonFriendshipId: z.string().uuid().nullable().default(null),
 });
 export type ChatContext = z.infer<typeof chatContextSchema>;
 

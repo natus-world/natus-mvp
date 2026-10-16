@@ -131,14 +131,22 @@ Davraz does not do work for the person (a thesis, a report, code) and turns
 the conversation back to how they are living it (chat-v1.5, 16 Oct 2026).
 The chat counter adds «Este mes tienes 1 pregunta nueva» for a returning
 free person whose month brought one (`quota_parts` behind `my_quota`).
-Decided and not built: the chat may talk over a comparison with a friend,
-receiving only its result and only while the friendship lasts; editing the
-birth data in the profile (owner, 16 Oct 2026), which recalculates the chart
-and numbers and regenerates the Soul Map with Opus (M-02); the monthly
-regeneration with Sonnet, with the date and the previous version in Carta.
-Waiting on the owner: how to sign in besides Google — proposed, a link by
-email through a mail service the owner opens (Resend), and Apple once there
-is an Apple developer account. The
+The chat can talk over a comparison with a friend (chat-v1.6, 16 Oct 2026):
+«Conversar sobre esto con Davraz» under the result opens the chat with the
+friendship id; the function reads the latest result itself, only while the
+friendship is accepted and never for somebody clinically vulnerable, and
+holds the answer to `lintChartJudgement`. The Soul Map is written again every
+30 days with Sonnet (`store/monthly-map.ts`, on opening); a monthly rewrite
+keeps the paths, the routine and the conversation (`onlyMonthlySince`), and
+Carta shows «Actualizado el …» and the previous version. Texts approved by
+the owner, 16 Oct 2026.
+Decided and not built: editing the birth data in the profile (owner, 16 Oct
+2026) recalculates the chart and numbers, regenerates the Soul Map with Opus
+(M-02) and chooses the therapies and the routine again, because the why of
+each therapy cites the chart.
+Sign-in (owner, 16 Oct 2026): Google plus a link by email now, Apple once
+there is an Apple developer account. The email link waits on a mail service
+the owner opens (Resend) and connects to natus.world as Supabase's SMTP. The
 plan, its order and the questions still open for the owner are in his doc
 «Guía de actualización de la app Natus»
 (https://claude.ai/artifact/9rw3grB3r7FQ6FVmnWfbbw); the requirements as agreed,

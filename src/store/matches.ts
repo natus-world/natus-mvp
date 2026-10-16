@@ -1,4 +1,5 @@
 import { read, write } from './db';
+import { onlyMonthlySince } from './soulMap';
 import type { MatchResult } from '@/lib/schemas';
 
 /**
@@ -61,7 +62,10 @@ export function currentMatch(): StoredMatch | undefined {
 /** A stored match computed from a superseded synthesis must not be shown. */
 export function currentMatchFor(synthesisId: string): StoredMatch | undefined {
   const match = currentMatch();
-  return match?.synthesis_id === synthesisId ? match : undefined;
+  if (!match) return undefined;
+  if (match.synthesis_id === synthesisId) return match;
+  // v1.2 M-02: the monthly rewrite of the map keeps the paths chosen before it.
+  return onlyMonthlySince(match.synthesis_id, synthesisId) ? match : undefined;
 }
 
 export function saveMatch(input: {

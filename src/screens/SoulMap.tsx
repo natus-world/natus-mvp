@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isDemoMode } from '@/supabase/client';
 import { PHOTO, Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { activeProfile, isSignedIn } from '@/store/account';
-import { currentSynthesis } from '@/store/soulMap';
+import { currentSynthesis, listSyntheses, type StoredSynthesis } from '@/store/soulMap';
 import { currentMatchFor } from '@/store/matches';
 import { routineFor } from '@/store/routine';
 import { PATHS } from '@/components/routes';
@@ -59,6 +60,46 @@ function Numbers({ numerology }: { numerology: Numerology }) {
   );
 }
 
+function dayOf(ms: number): string {
+  const d = new Date(ms);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return copy.journal.date(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, new Date().getFullYear());
+}
+
+function PreviousVersion({ stored, previous }: { stored: StoredSynthesis; previous: StoredSynthesis }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-6 flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <p className="text-[length:var(--fs-body-11)] text-crema/60">{text.updatedOn(dayOf(stored.created_at))}</p>
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+          className="text-[length:var(--fs-body-11)] text-crema/70 underline-offset-4 hover:text-crema hover:underline"
+        >
+          {open ? text.previousHide : text.previousShow}
+        </button>
+      </div>
+      {open && (
+        <div className="surface surface-p14 flex flex-col gap-4">
+          <p className="eyebrow">{text.previousFrom(dayOf(previous.created_at))}</p>
+          {(Object.keys(SECTION_TITLES) as (keyof typeof SECTION_TITLES)[]).map((key) => (
+            <section key={key}>
+              <h3 className="mb-1.5 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
+                {SECTION_TITLES[key]}
+              </h3>
+              <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/75">
+                {previous.synthesis.soul_map_synthesis[key]}
+              </p>
+            </section>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SoulMap() {
   const profile = activeProfile();
   const stored = currentSynthesis();
@@ -80,6 +121,10 @@ export function SoulMap() {
   }
 
   const { synthesis, numerology } = stored;
+  // v1.2 M-02: the version before this one, if the map has been written again.
+  const previous = listSyntheses()
+    .filter((s) => s.id !== stored.id && s.created_at < stored.created_at)
+    .sort((a, b) => b.created_at - a.created_at)[0];
   const toTry = routineFor(currentMatchFor(stored.id)).filter((p) => p.connects_to.soul_map);
 
   return (
@@ -102,6 +147,8 @@ export function SoulMap() {
             </section>
           ))}
         </div>
+
+        {previous && <PreviousVersion stored={stored} previous={previous} />}
 
         <div className="my-7 h-px w-10 bg-crema/25" />
 

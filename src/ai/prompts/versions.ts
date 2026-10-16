@@ -1,4 +1,4 @@
-export const CHAT_PROMPT_VERSION = 'chat-v1.5';
+export const CHAT_PROMPT_VERSION = 'chat-v1.6';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
@@ -8,6 +8,12 @@ export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chat-v1.6',
+    date: '2026-10-16',
+    change:
+      'The chat can talk over a comparison with a friend: its result arrives in the user message, read by the function only while the friendship is accepted, with the propositive rule for it (a mirror, never a verdict; nothing said for the friend; nothing added to their chart).',
+  },
   {
     version: 'routine-review-v1.1',
     date: '2026-10-16',

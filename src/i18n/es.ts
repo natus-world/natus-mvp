@@ -298,6 +298,12 @@ export const es = {
     start: 'Empezar',
     toPaths: 'Ver mis caminos',
     save: 'Guardar mi mapa',
+    // v1.2 M-02, proposed (not in the guide): when the map was last written
+    // and the version before it.
+    updatedOn: (date: string) => `Actualizado el ${date}`,
+    previousShow: 'Ver la versión anterior',
+    previousHide: 'Ocultar la versión anterior',
+    previousFrom: (date: string) => `Versión del ${date}`,
   },
   recommendations: {
     kicker: 'Caminos posibles',
@@ -438,6 +444,8 @@ export const es = {
     name: 'Davraz de Fala',
     aiLabel: 'IA',
     remaining: (n: number) => (n === 1 ? 'Te queda 1 pregunta' : `Te quedan ${n} preguntas`),
+    aboutComparison: (name: string) => `Conversando sobre tu comparación con ${name}`,
+    aboutComparisonRemove: 'Quitar',
     newThisMonth: (n: number) =>
       n === 1 ? 'Este mes tienes 1 pregunta nueva' : `Este mes tienes ${n} preguntas nuevas`,
     empty:
@@ -737,6 +745,7 @@ export const es = {
       queTrabajar: 'Qué trabajar',
       disfrutarJuntos: 'Qué disfrutar juntos',
       disclaimer: 'Esto es un espejo para conversar, no un veredicto sobre la relación.',
+      talkOver: 'Conversar sobre esto con Davraz',
     },
   },
 };

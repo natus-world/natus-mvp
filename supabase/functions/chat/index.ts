@@ -12,7 +12,9 @@ import { resourcesForCountry } from '../_shared/lib/crisis-resources.ts';
 import { chatContextSchema, chatEnvelopeSchema } from '../_shared/lib/model-input.ts';
 import { ModelError, generate, hasKey } from '../_shared/anthropic.ts';
 import { callerGrammaticalGender } from '../_shared/address.ts';
-import { chatResponseSchema } from '../_shared/lib/schemas/index.ts';
+import { chatResponseSchema, comparisonResultSchema, type ComparisonResult } from '../_shared/lib/schemas/index.ts';
+import { lintChartJudgement } from '../_shared/lib/copy-lint.ts';
+import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 import { hasFoodOrWeightSignal, lintPhysicalRisk } from '../_shared/lib/physical-risk.ts';
 import {
   CHAT_PROMPT_VERSION,
@@ -50,6 +52,37 @@ import {
  */
 const PROMPT_VERSION = CHAT_PROMPT_VERSION;
 const MODEL = modelFor('chat');
+
+/**
+ * A comparison the person wants to talk over, read as the person: RLS lets
+ * them read it only while the friendship is accepted, and the friendship is
+ * checked here too. Only its result; nothing else about the friend. Not for
+ * somebody clinically vulnerable, the comparison's own rule 6.
+ */
+async function comparisonToTalkOver(
+  caller: SupabaseClient,
+  userId: string,
+  friendshipId: string | null,
+  vulnerable: boolean,
+): Promise<ComparisonResult | null> {
+  if (!friendshipId || vulnerable) return null;
+  const { data: friendship } = await caller
+    .from('friendships')
+    .select('requester_id, addressee_id, status')
+    .eq('id', friendshipId)
+    .maybeSingle();
+  if (!friendship || friendship.status !== 'accepted') return null;
+  if (friendship.requester_id !== userId && friendship.addressee_id !== userId) return null;
+  const { data } = await caller
+    .from('chart_comparisons')
+    .select('result')
+    .eq('friendship_id', friendshipId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const parsed = comparisonResultSchema.safeParse(data?.result);
+  return parsed.success ? parsed.data : null;
+}
 
 Deno.serve(async (request) => {
   const cors = preflight(request);
@@ -184,6 +217,7 @@ Deno.serve(async (request) => {
     quota.tier === 'premium' && (await memoryConsented(caller, userId)) ? readMemory(caller, userId) : null,
   ]);
   const recommendedSlugs = withoutClinicalExclusions(context.data.recommendedSlugs, vulnerable).kept;
+  const comparison = await comparisonToTalkOver(caller, userId, context.data.comparisonFriendshipId, vulnerable);
   const risk = vulnerable && context.data.risk === 'none' ? 'elevated' : context.data.risk;
 
   // The prompt is built here, from the contract in `_shared/prompts`, and
@@ -211,6 +245,7 @@ Deno.serve(async (request) => {
         history: context.data.history,
         gender,
         memory,
+        comparison,
       }),
       schema: chatResponseSchema,
       maxTokens: MAX_OUTPUT_TOKENS.chat,
@@ -226,7 +261,10 @@ Deno.serve(async (request) => {
         ],
         topics: context.data.synthesis.inferred_topics,
       });
-    const violation = lintPhysicalRisk(generated.value, { fastingBarred })[0];
+    // Over a comparison, nothing between two people is rated good or bad
+    // (owner, 15 Oct 2026), the comparison's own rule.
+    const judged = comparison ? lintChartJudgement(generated.value)[0] : undefined;
+    const violation = judged ?? lintPhysicalRisk(generated.value, { fastingBarred })[0];
     if (violation) {
       throw new ModelError(
         `Copy rule "${violation.rule}" broken at ${violation.path}`,

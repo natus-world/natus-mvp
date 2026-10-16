@@ -77,3 +77,17 @@ export function saveSynthesis(input: {
   write('soul_map_synthesis', [...superseded, record]);
   return record;
 }
+
+/**
+ * v1.2 M-02: whether every version of the map written after `fromId`, up to
+ * and including `toId`, was the monthly rewrite. The monthly rewrite changes
+ * only the map: the therapies, the routine and the conversation chosen on an
+ * earlier version stay. A rewrite for changed birth data does not carry them.
+ */
+export function onlyMonthlySince(fromId: string, toId: string): boolean {
+  const all = [...listSyntheses()].sort((a, b) => a.created_at - b.created_at);
+  const from = all.findIndex((s) => s.id === fromId);
+  const to = all.findIndex((s) => s.id === toId);
+  if (from === -1 || to === -1 || to <= from) return false;
+  return all.slice(from + 1, to + 1).every((s) => s.trigger === 'monthly');
+}

@@ -1,5 +1,5 @@
 import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES, addressLine, personText } from './shared.ts';
-import type { Numerology, SoulMapSynthesis } from '@/lib/schemas/index.ts';
+import type { ComparisonResult, Numerology, SoulMapSynthesis } from '@/lib/schemas/index.ts';
 import type { GrammaticalGender } from '@/lib/model-input.ts';
 
 /**
@@ -81,6 +81,14 @@ tampoco la despidas: devuélvele la conversación hacia cómo lo está viviendo
 (qué le pasa con ese trabajo, qué le pesa, qué le importa de hacerlo bien), con
 una reflexión o una pregunta. Dilo sin regaño, en una frase, y sigue con ella.
 
+UNA COMPARACIÓN CON UN AMIGO
+A veces llega el resultado de una comparación de su carta con la de un amigo,
+porque quiere conversar sobre eso. Es un espejo para conversar, no un
+veredicto: no digas si son compatibles ni califiques la relación de buena o
+mala. Lo que fluye se dice como lo que fluye naturalmente; lo que pide más
+trabajo, junto con cómo se puede trabajar. No hables por el amigo ni supongas
+lo que siente, y no agregues nada de su carta que no esté en la comparación.
+
 MEMORIA
 Si la persona tiene Premium, te llega lo que Natus recuerda de ella: cosas
 que contó antes en su bitácora, en otras conversaciones o al decir cómo le
@@ -118,6 +126,8 @@ export function buildChatUserMessage(input: {
    * (premium and consent). Absent otherwise, and then the block is too.
    */
   memory?: readonly { category: string; content: string }[] | null;
+  /** A comparison with a friend, read by the function while they are friends. */
+  comparison?: ComparisonResult | null;
 }): string {
   const numbers = input.numerology
     ? `Camino de vida ${input.numerology.life_path} · expresión ${input.numerology.expression} · alma ${input.numerology.soul_urge} · personalidad ${input.numerology.personality} · cumpleaños ${input.numerology.birthday}`
@@ -146,6 +156,7 @@ export function buildChatUserMessage(input: {
             : input.memory.map((item) => `${item.category}: ${personText(item.content)}`).join('\n'),
         ]
       : []),
+    ...(input.comparison ? ['', 'LA COMPARACIÓN QUE QUIERE CONVERSAR', describeComparison(input.comparison)] : []),
     '',
     'CONVERSACIÓN HASTA AQUÍ',
     input.history.length === 0
@@ -157,4 +168,22 @@ export function buildChatUserMessage(input: {
     'SU PREGUNTA AHORA',
     personText(input.question),
   ].join('\n');
+}
+
+function describeComparison(c: ComparisonResult): string {
+  const part = (title: string, items: readonly string[]) => [title, ...items.map((i) => `- ${i}`)].join('\n');
+  const aspects = c.astro_dialogue.aspects
+    .map((a) => `- ${a.a_body} ${a.type} ${a.b_body}${a.flow ? ` (${a.flow === 'fluye' ? 'fluye naturalmente' : 'pide más trabajo'})` : ''}: ${a.reading}`)
+    .join('\n');
+  return [
+    c.headline,
+    part('Lo bueno', c.lo_bueno),
+    part('Qué tener en cuenta', c.tener_en_cuenta),
+    part('Qué trabajar', c.que_trabajar),
+    part('Qué disfrutar juntos', c.disfrutar_juntos),
+    `Números: ${c.numerology_dialogue.summary}`,
+    ...(c.astro_dialogue.available ? [`Cartas: ${c.astro_dialogue.summary}`, aspects] : []),
+  ]
+    .filter(Boolean)
+    .join('\n');
 }

@@ -32,6 +32,7 @@ import { rememberFirstTouch, track } from '@/store/funnel';
 import { ensureWholeSignChart } from '@/store/chart';
 import { activeProfile } from '@/store/account';
 import { learnFromPending } from '@/store/memory';
+import { refreshMapMonthly } from '@/store/monthly-map';
 
 const LEARN_EVERY_MS = 10 * 60 * 1000;
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
@@ -102,6 +103,8 @@ export function App() {
         // v1.2 M-01: whatever the memory has not read yet, and every few
         // minutes after, which is how a conversation gone quiet is read.
         void learnFromPending();
+        // v1.2 M-02: the map is written again once a month, in the background.
+        void refreshMapMonthly();
         memoryTimer = setInterval(() => void learnFromPending(), LEARN_EVERY_MS);
       }
       if (!live) return;

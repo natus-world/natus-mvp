@@ -1,4 +1,5 @@
 import { read, write } from './db';
+import { onlyMonthlySince } from './soulMap';
 import { isSubscribed } from './subscription';
 import type { ChatResponse } from '@/lib/schemas';
 import { isChargeable, quotaState } from '@/lib/quota.ts';
@@ -69,6 +70,12 @@ export function listMessages(conversationId: string): StoredMessage[] {
 export function conversationFor(synthesisId: string, now = Date.now()): Conversation {
   const existing = listConversations().find((c) => c.synthesis_id === synthesisId);
   if (existing) return existing;
+  // v1.2 M-02: the monthly rewrite of the map continues the same conversation;
+  // a rewrite for changed birth data starts a new one.
+  const continued = [...listConversations()]
+    .sort((a, b) => b.created_at - a.created_at)
+    .find((c) => onlyMonthlySince(c.synthesis_id, synthesisId));
+  if (continued) return continued;
 
   const conversation: Conversation = {
     id: newId('conversation'),

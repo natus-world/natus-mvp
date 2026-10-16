@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { Paywall } from '@/components/Paywall';
@@ -13,6 +13,7 @@ import { currentSynthesis } from '@/store/soulMap';
 import { currentMatchFor } from '@/store/matches';
 import { activeHighSeverityEvent, hadCrisisWithin30Days, markFalsePositive, recordCrisisEvent } from '@/store/crisis';
 import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
+import { listFriends } from '@/store/friends';
 import {
   appendAssistantMessage,
   appendUserMessage,
@@ -62,6 +63,28 @@ export function Chat() {
   // v1.2 F-01: what the plan has left, as the server counts it. Null in the
   // fixture demo, which counts on its own.
   const [quota, setQuota] = useState<Quota | null>(null);
+  // A comparison with a friend to talk over, from its result screen. Shown
+  // only once the friendship is confirmed; the server checks it again.
+  const [params, setParams] = useSearchParams();
+  const aboutId = params.get('comparacion');
+  const [aboutFriend, setAboutFriend] = useState<string | null>(null);
+  useEffect(() => {
+    if (!aboutId) {
+      setAboutFriend(null);
+      return;
+    }
+    let live = true;
+    void listFriends()
+      .then((friends) => {
+        if (live) setAboutFriend(friends.find((f) => f.friendshipId === aboutId)?.firstName ?? null);
+      })
+      .catch(() => {
+        if (live) setAboutFriend(null);
+      });
+    return () => {
+      live = false;
+    };
+  }, [aboutId]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' });
@@ -145,6 +168,7 @@ export function Chat() {
         }),
         recommendedSlugs,
         country: profile.draft.country,
+        comparisonFriendshipId: aboutFriend ? aboutId : null,
         history: listMessages(conversation.id)
           .filter((m) => m.id !== user.id)
           .map((m) => ({ role: m.role, text: m.text })),
@@ -207,6 +231,20 @@ export function Chat() {
               <span className="shrink-0 text-[length:var(--fs-body-11)] text-crema/70">{text.remaining(remaining)}</span>
             )}
           </div>
+          {aboutFriend && (
+            <div className="flex items-center justify-between gap-3 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2">
+              <span className="text-[length:var(--fs-body-11_5)] leading-snug text-crema/75">
+                {text.aboutComparison(aboutFriend)}
+              </span>
+              <button
+                type="button"
+                className="shrink-0 text-[length:var(--fs-body-11)] text-crema/60 underline-offset-4 hover:text-crema hover:underline"
+                onClick={() => setParams({}, { replace: true })}
+              >
+                {text.aboutComparisonRemove}
+              </button>
+            </div>
+          )}
           {quota && quota.tier === 'free' && quota.newThisMonth > 0 && (
             // Guide 9.9: said once the month has renewed it, never as pressure.
             <p className="text-right text-[length:var(--fs-body-11)] text-crema/60">

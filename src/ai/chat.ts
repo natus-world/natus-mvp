@@ -17,6 +17,8 @@ export type ChatAsk = {
   history: readonly ChatTurn[];
   /** Chooses the crisis resource list if the server's Layer 1 fires. */
   country: string;
+  /** A comparison with a friend to talk over; the server reads it, if they are still friends. */
+  comparisonFriendshipId?: string | null;
 };
 
 export async function askChat(input: ChatAsk): Promise<AiResult<ChatResponse>> {
@@ -37,6 +39,7 @@ export async function askChat(input: ChatAsk): Promise<AiResult<ChatResponse>> {
         risk: input.risk,
         recommendedSlugs: [...input.recommendedSlugs],
         history: [...history],
+        comparisonFriendshipId: input.comparisonFriendshipId ?? null,
       },
     },
     fixture: () =>

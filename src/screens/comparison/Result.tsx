@@ -219,6 +219,13 @@ export function Result() {
             {text.disclaimer}
           </p>
 
+          <Link
+            to={`${PATHS.chat}?comparacion=${encodeURIComponent(friendshipId)}`}
+            className="chip chip-p10 mb-2.5 text-center text-crema/75 no-underline"
+          >
+            {text.talkOver}
+          </Link>
+
           <Link to={PATHS.comparison} className="chip chip-p10 mb-4 text-center text-crema/60 no-underline">
             {text.back}
           </Link>
