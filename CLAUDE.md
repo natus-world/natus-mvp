@@ -154,12 +154,7 @@ and Apple come later. Saving the map links Google to the anonymous row
 and `completeLinkedSignup` creates the account on the way back; the landing
 offers «Ya tengo cuenta: entrar con Google» for another device. Both appear
 only once the project has Google switched on (`googleSignInEnabled` reads
-the published Auth settings); until then the email form stays. **Google is
-not switched on in production** (checked 16 Oct 2026): the owner has to
-create the OAuth client and consent screen in Google Cloud (it asks for a
-privacy policy URL), paste the client id and secret into Supabase's Google
-provider, allow manual linking, and add https://app.natus.world to the
-redirect URLs. The texts «Guardar con Google», «Ya tengo cuenta: entrar con
+the published Auth settings); until then the email form stays. The texts «Guardar con Google», «Ya tengo cuenta: entrar con
 Google» and the note under the button are proposals. The
 plan, its order and the questions still open for the owner are in his doc
 «Guía de actualización de la app Natus»
@@ -316,9 +311,13 @@ the branding conversation.
 **The launch (owner, 16 Oct 2026): today, with Google sign-in only and without
 notifications** (N-01 goes last). Google is switched on in production
 (16 Oct 2026, 09:47): consent screen published, web client created, the
-provider on in Supabase, Site URL and redirect set. Manual linking was asked
-for; confirm it in the dashboard. A real Google round trip has not been
-walked yet — only the owner can.
+provider on in Supabase, Site URL and redirect set, manual linking on. The
+owner walked a new map through Google on the deployed site (16 Oct 2026,
+12:04): the account, the map, the chart and the funnel steps all landed on
+one non-anonymous row. Not yet walked, on hold by the owner: signing in on a
+second device, and a real PayPal subscription. Also owed: the project is on
+Supabase's free plan (pauses after a week idle, low limits) — Pro before
+paying users; and a total spend limit in Anthropic's console.
 
 **Google before the map is seen (owner, 16 Oct 2026, built).** Once the
 project has Google on, a map made from then on is saved before it is shown:
