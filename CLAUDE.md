@@ -319,6 +319,13 @@ licence to reverse.
   urgency, "te extrañamos". `store/matches.ts` computes a total, never a
   consecutive run. The number a streak needs is not calculated anywhere.
 - **No match percentages, ever.** The ranking orders; it does not score.
+- **Nothing is rated good, bad or so-so (owner, 15 Oct 2026).** Not a
+  planet, an aspect, a number, a day, nor what happens between two people:
+  no grades, faces or traffic lights — the thing Co-Star does in its
+  comparisons, which Natus does not. What flows is said as what flows
+  naturally; what is hard, as what asks for more work, always with how it
+  can be worked. It is a mirror: it gives back what is there for the person
+  to look at and decide. Same rule for one chart and for two.
 - **No facilitator names.** The MVP recommends modalities, not people.
 - **Revoking access hides the reading; it does not delete it.** Confirmed by
   the product owner on 2026-09-25, and kept by v1.2 C-01: comparisons are
