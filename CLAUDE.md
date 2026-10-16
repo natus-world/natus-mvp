@@ -192,9 +192,16 @@ theirs, and the reservations check it under their lock. A used quota is a
 402 and shows the paywall to free; premium's cap is a 429 with `scope: cap`
 and the day it renews. Premium is read from `subscriptions`, which only the
 server writes. Payment is PayPal, US$10 a month with the first month free,
-shown in dollars because that is what PayPal charges (owner, 15 Oct 2026);
-activating premium automatically from PayPal's notifications is decided and
-not built yet.
+shown in dollars because that is what PayPal charges (owner, 15 Oct 2026).
+Premium is activated by PayPal's notifications, not by hand: the
+`paypal-webhook` function (no JWT; PayPal's signature is verified with
+PayPal before anything is written) reads the Natus id the button stamps as
+`custom_id`, records each event once in `payment_events` (who and what,
+never name, email or amount) and keeps `subscriptions` in step. A
+cancellation keeps premium until what was paid runs out (`ends_at`); a
+suspension or expiry ends it at once. It needs three secrets the owner sets:
+`PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID`; until then
+it answers 503 and PayPal retries.
 
 **Two open questions with the data now being collected for them:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
@@ -257,7 +264,7 @@ data/        Seed JSON: modalities, topics, crisis resources, bed tracks.
 
 supabase/functions/
              soul-map · match · routine · chat · meditation · comparison
-             · natal-chart
+             · natal-chart · paypal-webhook
              One directory, URL and worker each. Four share the sequence in
              _shared/serve-model.ts; chat has a quota to consult mid-flow.
 ```

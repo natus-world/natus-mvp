@@ -379,6 +379,30 @@ if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
   );
 }
 
+// ── PayPal's notifications (v1.2 P-01) ─────────────────────────────────────
+//
+// Open to the internet by design (PayPal has no JWT), so the one thing that
+// must hold is that a notification PayPal did not sign changes nothing.
+{
+  const forged = await fetch(`${API}/functions/v1/paypal-webhook`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'paypal-transmission-sig': 'inventada' },
+    body: JSON.stringify({
+      id: `WH-${crypto.randomUUID()}`,
+      event_type: 'BILLING.SUBSCRIPTION.ACTIVATED',
+      resource: { id: 'I-FORGED', plan_id: 'P-6UF36541AB665994MNLIP4SQ', custom_id: userId },
+    }),
+  });
+  const { data: mine } = await client.from('subscriptions').select('status').eq('user_id', userId).maybeSingle();
+  check(
+    'paypal-webhook: a notification PayPal did not sign makes nobody premium',
+    forged.status !== 200 && mine?.status !== 'active',
+    `status=${forged.status} subscription=${mine?.status ?? 'none'}`,
+  );
+  const wrongVerb = await fetch(`${API}/functions/v1/paypal-webhook`, { method: 'GET' });
+  check('paypal-webhook: only POST', wrongVerb.status === 405, `status=${wrongVerb.status}`);
+}
+
 // ── the chart by whole sign, rebuilt from what is stored (v1.2 A-01) ───────
 //
 // No provider call: the positions are in the stored text, so this runs here

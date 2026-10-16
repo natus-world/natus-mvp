@@ -453,3 +453,8 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# v1.2 P-01: PayPal calls this, not a person, so there is no JWT to verify.
+# PayPal's own signature is checked inside the function instead.
+[functions.paypal-webhook]
+verify_jwt = false

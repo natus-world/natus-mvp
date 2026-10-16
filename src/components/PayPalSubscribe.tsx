@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { copy } from '@/i18n';
 import { currentSession } from '@/supabase/session';
+import { PAYPAL_PLAN_ID } from '@/lib/paypal';
 
 const text = copy.paywall;
 
@@ -8,18 +9,19 @@ const text = copy.paywall;
  * The PayPal subscription button: one free month, then US$10 a month (the
  * owner's plan "Premium mensual", created in PayPal on 2026-10-15).
  *
- * A bridge until dLocal Go (v1.2 P-01). Activation is manual: the button
- * stamps the subscription with the person's Natus user id (`custom_id`), so
- * whoever activates premium matches PayPal's subscription to the account by
- * id, not by an email that may differ. Only the server can then write the
- * subscription row; nothing here makes anybody premium.
+ * A bridge until dLocal Go (v1.2 P-01). Activation is automatic: the button
+ * stamps the subscription with the person's Natus user id (`custom_id`), and
+ * PayPal's notification to the paypal-webhook function carries it back, so
+ * the subscription finds its account by id, not by an email that may differ.
+ * Only the server writes the subscription row; nothing here makes anybody
+ * premium.
  *
  * Both ids are public by design — they are what PayPal's own embed code puts
  * in the page. No secret is involved.
  */
 const CLIENT_ID =
   'BAA6dUeknCd4kbm9_5bcct-YxE0oI_eAjrWyS2qDq10-qhcZZ8BRWyU5QWhaDSYfMBek0KEavc8DRrYH7Q';
-const PLAN_ID = 'P-6UF36541AB665994MNLIP4SQ';
+const PLAN_ID = PAYPAL_PLAN_ID;
 // Latin American Spanish (es_MX; PayPal refuses es_XC without a country), and no PayPal Credit or Pay Later: both are US
 // offers that would only add buttons nobody here can use.
 const SDK_URL =

@@ -367,8 +367,7 @@ export const es = {
     },
     offerTitle: 'Premium: el primer mes es gratis',
     offerBody: 'Después, US$10 al mes. Puedes cancelar cuando quieras desde PayPal.',
-    approved:
-      'Listo. Tu suscripción quedó registrada en PayPal. Activamos tu Premium en cuanto lo confirmemos.',
+    approved: 'Listo. Tu suscripción quedó registrada en PayPal y tu Premium se activa en unos segundos.',
     unavailable: 'Ahora no pudimos cargar el pago. Prueba de nuevo en un rato.',
     back: 'Volver',
   },
