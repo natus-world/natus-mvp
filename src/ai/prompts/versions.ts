@@ -3,9 +3,15 @@ export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
 export const COMPARISON_PROMPT_VERSION = 'comparison-v2.0';
-export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.5';
+export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.6';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'soul-map-v2.6',
+    date: '2026-10-15',
+    change:
+      'v1.2 A-02: the chart arrives calculated the Hellenistic way (whole-sign houses, dignities, Ascendant ruler, sect, aspects by sign) instead of the provider text, with the Hellenistic rules; and the owner\'s rule that nothing is rated good or bad, as a mirror.',
+  },
   {
     version: 'match-v1.5',
     date: '2026-10-15',

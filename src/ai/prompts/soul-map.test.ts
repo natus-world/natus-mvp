@@ -1,51 +1,58 @@
 import { describe, expect, it } from 'vitest';
 import { emptyDraft } from '@/store/session';
 import { soulMapDraftSchema } from '@/lib/model-input';
-import { buildSoulMapUserMessage } from './soul-map';
+import { SOUL_MAP_SYSTEM_PROMPT, buildSoulMapUserMessage } from './soul-map';
 
-describe('Soul Map astrological context', () => {
-  it('injects a calculated chart into the chart block', () => {
+const CONTEXT = `<chart_analysis><planets>
+<point name="Sun" position="13.50" sign="Gemini" abs_pos="73.50" house="Tenth House" motion="direct" />
+<point name="Moon" position="2.00" sign="Taurus" abs_pos="32.00" house="Ninth House" motion="direct" />
+<point name="Mercury" position="28.00" sign="Gemini" abs_pos="88.00" house="Tenth House" motion="retrograde" />
+<point name="Mars" position="20.00" sign="Cancer" abs_pos="110.00" house="Eleventh House" motion="direct" />
+<point name="Ascendant" position="5.00" sign="Virgo" abs_pos="155.00" house="First House" motion="direct" />
+</planets></chart_analysis>`;
+
+const chart = {
+  provider: 'astrologer' as const,
+  api_version: 'v6',
+  context: CONTEXT,
+  calculated_at: 1,
+  parse_status: 'parsed' as const,
+};
+
+describe('Soul Map astrological context (v1.2 A-02)', () => {
+  it('sends the chart read the Hellenistic way, not the provider text', () => {
     // Narrowed through the schema exactly as `generateSoulMap` narrows it, so
     // this also asserts the narrowing keeps the chart.
     const message = buildSoulMapUserMessage({
-      draft: soulMapDraftSchema.parse({
-        ...emptyDraft(),
-        natal_chart: {
-          provider: 'astrologer',
-          api_version: 'v5',
-          context: '<chart_analysis><planet name="Sun" sign="Gemini" /></chart_analysis>',
-          calculated_at: 1,
-          parse_status: 'parsed',
-        },
-      }),
+      draft: soulMapDraftSchema.parse({ ...emptyDraft(), birth_time: '08:05', natal_chart: chart }),
       numerology: null,
       gender: 'neutro',
     });
 
-    expect(message).toContain('<planet name="Sun" sign="Gemini" />');
+    expect(message).not.toContain('<point');
+    expect(message).toContain('Ascendente: Virgo 5°');
+    expect(message).toContain('Regente del Ascendente: Mercury, en Gemini, casa 10');
+    expect(message).toContain('- Mercury: Gemini 28°, casa 10, domicilio, retrógrado');
+    expect(message).toContain('- Mars: Cancer 20°, casa 11, caida');
+    expect(message).toContain('- Sun cuadratura Ascendant');
+    expect(message).toMatch(/Secta: carta (diurna|nocturna)/);
     expect(message).not.toContain('No hay carta disponible');
   });
 
-  it('tells the model there is no Ascendant or house when the hour is unknown', () => {
-    const chart = {
-      provider: 'astrologer' as const,
-      api_version: 'v6',
-      context: '<chart_analysis><point name="Sun" sign="Gemini" /></chart_analysis>',
-      calculated_at: 1,
-      parse_status: 'parsed' as const,
-    };
+  it('tells the model there is no Ascendant, house or sect when the hour is unknown', () => {
     const without = buildSoulMapUserMessage({
       draft: soulMapDraftSchema.parse({ ...emptyDraft(), birth_time: '', natal_chart: chart }),
       numerology: null,
       gender: 'neutro',
     });
-    const withHour = buildSoulMapUserMessage({
-      draft: soulMapDraftSchema.parse({ ...emptyDraft(), birth_time: '08:05', natal_chart: chart }),
-      numerology: null,
-      gender: 'neutro',
-    });
-    expect(without).toContain('Sin hora de nacimiento: no hay Ascendente ni casas.');
-    expect(withHour).not.toContain('Sin hora de nacimiento');
+    expect(without).toContain('Sin hora de nacimiento: no hay Ascendente, casas ni secta.');
+    expect(without).not.toContain('Ascendente: Virgo');
+    expect(without).not.toContain('casa ');
+  });
+
+  it('carries the Hellenistic and the propositive rules in its system prompt', () => {
+    expect(SOUL_MAP_SYSTEM_PROMPT).toContain('BASE HELENÍSTICA');
+    expect(SOUL_MAP_SYSTEM_PROMPT).toContain('HABLAR PROPOSITIVAMENTE');
   });
 
   it('forbids invented placements when there is no chart', () => {

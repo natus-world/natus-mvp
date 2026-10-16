@@ -325,7 +325,11 @@ licence to reverse.
   comparisons, which Natus does not. What flows is said as what flows
   naturally; what is hard, as what asks for more work, always with how it
   can be worked. It is a mirror: it gives back what is there for the person
-  to look at and decide. Same rule for one chart and for two.
+  to look at and decide. Same rule for one chart and for two. It lives in
+  the prompts that read a chart (`prompts/chart-reading.ts`: the Soul Map,
+  the comparison, later the full chart and today's sky), not in Davraz's
+  general voice — the owner chose not to touch the other answers — and
+  `lintChartJudgement` refuses "maléfico", "favorable" and their kin there.
 - **No facilitator names.** The MVP recommends modalities, not people.
 - **Revoking access hides the reading; it does not delete it.** Confirmed by
   the product owner on 2026-09-25, and kept by v1.2 C-01: comparisons are

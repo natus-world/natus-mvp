@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ALL_SOUL_MAP_FIXTURES, CRISIS_FIXTURE, selectSoulMapFixture } from './soul-map';
 import { soulMapCrisisSchema, soulMapSynthesisSchema } from '@/lib/schemas';
-import { countSentences, lintDeep } from '@/lib/copy-lint';
+import { countSentences, lintChartJudgement, lintDeep } from '@/lib/copy-lint';
 import { emptyDraft } from '@/store/session';
 import { TOPICS } from '@/lib/catalog';
 
@@ -86,5 +86,11 @@ describe('selection', () => {
 
   it('falls back rather than failing on an empty draft', () => {
     expect(selectSoulMapFixture(emptyDraft()).detected_phase).toBe('pregunta');
+  });
+});
+
+describe('v1.2 A-02 — the curated maps rate nothing good or bad', () => {
+  it.each(ALL_SOUL_MAP_FIXTURES.map((f, i) => [i, f] as const))('fixture %i', (_i, fixture) => {
+    expect(lintChartJudgement(fixture)).toEqual([]);
   });
 });

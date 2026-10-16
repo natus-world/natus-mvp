@@ -18,7 +18,8 @@ import {
  * version would then claim text it was never generated from.
  *
  * Each surface is fingerprinted from its own file plus `shared.ts`, which every
- * system prompt interpolates. Comment lines are dropped first, so explaining
+ * system prompt interpolates, plus any other local file it imports (such as
+ * `chart-reading.ts`). Comment lines are dropped first, so explaining
  * the code does not count as changing the prompt; everything else does,
  * including the builders that write the user message.
  *
@@ -50,8 +51,15 @@ function read(file: string): string {
   return readFileSync(new URL(`./${file}`, import.meta.url), 'utf8');
 }
 
+/** Local prompt files a surface imports besides shared.ts and versions.ts. */
+function localImports(file: string): string[] {
+  const found = [...read(file).matchAll(/from '\.\/([\w-]+\.ts)'/g)].map((m) => m[1]!);
+  return [...new Set(found)].filter((f) => f !== 'shared.ts' && f !== 'versions.ts');
+}
+
 function fingerprint(file: string): string {
-  const text = `${withoutComments(read(file))}\n---\n${withoutComments(read('shared.ts'))}`;
+  const extra = localImports(file).map((f) => `\n---\n${withoutComments(read(f))}`).join('');
+  const text = `${withoutComments(read(file))}\n---\n${withoutComments(read('shared.ts'))}${extra}`;
   return createHash('sha256').update(text).digest('hex').slice(0, 16);
 }
 

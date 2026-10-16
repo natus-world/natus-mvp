@@ -358,3 +358,33 @@ export function isInvitation(text: string): boolean {
 export function countSentences(text: string): number {
   return text.split(/[.!?…]+(?:\s|$)/).filter((s) => s.trim().length > 0).length;
 }
+
+/**
+ * v1.2 A-02 and the owner's rule of 15 Oct 2026: a reading of a chart never
+ * rates anything good, bad or so-so. Run only over the surfaces that read a
+ * chart (the Soul Map, the comparison), not over every answer: elsewhere
+ * "favorable" can be an ordinary word.
+ */
+const CHART_JUDGEMENT =
+  /\b(?:mal[eé]fic[oa]s?|ben[eé]fic[oa]s?|desfavorables?|favorables?|aspectos? (?:malos?|buenos?|negativos?|positivos?)|(?:mal|buen) aspecto)\b/i;
+
+export function lintChartJudgement(value: unknown, path = '$'): (CopyViolation & { path: string })[] {
+  if (typeof value === 'string') {
+    const match = CHART_JUDGEMENT.exec(prose(value));
+    return match
+      ? [
+          {
+            rule: 'chart-judgement',
+            match: match[0],
+            why: 'A chart is never rated good or bad: what flows, flows naturally; what is hard asks for more work (A-02).',
+            path,
+          },
+        ]
+      : [];
+  }
+  if (Array.isArray(value)) return value.flatMap((item, i) => lintChartJudgement(item, `${path}[${i}]`));
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([key, item]) => lintChartJudgement(item, `${path}.${key}`));
+  }
+  return [];
+}

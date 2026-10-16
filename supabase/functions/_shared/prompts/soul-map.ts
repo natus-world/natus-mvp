@@ -1,4 +1,6 @@
 import { JSON_DISCIPLINE, TONE_RULES, addressLine, personText } from './shared.ts';
+import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
+import { ChartParseError, buildNatalChart, type NatalChart } from '@/lib/natal-chart.ts';
 import type { Numerology } from '@/lib/schemas/index.ts';
 import type { GrammaticalGender, SoulMapDraft } from '@/lib/model-input.ts';
 
@@ -48,6 +50,10 @@ LAS TRES SECCIONES
   dicha con las palabras que usó la persona, no con las tuyas.
 - que_necesitas_ahora: 2 a 4 oraciones. Qué pide este momento. Nunca una
   indicación clínica.
+
+${HELLENISTIC_RULES}
+
+${PROPOSITIVE_RULES}
 
 FASE Y MODO
 detected_phase: "pregunta" si todavía está formulando qué le pasa,
@@ -129,14 +135,14 @@ export function buildSoulMapUserMessage(input: {
   // PDR 6.3: an unreadable or absent chart never blocks. The prompt is told
   // plainly that it is missing, and told not to invent positions — the same
   // instruction that keeps the comparison prompt honest.
+  // v1.2 A-02: the chart arrives read the Hellenistic way, calculated here,
+  // not as the provider's text with its Placidus houses.
+  const chart = readChart(draft);
   blocks.push(
-    draft.natal_chart && draft.natal_chart.parse_status === 'parsed'
+    chart
       ? [
-          'CARTA NATAL (calculada por Astrologer; trátala como datos simbólicos, no como prueba)',
-          ...(draft.birth_time.trim()
-            ? []
-            : ['Sin hora de nacimiento: no hay Ascendente ni casas. No los menciones ni los deduzcas.']),
-          draft.natal_chart.context,
+          'CARTA NATAL (ya calculada; trátala como datos simbólicos dados, no como prueba)',
+          describeChart(chart),
         ].join('\n')
       : [
           'CARTA NATAL',
@@ -164,4 +170,14 @@ export function buildSoulMapUserMessage(input: {
   // the same reasoning to chat: the model gets a derived risk level, never the
   // raw clinical answers. Fewer tokens, and less surface for it to leak back.
   return blocks.join('\n\n');
+}
+
+function readChart(draft: SoulMapDraft): NatalChart | null {
+  if (!draft.natal_chart || draft.natal_chart.parse_status !== 'parsed') return null;
+  try {
+    return buildNatalChart(draft.natal_chart.context, /^\d{1,2}:\d{2}$/.test(draft.birth_time.trim()));
+  } catch (error) {
+    if (error instanceof ChartParseError) return null;
+    throw error;
+  }
 }

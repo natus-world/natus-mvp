@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countSentences, isInvitation, lintCopy, lintDeep } from './copy-lint.ts';
+import { countSentences, isInvitation, lintChartJudgement, lintCopy, lintDeep } from './copy-lint.ts';
 
 const rulesFor = (text: string) => lintCopy(text).map((v) => v.rule);
 
@@ -209,4 +209,24 @@ describe('regional idioms', () => {
       expect(rulesFor(text)).not.toContain('regional-idiom');
     },
   );
+});
+
+describe('v1.2 A-02 — a chart is never rated', () => {
+  it.each([
+    'Saturno es un planeta maléfico en tu carta.',
+    'Es un aspecto desfavorable entre los dos.',
+    'Tienes aspectos negativos con la Luna.',
+    'Júpiter, el benéfico mayor, está en tu casa 2.',
+    'Hoy es un momento favorable para hablar.',
+  ])('flags "%s"', (text) => {
+    expect(lintChartJudgement({ a: text })).toHaveLength(1);
+  });
+
+  it('lets what flows and what asks for work through', () => {
+    expect(
+      lintChartJudgement({
+        a: 'Tu Venus en Tauro es un recurso que fluye naturalmente; tu Marte en Cáncer pide más trabajo consciente.',
+      }),
+    ).toEqual([]);
+  });
 });
