@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
+import { CheckIcon } from '@/design/icons';
+import { FlowerIcon, SeedIcon, SproutPhaseIcon } from '@/design/brand-icons';
+import { PATHS } from '@/components/routes';
 import { Ouroboros } from '@/design/Ouroboros';
 import { copy } from '@/i18n';
 import { modalityBySlug } from '@/lib/catalog';
@@ -57,34 +60,125 @@ export function connectsLabel(practice: Practice): string {
 
 const RATINGS = [1, 2, 3, 4, 5] as const;
 
+type Phase = 'integracion' | 'exploracion' | 'pregunta';
+
+/** Top to bottom, as the package draws the stem: Flor, Brote, Semilla. */
+const STEM: { phase: Phase; Icon: typeof FlowerIcon }[] = [
+  { phase: 'integracion', Icon: FlowerIcon },
+  { phase: 'exploracion', Icon: SproutPhaseIcon },
+  { phase: 'pregunta', Icon: SeedIcon },
+];
+
+/**
+ * Package 07: the stem with the phase the map reads. The phase on view is
+ * large, lit and breathes slowly; the others at 45 %. The line is dotted
+ * toward what comes and solid toward what has passed. It is read, never
+ * earned — nothing here moves because something was marked.
+ *
+ * Two geometries, the package's own: the phone's (44 × 156) and the
+ * desktop's (80 × 470), each shown at its width by `rutina.css`.
+ */
+function Stem({ phase, desk }: { phase: Phase; desk: boolean }) {
+  const H = desk ? 470 : 156;
+  const W = desk ? 80 : 44;
+  const cx = W / 2;
+  const nodes = desk ? [40, 235, 430] : [16, 78, 140];
+  const y = (i: number) => nodes[i] ?? 0;
+  const glow = desk ? 38 : 26;
+  const current = STEM.findIndex((s) => s.phase === phase);
+  const words = desk ? text.phaseLong : text.phaseShort;
+  const segment = (i: number) => {
+    const solid = current <= i;
+    return solid ? (
+      <line key={i} x1={cx} y1={y(i)} x2={cx} y2={y(i + 1)} stroke="#ECE2D0" strokeWidth={desk ? 1.4 : 1.2} />
+    ) : (
+      <line
+        key={i}
+        x1={cx}
+        y1={y(i)}
+        x2={cx}
+        y2={y(i + 1)}
+        stroke="rgba(236,226,208,.3)"
+        strokeDasharray={`1 ${desk ? 7 : 5}`}
+        strokeLinecap="round"
+      />
+    );
+  };
+
+  return (
+    <div className={desk ? 'tallo solo-pc' : 'tallo solo-cel'}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+        {segment(0)}
+        {segment(1)}
+        {STEM.map(({ phase: p, Icon }, i) => {
+          const on = i === current;
+          const r = desk ? (on ? 27 : 22) : on ? 19 : 16;
+          const size = desk ? (on ? 36 : 32) : on ? 26 : 22;
+          // What has passed (below) keeps a firmer ring than what comes.
+          const ring = on ? 1 : i > current ? 0.55 : 0.3;
+          return (
+            <g key={p}>
+              {on && <circle className="brillo" cx={cx} cy={y(i)} r={glow} fill="rgba(236,226,208,.18)" />}
+              <circle cx={cx} cy={y(i)} r={r} fill={`rgba(0,0,0,${on ? 0.4 : 0.35})`} stroke={`rgba(236,226,208,${ring})`} />
+              <Icon x={cx - size / 2} y={y(i) - size / 2} size={size} color={`rgba(236,226,208,${on ? 1 : 0.6})`} />
+            </g>
+          );
+        })}
+      </svg>
+      <div className="fases">
+        {STEM.map(({ phase: p }, i) => (
+          <div
+            key={p}
+            className={i === current ? 'fase on' : 'fase off'}
+            style={{ top: `${(y(i) / H) * 100}%` }}
+            aria-current={i === current ? 'step' : undefined}
+          >
+            <b>{text.phase[p]}</b>
+            <small>{words[p]}</small>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /**
  * v1.2 R-03: once a practice is marked, how useful it was, 1 to 5, and an
- * optional comment. Five plain pills with the two ends named — no stars, no
- * colour that reads as a grade, nothing that looks like an achievement.
+ * optional comment — package 07's sheet, from below on the phone and centred
+ * on desktop. Five plain pills with the two ends named: no stars, no colour
+ * that reads as a grade, nothing that looks like an achievement.
  *
  * The comment is free text, so it goes through the crisis detector before it
- * is saved; a high-severity match opens the crisis screen and the comment is
- * not kept.
+ * is saved; a high-severity match opens the crisis screen and neither the
+ * comment nor the rating is kept.
  */
-function PracticeRating({
+function FeedbackSheet({
   title,
   date,
   onCrisis,
-  onChange,
+  onClose,
 }: {
   title: string;
   date: string;
   onCrisis: (eventId: string) => void;
-  onChange: () => void;
+  onClose: () => void;
 }) {
   const checkIn = checkInToday(title, date);
-  const rating = checkIn?.rating ?? null;
-  const savedComment = checkIn?.comment ?? '';
-  const [comment, setComment] = useState(savedComment);
+  const [rating, setRating] = useState<number | null>(checkIn?.rating ?? null);
+  const [comment, setComment] = useState(checkIn?.comment ?? '');
+  const firstRef = useRef<HTMLButtonElement>(null);
   const r = text.rating;
-  const fieldId = `comment-${title}`;
 
-  const saveComment = () => {
+  useEffect(() => {
+    firstRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const save = () => {
     if (rating === null) return;
     const value = comment.trim();
     if (value) {
@@ -100,60 +194,59 @@ function PracticeRating({
     rateCheckIn(title, date, rating, value);
     // v1.2 M-01: a rated practice, with what the person said about it.
     void learnFromPending({ checkinsToday: true });
-    onChange();
+    onClose();
   };
 
   return (
-    <div className="mt-3.5 flex flex-col gap-2.5">
-      <p className="text-[length:var(--fs-body-12_5)] text-crema/75">{r.question}</p>
-      <div role="radiogroup" aria-label={r.question} className="flex gap-1.5">
-        {RATINGS.map((n) => (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={rating === n}
-            aria-label={r.option(n)}
-            onClick={() => {
-              rateCheckIn(title, date, n, savedComment);
-              onChange();
-            }}
-            className={['chip-p8 flex-1', rating === n ? 'chip chip-on' : 'chip text-crema/70'].join(' ')}
-          >
-            {n}
-          </button>
-        ))}
+    <>
+      <div className="scrim-fb" onClick={onClose} aria-hidden="true" />
+      <div className="hoja-fb" role="dialog" aria-modal="true" aria-label={r.question}>
+        <span className="agarre-fb" aria-hidden="true" />
+        <p className="cad">{title}</p>
+        <p className="fbt">
+          {r.questionLead}
+          <em>{r.questionEmphasis}</em>
+          {r.questionTail}
+        </p>
+        <div className="escala" role="radiogroup" aria-label={r.question}>
+          {RATINGS.map((n) => (
+            <button
+              key={n}
+              ref={n === 1 ? firstRef : undefined}
+              type="button"
+              role="radio"
+              aria-checked={rating === n}
+              aria-label={r.option(n)}
+              className={rating === n ? 'p2 on' : 'p2'}
+              onClick={() => setRating(n)}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <div className="extremos" aria-hidden="true">
+          <span>{r.low}</span>
+          <span>{r.high}</span>
+        </div>
+        <label className="cad" htmlFor="fbtxt">
+          {r.commentLabel}
+        </label>
+        <textarea
+          id="fbtxt"
+          className="fbtxt"
+          maxLength={1000}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder={r.commentPlaceholder}
+        />
+        <button type="button" className="p1" disabled={rating === null} onClick={save}>
+          {r.save}
+        </button>
+        <button type="button" className="txtbtn" onClick={onClose}>
+          {r.skip}
+        </button>
       </div>
-      <div className="flex justify-between text-[length:var(--fs-body-11)] text-crema/55">
-        <span>{r.low}</span>
-        <span>{r.high}</span>
-      </div>
-
-      {rating !== null && (
-        <>
-          <label htmlFor={fieldId} className="text-[length:var(--fs-body-11)] text-crema/55">
-            {r.commentLabel}
-          </label>
-          <textarea
-            id={fieldId}
-            rows={2}
-            maxLength={1000}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder={r.commentPlaceholder}
-            className="field w-full resize-none px-3.5 text-[length:var(--fs-body-13)] placeholder:text-crema/55"
-          />
-          <button
-            type="button"
-            onClick={saveComment}
-            disabled={comment.trim() === savedComment}
-            className="chip chip-p8 text-crema/70 disabled:opacity-60"
-          >
-            {comment.trim() === savedComment && savedComment ? r.commentSaved : r.saveComment}
-          </button>
-        </>
-      )}
-    </div>
+    </>
   );
 }
 
@@ -167,6 +260,15 @@ export function Routine() {
   const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [failed, setFailed] = useState(false);
+  // R-03: the practice whose feedback sheet is open, and the button that
+  // opened it, to give the focus back when it closes.
+  const [sheet, setSheet] = useState<string | null>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const closeSheet = useCallback(() => {
+    setSheet(null);
+    force((n) => n + 1);
+    opener.current?.focus();
+  }, []);
   const date = today();
   const practices = routineFor(match);
 
@@ -202,6 +304,7 @@ export function Routine() {
   // v1.2 R-04: the server decides whether a review is due; a proposal it
   // wrote waits here for an answer.
   const [proposal, setProposal] = useState<RoutineProposal | null>(null);
+  const [answered, setAnswered] = useState<'accepted' | 'kept' | null>(null);
   const hasPractices = practices.length > 0;
   useEffect(() => {
     if (!hasPractices) return;
@@ -239,14 +342,19 @@ export function Routine() {
 
   if (!match) {
     return (
-      <Screen backdrop="hoja" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {text.empty}
-          </p>
-          <Link to="/caminos" className="cta no-underline">
-            {text.toPaths}
-          </Link>
+      <Screen photo="hojasPlatano" veil={0.28} glassAlpha={0.32}>
+        <div className="pz rutina scroll">
+          <p className="k">{text.kicker}</p>
+          <h1 className="t">
+            {text.titleLead}
+            <em>{text.titleEmphasis}</em>
+          </h1>
+          <div className="vclaro pr">
+            <p className="pc">{text.empty}</p>
+            <Link to={PATHS.paths} className="p2 on">
+              {text.toPaths}
+            </Link>
+          </div>
         </div>
       </Screen>
     );
@@ -254,19 +362,19 @@ export function Routine() {
 
   if (practices.length === 0) {
     return (
-      <Screen backdrop="hoja" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex flex-col items-center justify-center gap-5 px-8 text-center flex-1">
+      <Screen photo="hojasPlatano" veil={0.28} glassAlpha={0.32}>
+        <div className="pz rutina scroll items-center justify-center text-center">
           {failed ? (
             <>
-              <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{copy.chrome.aiError.message}</p>
-              <button type="button" className="cta" onClick={() => void generate()}>
+              <p className="nose">{copy.chrome.aiError.message}</p>
+              <button type="button" className="p2 on" onClick={() => void generate()}>
                 {copy.chrome.aiError.retry}
               </button>
             </>
           ) : (
             <>
               <Ouroboros size={88} />
-              <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">
+              <p role="status" className="fr">
                 {text.generating}
               </p>
             </>
@@ -276,93 +384,98 @@ export function Routine() {
     );
   }
 
+  const phase = synthesisNow?.synthesis.detected_phase ?? 'pregunta';
+
   return (
-    <Screen backdrop="hoja" scrim="heavy" opacity={PHOTO.content45}>
-      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
-        <p className="eyebrow mb-3">{text.kicker}</p>
-        <h1 className="mb-2 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {text.titleLead}
-          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
-        </h1>
-        <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          {text.helper}
-        </p>
+    <Screen photo="hojasPlatano" veil={0.28} glassAlpha={0.32}>
+      <div className="pz rutina scroll">
+        <div className="col1">
+          <p className="k">{text.kicker}</p>
+          <h1 className="t">
+            {text.titleLead}
+            <em>{text.titleEmphasis}</em>
+          </h1>
+          <p className="sub solo-pc">{text.notEarnedLong}</p>
+          <Stem phase={phase} desk={false} />
+          <Stem phase={phase} desk />
+          <p className="nose solo-cel">{text.notEarned}</p>
+        </div>
 
-        {proposal && (
-          <RoutineProposalCard
-            proposal={proposal}
-            onAnswered={() => {
-              setProposal(null);
-              force((n) => n + 1);
-            }}
-          />
-        )}
+        <div className="col2">
+          <p className="k solo-pc">{text.fromPaths}</p>
 
-        <div className="flex flex-col gap-2.5">
-          {practices.map((practice) => {
-            const done = isCheckedToday(practice.title, date);
-            const total = totalCheckIns(practice.title);
+          {proposal && (
+            <RoutineProposalCard
+              proposal={proposal}
+              onAnswered={(accepted) => {
+                setProposal(null);
+                setAnswered(accepted ? 'accepted' : 'kept');
+                force((n) => n + 1);
+              }}
+            />
+          )}
+          {answered && (
+            <p className="prop-ok" role="status">
+              {answered === 'accepted' ? text.review.accepted : text.review.kept}
+            </p>
+          )}
 
-            return (
-              <article key={practice.title} className="surface surface-p16">
-                <div className="mb-2 flex items-baseline justify-between gap-3">
-                  <h2 className="text-[length:var(--fs-heading-14)] leading-snug text-blanco">{practice.title}</h2>
-                  <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                    {CADENCE_LABEL[practice.cadence]}
-                  </span>
-                </div>
+          <div className="vclaro">
+            {practices.map((practice) => {
+              const done = isCheckedToday(practice.title, date);
+              // A total, never a consecutive run. See the note above.
+              const total = totalCheckIns(practice.title);
 
-                <p className="mb-2 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
-                  {connectsLabel(practice)}
-                </p>
-                <p className="mb-3 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{practice.body}</p>
-
-                <p className="mb-3.5 font-serif text-[length:var(--fs-voice-15)] leading-snug text-crema italic">
-                  {practice.invitation}
-                </p>
-
-                <div className="flex items-center gap-3">
+              return (
+                <article key={practice.title} className="pr">
+                  <div>
+                    <p className="cad">{CADENCE_LABEL[practice.cadence]}</p>
+                    <h2 className="pt">{practice.title}</h2>
+                    <p className="pc solo-pc">{practice.body}</p>
+                    <p className="cv">{connectsLabel(practice)}</p>
+                    <p className="pd">{copy.practice.totalDays(total)}</p>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={(e) => {
                       toggleCheckIn(practice.title, date);
+                      // R-03: marking asks how useful it was; unmarking takes
+                      // the rating with it.
+                      if (!done) {
+                        opener.current = e.currentTarget;
+                        setSheet(practice.title);
+                      }
                       force((n) => n + 1);
                     }}
                     aria-pressed={done}
-                    className={[
-                      'chip-p8 flex-1 transition-colors',
-                      done ? 'chip chip-on' : 'chip text-crema/70 hover:text-crema',
-                    ].join(' ')}
+                    className={done ? 'p2 on' : 'p2'}
                   >
+                    {done && <CheckIcon />}
                     {done ? text.doneToday : text.markToday}
                   </button>
+                </article>
+              );
+            })}
+          </div>
 
-                  {total > 0 && (
-                    // A total, never a consecutive run. See the note above.
-                    <span className="shrink-0 text-[length:var(--fs-body-11)] text-crema/55">
-                      {copy.practice.totalDays(total)}
-                    </span>
-                  )}
-                </div>
-
-                {done && (
-                  <PracticeRating
-                    title={practice.title}
-                    date={date}
-                    onCrisis={setCrisisEventId}
-                    onChange={() => force((n) => n + 1)}
-                  />
-                )}
-              </article>
-            );
-          })}
-        </div>
-
-        <div className="mt-7">
-          <Link to="/caminos" className="cta no-underline">
+          <p className="nota-r solo-pc">{text.helper}</p>
+          <Link to={PATHS.paths} className="p2 volver-caminos">
             {text.backToPaths}
           </Link>
         </div>
+
+        {sheet && (
+          <FeedbackSheet
+            key={sheet}
+            title={sheet}
+            date={date}
+            onCrisis={(id) => {
+              setSheet(null);
+              setCrisisEventId(id);
+            }}
+            onClose={closeSheet}
+          />
+        )}
       </div>
     </Screen>
   );

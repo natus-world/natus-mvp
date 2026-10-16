@@ -111,6 +111,7 @@ export const es = {
   },
   chrome: {
     brand: 'Natus',
+    back: 'Volver',
     aiError: {
       message: 'Esto está tardando más de lo normal. ¿Reintentamos?',
       retry: 'Reintentar',
@@ -211,6 +212,133 @@ export const es = {
       'No pudimos borrar lo que está guardado en tu cuenta, así que tampoco borramos nada de este navegador. Todo sigue como estaba. Intenta de nuevo.',
     signOut: 'Cerrar sesión',
     signOutNote: 'Tus datos quedan en tu cuenta. Al volver a entrar con el mismo acceso, está todo.',
+    // Package 11 (16 Oct 2026): the profile as two glass lists, each row its
+    // own screen. Texts from the package; the ones marked so are proposals.
+    savedInAccount: 'Mapa guardado en tu cuenta',
+    deskSub: 'Tu cuenta vive atada a tu acceso de Google o a tu correo. Desde aquí puedes llevarte todo o borrarlo.',
+    groupAccount: 'Tu cuenta',
+    groupPlan: 'Tu plan y tus datos',
+    tierFree: 'Free',
+    tierPremium: 'Premium',
+    rows: {
+      account: 'Cuenta',
+      accountGoogle: 'Conectada con Google',
+      voice: 'Cómo te hablamos',
+      country: 'País donde vives',
+      countryLine: (name: string) => `${name} · define tus líneas de ayuda`,
+      friends: 'Amigos',
+      friendsCount: (n: number) =>
+        n === 0 ? 'Para comparar cartas' : `${n === 1 ? '1 amigo' : `${n} amigos`} · para comparar cartas`,
+      plan: 'Suscripción',
+      planFree: 'Free · Premium por US$ 10 al mes',
+      memory: 'Lo que Natus sabe de ti',
+      memoryFree: 'Incluido en Premium',
+      // Proposals: the package draws only the free row.
+      memoryOn: 'Activa',
+      memoryPaused: 'En pausa',
+      data: 'Tus datos',
+      dataLine: 'Llevártelos o borrarlos',
+    },
+    account: {
+      kicker: 'Cuenta',
+      titleLead: 'Tu ',
+      titleEmphasis: 'cuenta',
+      access: 'Acceso',
+      accessGoogle: (email: string) => `Google · ${email}`,
+      fullName: 'Nombre completo',
+      birth: 'Nacimiento',
+      note: 'Si cambias tu nombre o tus datos de nacimiento, volvemos a calcular tu carta y tu Mapa del Alma. La versión anterior queda guardada.',
+      edit: 'Editar mis datos',
+    },
+    country: {
+      kicker: 'País donde vives',
+      titleLead: 'Dónde ',
+      titleEmphasis: 'vives',
+      sub: 'Define qué líneas de ayuda ves.',
+      other: 'Te mostramos ayuda internacional',
+    },
+    voice: {
+      kicker: 'Cómo te hablamos',
+      titleLead: 'Cómo te ',
+      titleEmphasis: 'hablamos',
+      sub: 'Lo usamos solo en las frases que no se pueden escribir sin género.',
+      examples: {
+        femenino: '«Hoy podrías sentirte más tranquila.»',
+        masculino: '«Hoy podrías sentirte más tranquilo.»',
+        neutro: '«Hoy podrías sentir más calma.»',
+      },
+    },
+    plan: {
+      kicker: 'Suscripción',
+      titleLead: 'Tu ',
+      titleEmphasis: 'plan',
+      yours: 'Tu plan',
+      freeIncludes: [
+        'Tu Mapa del Alma, tus caminos y tu rutina',
+        'Bitácora escrita',
+        '3 preguntas a Davraz de regalo y 1 nueva cada mes',
+        '2 comparaciones de cartas al mes',
+      ],
+      premiumLead: 'Más ',
+      premiumEmphasis: 'espacio',
+      premiumTail: ' para ti',
+      price: 'US$ 10 al mes · el primer mes es gratis',
+      premiumIncludes: [
+        'Conversar con Davraz sin límite, y que recuerde lo que ya hablaron',
+        'Tu rutina se revisa cada semana',
+        'Bitácora por voz',
+        'Comparaciones ilimitadas y 10 meditaciones al mes',
+      ],
+      tryFree: 'Probar un mes gratis',
+      cancelAnytime: 'Cancelas cuando quieras, desde aquí.',
+      // Proposal: there is no renewal date in the browser yet.
+      renews: 'Se renueva cada mes por US$ 10.',
+      cancel: 'Cancelar suscripción',
+      cancelTitleLead: '¿Cancelar ',
+      cancelTitleEmphasis: 'Premium',
+      cancelTitleTail: '?',
+      // Proposal: the package names the date, which the browser does not have.
+      cancelBody:
+        'Premium sigue activo hasta el final del mes que pagaste. Después vuelves a Free: no se borra nada, tus conversaciones quedan para leer y Davraz deja de usar lo que sabe de ti hasta que vuelvas.',
+      // Proposal: the subscription lives in PayPal, so it is cancelled there.
+      cancelYes: 'Cancelar en PayPal',
+      cancelNo: 'Mantener Premium',
+    },
+    data: {
+      kicker: 'Tus datos',
+      titleLead: 'Lo que es ',
+      titleEmphasis: 'tuyo',
+      sub: 'Puedes llevarte una copia de todo lo que Natus guarda de ti cuando quieras.',
+      take: 'Llevarte tus datos',
+      // Proposal: the package sends it by email, which is not built.
+      takeLine: 'Mapa, caminos, rutina, bitácora y conversaciones · en un archivo',
+      leaveNote: 'Si quieres irte del todo, puedes borrar tu cuenta y todo lo que guardamos.',
+      deleteLink: 'Borrar mi cuenta y todos mis datos',
+    },
+    erase: {
+      step1: 'Paso 1 de 2',
+      step2: 'Paso 2 de 2',
+      titleLead: 'Antes de ',
+      titleEmphasis: 'borrar',
+      forever: 'Se borra para siempre:',
+      what: [
+        'Tu cuenta y tus datos de nacimiento',
+        'Tu Mapa del Alma, tu carta y tus caminos',
+        'Tu rutina y tu bitácora',
+        'Tus conversaciones con Davraz y lo que Natus sabe de ti',
+        'Tus amigos y comparaciones',
+      ],
+      when: 'Se borra todo en un máximo de 30 días y no se puede recuperar.',
+      takeFirst: 'Llevarte tus datos antes',
+      next: 'Continuar',
+      confirmLead: '¿Borrar ',
+      confirmEmphasis: 'todo',
+      confirmTail: '?',
+      typeLabel: 'Para confirmar, escribe BORRAR.',
+      word: 'BORRAR',
+      confirm: 'Borrar todo para siempre',
+      back: 'No, volver',
+    },
   },
   memory: {
     kicker: 'Lo que Natus sabe de ti',
@@ -245,6 +373,11 @@ export const es = {
       tema_recurrente: 'Lo que vuelve',
       contexto: 'Tu contexto',
     },
+    // Package 11 (16 Oct 2026).
+    titleLead: 'Lo que ',
+    titleEmphasis: 'sabemos',
+    sub: 'Davraz guarda lo que aprende de tu bitácora y tus conversaciones para acompañarte mejor. Puedes corregirlo o borrarlo cuando quieras.',
+    neverCrisis: 'Lo que tiene que ver con una crisis nunca se guarda aquí.',
   },
   friends: {
     kicker: 'Amigos',
@@ -262,6 +395,14 @@ export const es = {
     removeYes: 'Sí, quitar',
     removeNo: 'Mejor no',
     needAccount: 'Para invitar amigos necesitas tu cuenta.',
+    // Package 11 (16 Oct 2026).
+    titleLead: 'Tus ',
+    titleEmphasis: 'amigos',
+    groupInvite: 'Una invitación',
+    groupFriends: 'Con quienes comparas cartas',
+    since: (month: string) => `Desde ${month}`,
+    removeNote: 'Quitar a alguien le quita el acceso a las comparaciones que tienen en común.',
+    inviteCta: 'Invitar a alguien',
     unavailable: 'No pudimos cargar tus amigos. Intenta de nuevo en un momento.',
     pending: 'Tienes una invitación de amistad esperando.',
     pendingCta: 'Verla',
@@ -369,39 +510,78 @@ export const es = {
     toRoutine: 'Ver mi rutina',
     searchAgain: 'Volver a buscar',
   },
+  // Package 06 (16 Oct 2026): the card's texts, keys caminos.* there.
   modalityCard: {
+    counter: (n: number, total: number) => `${n} DE ${total}`,
+    element: {
+      fuego: 'Fuego',
+      tierra: 'Tierra',
+      aire: 'Aire',
+      agua: 'Agua',
+      eter: 'Éter',
+    },
     family: {
-      psicologica: 'Psicológica',
-      corporal: 'Corporal',
-      energetica: 'Energética',
-      simbolica: 'Simbólica',
-      contemplativa: 'Contemplativa',
+      psicologica: 'psicológica',
+      corporal: 'corporal',
+      energetica: 'energética',
+      simbolica: 'simbólica',
+      contemplativa: 'contemplativa',
     },
     evidence: {
-      clinica: 'Con evidencia clínica',
-      emergente: 'Evidencia emergente',
-      tradicional: 'Práctica de tradición',
+      clinica: 'con evidencia clínica',
+      emergente: 'evidencia emergente',
+      tradicional: 'tradición',
+    },
+    format: {
+      '1:1 semanal': '1:1 semanal',
+      grupal: 'Grupal',
+      'taller intensivo': 'Taller intensivo',
+      'práctica autónoma': 'Práctica autónoma',
     },
     horizon: {
       short: 'proceso corto',
-      medium: 'proceso de meses',
+      medium: 'proceso medio',
       long: 'proceso largo',
       flexible: 'sin plazo fijo',
     },
+    caution:
+      'Puede remover emociones intensas. Si estás en un momento frágil, conviene hacerla con el apoyo de un profesional de salud mental.',
+    aiName: 'Davraz',
+    aiLabel: 'IA',
     whatHappens: 'Qué pasa en una sesión',
-    whyOpen: 'Ver por qué',
-    whyClose: 'Ver menos',
     save: 'Guardar',
     saved: 'Guardada',
     dismiss: 'No me hace sentido',
-    removed: (name: string) => `Quitamos ${name} de tus caminos.`,
+    removedLead: 'Quitamos ',
+    removedTail: ' de tus caminos.',
     undo: 'Deshacer',
   },
   routine: {
     kicker: 'Tu rutina',
     titleLead: 'Cosas concretas, ',
     titleEmphasis: 'no consejos',
-    helper: 'Marca lo que hiciste si te sirve tenerlo a la vista. Si dejas de marcar, no pasa nada.',
+    // Package 07 (16 Oct 2026): the stem with the phase, and the line that
+    // says the phase is not earned — the short one on the phone, the long
+    // one on desktop.
+    phase: {
+      integracion: 'Flor · Integración',
+      exploracion: 'Brote · Exploración',
+      pregunta: 'Semilla · Pregunta',
+    },
+    phaseShort: {
+      integracion: 'Asentar algo propio',
+      exploracion: 'Ya sabes qué; buscas cómo',
+      pregunta: 'Ponerle nombre a lo que pasa',
+    },
+    phaseLong: {
+      integracion: 'Vienes de un proceso y estás asentando algo propio.',
+      exploracion: 'Ya sabes qué te pasa y estás buscando cómo trabajarlo.',
+      pregunta: 'Todavía estás poniéndole nombre a lo que te pasa.',
+    },
+    notEarned: 'Tu fase la lee tu mapa. No se gana: cambia cuando cambia tu momento.',
+    notEarnedLong: 'Tu fase la lee tu mapa desde lo que contaste. No se gana: cambia cuando cambia tu momento.',
+    fromPaths: 'Sale de tus caminos',
+    helper: 'Marca lo que hiciste si te sirve tenerlo a la vista. Nadie te va a decir nada si dejas de marcar.',
     markToday: 'Marcar hoy',
     doneToday: 'Hecho hoy',
     empty: 'Tu rutina sale de tus caminos. Empieza por verlos.',
@@ -413,30 +593,40 @@ export const es = {
     connectsBoth: (therapy: string) => `Conversa con tu mapa y con ${therapy}`,
     // v1.2 R-04. The two buttons are the guide's (9.7); the rest is proposed.
     review: {
-      kicker: 'Un ajuste para tu rutina',
+      kicker: 'Una propuesta para tu rutina',
+      by: 'Davraz',
+      aiLabel: 'IA',
+      titleLead: 'Un ',
+      titleEmphasis: 'ajuste',
+      titleTail: ' posible',
       leaves: 'Sale',
       enters: 'Entra',
       returns: 'Vuelve a tus caminos',
+      why: 'Por qué',
       accept: 'Aceptar el cambio',
       keep: 'Mantener mi rutina',
+      accepted: 'Listo: tu rutina ya tiene el cambio.',
+      kept: 'Tu rutina sigue igual.',
       failed: 'No pudimos guardar tu respuesta. Intenta de nuevo.',
     },
     rating: {
       question: '¿Qué tan útil te resultó?',
+      questionLead: '¿Qué tan útil te ',
+      questionEmphasis: 'resultó',
+      questionTail: '?',
       low: 'Nada',
       high: 'Mucho',
       option: (n: number) => `${n} de 5`,
-      commentLabel: 'Comentario (opcional)',
-      commentPlaceholder: 'Qué notaste, qué te costó, qué cambiarías',
-      saveComment: 'Guardar comentario',
-      commentSaved: 'Guardado',
+      commentLabel: 'Si quieres, cuéntanos algo más',
+      commentPlaceholder: 'Opcional',
+      save: 'Guardar',
+      skip: 'Ahora no',
     },
   },
   journal: {
-    kicker: 'Tu bitácora',
     titleLead: 'Lo que vas ',
     titleEmphasis: 'viviendo',
-    write: 'Escribir hoy →',
+    write: 'Escribir hoy',
     empty: 'Aquí va quedando lo que vas viviendo, con tus palabras y a tu ritmo.',
     // Guide 9.8, one notice per plan. The premium one is true only while the
     // memory is alive (M-01: premium and consent); premium without consent
@@ -449,24 +639,116 @@ export const es = {
     voiceLabel: 'Hablarlo',
     voiceStop: 'Detener',
     voiceListening: 'Te escuchamos. Lo que digas se escribe arriba.',
-    mood: 'Ánimo',
+    // Package 08 (16 Oct 2026): the mood as five moons, «bajo» and «alto»
+    // at the ends (proposed there).
+    mood: 'ánimo',
     moodLabel: (n: number) => `Ánimo ${n} de 5`,
-    moodQuestion: '¿Cómo está tu ánimo? (opcional)',
-    moodLow: 'Bajo',
-    moodHigh: 'Alto',
-    newKicker: 'Nueva entrada',
-    newTitleLead: '¿Qué estás ',
-    newTitleEmphasis: 'viviendo?',
+    moodQuestion: '¿Cómo te sientes?',
+    moodLow: 'bajo',
+    moodHigh: 'alto',
     dateLabel: 'Fecha',
+    changeDate: 'cambiar fecha',
     bodyLabel: 'Lo que quieras contar',
-    placeholder: 'Cómo estuviste, qué notaste, qué te movió…',
-    linkLabel: '¿Tiene que ver con una práctica o una terapia? (opcional)',
-    save: 'Guardar',
+    placeholder: 'Escribe lo que se te venga…',
+    linkLabel: '¿Tiene que ver con alguna práctica?',
+    linkNone: 'Ninguna',
+    save: 'Listo',
     cancel: 'Volver',
-    delete: 'Borrar',
+    // The book (package 08 and 09): closed, its first page, the days.
+    open: 'Abrir tu bitácora',
+    close: 'Cerrar',
+    allDays: 'todos tus días',
+    previousDay: 'día anterior',
+    nextDay: 'día siguiente',
+    bookOf: 'Bitácora de',
+    turnPage: 'pasar la página',
+    folios: ['i', 'ii', 'iii'],
+    weekdays: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+    delete: 'borrar esta entrada',
+    deleteTitleLead: '¿Borrar esta ',
+    deleteTitleEmphasis: 'entrada',
+    deleteTitleTail: '?',
     deleteConfirm: 'Se borra esta entrada y lo que Natus aprendió de ella. No se puede deshacer.',
-    deleteYes: 'Sí, borrar',
-    deleteNo: 'No, dejarla',
+    deleteYes: 'Borrar',
+    deleteNo: 'Cancelar',
+    /** A number in words, the way the first page writes: «mil novecientos noventa y cuatro». */
+    words: (n: number): string => {
+      const units = [
+        'cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
+        'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve',
+        'veinte', 'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete',
+        'veintiocho', 'veintinueve',
+      ];
+      const tens = ['', '', '', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+      const hundreds = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos',
+        'setecientos', 'ochocientos', 'novecientos'];
+      const below100 = (k: number) =>
+        k < 30 ? units[k]! : `${tens[Math.floor(k / 10)]}${k % 10 ? ` y ${units[k % 10]}` : ''}`;
+      const below1000 = (k: number) =>
+        k === 100 ? 'cien' : k < 100 ? below100(k) : `${hundreds[Math.floor(k / 100)]}${k % 100 ? ` ${below100(k % 100)}` : ''}`;
+      if (n < 1000) return below1000(n);
+      const thousands = Math.floor(n / 1000);
+      const rest = n % 1000;
+      return `${thousands === 1 ? 'mil' : `${below1000(thousands)} mil`}${rest ? ` ${below1000(rest)}` : ''}`;
+    },
+    /** A day as the page heads it: «Trece de octubre», with the year when it is another. */
+    dayTitle: (iso: string, thisYear: number): string => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+      if (!m) return iso;
+      const day = Number(m[3]) === 1 ? 'primero' : es.journal.words(Number(m[3]));
+      const title = `${day.charAt(0).toUpperCase()}${day.slice(1)} de ${es.quota.months[Number(m[2]) - 1]}`;
+      return Number(m[1]) === thisYear ? title : `${title} de ${m[1]}`;
+    },
+    /**
+     * The first page's record of the birth (package 09): «Llegó el doce de
+     * junio de mil novecientos noventa y cuatro, a las ocho y cuarenta de la
+     * mañana, en Valparaíso.» The hour only when it is known.
+     */
+    arrival: (iso: string, time: string, city: string): { lead: string; date: string; tail: string } | null => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+      if (!m) return null;
+      const w = es.journal.words;
+      const day = Number(m[3]);
+      const date = `${day === 1 ? 'primero' : w(day)} de ${es.quota.months[Number(m[2]) - 1]}`;
+      let tail = ` de ${w(Number(m[1]))}`;
+      const t = /^(\d{2}):(\d{2})$/.exec(time.trim());
+      if (t) {
+        const h = Number(t[1]);
+        const min = Number(t[2]);
+        const h12 = h % 12 === 0 ? 12 : h % 12;
+        const hour = h12 === 1 ? 'a la una' : `a las ${w(h12)}`;
+        const minutes = min === 0 ? '' : min === 15 ? ' y cuarto' : min === 30 ? ' y media' : ` y ${w(min)}`;
+        const part =
+          h < 6 ? 'de la madrugada' : h < 12 ? 'de la mañana' : h === 12 ? 'del día' : h < 20 ? 'de la tarde' : 'de la noche';
+        tail += `, ${hour}${minutes} ${part}`;
+      }
+      if (city.trim()) tail += `, en ${city.trim()}`;
+      return { lead: 'Llegó el ', date, tail: `${tail}.` };
+    },
+    /** What is written on the wheel of moons (package 09). */
+    wheel: {
+      signs: ['Aries', 'Tauro', 'Géminis', 'Cáncer', 'Leo', 'Virgo', 'Libra', 'Escorpio', 'Sagitario', 'Capricornio',
+        'Acuario', 'Piscis'],
+      houses: ['cuerpo', 'lo propio', 'palabras', 'raíz', 'juego', 'días', 'los otros', 'lo hondo', 'viaje', 'camino',
+        'amigos', 'lo oculto'],
+      planets: {
+        Sun: 'Sol',
+        Moon: 'Luna',
+        Mercury: 'Mercurio',
+        Venus: 'Venus',
+        Mars: 'Marte',
+        Jupiter: 'Júpiter',
+        Saturn: 'Saturno',
+        Uranus: 'Urano',
+        Neptune: 'Neptuno',
+        Pluto: 'Plutón',
+      } as Record<string, string>,
+      sun: 'su Sol',
+      moon: 'su Luna',
+      ascendant: 'su Ascendente',
+      number: (n: number): string => `su número, el ${es.journal.words(n)}`,
+      and: ' y ',
+    },
     /** "16 de octubre", or "16 de octubre de 2025" for another year. */
     date: (iso: string, thisYear: number) => {
       const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
@@ -484,13 +766,55 @@ export const es = {
     aboutComparisonRemove: 'Quitar',
     newThisMonth: (n: number) =>
       n === 1 ? 'Este mes tienes 1 pregunta nueva' : `Este mes tienes ${n} preguntas nuevas`,
-    empty:
-      'Pregúntale algo a tu mapa. Funciona mejor con una situación concreta que con una pregunta grande.',
+    // Package 10 (16 Oct 2026): chat.titulo, chat.salir, the examples.
+    titleLead: 'Pregúntale ',
+    titleEmphasis: 'a tu mapa',
+    exit: 'Salir',
+    examplesLabel: 'Puedes preguntar, por ejemplo',
+    /** Three to tap, the middle one from the person's Moon when the chart has it. */
+    examples: (moon: string | null) => [
+      '¿Por qué me cuesta tanto descansar?',
+      moon
+        ? `¿Qué dice mi Luna en ${moon} de cómo siento las cosas?`
+        : '¿Qué dice mi mapa de cómo siento las cosas?',
+      '¿Qué puedo hacer cuando se me acelera la cabeza en la noche?',
+    ],
+    signs: {
+      Aries: 'Aries',
+      Taurus: 'Tauro',
+      Gemini: 'Géminis',
+      Cancer: 'Cáncer',
+      Leo: 'Leo',
+      Virgo: 'Virgo',
+      Libra: 'Libra',
+      Scorpio: 'Escorpio',
+      Sagittarius: 'Sagitario',
+      Capricorn: 'Capricornio',
+      Aquarius: 'Acuario',
+      Pisces: 'Piscis',
+    } as Record<string, string>,
     typeLabel: {
-      reflection: 'Espejo',
+      reflection: 'Una reflexión',
       recommendation: 'Un camino',
       clarifying_question: 'Una pregunta',
       crisis: 'Antes de seguir',
+    },
+    /** Package 10, chat.crisis.*: the answer to a low signal, and the lines under it. */
+    crisisReply:
+      'Gracias por escribirlo. Lo que sientes importa, y no tienes que cargarlo en soledad. Si en algún momento piensas en hacerte daño, habla ahora con alguien: hay personas preparadas para escucharte a cualquier hora.',
+    crisisLines: 'Si necesitas hablar con alguien ahora',
+    call: (name: string, contact: string) => `Llamar a ${name}, ${contact}`,
+    /** Package 10, chat.paywall.*. US$ 10, not the package's 7 (owner, 16 Oct 2026). */
+    paywall: {
+      titleLead: 'Seguir ',
+      titleEmphasis: 'conversando',
+      body: 'Usaste tus preguntas de regalo. Con Premium conversas con Davraz sin límite, y recuerda lo que ya hablaron. Lo que escribiste queda guardado.',
+      price: 'US$ 10',
+      period: 'al mes · el primer mes es gratis',
+      cancel: 'Cancelas cuando quieras',
+      trial: 'Probar un mes gratis',
+      notNow: 'Ahora no',
+      next: (date: string) => `Tu próxima pregunta de regalo llega el ${date}.`,
     },
     containmentMessage:
       'Paramos aquí. Por lo que escribiste, esto no es algo para atravesar sin compañía y no es algo que esta conversación pueda acompañar. Hay personas disponibles ahora mismo para hablar contigo.',
@@ -561,6 +885,11 @@ export const es = {
     crisis:
       'Por lo que escribiste, preferimos no armar una práctica automática. Si necesitas hablar con alguien, «Necesito ayuda» está siempre arriba.',
     generating: 'Armando la práctica',
+    // Package 14 (16 Oct 2026): the «Armando» state. The title is a proposal.
+    generatingTitleLead: 'Armando tu ',
+    generatingTitleEmphasis: 'práctica',
+    wait: 'Esto puede tardar un momento',
+    loading: 'Cargando',
     generate: 'Armar mi práctica',
     saved: 'Mis prácticas guardadas',
     voiceOnly: 'Solo voz',
@@ -583,8 +912,11 @@ export const es = {
     create: 'Armar una práctica',
     delete: 'Borrar',
     keep: 'Mejor no',
+    // Package 14 proposes «¿Borramos esta práctica? Se borra también el
+    // audio.» No audio is stored (it is spoken at play time), so the second
+    // sentence is held back until the owner answers.
+    deleteConfirm: '¿Borramos esta práctica?',
     listen: 'Escuchar',
-    another: 'Armar otra',
     voiceOnly: 'Solo voz',
     locale: 'es',
   },

@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { copy } from '@/i18n';
 import {
   endFriendship,
   listFriends,
   myInviteUrl,
+  pendingInvite,
   renewInviteUrl,
   type Friend,
 } from '@/store/friends';
@@ -11,18 +13,28 @@ import { track } from '@/store/funnel';
 
 const t = copy.friends;
 
+/** «Desde septiembre», with the year when it is not this one. */
+function since(iso: string | null): string {
+  const m = iso ? /^(\d{4})-(\d{2})/.exec(iso) : null;
+  if (!m) return '';
+  const month = copy.quota.months[Number(m[2]) - 1] ?? '';
+  return t.since(Number(m[1]) === new Date().getFullYear() ? month : `${month} de ${m[1]}`);
+}
+
 /**
- * The friends block in Perfil (v1.2 C-01, guide 9.x «Amigos: invitar,
- * aceptar, quitar»). Only rendered for somebody with an account: a friendship
- * has to outlive the browser it was made in.
+ * The friends of Perfil (v1.2 C-01; package 11 «Tus amigos»): an invitation
+ * waiting, the friends to compare charts with, and how to invite. Only
+ * rendered for somebody with an account: a friendship has to outlive the
+ * browser it was made in.
  */
-export function FriendsSection() {
+export function FriendsSection({ onCount }: { onCount?: (n: number) => void }) {
   const [link, setLink] = useState<string | null>(null);
   const [friends, setFriends] = useState<Friend[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const waiting = pendingInvite();
 
   const load = useCallback(async () => {
     setFailed(false);
@@ -30,10 +42,11 @@ export function FriendsSection() {
       const [url, list] = await Promise.all([myInviteUrl(), listFriends()]);
       setLink(url);
       setFriends(list);
+      onCount?.(list.length);
     } catch {
       setFailed(true);
     }
-  }, []);
+  }, [onCount]);
 
   useEffect(() => {
     void load();
@@ -77,7 +90,9 @@ export function FriendsSection() {
     try {
       await endFriendship(friendshipId);
       setConfirming(null);
-      setFriends(await listFriends());
+      const list = await listFriends();
+      setFriends(list);
+      onCount?.(list.length);
     } catch {
       setFailed(true);
     } finally {
@@ -88,89 +103,104 @@ export function FriendsSection() {
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   return (
-    <section className="surface surface-p14 mb-3">
-      <p className="eyebrow mb-1.5">{t.kicker}</p>
-      <p className="mb-3 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/60">{t.body}</p>
-
+    <>
       {failed && (
-        <p role="alert" className="mb-3 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/80">
+        <p role="alert" className="nota">
           {t.unavailable}
         </p>
       )}
 
-      {link && (
-        <div className="mb-3 flex flex-col gap-2">
-          <p className="break-all text-[length:var(--fs-body-11)] leading-relaxed text-crema/70 select-all">{link}</p>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => void copyLink()} className="chip chip-p10 flex-1 text-crema/75">
-              {copied ? t.copied : t.copy}
-            </button>
-            {canShare && (
-              <button type="button" onClick={() => void share()} className="chip chip-p10 flex-1 text-crema/75">
-                {t.share}
-              </button>
-            )}
+      {waiting && (
+        <>
+          <h2 className="grupo">{t.groupInvite}</h2>
+          <div className="lista">
+            <div className="amigo">
+              <span className="tx">
+                <span className="t1">{t.pending}</span>
+              </span>
+              <Link to={`/amigos/${waiting}`} className="mini-b on">
+                {t.pendingCta}
+              </Link>
+            </div>
           </div>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void renew()}
-            className="text-left text-[length:var(--fs-body-11)] leading-relaxed text-crema/55 underline disabled:opacity-50"
-          >
-            {t.renew}
-          </button>
-          <p className="text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">{t.renewNote}</p>
-        </div>
+        </>
       )}
 
-      {friends && friends.length === 0 && (
-        <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/60">{t.empty}</p>
-      )}
+      {friends && friends.length === 0 && <p className="sub">{t.empty}</p>}
 
       {friends && friends.length > 0 && (
-        <ul className="flex flex-col gap-2">
-          {friends.map((friend) => (
-            <li key={friend.friendshipId} className="flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[length:var(--fs-body-13)] text-blanco">{friend.firstName}</p>
+        <>
+          <h2 className="grupo">{t.groupFriends}</h2>
+          <ul className="lista">
+            {friends.map((friend) => (
+              <li key={friend.friendshipId} className="amigo">
+                <span className="av2" aria-hidden="true">
+                  {friend.firstName.charAt(0).toLocaleUpperCase('es')}
+                </span>
+                <span className="tx">
+                  <span className="t1">{friend.firstName}</span>
+                  {friend.since && <span className="t2">{since(friend.since)}</span>}
+                  {confirming === friend.friendshipId && (
+                    <span className="conf">
+                      <span className="nota">{t.removeConfirm(friend.firstName)}</span>
+                      <span className="acts">
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void remove(friend.friendshipId)}
+                          className="mini-b on"
+                        >
+                          {t.removeYes}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirming(null)}
+                          className="mini-b"
+                        >
+                          {t.removeNo}
+                        </button>
+                      </span>
+                    </span>
+                  )}
+                </span>
                 {confirming !== friend.friendshipId && (
                   <button
                     type="button"
                     onClick={() => setConfirming(friend.friendshipId)}
-                    className="chip chip-p6 px-3 text-crema/70"
+                    className="mini-b"
                   >
                     {t.remove}
                   </button>
                 )}
-              </div>
-              {confirming === friend.friendshipId && (
-                <div className="flex flex-col gap-2">
-                  <p className="text-[length:var(--fs-body-12)] leading-relaxed text-crema/80">
-                    {t.removeConfirm(friend.firstName)}
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void remove(friend.friendshipId)}
-                      className="chip chip-p10 flex-1 text-crema/80 disabled:opacity-50"
-                    >
-                      {t.removeYes}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirming(null)}
-                      className="chip chip-p10 flex-1 text-crema/60"
-                    >
-                      {t.removeNo}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+          <p className="nota">{t.removeNote}</p>
+        </>
       )}
-    </section>
+
+      {link && (
+        <>
+          <button
+            type="button"
+            className="p1i"
+            onClick={() => void (canShare ? share() : copyLink())}
+          >
+            {!canShare && copied ? t.copied : t.inviteCta}
+          </button>
+          {canShare && (
+            <button type="button" className="p2i" onClick={() => void copyLink()}>
+              {copied ? t.copied : t.copy}
+            </button>
+          )}
+          <p className="nota enlace">{link}</p>
+          <p className="nota">{t.body}</p>
+          <button type="button" disabled={busy} onClick={() => void renew()} className="enl">
+            {t.renew}
+          </button>
+          <p className="nota">{t.renewNote}</p>
+        </>
+      )}
+    </>
   );
 }

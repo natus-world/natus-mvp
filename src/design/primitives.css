@@ -387,6 +387,63 @@
     inset: -6px;
   }
 
+  /* «Volver», in place of NATUS on a screen opened from another. */
+  .header-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 2rem;
+    padding: 0 12px 0 9px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--line-pill);
+    background: none;
+    color: var(--natus-tinta);
+    font-family: var(--font-sans);
+    font-size: var(--fs-body-12);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .header-back svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  @media (min-width: 1024px) {
+    .app-header .phone-only {
+      display: none;
+    }
+  }
+
+  /* On the phone a sub-screen has no initial and no tab bar. */
+  @media (max-width: 1023.98px) {
+    .app-header .desk-only {
+      display: none;
+    }
+
+    .app-header[data-sub] .profile-button,
+    .app-nav[data-sub] {
+      display: none;
+    }
+  }
+
+  .nav-tab.is-parent {
+    background: var(--glass-tab-active);
+    color: var(--natus-tinta);
+  }
+
+  .nav-tab.is-parent::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--natus-dorado);
+  }
+
   .header-brand {
     font-family: var(--font-serif);
     font-size: var(--fs-brand-header);
@@ -466,6 +523,17 @@
 
     .header-brand {
       font-size: var(--fs-brand-header-desk);
+    }
+
+    .header-back {
+      height: 40px;
+      gap: 8px;
+      padding: 0 16px 0 12px;
+      font-size: var(--fs-body-14);
+    }
+
+    .nav-tab.is-parent::after {
+      bottom: 4px;
     }
   }
 

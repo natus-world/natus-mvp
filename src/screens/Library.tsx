@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { BED_TRACKS } from '@/lib/catalog';
 import { deleteMeditation, listMeditations } from '@/store/meditations';
 
 /**
- * The saved practices of PDR 9.6.
+ * The saved practices of PDR 9.6. Package 14, «Mis prácticas» (16 Oct 2026).
  *
  * PDR 5.7 pairs each meditation with a stored audio file, so deleting one
  * there means deleting two things. Here the audio is synthesised at play time
@@ -29,97 +29,96 @@ function dayOf(timestamp: number): string {
   });
 }
 
+function ArrowGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function PlayGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function Library() {
   const [meditations, setMeditations] = useState(() => listMeditations());
   const [confirming, setConfirming] = useState<string | null>(null);
 
   return (
-    <Screen backdrop="plumas" scrim="heavy" opacity={PHOTO.content40}>
-      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
-        <p className="eyebrow mb-3">{text.kicker}</p>
-        <h1 className="mb-6 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {text.titleLead}
-          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
-        </h1>
-
-        {meditations.length === 0 ? (
-          <>
-            <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-              {text.empty}
-            </p>
-            <Link to="/meditaciones" className="cta no-underline">
-              {text.create}
-            </Link>
-          </>
-        ) : (
-          <div className="flex flex-col gap-2.5">
-            {meditations.map((meditation) => (
-              <article
-                key={meditation.id}
-                className="surface surface-p14"
-              >
-                <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                  <h2 className="text-[length:var(--fs-heading-14)] leading-snug text-blanco">
-                    {meditation.script.title}
-                  </h2>
-                  <span className="shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-                    {copy.meditation.minutes(meditation.estimated_minutes)}
-                  </span>
-                </div>
-
-                <p className="mb-1 text-[length:var(--fs-body-12)] leading-relaxed text-crema/55">
-                  «{meditation.intent}»
-                </p>
-                <p className="mb-3 text-[length:var(--fs-label-10_5)] tracking-wide text-crema/55 uppercase">
-                  {dayOf(meditation.created_at)} · {bedName(meditation.script.bed_track_id)}
-                </p>
-
-                {confirming === meditation.id ? (
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        deleteMeditation(meditation.id);
-                        setMeditations(listMeditations());
-                        setConfirming(null);
-                      }}
-                      className="flex-1 rounded-full border border-error/40 px-3 py-2 text-[length:var(--fs-label-11)] tracking-wide text-error uppercase"
-                    >
-                      {text.delete}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirming(null)}
-                      className="chip chip-p8 flex-1 text-crema/60"
-                    >
-                      {text.keep}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Link
-                      to={`/meditaciones?id=${meditation.id}`}
-                      className="chip chip-p8 flex-1 text-center text-crema/75 no-underline"
-                    >
-                      {text.listen}
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => setConfirming(meditation.id)}
-                      className="chip chip-p8 px-3.5 text-crema/55"
-                    >
-                      {text.delete}
-                    </button>
-                  </div>
-                )}
-              </article>
-            ))}
-
-            <Link to="/meditaciones" className="cta mt-4 no-underline">
-              {text.another}
-            </Link>
+    <Screen photo="maderaCafe" veil={0.3} glassAlpha={0.51}>
+      <div className="pz meditaciones practicas">
+        <div className="sc">
+          <div className="cabeza">
+            <p className="k">{text.kicker}</p>
+            <h1 className="t mt">
+              {text.titleLead}
+              <em>{text.titleEmphasis}</em>
+            </h1>
+            {meditations.length === 0 && <p className="cuerpo">{text.empty}</p>}
+            <div className="pie">
+              <Link to="/meditaciones" className="btn p">
+                {text.create}
+                <ArrowGlyph />
+              </Link>
+            </div>
           </div>
-        )}
+
+          {meditations.length > 0 && (
+            <div className="d-der">
+              <div className="d-lista">
+                {meditations.map((meditation) => (
+                  <article key={meditation.id} className="vid tarj">
+                    <div className="fila-t">
+                      <h2 className="nm">{meditation.script.title}</h2>
+                      <span className="min">{copy.meditation.minutes(meditation.estimated_minutes)}</span>
+                    </div>
+                    <p className="int">«{meditation.intent}»</p>
+                    <p className="meta">
+                      {dayOf(meditation.created_at)} · {bedName(meditation.script.bed_track_id)}
+                    </p>
+
+                    {confirming === meditation.id ? (
+                      <>
+                        <p className="conf">{text.deleteConfirm}</p>
+                        <div className="acc2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              deleteMeditation(meditation.id);
+                              setMeditations(listMeditations());
+                              setConfirming(null);
+                            }}
+                            className="mini-b bo"
+                          >
+                            {text.delete}
+                          </button>
+                          <button type="button" onClick={() => setConfirming(null)} className="mini-b">
+                            {text.keep}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="acc2">
+                        <Link to={`/meditaciones?id=${meditation.id}`} className="mini-b on">
+                          <PlayGlyph />
+                          {text.listen}
+                        </Link>
+                        <button type="button" onClick={() => setConfirming(meditation.id)} className="mini-b">
+                          {text.delete}
+                        </button>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </Screen>
   );

@@ -1,40 +1,82 @@
-import { useId, useState } from 'react';
+import { useId, type ComponentType, type MouseEvent } from 'react';
 import { copy } from '@/i18n';
+import { CheckIcon } from '@/design/icons';
+import { AirIcon, EarthIcon, EtherIcon, FireIcon, WaterIcon } from '@/design/brand-icons';
 import type { Modality } from '@/lib/schemas';
 import type { UserReaction } from '@/store/matches';
 
 /**
- * A recommended modality. US-6.1 CA1 fixes what has to be on it: name,
- * family, what happens in a session, the personalised reasoning, the typical
- * format and the evidence level.
+ * A recommended modality, as package 06 (16 Oct 2026) draws it: the element
+ * in its circle and the counter; element · family · evidence; the name; the
+ * why in a sentence or two; format · horizon; the warning when the therapy
+ * needs clinical support; and touching the card opens the full why in place.
+ * US-6.1 CA1 fixes what has to be on it: name, family, what happens in a
+ * session, the personalised reasoning, the typical format and the evidence
+ * level.
  *
  * What is absent is the point. No person's name, no percentage, no "best
  * match" badge. The mockup's card carried "98% match" over a photograph of a
  * facilitator; this is the same visual language making a different claim.
  */
 
-const FAMILY_LABEL: Record<Modality['family'], string> = copy.modalityCard.family;
+const text = copy.modalityCard;
 
-/**
- * PDR 5.3 calls this column the cheapest legal defence there is, and it only
- * works if the UI actually shows it. Wording is plain rather than euphemistic:
- * a tradition should read as a tradition.
- */
-const EVIDENCE_LABEL: Record<Modality['evidence_level'], string> = copy.modalityCard.evidence;
+type Element = keyof typeof text.element;
 
-const HORIZON_LABEL: Record<Modality['typical_horizon'], string> = copy.modalityCard.horizon;
+/** The element comes from the family, as the approved package decided — no
+ *  new column in the catalogue. */
+const ELEMENT_OF: Record<Modality['family'], Element> = {
+  corporal: 'tierra',
+  contemplativa: 'aire',
+  psicologica: 'agua',
+  simbolica: 'eter',
+  energetica: 'fuego',
+};
+
+const ELEMENT_ICON: Record<Element, ComponentType> = {
+  fuego: FireIcon,
+  tierra: EarthIcon,
+  aire: AirIcon,
+  agua: WaterIcon,
+  eter: EtherIcon,
+};
+
+function CautionIcon() {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="10" cy="10" r="7" />
+      <path d="M10 6.5v4.5M10 13.5v.2" />
+    </svg>
+  );
+}
 
 export function ModalityCard({
   modality,
-  rank,
+  position,
+  total,
   summary,
   reasoning,
   cautionNote,
   reaction,
   onReact,
+  open,
+  onToggle,
+  faint,
+  onGo,
 }: {
   modality: Modality;
-  rank: number;
+  /** Where the card sits in the row, from 1. An order, never a score. */
+  position: number;
+  total: number;
   /** v1.2 R-02: the card's one or two sentences. Null on matches made before it. */
   summary: string | null;
   /** The full why, opened by touching the card. */
@@ -42,121 +84,116 @@ export function ModalityCard({
   cautionNote: string | null;
   reaction: UserReaction | undefined;
   onReact: (reaction: UserReaction) => void;
+  open: boolean;
+  onToggle: () => void;
+  /** The next card peeking: faint and summarised; touching it brings it in. */
+  faint: boolean;
+  onGo: () => void;
 }) {
-  const dismissed = reaction === 'dismissed';
-  const [open, setOpen] = useState(false);
   const panelId = useId();
+  const element = ELEMENT_OF[modality.family];
+  const Icon = ELEMENT_ICON[element];
+  const counter = text.counter(position, total);
 
   // v1.2 R-05: «No me hace sentido» takes the therapy off the paths, says so,
   // and offers to bring it back at once. It is not proposed again for 7 days.
-  if (dismissed) {
+  if (reaction === 'dismissed') {
     return (
-      <article className="surface surface-p16 flex items-center gap-3">
-        <p role="status" className="min-w-0 flex-1 text-[length:var(--fs-body-13)] leading-relaxed text-crema/75">
-          {copy.modalityCard.removed(modality.name_es)}
+      <article className="vid cam quitada" data-cam>
+        <p className="cnt">{counter}</p>
+        <p role="status">
+          {text.removedLead}
+          <em>{modality.name_es}</em>
+          {text.removedTail}
         </p>
-        <button
-          type="button"
-          onClick={() => onReact('dismissed')}
-          className="chip chip-p8 shrink-0 px-4 text-crema/75 hover:text-crema"
-        >
-          {copy.modalityCard.undo}
+        <button type="button" className="txtbtn" onClick={() => onReact('dismissed')}>
+          {text.undo}
         </button>
       </article>
     );
   }
 
-  return (
-    <article className="surface surface-p16">
-      <div className="mb-2 flex items-baseline gap-2.5">
-        <span aria-hidden="true" className="font-serif text-[length:var(--fs-voice-15)] text-crema/55 italic">
-          {rank}
-        </span>
-        <h3 className="flex-1 font-serif text-[length:var(--fs-heading-19)] leading-tight font-light text-blanco">
-          {modality.name_es}
-        </h3>
-      </div>
-
-      <div className="mb-3 flex flex-wrap gap-1.5">
-        <span className="badge text-crema/70">
-          {FAMILY_LABEL[modality.family]}
-        </span>
-        <span className="badge text-crema/70">
-          {modality.typical_format}
-        </span>
-        <span className="badge text-crema/70">
-          {HORIZON_LABEL[modality.typical_horizon]}
-        </span>
-        <span
-          className={[
-            modality.evidence_level === 'clinica'
-              ? 'badge-bare bg-verde/70 text-crema'
-              : 'badge text-crema/55',
-          ].join(' ')}
-        >
-          {EVIDENCE_LABEL[modality.evidence_level]}
-        </span>
-      </div>
-
-      {/* v1.2 R-02: the card says why in a sentence or two; touching it opens
-          the full why and what actually happens in a session (US-6.1 CA1 —
-          without that the recommendation is useless: most people have no
-          idea what EMDR or constelaciones involve). */}
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-controls={panelId}
-        className="mb-3 block w-full text-left"
-      >
-        <span className="block text-[length:var(--fs-body-13)] leading-relaxed text-blanco/85">
-          {summary ?? reasoning}
-        </span>
-        <span className="mt-2 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
-          {open ? copy.modalityCard.whyClose : copy.modalityCard.whyOpen}
-          <span aria-hidden="true" className="ml-1.5">
-            {open ? '−' : '+'}
+  if (faint) {
+    return (
+      <button type="button" className="vid cam tenue" data-cam onClick={onGo}>
+        <span className="ctop">
+          <span className="el">
+            <Icon />
           </span>
+        </span>
+        <span className="linea">{text.element[element]}</span>
+        <span className="nom">{modality.name_es}</span>
+      </button>
+    );
+  }
+
+  const act = (reaction: UserReaction) => (event: MouseEvent) => {
+    event.stopPropagation();
+    onReact(reaction);
+  };
+
+  // Clinical support: the approved warning, in the warm error colour, under
+  // the format; the model's own note for this person follows it.
+  const caution = modality.requires_clinical_support || cautionNote;
+
+  return (
+    <article className={open ? 'vid cam on' : 'vid cam'} data-cam onClick={onToggle}>
+      {/* v1.2 R-02: the whole card opens the full why. The button carries the
+          state for keyboards and screen readers; the click bubbles to the card. */}
+      <button type="button" className="abrir" aria-expanded={open} aria-controls={panelId}>
+        <span className="ctop">
+          <span className="el">
+            <Icon />
+          </span>
+          <span className="cnt">{counter}</span>
+        </span>
+        <span className="linea">
+          {text.element[element]} · {text.family[modality.family]} · {text.evidence[modality.evidence_level]}
+        </span>
+        <span className="nom">{modality.name_es}</span>
+        <span className="porq">{summary ?? reasoning}</span>
+        <span className="fmt">
+          {text.format[modality.typical_format]} · {text.horizon[modality.typical_horizon]}
         </span>
       </button>
 
-      <div id={panelId} hidden={!open} className="mb-3">
-        {summary && (
-          <p className="mb-3 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/75">{reasoning}</p>
-        )}
-        <p className="mb-1 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">
-          {copy.modalityCard.whatHappens}
+      {caution && (
+        <p className="cuid">
+          <CautionIcon />
+          <span>
+            {modality.requires_clinical_support && <span className="cuid-l">{text.caution}</span>}
+            {cautionNote && <span className="cuid-l">{cautionNote}</span>}
+          </span>
         </p>
-        <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/65">{modality.what_happens}</p>
-      </div>
-
-      {cautionNote && (
-        <div className="mb-3 flex gap-2.5 rounded-[10px] border border-error/25 bg-error/8 px-3 py-2.5">
-          <span aria-hidden="true" className="mt-[5px] size-1.5 shrink-0 rounded-full bg-error" />
-          <p className="text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/75">{cautionNote}</p>
-        </div>
       )}
 
-      <div className="flex gap-2">
+      <div id={panelId} className="mas" hidden={!open}>
+        <p className="ia">
+          {text.aiName} <b>{text.aiLabel}</b>
+        </p>
+        {summary && (
+          <div className="bloq">
+            <p>{reasoning}</p>
+          </div>
+        )}
+        <div className="bloq">
+          <p className="k">{text.whatHappens}</p>
+          <p>{modality.what_happens}</p>
+        </div>
+      </div>
+
+      <div className="acc2">
         <button
           type="button"
-          onClick={() => onReact('saved')}
+          className={reaction === 'saved' ? 'p2 on' : 'p2'}
           aria-pressed={reaction === 'saved'}
-          className={[
-            'chip-p8 flex-1 transition-colors',
-            reaction === 'saved'
-              ? 'chip chip-on'
-              : 'chip text-crema/70 hover:text-crema',
-          ].join(' ')}
+          onClick={act('saved')}
         >
-          {reaction === 'saved' ? copy.modalityCard.saved : copy.modalityCard.save}
+          {reaction === 'saved' && <CheckIcon />}
+          {reaction === 'saved' ? text.saved : text.save}
         </button>
-        <button
-          type="button"
-          onClick={() => onReact('dismissed')}
-          className="chip chip-p8 flex-1 text-crema/55 hover:text-crema"
-        >
-          {copy.modalityCard.dismiss}
+        <button type="button" className="p2" onClick={act('dismissed')}>
+          {text.dismiss}
         </button>
       </div>
     </article>

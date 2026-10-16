@@ -104,6 +104,7 @@ export const BANK = {
   nubesAzules: { file: 'nubes-azules', wide: 'nubes-azules-ancha', family: 'azul' },
   lunaDunas: { file: 'luna-dunas', wide: 'luna-dunas-ancha', family: 'arena' },
   maderaCafe: { file: 'madera-cafe', wide: 'madera-cafe-ancha', family: 'tierra' },
+  sedaAzul: { file: 'seda-azul', wide: 'seda-azul-ancha', family: 'azul' },
   bote: { file: 'bote2', family: 'azul' },
   travertino: { file: 'travertino-madera', family: 'tierra' },
   ola: { file: 'ola', family: 'azul' },

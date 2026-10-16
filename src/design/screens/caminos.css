@@ -1,1 +1,480 @@
 /* Package screen: caminos. Ported from the branding package (16 Oct 2026). */
+/*
+ * Caminos (package 06). On the phone one card at a time with the next one
+ * peeking, faint; the dots and «Ver mi rutina» held above the tab bar. On
+ * desktop the title top left, the cards in a row to the right (330, the
+ * open one 560), the dots and the button at the foot. The cards are light
+ * glass over the white rock: the photo darkens by its veil, never a filter.
+ */
+
+.caminos {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.caminos :is(.k, .linea, .fmt, .cnt) {
+  color: rgb(236 226 208 / 0.85);
+}
+
+.caminos :is(.p1, .on, [aria-pressed='true']) {
+  text-shadow: none;
+}
+
+.caminos .scroll {
+  padding-bottom: calc(var(--u) * 196);
+}
+
+.caminos .t em {
+  font-style: italic;
+}
+
+/* The package's pages set this on every paragraph: no word alone on the
+   last line. */
+.caminos :is(p, .t, .porq, .nom) {
+  text-wrap: pretty;
+}
+
+.caminos .sub {
+  font: 300 calc(var(--u) * 15) / 1.5 var(--font-sans);
+  color: var(--t2);
+}
+
+/* ── The carousel ─────────────────────────────────────────────────────── */
+
+.caminos .carr {
+  position: relative;
+  display: flex;
+  gap: calc(var(--u) * 12);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  margin: calc(var(--u) * 4) calc(var(--u) * -24) 0;
+  padding: 0 calc(var(--u) * 24);
+  align-items: flex-start;
+  flex: none;
+  scroll-padding: 0 calc(var(--u) * 24);
+}
+
+.caminos .carr::-webkit-scrollbar {
+  display: none;
+}
+
+.caminos .cam {
+  flex: 0 0 calc(var(--u) * 300);
+  scroll-snap-align: start;
+  padding: calc(var(--u) * 18);
+  display: grid;
+  gap: calc(var(--u) * 8);
+  align-content: start;
+  text-align: left;
+  color: var(--t1);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Light glass, as the package: the card stays transparent. */
+.caminos .cam.vid {
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.05) 60%, rgb(255 255 255 / 0.08));
+  -webkit-backdrop-filter: blur(calc(var(--u) * 20));
+  backdrop-filter: blur(calc(var(--u) * 20));
+  border: 1px solid rgb(255 255 255 / 0.2);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    0 calc(var(--u) * 18) calc(var(--u) * 40) calc(var(--u) * -14) rgb(0 0 0 / 0.6);
+}
+
+.caminos .cam.quitada {
+  cursor: default;
+}
+
+/* The part of the card that opens it: a button, laid out as the card. */
+.caminos .abrir {
+  display: grid;
+  gap: calc(var(--u) * 8);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.caminos :is(.abrir, .cam.tenue) > span:not(.ctop) {
+  display: block;
+}
+
+.caminos .ctop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.caminos .el {
+  width: calc(var(--u) * 44);
+  height: calc(var(--u) * 44);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(236 226 208 / 0.3);
+}
+
+.caminos .el svg {
+  width: calc(var(--u) * 22);
+  height: calc(var(--u) * 22);
+}
+
+.caminos .cnt {
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.2em;
+  font-variant-numeric: tabular-nums;
+}
+
+.caminos .linea {
+  font: 500 calc(var(--u) * 11) / 1.45 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: calc(var(--u) * 4);
+}
+
+.caminos .nom {
+  font: 300 calc(var(--u) * 28) / 1.05 var(--font-serif);
+  font-variant-numeric: lining-nums;
+}
+
+.caminos .porq {
+  font: 300 calc(var(--u) * 14) / 1.45 var(--font-sans);
+  color: var(--t1);
+}
+
+.caminos .fmt {
+  font: 300 calc(var(--u) * 13) / 1.35 var(--font-sans);
+}
+
+.caminos .cuid {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 18) minmax(0, 1fr);
+  gap: calc(var(--u) * 8);
+  font: 300 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: #e2b393;
+}
+
+.caminos .cuid svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+  margin-top: calc(var(--u) * 1);
+}
+
+.caminos .cuid-l {
+  display: block;
+}
+
+.caminos .cuid-l + .cuid-l {
+  margin-top: calc(var(--u) * 6);
+}
+
+/* The full why, opened in place (R-02). */
+.caminos .mas {
+  display: grid;
+  gap: calc(var(--u) * 12);
+  border-top: 1px solid rgb(236 226 208 / 0.12);
+  padding-top: calc(var(--u) * 12);
+  margin-top: calc(var(--u) * 2);
+}
+
+.caminos .mas[hidden] {
+  display: none;
+}
+
+.caminos .ia {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t2);
+  margin-bottom: calc(var(--u) * -4);
+}
+
+.caminos .ia b {
+  font-weight: 500;
+  border: 1px solid rgb(236 226 208 / 0.4);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 3) calc(var(--u) * 5);
+  letter-spacing: 0.1em;
+  color: var(--t1);
+}
+
+.caminos .bloq {
+  display: grid;
+  gap: calc(var(--u) * 4);
+}
+
+/* As in the package, the paragraph rule also sets the kicker's size and
+   weight inside a block; it keeps its capitals and spacing. */
+.caminos .bloq p {
+  font: 300 calc(var(--u) * 14) / 1.5 var(--font-sans);
+  color: var(--t1);
+}
+
+.caminos .bloq p.k {
+  color: rgb(236 226 208 / 0.85);
+}
+
+.caminos .acc2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--u) * 8);
+  margin-top: calc(var(--u) * 4);
+}
+
+.caminos .acc2 .p2 {
+  font-size: calc(var(--u) * 13);
+  padding: 0 calc(var(--u) * 12);
+}
+
+.caminos .acc2 .p2 svg {
+  width: calc(var(--u) * 13);
+  height: calc(var(--u) * 13);
+}
+
+/* «No me hace sentido» (R-05): the card gives way to the notice and «Deshacer». */
+.caminos .quitada {
+  gap: calc(var(--u) * 10);
+}
+
+.caminos .quitada p {
+  font: 300 calc(var(--u) * 15) / 1.5 var(--font-sans);
+  color: var(--t2);
+}
+
+.caminos .quitada p.cnt {
+  color: rgb(236 226 208 / 0.85);
+}
+
+.caminos .quitada em {
+  font-style: italic;
+}
+
+.caminos .cam.tenue {
+  opacity: 0.6;
+}
+
+.caminos .cam.tenue .linea {
+  margin-top: calc(var(--u) * 6);
+}
+
+.caminos .txtbtn {
+  font: 400 calc(var(--u) * 14) / 1 var(--font-sans);
+  color: var(--t1);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  text-decoration-color: rgb(236 226 208 / 0.4);
+  padding: calc(var(--u) * 10) 0;
+  justify-self: start;
+  cursor: pointer;
+}
+
+/* What the screen still has to say beyond the package: the pool notices,
+   «Volver a buscar» and, in the demo build only, the internal label. */
+.caminos .avisos {
+  display: grid;
+  gap: calc(var(--u) * 10);
+  justify-items: start;
+}
+
+.caminos .avisos p {
+  font: 300 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: var(--t2);
+}
+
+.caminos .avisos p.demo {
+  font-size: calc(var(--u) * 11);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── The dots and «Ver mi rutina» ─────────────────────────────────────── */
+
+.caminos .puntos {
+  display: flex;
+  gap: calc(var(--u) * 10);
+  align-items: center;
+  flex: none;
+}
+
+.caminos .puntos i {
+  width: calc(var(--u) * 6);
+  height: calc(var(--u) * 6);
+  border-radius: 99px;
+  background: rgb(236 226 208 / 0.35);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.caminos .puntos i.on {
+  width: calc(var(--u) * 20);
+  background: var(--t1);
+}
+
+.caminos .p1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 10);
+  height: calc(var(--u) * 54);
+  border-radius: calc(var(--u) * 8);
+  border: 0;
+  background: var(--t1);
+  color: #0b120e;
+  font: 500 calc(var(--u) * 16) / 1 var(--font-sans);
+  flex: none;
+  cursor: pointer;
+}
+
+.caminos .p1 svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
+/* Empty, loading and error: the same photo, the message in the middle. */
+.caminos .estado {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 24);
+  padding: 0 calc(var(--u) * 24) calc(var(--u) * 112);
+  text-align: center;
+}
+
+.caminos .estado .p1 {
+  padding: 0 calc(var(--u) * 30);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caminos .puntos i {
+    transition: none;
+  }
+}
+
+/* ── Phone ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023.98px) {
+  .caminos :is(.col1, .fila-cam) {
+    display: contents;
+  }
+
+  .caminos .fijo {
+    position: absolute;
+    left: calc(var(--u) * 24);
+    right: calc(var(--u) * 24);
+    bottom: calc(var(--u) * 98);
+    z-index: 3;
+    display: grid;
+    gap: calc(var(--u) * 16);
+  }
+
+  .caminos .fijo::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--u) * -24);
+    right: calc(var(--u) * -24);
+    bottom: calc(var(--u) * -98);
+    height: calc(var(--u) * 150);
+    background: linear-gradient(180deg, rgb(var(--v) / 0), rgb(var(--v) / 0.9) 60%);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .caminos .esp-pie {
+    display: none;
+  }
+}
+
+/* ── Desktop ──────────────────────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .caminos .scroll {
+    position: static;
+    display: block;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .caminos .col1 {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(var(--d) * 700);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 14);
+  }
+
+  .caminos .col1 .t {
+    font-size: calc(var(--d) * 56);
+  }
+
+  .caminos .fila-cam {
+    position: absolute;
+    left: 0;
+    right: calc(var(--desk-right) * -1);
+    top: calc(var(--d) * 218);
+    bottom: calc(var(--d) * 120);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .caminos .fila-cam::-webkit-scrollbar {
+    display: none;
+  }
+
+  .caminos .carr {
+    margin: 0;
+    padding: 0 calc(var(--d) * 48) calc(var(--d) * 20) 0;
+    scroll-padding: 0;
+  }
+
+  .caminos .cam {
+    flex-basis: calc(var(--d) * 330);
+  }
+
+  .caminos .cam.on {
+    flex-basis: calc(var(--d) * 560);
+  }
+
+  .caminos .bloq p.k {
+    font-size: calc(var(--d) * 12);
+  }
+
+  .caminos .avisos {
+    padding-right: calc(var(--d) * 48);
+    max-width: calc(var(--d) * 700);
+  }
+
+  .caminos .fijo {
+    position: absolute;
+    left: 0;
+    right: calc(var(--d) * 12);
+    bottom: calc(var(--d) * 48);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--d) * 24);
+  }
+
+  .caminos .esp-pie {
+    flex: 1;
+  }
+
+  .caminos .fijo .p1 {
+    padding: 0 calc(var(--d) * 30);
+  }
+}

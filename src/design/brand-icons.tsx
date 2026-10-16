@@ -129,3 +129,120 @@ export function CompareIcon(props: IconProps) {
     </BrandIcon>
   );
 }
+
+/*
+ * The five elements of Caminos (and of Carta completa), from
+ * `iconos/elementos-caminos/`. Each therapy takes the element of its family:
+ * corporal Tierra, contemplativa Aire, psicológica Agua, simbólica Éter,
+ * energética Fuego.
+ */
+
+/** Fuego: a flame with a smaller flame inside and two sparks. */
+export function FireIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M12 2.8C15.6 6.8 18.4 9.6 18.4 14A6.4 6.4 0 0 1 5.6 14C5.6 11 7.2 9 8.6 7.6 8.8 9.6 9.6 10.8 10.8 11.4 10.6 8.4 11 5.4 12 2.8Z" />
+      <path d="M12 18.8A2.6 2.6 0 0 1 9.4 16.2C9.4 14.6 10.7 13.4 12 11.8 13.3 13.4 14.6 14.6 14.6 16.2A2.6 2.6 0 0 1 12 18.8Z" />
+      <path d="M17 5.2 18 3.8M19.2 7.6 20.6 6.8" />
+    </BrandIcon>
+  );
+}
+
+/** Agua: a drop with its light, over a wave. */
+export function WaterIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M12 2.8C12 2.8 6.6 9 6.6 12.6A5.4 5.4 0 0 0 17.4 12.6C17.4 9 12 2.8 12 2.8Z" />
+      <path d="M9.3 12.9A2.8 2.8 0 0 0 11.4 15.6" />
+      <path d="M3 20.8c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0" />
+    </BrandIcon>
+  );
+}
+
+/** Aire: two currents curling back and a short one with its point. */
+export function AirIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M3 8.5H14.4A2.6 2.6 0 1 0 11.9 5.6" />
+      <path d="M3 12.5H17.8A2.8 2.8 0 1 1 15.2 15.4" />
+      <path d="M5.5 16.5H10.8" />
+      <circle fill="currentColor" stroke="none" cx="13.4" cy="16.5" r=".95" />
+    </BrandIcon>
+  );
+}
+
+/** Tierra: two peaks on the ground line, and the ground with its point. */
+export function EarthIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M1.5 17H22.5" />
+      <path d="M3 17 8.5 5.8 12.4 12.6 15.4 8.2 21 17" />
+      <path d="M6.6 9.7 8.5 11.2 10.3 9.8" />
+      <path d="M4.5 20H10.6M13.9 20H19.5" />
+      <circle fill="currentColor" stroke="none" cx="12.25" cy="20" r=".95" />
+    </BrandIcon>
+  );
+}
+
+/** Éter: an open circle with a spiral inside and three rays. */
+export function EtherIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M15.17 5.2A7.5 7.5 0 1 0 17.75 7.18" />
+      <path d="M9.6 14.4A3.4 3.4 0 1 1 12 15.4" />
+      <circle fill="currentColor" stroke="none" cx="9.6" cy="14.4" r="1.05" />
+      <path d="M5.3 5.3 4.2 4.2M5.3 18.7 4.2 19.8M18.7 18.7 19.8 19.8" />
+    </BrandIcon>
+  );
+}
+
+/** Tu rutina, phase Semilla · Pregunta: a seed under the ground line, three rays above. */
+export function SeedIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M3 9.5H21" />
+      <path d="M8 17.6C8.4 13.7 11.6 12.1 16 13.3 15.4 17.1 12.2 18.9 8 17.6Z" />
+      <path d="M9.7 16.8C11.4 15.7 13 14.8 14.6 14.4" />
+      <path d="M12 7V4.5M8.6 7.6 7.6 6.2M15.4 7.6 16.4 6.2" />
+    </BrandIcon>
+  );
+}
+
+/** Tu rutina, phase Brote · Exploración: a stem with two leaves and a point of growth. */
+export function SproutPhaseIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M3 20.5H21" />
+      <path d="M12 20.5V9.6" />
+      <path d="M12 13.2C9.2 13.2 7 11.4 6.6 8.6 9.4 8.6 11.6 10.4 12 13.2Z" />
+      <path d="M12 10.8C12.2 7.8 14.4 5.8 17.6 5.6 17.4 8.6 15 10.6 12 10.8Z" />
+      <circle fill="currentColor" stroke="none" cx="12" cy="8" r=".95" />
+    </BrandIcon>
+  );
+}
+
+/** Tu rutina, phase Flor · Integración: five petals open over a leaf. */
+export function FlowerIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M3 20.5H21" />
+      <path d="M12 20.5V13" />
+      <path d="M12 17C13.9 17 15.4 15.9 15.9 14.2 14.1 14.2 12.6 15.3 12 17Z" />
+      <path d="M12.00 6.50A2.5 2.5 0 0 1 12.00 3.20A2.5 2.5 0 0 1 12.00 6.50" />
+      <path d="M13.62 7.67A2.5 2.5 0 0 1 16.76 6.65A2.5 2.5 0 0 1 13.62 7.67" />
+      <path d="M10.38 7.67A2.5 2.5 0 0 1 7.24 6.65A2.5 2.5 0 0 1 10.38 7.67" />
+      <path d="M11.00 9.58A2.5 2.5 0 0 1 9.06 12.25A2.5 2.5 0 0 1 11.00 9.58" />
+      <path d="M13.00 9.58A2.5 2.5 0 0 1 14.94 12.25A2.5 2.5 0 0 1 13.00 9.58" />
+      <circle fill="currentColor" stroke="none" cx="12" cy="8.2" r=".95" />
+    </BrandIcon>
+  );
+}
+
+/** «Volver» in the header of a screen opened from another. */
+export function BackIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </BrandIcon>
+  );
+}

@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { Ouroboros } from '@/design/Ouroboros';
+import { ArrowIcon } from '@/design/icons';
 import { copy } from '@/i18n';
-import { Constellation } from '@/components/Constellation';
 import { ModalityCard } from '@/components/ModalityCard';
+import { PATHS } from '@/components/routes';
 import { modalityBySlug } from '@/lib/catalog';
 import { filterModalities, poolFraming, type PoolFraming } from '@/lib/matching';
 import { isClinicallyVulnerable } from '@/lib/safety';
@@ -130,46 +131,110 @@ export function Recommendations() {
     if (existing === reaction) clearReaction(slug);
     else setReaction(slug, reaction);
     setMatch(currentMatch());
+    if (reaction === 'dismissed' && openSlug === slug) setOpenSlug(null);
   };
 
+  // Package 06: a carousel with snap. The dots follow at once; which cards
+  // are whole follows when the scroll settles.
+  const desktop = useDesktop();
+  const carr = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+  const [settled, setSettled] = useState(0);
+  const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(settle.current), []);
+
+  const cardStarts = () => {
+    const el = carr.current;
+    if (!el) return { el, starts: [] as number[] };
+    const pad = parseFloat(getComputedStyle(el).scrollPaddingLeft) || 0;
+    const starts = Array.from(el.querySelectorAll<HTMLElement>(':scope > [data-cam]'), (c) => c.offsetLeft - pad);
+    return { el, starts };
+  };
+
+  // A faint card touched is brought in whole, even where the row cannot
+  // scroll it to the start (the last ones, on desktop); a hand on the row
+  // lets go of it.
+  const pinned = useRef<number | null>(null);
+  const release = () => {
+    pinned.current = null;
+  };
+
+  const place = (n: number) => {
+    const p = pinned.current;
+    const whole = p === null ? n : desktop ? Math.max(n, p - 2) : Math.max(n, p);
+    setIdx(whole);
+    clearTimeout(settle.current);
+    settle.current = setTimeout(() => setSettled(whole), 140);
+  };
+
+  const nearest = () => {
+    const { el, starts } = cardStarts();
+    if (!el || starts.length === 0) return 0;
+    let n = 0;
+    starts.forEach((x, i) => {
+      if (Math.abs(x - el.scrollLeft) < Math.abs((starts[n] ?? 0) - el.scrollLeft)) n = i;
+    });
+    return n;
+  };
+
+  const follow = () => place(nearest());
+
+  const goTo = (i: number) => {
+    const { el, starts } = cardStarts();
+    if (!el || starts[i] === undefined) return;
+    pinned.current = i;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollTo({ left: starts[i], behavior: still ? 'auto' : 'smooth' });
+    place(nearest());
+  };
+
+  // v1.2 R-02: touching a card opens its full why in place. On desktop the
+  // first one starts open and wide, as the package shows it.
+  const [chosenOpen, setOpenSlug] = useState<string | null | undefined>(undefined);
+  const firstKept = match?.result.matched_modalities.find(
+    (m) => match.reactions[m.modality_slug]?.reaction !== 'dismissed',
+  )?.modality_slug;
+  const openSlug = chosenOpen === undefined ? (desktop ? (firstKept ?? null) : null) : chosenOpen;
+
+  const shell = (children: ReactNode) => (
+    <Screen photo="rocaBlanca" veil={0.62} glassAlpha={0.8}>
+      <div className="pz caminos">{children}</div>
+    </Screen>
+  );
+
   if (!currentSynthesis()) {
-    return (
-      <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {text.empty}
-          </p>
-          <Link to="/onboarding" className="cta no-underline">
-            {text.start}
-          </Link>
-        </div>
-      </Screen>
+    return shell(
+      <div className="estado">
+        <p className="cuerpo">{text.empty}</p>
+        <Link to="/onboarding" className="p1">
+          {text.start}
+        </Link>
+      </div>,
     );
   }
 
   if (error && !loading) {
-    return (
-      <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p role="alert" className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">
-            {error}
-          </p>
-          <button type="button" className="cta" onClick={() => void run()}>
-            {copy.chrome.aiError.retry}
-          </button>
-        </div>
-      </Screen>
+    return shell(
+      <div className="estado">
+        <p role="alert" className="cuerpo">
+          {error}
+        </p>
+        <button type="button" className="p1" onClick={() => void run()}>
+          {copy.chrome.aiError.retry}
+        </button>
+      </div>,
     );
   }
 
+  // The serpent in place of the carousel, only past 0.3 s (guide §7).
   if (loading || !match) {
-    return (
-      <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-        <div className="flex flex-col items-center justify-center gap-4 px-8 text-center flex-1">
-          <Ouroboros size={88} />
-          <p role="status" className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">{text.loading}</p>
-        </div>
-      </Screen>
+    return shell(
+      <div className="estado">
+        <Ouroboros size={88} />
+        <p role="status" className="cuerpo">
+          {text.loading}
+        </p>
+      </div>,
     );
   }
 
@@ -180,85 +245,96 @@ export function Recommendations() {
     );
 
   // v1.2 R-05 (owner, 16 Oct 2026): a therapy the person took off leaves the
-  // constellation and the count too; «Deshacer» brings it back everywhere.
-  // Should every one be taken off, the count stays on what was proposed
-  // rather than claim one that is not there.
+  // count too; «Deshacer» brings it back everywhere. Should every one be
+  // taken off, the count stays on what was proposed rather than claim one
+  // that is not there.
   const kept = cards.filter((c) => match.reactions[c.entry.modality_slug]?.reaction !== 'dismissed');
   const shown = kept.length > 0 ? kept : cards;
 
-  return (
-    <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
-      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
-        <p className="eyebrow mb-3 text-center">{text.kicker}</p>
+  // The card in view is whole; the next one peeks, faint and summarised. On
+  // desktop three are whole from the one in view.
+  const faintFrom = (i: number) => (desktop ? i < settled || i > settled + 2 : i !== settled);
 
-        <Constellation modalities={shown.map((c) => c.modality)} />
-
-        <h1 className="mt-2 mb-2 text-center text-[length:var(--fs-title-27)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {text.titleCount(shown.length)}
-          {text.titleMiddle}
-          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
-          {text.titleTail}
-        </h1>
-        <p className="mx-auto mb-6 max-w-[280px] text-center text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          {text.subtitle}
-        </p>
-
-        {text.framing[framing] && (
-          <p className="mb-4 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {text.framing[framing]}
-          </p>
-        )}
-
-        {notice && (
-          <p className="mb-4 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {notice}
-          </p>
-        )}
-
-        {match.used_fallback && (
-          <p className="mb-4 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {text.usedFallback}
-          </p>
-        )}
-
-        <div className="flex flex-col gap-3">
-          {cards.map(({ entry, modality }) => (
-            <ModalityCard
-              key={entry.modality_slug}
-              modality={modality}
-              rank={entry.rank}
-              summary={entry.summary ?? null}
-              reasoning={entry.reasoning}
-              cautionNote={entry.caution_note}
-              reaction={match.reactions[entry.modality_slug]?.reaction}
-              onReact={(reaction) => react(entry.modality_slug, reaction)}
-            />
-          ))}
+  return shell(
+    <>
+      <div className="scroll">
+        <div className="col1">
+          <p className="k">{text.kicker}</p>
+          <h1 className="t">
+            {text.titleCount(shown.length)}
+            {text.titleMiddle}
+            <em>{text.titleEmphasis}</em>
+            {text.titleTail}
+          </h1>
+          <p className="sub">{text.subtitle}</p>
         </div>
 
-        <div className="mt-7 flex flex-col gap-2.5">
-          <Link to="/recorrido" className="cta no-underline">
-            {text.toRoutine}
-            <span aria-hidden="true">→</span>
-          </Link>
+        <div className="fila-cam">
+          <div className="carr" ref={carr} onScroll={follow} onWheel={release} onTouchStart={release} onPointerDown={release}>
+            {cards.map(({ entry, modality }, i) => (
+              <ModalityCard
+                key={entry.modality_slug}
+                modality={modality}
+                position={i + 1}
+                total={cards.length}
+                summary={entry.summary ?? null}
+                reasoning={entry.reasoning}
+                cautionNote={entry.caution_note}
+                reaction={match.reactions[entry.modality_slug]?.reaction}
+                onReact={(reaction) => react(entry.modality_slug, reaction)}
+                open={openSlug === entry.modality_slug}
+                onToggle={() => setOpenSlug(openSlug === entry.modality_slug ? null : entry.modality_slug)}
+                faint={faintFrom(i)}
+                onGo={() => goTo(i)}
+              />
+            ))}
+          </div>
 
-          <button
-            type="button"
-            onClick={() => void run()}
-            className="chip chip-p10 text-crema/60"
-          >
-            {text.searchAgain}
-          </button>
-
-          {isDemoMode && (
-            <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-              {match.result.prompt_version} · {copy.demo.pool} {match.strategy}
-            </p>
-          )}
+          {/* What the screen said before the package and still has to say:
+              PDR 7.2 never truncates in silence. */}
+          <div className="avisos">
+            {text.framing[framing] && <p>{text.framing[framing]}</p>}
+            {notice && <p>{notice}</p>}
+            {match.used_fallback && <p>{text.usedFallback}</p>}
+            <button type="button" className="txtbtn" onClick={() => void run()}>
+              {text.searchAgain}
+            </button>
+            {isDemoMode && (
+              <p className="demo">
+                {match.result.prompt_version} · {copy.demo.pool} {match.strategy}
+              </p>
+            )}
+          </div>
         </div>
       </div>
-    </Screen>
+
+      <div className="fijo">
+        <div className="puntos" aria-hidden="true">
+          {cards.map((c, i) => (
+            <i key={c.entry.modality_slug} className={i === idx ? 'on' : undefined} />
+          ))}
+        </div>
+        <span className="esp-pie" />
+        <Link to={PATHS.journey} className="p1">
+          {text.toRoutine}
+          <ArrowIcon />
+        </Link>
+      </div>
+    </>,
   );
+}
+
+/** True from the desktop width on, where the cards lie in a row. */
+function useDesktop(): boolean {
+  const query = '(min-width: 1024px)';
+  const [desktop, setDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
+  useEffect(() => {
+    const list = window.matchMedia(query);
+    const change = () => setDesktop(list.matches);
+    list.addEventListener('change', change);
+    return () => list.removeEventListener('change', change);
+  }, []);
+  return desktop;
 }
 
 function excludedNow(match: StoredMatch): boolean {

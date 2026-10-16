@@ -21,7 +21,8 @@ import { Meditation } from '@/screens/Meditation';
 import { Library } from '@/screens/Library';
 import { ComparisonHome } from '@/screens/comparison/ComparisonHome';
 import { Result } from '@/screens/comparison/Result';
-import { showsNav, showsProfile } from '@/components/navigation';
+import { showsNav, showsProfile, subScreenOf } from '@/components/navigation';
+import { BackIcon } from '@/design/brand-icons';
 import { ProfileButton } from '@/components/ProfileButton';
 import { LegacyRedirect } from '@/components/LegacyRedirect';
 import { LEGACY_PATHS, PATHS } from '@/components/routes';
@@ -174,14 +175,34 @@ export function App() {
     return <Navigate to={{ pathname: '/registro', search, hash }} replace />;
   }
 
+  const sub = subScreenOf(pathname);
+
   return (
     <AppFrame>
-      <header className="app-header">
+      <header className="app-header" data-sub={sub ? '' : undefined}>
         <div className="min-w-0 flex-1">
-          {showsNav(pathname, takeoverShown) && (
-            <Link to={PATHS.today} className="header-brand">
-              {copy.chrome.brand}
-            </Link>
+          {sub && !takeoverShown ? (
+            <>
+              <button
+                type="button"
+                className={sub.backOnDesktop ? 'header-back' : 'header-back phone-only'}
+                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(sub.parent ?? PATHS.today))}
+              >
+                <BackIcon />
+                {copy.chrome.back}
+              </button>
+              {!sub.backOnDesktop && (
+                <Link to={PATHS.today} className="header-brand desk-only">
+                  {copy.chrome.brand}
+                </Link>
+              )}
+            </>
+          ) : (
+            showsNav(pathname, takeoverShown) && (
+              <Link to={PATHS.today} className="header-brand">
+                {copy.chrome.brand}
+              </Link>
+            )
           )}
         </div>
         <HelpNowButton onOpen={openHelp} />
@@ -254,8 +275,8 @@ export function App() {
         </ErrorBoundary>
       </main>
       {showsNav(pathname, takeoverShown) && (
-        <div className="app-nav">
-          <BottomNav />
+        <div className="app-nav" data-sub={sub ? '' : undefined}>
+          <BottomNav lit={sub?.parent ?? null} />
         </div>
       )}
       {helpOpen && <HelpNowPanel onClose={closeHelp} />}

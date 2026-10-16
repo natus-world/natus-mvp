@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
 import { computeNumerology } from '@/lib/numerology';
 import type { AiError } from '@/ai/client';
@@ -26,7 +26,14 @@ import type { OnboardingDraft } from '@/store/session';
 
 const t = copy.profile.birth;
 
-const BIRTH_FIELDS = ['legal_birth_name', 'birth_date', 'birth_time', 'birth_city', 'birth_country', 'chart_without_time'] as const;
+const BIRTH_FIELDS = [
+  'legal_birth_name',
+  'birth_date',
+  'birth_time',
+  'birth_city',
+  'birth_country',
+  'chart_without_time',
+] as const;
 
 /** Two «San Fernando» in one country are two places: compared by where they are. */
 function samePlace(a: OnboardingDraft['birth_place'], b: OnboardingDraft['birth_place']): boolean {
@@ -53,7 +60,10 @@ export function BirthDataEdit() {
   const numerology = useMemo(() => {
     if (!draft?.legal_birth_name || !/^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date)) return null;
     try {
-      return computeNumerology({ legalBirthName: draft.legal_birth_name, birthDate: draft.birth_date });
+      return computeNumerology({
+        legalBirthName: draft.legal_birth_name,
+        birthDate: draft.birth_date,
+      });
     } catch {
       return null;
     }
@@ -93,19 +103,25 @@ export function BirthDataEdit() {
   if (step === 'generating') {
     if (failure) {
       return (
-        <Screen backdrop="sala" scrim="diagonal" opacity={PHOTO.veil60}>
-          <div className="flex flex-col items-center justify-center gap-6 px-8 text-center flex-1">
-            <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/75">{failure}</p>
-            <button
-              type="button"
-              className="cta"
-              onClick={() => {
-                setFailure(null);
-                setAttempt((a) => a + 1);
-              }}
-            >
-              {copy.onboarding.generating.retry}
-            </button>
+        <Screen photo="monje" veil={0} focus="center 70%">
+          <div className="pz perfil">
+            <div className="velo-pf" aria-hidden="true" />
+            <div className="scroll interna">
+              <p className="k">{t.kicker}</p>
+              <p role="alert" className="nota fuerte">
+                {failure}
+              </p>
+              <button
+                type="button"
+                className="p1i"
+                onClick={() => {
+                  setFailure(null);
+                  setAttempt((a) => a + 1);
+                }}
+              >
+                {copy.onboarding.generating.retry}
+              </button>
+            </div>
           </div>
         </Screen>
       );
@@ -125,14 +141,15 @@ export function BirthDataEdit() {
 
   if (step === 'confirm') {
     return (
-      <Screen backdrop="sala" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex flex-col justify-center gap-6 px-6 flex-1">
-          <p className="eyebrow">{t.kicker}</p>
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/80">{t.confirm}</p>
-          <div className="flex flex-col gap-2.5">
+      <Screen photo="monje" veil={0} focus="center 70%">
+        <div className="pz perfil">
+          <div className="velo-pf" aria-hidden="true" />
+          <div className="scroll interna">
+            <p className="k">{t.kicker}</p>
+            <p className="nota fuerte">{t.confirm}</p>
             <button
               type="button"
-              className="cta"
+              className="p1i"
               onClick={() => {
                 // The chart is calculated again from the new data.
                 updateActiveProfile({ ...draft, natal_chart: null });
@@ -142,7 +159,7 @@ export function BirthDataEdit() {
             >
               {t.save}
             </button>
-            <button type="button" className="chip chip-p10 text-crema/60" onClick={() => setStep('form')}>
+            <button type="button" className="p2i" onClick={() => setStep('form')}>
               {copy.common.back}
             </button>
           </div>
@@ -152,21 +169,24 @@ export function BirthDataEdit() {
   }
 
   return (
-    <Screen backdrop="sala" scrim="even" opacity={PHOTO.veil55}>
-      <div className="flex flex-col px-[22px] pt-[var(--top-inset)] pb-[var(--bottom-inset)] h-full">
-        <p className="eyebrow mb-4">{t.kicker}</p>
-        <BasicData
-          draft={draft}
-          onChange={(patch) => setDraft((d) => (d ? { ...d, ...patch } : d))}
-          onNext={() => {
-            if (birthChanged(original, draft)) {
-              setStep('confirm');
-            } else {
-              updateActiveProfile(draft);
-              navigate(PATHS.profile);
-            }
-          }}
-        />
+    <Screen photo="monje" veil={0} focus="center 70%">
+      <div className="pz perfil">
+        <div className="velo-pf" aria-hidden="true" />
+        <div className="nacimiento">
+          <p className="k">{t.kicker}</p>
+          <BasicData
+            draft={draft}
+            onChange={(patch) => setDraft((d) => (d ? { ...d, ...patch } : d))}
+            onNext={() => {
+              if (birthChanged(original, draft)) {
+                setStep('confirm');
+              } else {
+                updateActiveProfile(draft);
+                navigate(PATHS.profile);
+              }
+            }}
+          />
+        </div>
       </div>
     </Screen>
   );

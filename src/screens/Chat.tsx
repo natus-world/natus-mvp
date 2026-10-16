@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
 import { copy } from '@/i18n';
-import { Paywall } from '@/components/Paywall';
-import { CrisisResourceList } from '@/components/CrisisResourceList';
+import { PayPalSubscribe } from '@/components/PayPalSubscribe';
 import { modalityBySlug } from '@/lib/catalog';
+import { resourcesForCountry, telHref } from '@/lib/crisis-resources';
 import { detectCrisis, isClinicallyVulnerable, riskLevel } from '@/lib/safety';
+import { chartPlacements } from '@/astrology/natal-chart';
 import { askChat } from '@/ai/chat';
 import { AiError } from '@/ai/client';
 import { activeProfile } from '@/store/account';
@@ -13,6 +14,7 @@ import { currentSynthesis } from '@/store/soulMap';
 import { currentMatchFor } from '@/store/matches';
 import { activeHighSeverityEvent, hadCrisisWithin30Days, markFalsePositive, recordCrisisEvent } from '@/store/crisis';
 import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
+import { track } from '@/store/funnel';
 import { listFriends } from '@/store/friends';
 import {
   appendAssistantMessage,
@@ -25,7 +27,9 @@ import {
 } from '@/store/chat';
 
 /**
- * The conversation of PDR section 10.
+ * The conversation of PDR section 10, drawn as package 10 (16 Oct 2026):
+ * Davraz's answer as a verse, and on the phone a focus mode — «Salir» in the
+ * header, no tab bar — once there is a conversation or the line is touched.
  *
  * Layer 1 runs on every message before it reaches the model — not as a filter
  * on the way back, which would mean the crisis text had already been generated
@@ -44,6 +48,179 @@ const CONTAINMENT_TEXT = text.containmentMessage;
 
 const TYPE_LABEL: Record<NonNullable<StoredMessage['type']>, string> = text.typeLabel;
 
+/** What a crisis turn answers: containment for a high signal, the package's
+ *  softer reply for a low one. Neither is charged. */
+function crisisAnswer(severity: 'high' | 'low') {
+  return {
+    type: 'crisis' as const,
+    message_text: severity === 'high' ? CONTAINMENT_TEXT : text.crisisReply,
+    linked_modality_slugs: [],
+  };
+}
+
+const svg = {
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  'aria-hidden': true,
+} as const;
+
+function SendIcon() {
+  return (
+    <svg {...svg} strokeWidth={1.6}>
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function BackIcon() {
+  return (
+    <svg {...svg} strokeWidth={1.2}>
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg {...svg} strokeWidth={1.4}>
+      <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z" />
+    </svg>
+  );
+}
+
+/** The Moon's sign in Spanish, for the example that comes from the chart. */
+function moonSign(draft: Parameters<typeof chartPlacements>[0]): string | null {
+  const moon = chartPlacements(draft)?.find((p) => p.name === 'Moon');
+  return moon ? (text.signs[moon.sign] ?? null) : null;
+}
+
+/**
+ * The lines to call, under a crisis turn: the person's country, then the
+ * international directory, then the notice when a number is unverified.
+ */
+function HelpLines({ country }: { country: string | undefined }) {
+  const set = resourcesForCountry(country);
+  return (
+    <div className="lineas" role="region" aria-label={text.crisisLines}>
+      <p className="lt">{text.crisisLines}</p>
+      {set.resources.map((r) => (
+        <div key={`${r.country}-${r.name}`} className="linea-a">
+          <div className="tx">
+            <p className="nm">{r.name}</p>
+            {r.note && <p className="ds">{r.note}</p>}
+          </div>
+          <a href={telHref(r.contact)} className="llamar" aria-label={text.call(r.name, r.contact)}>
+            <PhoneIcon />
+            {r.contact}
+          </a>
+        </div>
+      ))}
+      {/* PDR 6.4: never leave the list empty, and always offer a way out of
+          the five MVP countries. */}
+      <a href={set.fallback.url} target="_blank" rel="noreferrer noopener" className="linea-a">
+        <div className="tx">
+          <p className="nm">{set.fallback.name}</p>
+          <p className="ds">{set.fallback.note}</p>
+        </div>
+        <span className="ir" aria-hidden="true">
+          ↗
+        </span>
+      </a>
+      {set.unverified && (
+        <p className="sin-verificar">
+          {copy.crisisResources.unverifiedLead}
+          {copy.crisisResources.unverifiedSite}
+          {copy.crisisResources.unverifiedTail}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * «Seguir conversando», the sheet over the chat when the questions run out.
+ *
+ * It never appears over a crisis turn — the caller checks safety first. After
+ * a crisis alert the server holds the offer back for seven days (decided 15
+ * Oct 2026): what is used up is still said, Premium is not. Unknown until the
+ * server answers, so the offer never flashes. What the person typed stays in
+ * the line behind it.
+ */
+function ChatPaywall({ quota, onDismiss }: { quota: Quota | null; onDismiss: () => void }) {
+  const pw = text.paywall;
+  const [offer, setOffer] = useState<boolean | null>(null);
+  const [trying, setTrying] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void fetchQuota('chat').then((q) => {
+      if (live) setOffer(q ? q.offerPremium : true);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (offer) track('paywall_seen', 'chat');
+  }, [offer]);
+
+  if (offer === null) return null;
+  const next = quota && quota.tier === 'free' && quota.renewsOn ? pw.next(renewalDate(quota.renewsOn)) : null;
+
+  return (
+    <>
+      <div className="velo-p" aria-hidden="true" />
+      <div className="hoja-p" role="dialog" aria-label={offer ? `${pw.titleLead}${pw.titleEmphasis}` : copy.paywall.label}>
+        {offer ? (
+          <>
+            <p className="t">
+              {pw.titleLead}
+              <em>{pw.titleEmphasis}</em>
+            </p>
+            <p className="x">{pw.body}</p>
+            <div className="precio">
+              <b>{pw.price}</b>
+              <span>
+                {pw.period}
+                <br />
+                {pw.cancel}
+              </span>
+            </div>
+            <div className="bts">
+              {trying ? (
+                <div className="pago">
+                  <PayPalSubscribe />
+                </div>
+              ) : (
+                <button type="button" className="bt-c" onClick={() => setTrying(true)}>
+                  {pw.trial}
+                </button>
+              )}
+              <button type="button" className="bt-o" onClick={onDismiss}>
+                {pw.notNow}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="t">{copy.paywall.title.chat}</p>
+            <p className="x">{copy.paywall.body.chat}</p>
+            <div className="bts">
+              <button type="button" className="bt-o" onClick={onDismiss}>
+                {copy.paywall.back}
+              </button>
+            </div>
+          </>
+        )}
+        {next && <p className="prox">{next}</p>}
+      </div>
+    </>
+  );
+}
+
 export function Chat() {
   const synthesis = currentSynthesis();
   const profile = activeProfile();
@@ -59,6 +236,12 @@ export function Chat() {
   const [containment, setContainment] = useState<string | null>(
     () => activeHighSeverityEvent()?.id ?? null,
   );
+  // A low signal this session, so its turn can carry «Esto no aplica a mi caso».
+  const [lowSignal, setLowSignal] = useState<string | null>(null);
+  // Package 10: on the phone, a conversation is read in focus mode — «Salir»
+  // in the header and no tab bar. Desktop has no focus mode.
+  const [focus, setFocus] = useState(() => messages.length > 0);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   // v1.2 F-01: what the plan has left, as the server counts it. Null in the
   // fixture demo, which counts on its own.
@@ -96,11 +279,14 @@ export function Chat() {
 
   if (!synthesis || !profile || !conversation) {
     return (
-      <Screen backdrop="ojo" scrim="heavy" opacity={PHOTO.content45}>
-        <div className="flex flex-col justify-center gap-6 px-6 text-center flex-1">
-          <p className="text-[length:var(--fs-body-14)] leading-relaxed text-crema/65">
-            {text.empty_noMap}
+      <Screen photo="sedaAzul" veil={0.3} glassAlpha={0.5} tone="6 12 18">
+        <div className="pz chat-sin scroll">
+          <p className="k">{text.kicker}</p>
+          <p className="t">
+            {text.titleLead}
+            <em>{text.titleEmphasis}</em>
           </p>
+          <p className="cuerpo">{text.empty_noMap}</p>
           <Link to="/onboarding" className="cta no-underline">
             {text.start}
           </Link>
@@ -129,14 +315,11 @@ export function Chat() {
     if (verdict.crisis) {
       const event = recordCrisisEvent(verdict, 'chat');
       appendUserMessage(conversation.id, question);
-      appendAssistantMessage(conversation.id, {
-        type: 'crisis',
-        message_text: CONTAINMENT_TEXT,
-        linked_modality_slugs: [],
-      });
+      appendAssistantMessage(conversation.id, crisisAnswer(verdict.severity === 'high' ? 'high' : 'low'));
       setMessages(listMessages(conversation.id));
       setDraft('');
       if (verdict.severity === 'high') setContainment(event.id);
+      else setLowSignal(event.id);
       return;
     }
 
@@ -182,13 +365,10 @@ export function Chat() {
           { ...err.crisis, layer: 'deterministic', matched: [], excerpt: '' },
           'chat',
         );
-        appendAssistantMessage(conversation.id, {
-          type: 'crisis',
-          message_text: CONTAINMENT_TEXT,
-          linked_modality_slugs: [],
-        });
+        appendAssistantMessage(conversation.id, crisisAnswer(err.crisis.severity === 'high' ? 'high' : 'low'));
         setMessages(listMessages(conversation.id));
         if (err.crisis.severity === 'high') setContainment(event.id);
+        else setLowSignal(event.id);
         return;
       }
 
@@ -217,140 +397,165 @@ export function Chat() {
     }
   };
 
+  const empty = messages.length === 0;
+  const last = messages[messages.length - 1];
+  const lastCrisisId = [...messages].reverse().find((m) => m.type === 'crisis')?.id;
+  // A crisis turn is not charged, and the package shows no counter under it.
+  const showCount = Number.isFinite(remaining) && !containment && last?.type !== 'crisis';
+  const paywallOpen = showPaywall && !containment;
+  const pick = (question: string) => {
+    setDraft(question);
+    setFocus(true);
+    inputRef.current?.focus();
+  };
+
   return (
-    <Screen backdrop="ojo" scrim="heavy" opacity={PHOTO.content40}>
-      <div className="flex flex-col px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] h-full">
-        <div className="mb-3 flex shrink-0 flex-col gap-2">
-          <p className="eyebrow">{text.kicker}</p>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <h1 className="font-serif text-[length:var(--fs-voice-19)] font-light text-blanco">{text.name}</h1>
-              <span className="badge shrink-0 px-2 text-crema/70">{text.aiLabel}</span>
-            </div>
-            {Number.isFinite(remaining) && (
-              <span className="shrink-0 text-[length:var(--fs-body-11)] text-crema/70">{text.remaining(remaining)}</span>
-            )}
-          </div>
-          {aboutFriend && (
-            <div className="flex items-center justify-between gap-3 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2">
-              <span className="text-[length:var(--fs-body-11_5)] leading-snug text-crema/75">
-                {text.aboutComparison(aboutFriend)}
+    <Screen photo="sedaAzul" veil={0.3} glassAlpha={0.5} tone="6 12 18">
+      <div
+        className="pz chat"
+        data-focus={focus || paywallOpen ? 'true' : 'false'}
+        data-empty={empty ? 'true' : 'false'}
+      >
+        <div className="salir-fila">
+          <button
+            type="button"
+            className="salir"
+            onClick={() => {
+              setFocus(false);
+              inputRef.current?.blur();
+            }}
+          >
+            <BackIcon />
+            {text.exit}
+          </button>
+        </div>
+
+        <div className="scroll">
+          <div className="titulo">
+            <p className="k">{text.kicker}</p>
+            <h1 className="t">
+              {text.titleLead}
+              <em>{text.titleEmphasis}</em>
+            </h1>
+            <div className="quien">
+              <span className="davraz">
+                {text.name} <span className="ia">{text.aiLabel}</span>
               </span>
-              <button
-                type="button"
-                className="shrink-0 text-[length:var(--fs-body-11)] text-crema/60 underline-offset-4 hover:text-crema hover:underline"
-                onClick={() => setParams({}, { replace: true })}
-              >
+            </div>
+          </div>
+
+          <div className="empuje" aria-hidden="true" />
+
+          {aboutFriend && (
+            <div className="sobre">
+              <p>{text.aboutComparison(aboutFriend)}</p>
+              <button type="button" className="mini" onClick={() => setParams({}, { replace: true })}>
                 {text.aboutComparisonRemove}
               </button>
             </div>
           )}
-          {quota && quota.tier === 'free' && quota.newThisMonth > 0 && (
-            // Guide 9.9: said once the month has renewed it, never as pressure.
-            <p className="text-right text-[length:var(--fs-body-11)] text-crema/60">
-              {text.newThisMonth(quota.newThisMonth)}
-            </p>
-          )}
-        </div>
 
-        <div className="-mx-1 flex-1 overflow-y-auto px-1">
-          {messages.length === 0 && (
-            <p className="mt-4 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-              {text.empty}
-            </p>
+          {empty && (
+            <div className="ejemplos">
+              <p className="lb">{text.examplesLabel}</p>
+              {text.examples(moonSign(profile.draft)).map((example) => (
+                <button key={example} type="button" className="ej" onClick={() => pick(example)}>
+                  {example}
+                </button>
+              ))}
+            </div>
           )}
 
-          <div className="flex flex-col gap-3 py-2">
-            {messages.map((message) =>
-              message.role === 'user' ? (
-                <p
-                  key={message.id}
-                  className="self-end rounded-[var(--radius-option)] rounded-br-sm bg-verde/70 px-3.5 py-2.5 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema"
-                >
-                  {message.text}
-                </p>
-              ) : (
-                <article
-                  key={message.id}
-                  className={[
-                    message.type === 'crisis'
-                      ? 'bubble-bare border border-error/30'
-                      : 'bubble rounded-bl-sm',
-                  ].join(' ')}
-                >
-                  <p className="eyebrow mb-1.5">{TYPE_LABEL[message.type ?? 'reflection']}</p>
-                  <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-blanco/85">{message.text}</p>
-
-                  {message.linked_modality_slugs.length > 0 && (
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {message.linked_modality_slugs.map((slug) => (
-                        <Link
-                          key={slug}
-                          to="/caminos"
-                          className="pill text-[length:var(--fs-body-10_5)] text-crema/75 no-underline"
-                        >
-                          {modalityBySlug(slug)?.name_es ?? slug}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-
-                  {message.type === 'crisis' && (
-                    <div className="mt-3">
-                      <CrisisResourceList country={profile.draft.country} compact />
-                    </div>
-                  )}
-                </article>
-              ),
-            )}
-
-            {thinking && (
-              <p aria-live="polite" className="text-[length:var(--fs-body-12)] text-crema/55">
-                {text.thinking}
+          {messages.map((message) =>
+            message.role === 'user' ? (
+              <p key={message.id} className="yo-v">
+                {message.text}
               </p>
-            )}
-          </div>
+            ) : message.type === 'crisis' ? (
+              <div key={message.id} className="contencion">
+                <p>{message.text}</p>
+                <HelpLines country={profile.draft.country} />
+                {message.id === lastCrisisId && lowSignal && !containment && (
+                  <button
+                    type="button"
+                    className="no-aplica"
+                    onClick={() => {
+                      markFalsePositive(lowSignal);
+                      setLowSignal(null);
+                    }}
+                  >
+                    {text.notMyCase}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <article key={message.id} className="verso">
+                <span className="et">{TYPE_LABEL[message.type ?? 'reflection']}</span>
+                <p>{message.text}</p>
+                {message.linked_modality_slugs.length > 0 && (
+                  <div className="caminos-l">
+                    {message.linked_modality_slugs.map((slug) => (
+                      <Link key={slug} to="/caminos" className="mini">
+                        {modalityBySlug(slug)?.name_es ?? slug}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </article>
+            ),
+          )}
+
+          {thinking && (
+            <div className="escribiendo" role="status">
+              <span className="sr-only">{text.thinking}</span>
+              <i />
+              <i />
+              <i />
+            </div>
+          )}
           <div ref={endRef} />
         </div>
 
-        {error && (
-          <div role="alert" className="flex shrink-0 items-center gap-3 pt-2">
-            <p className="flex-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-error">{error}</p>
-            {error === copy.chrome.aiError.message && (
-              <button type="button" onClick={() => void send()} className="chip shrink-0 text-crema/75">
-                {copy.chrome.aiError.retry}
-              </button>
-            )}
-          </div>
-        )}
+        <div className="abajo">
+          {quota && quota.tier === 'free' && quota.newThisMonth > 0 && (
+            // Guide 9.9: said once the month has renewed it, never as pressure.
+            <p className="cupo">{text.newThisMonth(quota.newThisMonth)}</p>
+          )}
+          {showCount && <p className="cupo">{text.remaining(remaining)}</p>}
 
-        <div className="shrink-0 pt-3">
+          {error && (
+            <div role="alert" className="aviso">
+              <p>{error}</p>
+              {error === copy.chrome.aiError.message && (
+                <button type="button" onClick={() => void send()} className="mini">
+                  {copy.chrome.aiError.retry}
+                </button>
+              )}
+            </div>
+          )}
+
           {containment ? (
-            <div className="rounded-[var(--radius-option)] border border-error/30 px-4 py-3.5">
-              <p className="mb-2.5 text-[length:var(--fs-body-12)] leading-relaxed text-crema/75">
-                {text.containmentNote}
-              </p>
+            <div className="contenida">
+              <p>{text.containmentNote}</p>
               <button
                 type="button"
+                className="no-aplica"
                 onClick={() => {
                   markFalsePositive(containment);
                   setContainment(null);
                 }}
-                className="text-[length:var(--fs-body-11)] text-crema/55 underline underline-offset-4 hover:text-crema/70"
               >
                 {text.notMyCase}
               </button>
             </div>
-          ) : showPaywall ? (
-            <Paywall feature="chat" onDismiss={() => setShowPaywall(false)} />
-          ) : null}
-
-          {!containment && (
-            <div className="mt-2.5 flex items-end gap-2">
+          ) : (
+            <div className="linea">
               <textarea
-                rows={2}
+                ref={inputRef}
+                rows={1}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
+                onFocus={() => setFocus(true)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -359,20 +564,21 @@ export function Chat() {
                 }}
                 placeholder={text.placeholder}
                 aria-label={text.messageLabel}
-                className="field max-h-28 min-h-[52px] flex-1 resize-none px-3.5 text-[length:var(--fs-body-12_5)] placeholder:text-crema/55"
               />
               <button
                 type="button"
                 onClick={() => void send()}
                 disabled={draft.trim() === '' || thinking}
                 aria-label={text.send}
-                className="circle-chip flex size-11 shrink-0 items-center justify-center text-crema disabled:opacity-40"
+                className="env"
               >
-                <span aria-hidden="true">→</span>
+                <SendIcon />
               </button>
             </div>
           )}
         </div>
+
+        {paywallOpen && <ChatPaywall quota={quota} onDismiss={() => setShowPaywall(false)} />}
       </div>
     </Screen>
   );

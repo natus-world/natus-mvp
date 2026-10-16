@@ -1,1 +1,736 @@
-/* Package screen: chat. Ported from the branding package (16 Oct 2026). */
+/*
+ * Chat (package 10, 15–16 Oct 2026): the answer as a verse, on «seda azul»,
+ * tone 6 12 18, glass .5, even veil .30. Ported with the package's class
+ * names and numbers (`.ch` on the phone, `.chd` on desktop).
+ *
+ * The package positions the phone's composer and sheets against the phone
+ * and the desktop's columns against the 1440 × 900 window; both are the
+ * viewport here, so those parts are `position: fixed` at the package's own
+ * coordinates.
+ */
+
+/* On the phone «seda azul» carries its own darkening under the veil
+   (`.ch.simb.f-seda .foto`: rgb(6 12 18 / .45)); one layer of the same tone
+   at .615 is the two composed. Desktop has the bare veil (.30). */
+@media (max-width: 1023.98px) {
+  .on-photo:has(> .screen-body > .pz.chat) > .photo-scrim {
+    background: rgb(var(--v) / 0.615) !important;
+  }
+}
+
+.pz.chat {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat .scroll {
+  gap: calc(var(--u) * 14);
+  padding-top: calc(var(--u) * 42);
+  padding-bottom: calc(var(--u) * 210);
+  /* The newest turn lands above the line, not under it. */
+  scroll-padding-bottom: calc(var(--u) * 210);
+}
+
+.chat[data-focus='true'] .scroll {
+  padding-top: calc(var(--u) * 82);
+}
+
+.chat .k {
+  color: rgb(236 226 208 / 0.75);
+}
+
+.chat .titulo {
+  display: contents;
+}
+
+.chat .t em {
+  font-style: italic;
+}
+
+.chat .davraz {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: rgb(236 226 208 / 0.85);
+}
+
+.chat .ia {
+  display: inline-flex;
+  align-items: center;
+  font: 500 calc(var(--u) * 10) / 1 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--t2);
+  border: 1px solid rgb(236 226 208 / 0.45);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 4) calc(var(--u) * 7);
+}
+
+.chat .mini {
+  display: inline-flex;
+  align-items: center;
+  height: calc(var(--u) * 32);
+  padding: 0 calc(var(--u) * 12);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  background: none;
+  font: 400 calc(var(--u) * 12) / 1 var(--font-sans);
+  color: var(--t1);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chat .empuje {
+  display: none;
+}
+
+/* ── «Salir», in the header's place, focus mode only ─────────────────── */
+
+.chat .salir-fila {
+  display: none;
+}
+
+.chat .salir {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  height: calc(var(--u) * 32);
+  padding: 0 calc(var(--u) * 12) 0 calc(var(--u) * 9);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  background: rgb(var(--v) / 0.45);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font: 400 calc(var(--u) * 12) / 1 var(--font-sans);
+  color: var(--t1);
+  cursor: pointer;
+}
+
+.chat .salir svg {
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+}
+
+@media (max-width: 1023.98px) {
+  /* Focus mode: no NATUS, no initial, no tab bar; «Salir» on the left and
+     Davraz centred under it. «Necesito ayuda» stays. */
+  :root:has(.pz.chat[data-focus='true']) :is(.app-nav, .app-header .header-brand, .app-header .profile-button) {
+    display: none;
+  }
+
+  .chat[data-focus='true'] .salir-fila {
+    position: fixed;
+    z-index: 51;
+    top: env(safe-area-inset-top, 0px);
+    left: calc(var(--u) * 24);
+    height: calc(var(--u) * 64);
+    display: flex;
+    align-items: center;
+  }
+
+  .chat[data-focus='true'] .titulo :is(.k, .t) {
+    display: none;
+  }
+
+  .chat[data-focus='true'] .quien {
+    position: fixed;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    top: calc(env(safe-area-inset-top, 0px) + var(--u) * 60);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+}
+
+/* ── The conversation ─────────────────────────────────────────────────── */
+
+.chat .yo-v {
+  align-self: flex-end;
+  max-width: 78%;
+  text-align: right;
+  font: 400 calc(var(--u) * 15) / 1.5 var(--font-sans);
+  color: rgb(236 226 208 / 0.78);
+  padding-right: calc(var(--u) * 12);
+  border-right: 1px solid rgb(236 226 208 / 0.4);
+  white-space: pre-wrap;
+}
+
+.chat .verso {
+  position: relative;
+  z-index: 0;
+  padding: calc(var(--u) * 10) 0 calc(var(--u) * 6);
+}
+
+.chat .verso .et {
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(236 226 208 / 0.75);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 10);
+}
+
+.chat .verso .et::after {
+  content: '';
+  flex: 0 0 calc(var(--u) * 40);
+  height: 1px;
+  background: rgb(236 226 208 / 0.35);
+}
+
+.chat .verso p {
+  font: italic 300 calc(var(--u) * 25) / 1.32 var(--font-serif);
+  color: #f1e9da;
+  margin-top: calc(var(--u) * 10);
+  text-shadow: 0 1px calc(var(--u) * 14) rgb(6 12 18 / 0.6);
+  white-space: pre-wrap;
+}
+
+.chat .verso::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--u) * -40);
+  right: calc(var(--u) * -40);
+  top: calc(var(--u) * -20);
+  bottom: calc(var(--u) * -20);
+  background: radial-gradient(60% 55% at 40% 50%, rgb(6 12 18 / 0.45), transparent 75%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.chat .caminos-l {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--u) * 8);
+  margin-top: calc(var(--u) * 12);
+}
+
+.chat .escribiendo {
+  display: inline-flex;
+  gap: calc(var(--u) * 5);
+  margin-top: calc(var(--u) * 12);
+}
+
+.chat .escribiendo i {
+  width: calc(var(--u) * 5);
+  height: calc(var(--u) * 5);
+  border-radius: 50%;
+  background: rgb(236 226 208 / 0.7);
+  animation: chat-resp 1.6s ease-in-out infinite;
+}
+
+.chat .escribiendo i:nth-of-type(2) {
+  animation-delay: 0.2s;
+}
+
+.chat .escribiendo i:nth-of-type(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes chat-resp {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat .escribiendo i {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* The comparison being talked over (no package design: the pieces). */
+.chat .sobre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--u) * 12);
+  padding: calc(var(--u) * 10) calc(var(--u) * 12) calc(var(--u) * 10) calc(var(--u) * 14);
+  border-radius: calc(var(--u) * 12);
+  border: 1px solid rgb(236 226 208 / 0.28);
+  background: rgb(6 12 18 / 0.25);
+  font: 400 calc(var(--u) * 13) / 1.4 var(--font-sans);
+  color: rgb(236 226 208 / 0.85);
+}
+
+/* ── First time: three questions to tap ───────────────────────────────── */
+
+.chat .ejemplos {
+  display: grid;
+  gap: calc(var(--u) * 10);
+  margin-top: calc(var(--u) * 26);
+}
+
+.chat .ejemplos .lb {
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(236 226 208 / 0.75);
+  margin-bottom: calc(var(--u) * 4);
+}
+
+.chat .ej {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: italic 300 calc(var(--u) * 20) / 1.35 var(--font-serif);
+  color: #f1e9da;
+  padding: calc(var(--u) * 12) calc(var(--u) * 16);
+  border: 1px solid rgb(236 226 208 / 0.28);
+  border-radius: calc(var(--u) * 12);
+  background: rgb(6 12 18 / 0.25);
+  cursor: pointer;
+}
+
+/* ── Crisis: containment, and the lines to call ───────────────────────── */
+
+.chat .contencion {
+  padding: calc(var(--u) * 6) 0;
+}
+
+.chat .contencion > p {
+  font: 400 calc(var(--u) * 19) / 1.5 var(--font-sans);
+  color: #f1e9da;
+  white-space: pre-wrap;
+}
+
+.chat .lineas {
+  margin-top: calc(var(--u) * 16);
+  border-radius: calc(var(--u) * 12);
+  padding: calc(var(--u) * 18) calc(var(--u) * 16) calc(var(--u) * 8);
+  background: rgb(8 14 18 / 0.72);
+  border: 1px solid rgb(236 226 208 / 0.3);
+}
+
+.chat .lineas .lt {
+  font: 500 calc(var(--u) * 12) / 1.3 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ece2d0;
+  margin-bottom: calc(var(--u) * 6);
+}
+
+.chat .linea-a {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  padding: calc(var(--u) * 12) 0;
+  border-top: 1px solid rgb(236 226 208 / 0.16);
+}
+
+.chat .lt + .linea-a {
+  border-top: 0;
+}
+
+.chat .linea-a .tx {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat .linea-a .nm {
+  font: 500 calc(var(--u) * 15) / 1.3 var(--font-sans);
+  color: #f5efe6;
+}
+
+.chat .linea-a .ds {
+  font: 400 calc(var(--u) * 13) / 1.35 var(--font-sans);
+  color: rgb(236 226 208 / 0.82);
+  margin-top: calc(var(--u) * 2);
+}
+
+.chat .llamar {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 7);
+  height: calc(var(--u) * 44);
+  padding: 0 calc(var(--u) * 14);
+  border-radius: calc(var(--u) * 8);
+  background: #ece2d0;
+  color: #0b120e;
+  font: 500 calc(var(--u) * 16) / 1 var(--font-sans);
+  font-variant-numeric: tabular-nums lining-nums;
+  white-space: nowrap;
+  text-shadow: none;
+}
+
+.chat .llamar svg {
+  width: calc(var(--u) * 15);
+  height: calc(var(--u) * 15);
+}
+
+.chat .linea-a .ir {
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 44);
+  height: calc(var(--u) * 44);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  font: 400 calc(var(--u) * 16) / 1 var(--font-sans);
+}
+
+.chat .sin-verificar {
+  font: 400 calc(var(--u) * 12) / 1.45 var(--font-sans);
+  color: rgb(236 226 208 / 0.7);
+  padding: calc(var(--u) * 4) 0 calc(var(--u) * 8);
+}
+
+.chat .no-aplica {
+  display: block;
+  margin: calc(var(--u) * 14) auto 0;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: rgb(236 226 208 / 0.75);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ── The line to write on ─────────────────────────────────────────────── */
+
+.chat .abajo {
+  position: fixed;
+  z-index: 3;
+  left: calc(var(--u) * 16);
+  right: calc(var(--u) * 16);
+  bottom: calc(var(--u) * 98 + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: calc(var(--u) * 10);
+}
+
+.chat[data-focus='true'] .abajo {
+  bottom: calc(var(--u) * 30 + env(safe-area-inset-bottom, 0px));
+}
+
+.chat .abajo::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--u) * -16);
+  right: calc(var(--u) * -16);
+  top: calc(var(--u) * -70);
+  bottom: calc(var(--u) * -110);
+  background: linear-gradient(180deg, rgb(6 12 18 / 0), rgb(6 12 18 / 0.9) 45%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.chat .cupo {
+  text-align: center;
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: rgb(236 226 208 / 0.8);
+}
+
+.chat .aviso {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+}
+
+.chat .aviso p {
+  flex: 1;
+  font: 400 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: var(--natus-error);
+}
+
+.chat .linea {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  padding: calc(var(--u) * 6) calc(var(--u) * 4) calc(var(--u) * 6) calc(var(--u) * 6);
+  border-bottom: 1px solid rgb(236 226 208 / 0.45);
+}
+
+.chat .linea:focus-within {
+  border-bottom-color: rgb(236 226 208 / 0.8);
+}
+
+.chat .linea textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: calc(var(--u) * 26 * 4);
+  field-sizing: content;
+  resize: none;
+  background: none;
+  border: 0;
+  outline: none;
+  padding: 0;
+  font: italic 300 calc(var(--u) * 20) / 1.3 var(--font-serif);
+  color: #f1e9da;
+}
+
+.chat .linea textarea::placeholder {
+  color: rgb(236 226 208 / 0.7);
+}
+
+.chat .env {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 42);
+  height: calc(var(--u) * 42);
+  border-radius: 50%;
+  border: 0;
+  background: #ece2d0;
+  color: #0b120e;
+  cursor: pointer;
+}
+
+.chat .env:disabled {
+  cursor: default;
+}
+
+.chat .env svg {
+  width: calc(var(--u) * 17);
+  height: calc(var(--u) * 17);
+}
+
+/* High signal: the composer goes, the thread stays. */
+.chat .contenida {
+  text-align: center;
+  font: 400 calc(var(--u) * 14) / 1.5 var(--font-sans);
+  color: rgb(236 226 208 / 0.85);
+}
+
+.chat .contenida .no-aplica {
+  margin-top: calc(var(--u) * 10);
+}
+
+/* ── «Seguir conversando», the sheet when the questions run out ───────── */
+
+.chat .velo-p {
+  position: fixed;
+  inset: 0;
+  z-index: 51;
+  background: rgb(4 9 12 / 0.55);
+  /* «Necesito ayuda» stays within reach under it. */
+  pointer-events: none;
+}
+
+.chat .hoja-p {
+  position: fixed;
+  z-index: 52;
+  left: calc(var(--u) * 12);
+  right: calc(var(--u) * 12);
+  bottom: calc(var(--u) * 12 + env(safe-area-inset-bottom, 0px));
+  border-radius: calc(var(--u) * 20);
+  padding: calc(var(--u) * 26) calc(var(--u) * 24) calc(var(--u) * 20);
+  background: linear-gradient(160deg, rgb(30 44 50 / 0.92), rgb(12 20 24 / 0.94));
+  -webkit-backdrop-filter: blur(calc(var(--u) * 20));
+  backdrop-filter: blur(calc(var(--u) * 20));
+  border: 1px solid rgb(255 255 255 / 0.16);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 calc(var(--u) * -10) calc(var(--u) * 40) rgb(0 0 0 / 0.4);
+}
+
+.chat .hoja-p .t {
+  font: 300 calc(var(--u) * 32) / 1.05 var(--font-serif);
+  color: #f1e9da;
+}
+
+.chat .hoja-p .x {
+  font: 400 calc(var(--u) * 15) / 1.5 var(--font-sans);
+  color: rgb(236 226 208 / 0.88);
+  margin-top: calc(var(--u) * 10);
+}
+
+.chat .hoja-p .precio {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 8);
+  margin-top: calc(var(--u) * 16);
+}
+
+.chat .hoja-p .precio b {
+  font: 300 calc(var(--u) * 30) / 1 var(--font-serif);
+  color: #f1e9da;
+  font-variant-numeric: lining-nums;
+  white-space: nowrap;
+}
+
+.chat .hoja-p .precio span {
+  font: 400 calc(var(--u) * 14) / 1.3 var(--font-sans);
+  color: rgb(236 226 208 / 0.8);
+}
+
+.chat .hoja-p .bts {
+  display: grid;
+  gap: calc(var(--u) * 10);
+  margin-top: calc(var(--u) * 18);
+}
+
+.chat :is(.bt-c, .bt-o) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: calc(var(--u) * 52);
+  border-radius: calc(var(--u) * 8);
+  font: 500 calc(var(--u) * 16) / 1 var(--font-sans);
+  cursor: pointer;
+}
+
+.chat .bt-c {
+  background: #ece2d0;
+  color: #0b120e;
+  border: 0;
+  text-shadow: none;
+}
+
+.chat .bt-o {
+  background: none;
+  border: 1px solid rgb(236 226 208 / 0.4);
+  color: #ece2d0;
+  font-weight: 400;
+}
+
+.chat .hoja-p .prox {
+  font: 400 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: rgb(236 226 208 / 0.75);
+  text-align: center;
+  margin-top: calc(var(--u) * 14);
+}
+
+/* Without a map yet. */
+.chat-sin .cta {
+  margin-top: calc(var(--u) * 10);
+}
+
+/* ── Desktop: the conversation in a reading column, the window's own ──── */
+
+@media (min-width: 1024px) {
+  .pz.chat {
+    --u: var(--d);
+  }
+
+  .chat .scroll {
+    position: fixed;
+    left: calc(var(--d) * 470);
+    width: calc(var(--d) * 640);
+    top: calc(var(--d) * 100);
+    bottom: calc(var(--d) * 150);
+    padding: 0;
+    scroll-padding-bottom: 0;
+    gap: calc(var(--d) * 16);
+  }
+
+  /* `justify-content: flex-end` would strand the top of a long thread out of
+     reach; a spacer that collapses does the same and still scrolls. */
+  .chat .empuje {
+    display: block;
+    flex: 1 0 0;
+    margin-bottom: calc(var(--d) * -16);
+  }
+
+  .chat[data-empty='true'] .empuje {
+    display: none;
+  }
+
+  .chat[data-empty='true'] .scroll {
+    top: calc(var(--d) * 230);
+    padding-top: calc(var(--d) * 20);
+  }
+
+  .chat .titulo {
+    display: block;
+    position: fixed;
+    left: calc(var(--d) * 470);
+    width: calc(var(--d) * 640);
+    top: calc(var(--d) * 120);
+  }
+
+  .chat .titulo .t {
+    font-size: calc(var(--d) * 52);
+    line-height: 1.08;
+    margin-top: calc(var(--d) * 8);
+  }
+
+  .chat .titulo .quien {
+    margin-top: calc(var(--d) * 12);
+  }
+
+  /* Conversing: only Davraz, centred over the column in the header's row. */
+  .chat[data-empty='false'] .titulo :is(.k, .t) {
+    display: none;
+  }
+
+  .chat[data-empty='false'] .quien {
+    position: fixed;
+    left: calc(var(--d) * 470);
+    width: calc(var(--d) * 640);
+    top: calc(var(--d) * 40);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .chat .verso p {
+    font-size: calc(var(--d) * 28);
+  }
+
+  .chat .yo-v {
+    font-size: calc(var(--d) * 16);
+  }
+
+  /* `.chd .contencion p` reaches every line inside, the lines to call too:
+     that is how the approved desktop reads. */
+  .chat .contencion :is(.contencion > p, .lt, .nm, .ds) {
+    font-size: calc(var(--d) * 19);
+  }
+
+  .chat .ej {
+    font-size: calc(var(--d) * 21);
+    padding: calc(var(--d) * 14) calc(var(--d) * 18);
+  }
+
+  .chat .abajo {
+    left: calc(var(--d) * 470);
+    right: auto;
+    width: calc(var(--d) * 640);
+    bottom: calc(var(--d) * 44);
+  }
+
+  .chat[data-focus='true'] .abajo {
+    bottom: calc(var(--d) * 44);
+  }
+
+  .chat .abajo::before {
+    content: none;
+  }
+
+  .chat .linea textarea {
+    font-size: calc(var(--d) * 21);
+  }
+
+  .chat .env {
+    width: calc(var(--d) * 44);
+    height: calc(var(--d) * 44);
+  }
+
+  /* The sheet in the middle of the window; the header stays above its veil,
+     the rail under it. */
+  .chat .velo-p {
+    z-index: 45;
+  }
+
+  .chat .hoja-p {
+    left: 50%;
+    right: auto;
+    top: 50%;
+    bottom: auto;
+    width: calc(var(--d) * 440);
+    transform: translate(-50%, -50%);
+  }
+}

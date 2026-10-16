@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { isDemoMode } from '@/supabase/client';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { PHOTO, Screen } from '@/design/Screen';
+import { Screen } from '@/design/Screen';
+import { Ouroboros } from '@/design/Ouroboros';
 import { copy } from '@/i18n';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { BED_TRACKS } from '@/lib/catalog';
@@ -20,7 +21,8 @@ import { getPreferences, setVolumes } from '@/store/preferences';
 import { meditationById, saveMeditation, type StoredMeditation } from '@/store/meditations';
 
 /**
- * PDR section 9.
+ * PDR section 9. Package 14 (16 Oct 2026): armar → armando → escuchar, each
+ * on its own photograph.
  *
  * The intention goes through Layer 1 before it reaches the model, on the same
  * reasoning as the chat: someone who types "quiero dormirme y no despertarme"
@@ -33,6 +35,32 @@ import { meditationById, saveMeditation, type StoredMeditation } from '@/store/m
 
 const LENGTHS = [5, 10, 20];
 const text = copy.meditation;
+
+/** The package's arrow (`I.fl`), play and pause glyphs. */
+function ArrowGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function PlayGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function PauseGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" />
+      <rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" />
+    </svg>
+  );
+}
 
 export function Meditation() {
   const navigate = useNavigate();
@@ -75,6 +103,31 @@ export function Meditation() {
 
   if (meditation) {
     return <Player meditation={meditation} onLeave={() => setMeditation(undefined)} />;
+  }
+
+  // While the script is being written. What was typed stays in this
+  // component's state, so a failure comes back to the form untouched.
+  if (generating) {
+    return (
+      <Screen photo="nubesAzules" veil={0.25} glassAlpha={0.75}>
+        <div className="pz meditaciones armando">
+          <div className="sc">
+            <p className="k">{text.kicker}</p>
+            <h1 className="t mt">
+              {text.generatingTitleLead}
+              <em>{text.generatingTitleEmphasis}</em>
+            </h1>
+            <p className="cuerpo">{text.wait}</p>
+          </div>
+          <div className="gen-m" role="status">
+            <span className="serp">
+              <Ouroboros size={177} />
+            </span>
+            <p className="k">{text.loading}</p>
+          </div>
+        </div>
+      </Screen>
+    );
   }
 
   const generate = async () => {
@@ -134,102 +187,98 @@ export function Meditation() {
   };
 
   return (
-    <Screen backdrop="plumas" scrim="heavy" opacity={PHOTO.content40}>
-      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
-        <p className="eyebrow mb-3">{text.kicker}</p>
-        <h1 className="mb-3 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {text.titleLead}
-          <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
-        </h1>
-        <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
-          {text.helper}
-        </p>
+    <Screen photo="estatua" veil={0.3} glassAlpha={0.3}>
+      <div className="pz meditaciones armar">
+        <div className="sc">
+          <p className="k">{text.kicker}</p>
+          <h1 className="t mt">
+            {text.titleLead}
+            <em>{text.titleEmphasis}</em>
+          </h1>
+          <p className="cuerpo">{text.helper}</p>
 
-        <label className="mb-1.5 block text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase" htmlFor="intent">
-          {text.intentLabel}
-        </label>
-        <textarea
-          id="intent"
-          rows={3}
-          value={intent}
-          onChange={(e) => setIntent(e.target.value)}
-          placeholder={text.placeholder}
-          className="field w-full resize-none px-3.5 text-[length:var(--fs-body-13)] placeholder:text-crema/55"
-        />
+          <label className="lbl" htmlFor="intent">
+            {text.intentLabel}
+          </label>
+          <textarea
+            id="intent"
+            className="vid area"
+            value={intent}
+            onChange={(e) => setIntent(e.target.value)}
+            placeholder={text.placeholder}
+          />
 
-        <p className="mt-5 mb-2 text-[length:var(--fs-label-11)] tracking-wide text-crema/55 uppercase">{text.lengthLabel}</p>
-        <div className="flex gap-2">
-          {LENGTHS.map((length) => (
-            <button
-              key={length}
-              type="button"
-              aria-pressed={minutes === length}
-              onClick={() => setMinutes(length)}
-              className={[
-                'chip-p10 flex-1 transition-colors',
-                minutes === length ? 'chip chip-on' : 'chip text-crema/60',
-              ].join(' ')}
-            >
-              {text.minutes(length)}
-            </button>
-          ))}
-        </div>
-
-        {!isPlaybackAvailable() && (
-          <p className="mt-4 rounded-[var(--radius-option)] border border-crema/10 px-3.5 py-2.5 text-[length:var(--fs-body-11)] leading-relaxed text-crema/55">
-            {text.noSpeech}
+          <p className="lbl" id="length-label">
+            {text.lengthLabel}
           </p>
-        )}
-
-        {quota && quota.remaining !== null && quota.remaining > 0 && (
-          <p className="mt-4 text-[length:var(--fs-body-11)] text-crema/70">{copy.quota.meditations(quota.remaining)}</p>
-        )}
-        {quota?.remaining === 0 && quota.tier === 'premium' && (
-          <p className="mt-4 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/70">
-            {copy.quota.usedThisMonth(renewalDate(quota.renewsOn))}
-          </p>
-        )}
-        {quota?.remaining === 0 && quota.tier === 'free' && !paywallDismissed && (
-          <div className="mt-4">
-            <Paywall feature="meditation" onDismiss={() => setPaywallDismissed(true)} />
-          </div>
-        )}
-
-        {error && (
-          <div role="alert" className="mt-4 flex items-center gap-3">
-            <p className="flex-1 text-[length:var(--fs-body-11_5)] leading-relaxed text-error">{error}</p>
-            {error === copy.chrome.aiError.message && (
-              <button type="button" onClick={() => void generate()} className="chip shrink-0 text-crema/75">
-                {copy.chrome.aiError.retry}
+          <div className="chips" role="group" aria-labelledby="length-label">
+            {LENGTHS.map((length) => (
+              <button
+                key={length}
+                type="button"
+                aria-pressed={minutes === length}
+                onClick={() => setMinutes(length)}
+                className={minutes === length ? 'dur on' : 'dur'}
+              >
+                {text.minutes(length)}
               </button>
-            )}
+            ))}
           </div>
-        )}
 
-        <div className="mt-7 flex flex-col gap-2.5">
-          <button
-            type="button"
-            className="cta"
-            disabled={intent.trim() === '' || generating || quota?.remaining === 0}
-            onClick={() => void generate()}
-          >
-            {generating ? text.generating : text.generate}
-          </button>
-          <Link
-            to="/biblioteca"
-            className="chip chip-p10 text-center text-crema/60 no-underline"
-          >
-            {text.saved}
-          </Link>
+          {quota && quota.remaining !== null && quota.remaining > 0 && (
+            <p className="cupo">{copy.quota.meditations(quota.remaining)}</p>
+          )}
+          {quota?.remaining === 0 && quota.tier === 'premium' && (
+            <p className="cupo">{copy.quota.usedThisMonth(renewalDate(quota.renewsOn))}</p>
+          )}
+          {!isPlaybackAvailable() && <p className="cupo">{text.noSpeech}</p>}
+
+          {quota?.remaining === 0 && quota.tier === 'free' && !paywallDismissed && (
+            <div className="hoja">
+              <Paywall feature="meditation" onDismiss={() => setPaywallDismissed(true)} />
+            </div>
+          )}
+
+          {error && (
+            <div role="alert" className="aviso">
+              <p className="err">{error}</p>
+              {error === copy.chrome.aiError.message && (
+                <button type="button" onClick={() => void generate()} className="p2">
+                  {copy.chrome.aiError.retry}
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="pie">
+            <button
+              type="button"
+              className="btn p"
+              disabled={intent.trim() === '' || generating || quota?.remaining === 0}
+              onClick={() => void generate()}
+            >
+              {generating ? text.generating : text.generate}
+              <ArrowGlyph />
+            </button>
+            <Link to="/biblioteca" className="link">
+              <u>{text.saved}</u>
+            </Link>
+          </div>
         </div>
       </div>
     </Screen>
   );
 }
 
+/** «3:12», from milliseconds. */
+function clock(ms: number): string {
+  const seconds = Math.max(0, Math.round(ms / 1000));
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
 function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave: () => void }) {
   const [state, setState] = useState<'idle' | 'playing' | 'finished'>('idle');
-  const [progress, setProgress] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
   const [voice, setVoice] = useState(() => getPreferences().voice_volume);
   const [bed, setBed] = useState(() => getPreferences().bed_volume);
   const playerRef = useRef<MeditationPlayer | null>(null);
@@ -238,6 +287,17 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
     () => BED_TRACKS.find((track) => track.id === meditation.script.bed_track_id),
     [meditation.script.bed_track_id],
   );
+
+  // Where each segment starts on the estimated clock, so the bar and the
+  // time beside it move with the script rather than by segment count.
+  const { starts, totalMs } = useMemo(() => {
+    const segments = parseSsml(meditation.script.script_ssml);
+    return {
+      starts: segments.map((_, i) => estimateDurationMs(segments.slice(0, i))),
+      totalMs: estimateDurationMs(segments),
+    };
+  }, [meditation.script.script_ssml]);
+  const progress = totalMs > 0 ? Math.min(1, elapsed / totalMs) : 0;
 
   // Silence when the screen goes away. Speech outlives an unmounted component
   // and would follow the person to the next screen.
@@ -251,10 +311,10 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
       voiceVolume: voice,
       bedVolume: bed,
       events: {
-        onSegment: (index, total) => setProgress((index + 1) / total),
+        onSegment: (index) => setElapsed(starts[index] ?? 0),
         onState: (next) => {
           setState(next);
-          if (next !== 'playing') setProgress(next === 'finished' ? 1 : 0);
+          if (next !== 'playing') setElapsed(next === 'finished' ? totalMs : 0);
         },
       },
     });
@@ -267,36 +327,49 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
     playerRef.current = null;
   };
 
-  return (
-    <Screen backdrop="plumas" scrim="heavy" opacity={PHOTO.content35}>
-      <div className="flex flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)]">
-        <p className="eyebrow mb-3">{bedTrack?.name ?? text.voiceOnly}</p>
-        <h1 className="mb-1.5 text-[length:var(--fs-title-28)] leading-[var(--lh-heading-1_15)] text-blanco">{meditation.script.title}</h1>
-        <p className="mb-5 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/55">
-          {text.duration(meditation.estimated_minutes, meditation.requested_minutes)}
-        </p>
+  const playLabel = state === 'playing' ? text.stop : state === 'finished' ? text.again : text.play;
+  const at = (fraction: number) => ({ '--at': `${fraction * 100}%` }) as CSSProperties;
 
-        <div className="surface surface-p16 mb-4">
-          <div
-            role="progressbar"
-            aria-valuenow={Math.round(progress * 100)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={text.progress}
-            className="mb-4 h-px w-full bg-crema/15"
-          >
-            <div className="h-px bg-crema/70" style={{ width: `${progress * 100}%` }} />
+  return (
+    <Screen photo="lunaDunas" veil={0.22} glassAlpha={0.84}>
+      <div className="pz meditaciones escuchar">
+        <div className="sc">
+          <div className="cabeza">
+            <p className="k">{bedTrack?.name ?? text.voiceOnly}</p>
+            <h1 className="t mt">{meditation.script.title}</h1>
+            <p className="cuerpo">{text.duration(meditation.estimated_minutes, meditation.requested_minutes)}</p>
           </div>
 
-          <button
-            type="button"
-            className="cta"
-            onClick={() => (state === 'playing' ? stop() : start())}
-          >
-            {state === 'playing' ? text.stop : state === 'finished' ? text.again : text.play}
-          </button>
+          {/* The moon stays free: the player goes below it. */}
+          <div className="hueco" aria-hidden="true" />
 
-          <div className="mt-4 flex flex-col gap-3">
+          <div className="vid rep">
+            <div
+              role="progressbar"
+              aria-valuenow={Math.round(progress * 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={text.progress}
+              className="barra"
+              style={at(progress)}
+            >
+              <i />
+              <b />
+            </div>
+            <div className="tiempos">
+              <span>{clock(elapsed)}</span>
+              <span>{clock(totalMs)}</span>
+            </div>
+            <div className="ctrl">
+              <button
+                type="button"
+                className="play"
+                aria-label={playLabel}
+                onClick={() => (state === 'playing' ? stop() : start())}
+              >
+                {state === 'playing' ? <PauseGlyph /> : <PlayGlyph />}
+              </button>
+            </div>
             <VolumeSlider
               id="voice-volume"
               label={text.voice}
@@ -318,30 +391,29 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
               }}
             />
           </div>
-        </div>
 
-        <h2 className="eyebrow mb-2">{text.script}</h2>
-        <p className="text-[length:var(--fs-body-12_5)] leading-relaxed whitespace-pre-line text-crema/65">
-          {meditation.script.script_text}
-        </p>
-
-        <div className="mt-7 flex flex-col gap-2.5">
-          <button
-            type="button"
-            onClick={() => {
-              stop();
-              onLeave();
-            }}
-            className="chip chip-p10 text-crema/60"
-          >
-            {text.another}
-          </button>
-          {isDemoMode && (
-            <p className="px-1 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-              {meditation.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} ·{' '}
-              {meditation.prompt_version}
-            </p>
-          )}
+          <div className="guion-d">
+            <div className="vid guion-c">
+              <h2 className="k">{text.script}</h2>
+              <p className="guion">{meditation.script.script_text}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                stop();
+                onLeave();
+              }}
+              className="btn s"
+            >
+              {text.another}
+            </button>
+            {isDemoMode && (
+              <p className="demo">
+                {meditation.mode === 'fixture' ? copy.demo.fixture : copy.demo.generated} ·{' '}
+                {meditation.prompt_version}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </Screen>
@@ -360,10 +432,8 @@ function VolumeSlider({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <label htmlFor={id} className="w-12 shrink-0 text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">
-        {label}
-      </label>
+    <div className="vol">
+      <label htmlFor={id}>{label}</label>
       <input
         id={id}
         type="range"
@@ -372,7 +442,7 @@ function VolumeSlider({
         step={0.05}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-1 flex-1 accent-crema"
+        style={{ '--at': value } as CSSProperties}
       />
     </div>
   );

@@ -3,67 +3,93 @@ import { copy } from '@/i18n';
 import { answerProposal, type RoutineProposal } from '@/store/routine-review';
 
 /**
- * v1.2 R-04, guide 9.7: what changes and why, and two answers of equal
- * weight. Nothing changes until the person accepts.
+ * v1.2 R-04, guide 9.7, package 07: what changes and why, and two answers.
+ * Nothing changes until the person accepts. Drawn with the package's pieces
+ * (`.vclaro .prop`, `.camb`, `.acc2`), so it lives inside `.pz.rutina`.
  */
 
 const t = copy.routine.review;
-
-function Change({ label, title, why }: { label: string; title: string; why: string }) {
-  return (
-    <li className="flex flex-col gap-1 border-t border-crema/10 pt-2.5 first:border-t-0 first:pt-0">
-      <span className="text-[length:var(--fs-label-10)] tracking-wide text-crema/55 uppercase">{label}</span>
-      <span className="text-[length:var(--fs-heading-14)] leading-snug text-blanco">{title}</span>
-      <span className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/70">{why}</span>
-    </li>
-  );
-}
 
 export function RoutineProposalCard({
   proposal,
   onAnswered,
 }: {
   proposal: RoutineProposal;
-  onAnswered: () => void;
+  onAnswered: (accepted: boolean) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const { summary, remove, add, restore } = proposal.proposal;
+  // «Por qué» carries the reason of each change; the one-line summary only
+  // when there is no reason to show.
+  const whys = [...remove.map((r) => r.why), ...add.map((a) => a.why), ...(restore ? [restore.why] : [])].filter(
+    (w) => w.trim(),
+  );
+  const reasons = whys.length > 0 ? whys : summary ? [summary] : [];
 
   const answer = async (accept: boolean) => {
     setBusy(true);
     setFailed(false);
     const ok = await answerProposal(proposal, accept);
     setBusy(false);
-    if (ok) onAnswered();
+    if (ok) onAnswered(accept);
     else setFailed(true);
   };
 
   return (
-    <section className="surface surface-p16 mb-4" aria-label={t.kicker}>
-      <p className="eyebrow mb-2">{t.kicker}</p>
-      {summary && <p className="mb-3.5 text-[length:var(--fs-body-13)] leading-relaxed text-blanco/85">{summary}</p>}
+    <section className="vclaro prop" aria-label={t.kicker}>
+      <p className="cad">{t.kicker}</p>
+      <p className="ia">
+        {t.by} <b>{t.aiLabel}</b>
+      </p>
+      <h2 className="fbt">
+        {t.titleLead}
+        <em>{t.titleEmphasis}</em>
+        {t.titleTail}
+      </h2>
 
-      <ul className="mb-4 flex flex-col gap-2.5">
+      <dl className="camb">
         {remove.map((r) => (
-          <Change key={`r-${r.practice_id}`} label={t.leaves} title={r.title} why={r.why} />
+          <div key={`r-${r.practice_id}`}>
+            <dt className="de">{t.leaves}</dt>
+            <dd className="sale">{r.title}</dd>
+          </div>
         ))}
         {add.map((a, i) => (
-          <Change key={`a-${i}`} label={t.enters} title={a.title} why={a.why} />
+          <div key={`a-${i}`}>
+            <dt className="de">{t.enters}</dt>
+            <dd>{a.title}</dd>
+          </div>
         ))}
-        {restore && <Change label={t.returns} title={restore.name} why={restore.why} />}
-      </ul>
+        {restore && (
+          <div>
+            <dt className="de">{t.returns}</dt>
+            <dd>{restore.name}</dd>
+          </div>
+        )}
+      </dl>
 
-      <div className="flex gap-2">
-        <button type="button" disabled={busy} className="chip chip-p8 flex-1 text-crema/80" onClick={() => void answer(true)}>
+      {reasons.length > 0 && (
+        <>
+          <p className="cad">{t.why}</p>
+          {reasons.map((why, i) => (
+            <p key={i} className="pc">
+              {why}
+            </p>
+          ))}
+        </>
+      )}
+
+      <div className="acc2">
+        <button type="button" disabled={busy} className="p2 on" onClick={() => void answer(true)}>
           {t.accept}
         </button>
-        <button type="button" disabled={busy} className="chip chip-p8 flex-1 text-crema/80" onClick={() => void answer(false)}>
+        <button type="button" disabled={busy} className="p2" onClick={() => void answer(false)}>
           {t.keep}
         </button>
       </div>
       {failed && (
-        <p role="alert" className="mt-2 text-[length:var(--fs-body-11)] leading-relaxed text-crema/70">
+        <p role="alert" className="pc">
           {t.failed}
         </p>
       )}

@@ -1,1 +1,657 @@
 /* Package screen: meditaciones. Ported from the branding package (16 Oct 2026). */
+/*
+ * Meditaciones (package 14): armar → armando → escuchar, and mis prácticas.
+ * One photo per state — estatua, nubes azules, luna y dunas, madera café —
+ * set by each screen's <Screen>. Measures in --u (one pixel at 390 wide) and,
+ * on desktop, in --d (one pixel at 1440 wide), as in the package.
+ *
+ * On the phone the shell draws the tab bar, which the package does not (the
+ * screens open from Hoy): the button pinned at the bottom sits above it,
+ * `--bottom-inset` instead of the package's 26.
+ */
+
+.meditaciones {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.meditaciones .sc {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: calc(var(--u) * 32) calc(var(--u) * 24) calc(var(--u) * 40);
+  display: flex;
+  flex-direction: column;
+}
+
+.meditaciones .sc::-webkit-scrollbar {
+  display: none;
+}
+
+.meditaciones .sc > *,
+.meditaciones .cabeza > * {
+  flex: none;
+}
+
+.meditaciones :is(.cabeza, .d-der, .d-lista) {
+  display: contents;
+}
+
+.meditaciones .t {
+  font-size: calc(var(--u) * 40);
+}
+
+.meditaciones .mt {
+  margin-top: calc(var(--u) * 14);
+}
+
+.meditaciones .cuerpo {
+  margin-top: calc(var(--u) * 12);
+}
+
+.meditaciones h2 {
+  margin: 0;
+}
+
+/* ── Armar ────────────────────────────────────────────────────────────── */
+
+.meditaciones .lbl {
+  display: block;
+  font: 500 calc(var(--u) * 11) / 1.25 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--t2);
+  margin-top: calc(var(--u) * 24);
+}
+
+.meditaciones .area {
+  display: block;
+  width: 100%;
+  margin-top: calc(var(--u) * 10);
+  padding: calc(var(--u) * 16) calc(var(--u) * 18);
+  min-height: calc(var(--u) * 110);
+  resize: none;
+  font: 300 calc(var(--u) * 16) / 1.5 var(--font-sans);
+  color: var(--t1);
+  text-shadow: none;
+}
+
+.meditaciones .area::placeholder {
+  color: var(--t3);
+}
+
+/* The package's `.chip`, renamed: `.chip` is a global primitive. */
+.meditaciones .chips {
+  display: flex;
+  gap: calc(var(--u) * 8);
+  flex-wrap: wrap;
+  margin-top: calc(var(--u) * 10);
+}
+
+.meditaciones .dur {
+  height: calc(var(--u) * 40);
+  padding: 0 calc(var(--u) * 18);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  font: 400 calc(var(--u) * 15) / 1 var(--font-sans);
+  color: var(--t1);
+  cursor: pointer;
+}
+
+.meditaciones .dur.on {
+  background: var(--t1);
+  color: #0b120e;
+  border-color: var(--t1);
+  text-shadow: none;
+}
+
+.meditaciones .cupo {
+  font: 400 calc(var(--u) * 13) / 1.3 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 18);
+}
+
+.meditaciones .hoja {
+  margin-top: calc(var(--u) * 18);
+  text-shadow: none;
+}
+
+.meditaciones .aviso {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  margin-top: calc(var(--u) * 18);
+}
+
+.meditaciones .err {
+  flex: 1;
+  font: 400 calc(var(--u) * 13) / 1.4 var(--font-sans);
+  color: var(--natus-error);
+}
+
+.meditaciones .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 10);
+  width: 100%;
+  height: calc(var(--u) * 56);
+  border-radius: calc(var(--u) * 8);
+  border: 0;
+  font: 500 calc(var(--u) * 17) / 1 var(--font-sans);
+  cursor: pointer;
+}
+
+.meditaciones .btn svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
+.meditaciones .btn.p {
+  background: var(--t1);
+  color: #0b120e;
+  text-shadow: none;
+}
+
+.meditaciones .btn.p:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.meditaciones .btn.s {
+  background: none;
+  border: 1px solid rgb(236 226 208 / 0.45);
+  color: var(--t1);
+  font-weight: 400;
+}
+
+.meditaciones .link {
+  display: block;
+  text-align: center;
+  font: 400 calc(var(--u) * 14) / 1.3 var(--font-sans);
+  color: var(--t2);
+}
+
+.meditaciones .link u {
+  color: var(--t1);
+  text-underline-offset: 3px;
+}
+
+/* Pinned to the bottom of the screen on the phone, outside the scroll. */
+.meditaciones .pie {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  padding: calc(var(--u) * 30) calc(var(--u) * 24) var(--bottom-inset);
+  background: linear-gradient(180deg, rgb(var(--v) / 0), rgb(var(--v) / 0.82) 38%, rgb(var(--v) / 0.9));
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 14);
+}
+
+.meditaciones.armar .sc {
+  padding-bottom: calc(var(--u) * 158 + var(--bottom-inset));
+}
+
+/* ── Armando ──────────────────────────────────────────────────────────── */
+
+.meditaciones .gen-m {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--u) * 272);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 16);
+}
+
+.meditaciones .gen-m .k {
+  color: var(--t1);
+}
+
+/*
+ * The serpent at the package's 110, its ring centred on its own axis: the
+ * app's ouroboros.svg has the 1080 viewBox, the package masks it with
+ * «204 87 670 670», so the image is drawn 1080/670 larger and moved so the
+ * ring's centre (539, 422) sits in the middle. One turn every 14 s.
+ */
+.meditaciones .serp {
+  position: relative;
+  flex: none;
+  width: calc(var(--u) * 110);
+  height: calc(var(--u) * 110);
+  text-shadow: none;
+}
+
+.meditaciones .serp > span {
+  position: absolute;
+  left: calc(var(--u) * -33.49);
+  top: calc(var(--u) * -14.28);
+  width: calc(var(--u) * 177.31) !important;
+  height: calc(var(--u) * 177.31) !important;
+}
+
+.meditaciones .serp .ouroboros {
+  animation-duration: 14s;
+  transform-origin: 49.907% 39.074%;
+}
+
+/* ── Escuchar ─────────────────────────────────────────────────────────── */
+
+.meditaciones.escuchar :is(.k, .t, .cuerpo) {
+  text-shadow: 0 1px 14px rgb(0 0 0 / 0.35);
+}
+
+.meditaciones.escuchar .sc {
+  padding-bottom: var(--bottom-inset);
+}
+
+.meditaciones .hueco {
+  height: calc(var(--u) * 300);
+}
+
+.meditaciones .rep {
+  padding: calc(var(--u) * 18);
+}
+
+.meditaciones .barra {
+  position: relative;
+  height: calc(var(--u) * 3);
+  border-radius: 99px;
+  background: rgb(236 226 208 / 0.2);
+  margin-top: calc(var(--u) * 6);
+}
+
+.meditaciones .barra i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--at);
+  border-radius: 99px;
+  background: var(--t1);
+}
+
+.meditaciones .barra b {
+  position: absolute;
+  top: 50%;
+  left: var(--at);
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+  border-radius: 50%;
+  background: var(--t1);
+  transform: translate(-50%, -50%);
+}
+
+.meditaciones .tiempos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: calc(var(--u) * 10);
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: var(--t2);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.meditaciones .ctrl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 28);
+  margin-top: calc(var(--u) * 14);
+}
+
+.meditaciones .play {
+  width: calc(var(--u) * 64);
+  height: calc(var(--u) * 64);
+  border-radius: 50%;
+  border: 0;
+  background: var(--t1);
+  color: #0b120e;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.meditaciones .play svg {
+  width: calc(var(--u) * 24);
+  height: calc(var(--u) * 24);
+}
+
+.meditaciones .vol {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 52) minmax(0, 1fr);
+  gap: calc(var(--u) * 12);
+  align-items: center;
+  margin-top: calc(var(--u) * 16);
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: var(--t2);
+}
+
+.meditaciones .vol + .vol {
+  margin-top: calc(var(--u) * 14);
+}
+
+/* The volume is a native range, drawn as the package's bar: a 3 track, the
+   filled part in ink, a 14 knob. `--at` is the value, 0 to 1. */
+.meditaciones .vol input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: calc(var(--u) * 14);
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  --fill: calc(var(--u) * 7 + (100% - var(--u) * 14) * var(--at));
+}
+
+.meditaciones .vol input::-webkit-slider-runnable-track {
+  height: calc(var(--u) * 3);
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--t1) var(--fill), rgb(236 226 208 / 0.2) var(--fill));
+}
+
+.meditaciones .vol input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+  margin-top: calc(var(--u) * -5.5);
+  border: 0;
+  border-radius: 50%;
+  background: var(--t1);
+}
+
+.meditaciones .vol input::-moz-range-track {
+  height: calc(var(--u) * 3);
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--t1) var(--fill), rgb(236 226 208 / 0.2) var(--fill));
+}
+
+.meditaciones .vol input::-moz-range-thumb {
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+  border: 0;
+  border-radius: 50%;
+  background: var(--t1);
+}
+
+.meditaciones .guion-d {
+  display: flex;
+  flex-direction: column;
+}
+
+.meditaciones .guion-c {
+  margin-top: calc(var(--u) * 14);
+  padding: calc(var(--u) * 18);
+}
+
+.meditaciones .guion-c .k {
+  color: var(--t2);
+}
+
+.meditaciones .guion {
+  font: 300 calc(var(--u) * 15) / 1.6 var(--font-sans);
+  color: var(--t2);
+  margin-top: calc(var(--u) * 10);
+  white-space: pre-line;
+}
+
+.meditaciones.escuchar .btn.s {
+  margin-top: calc(var(--u) * 24);
+}
+
+/* The demo build only: which path wrote the script. */
+.meditaciones .demo {
+  margin-top: calc(var(--u) * 12);
+  font: 500 calc(var(--u) * 10) / 1.3 var(--font-sans);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t2);
+}
+
+/* ── Mis prácticas ────────────────────────────────────────────────────── */
+
+.meditaciones.practicas .sc {
+  padding-bottom: calc(var(--u) * 104 + var(--bottom-inset));
+}
+
+.meditaciones .tarj {
+  margin-top: calc(var(--u) * 14);
+  padding: calc(var(--u) * 16) calc(var(--u) * 18);
+}
+
+.meditaciones .fila-t {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: calc(var(--u) * 12);
+}
+
+.meditaciones .nm {
+  font: 400 calc(var(--u) * 22) / 1.15 var(--font-serif);
+  color: var(--t1);
+}
+
+.meditaciones .min {
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: var(--t2);
+  white-space: nowrap;
+}
+
+.meditaciones .int {
+  font: italic 300 calc(var(--u) * 15) / 1.45 var(--font-serif);
+  color: var(--t1);
+  margin-top: calc(var(--u) * 8);
+}
+
+.meditaciones .meta {
+  font: 400 calc(var(--u) * 12) / 1.3 var(--font-sans);
+  color: var(--t3);
+  margin-top: calc(var(--u) * 8);
+}
+
+.meditaciones .acc2 {
+  display: flex;
+  gap: calc(var(--u) * 10);
+  margin-top: calc(var(--u) * 12);
+}
+
+.meditaciones .mini-b {
+  height: calc(var(--u) * 36);
+  padding: 0 calc(var(--u) * 16);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: var(--t1);
+  cursor: pointer;
+}
+
+.meditaciones .mini-b.on {
+  background: var(--t1);
+  color: #0b120e;
+  border-color: var(--t1);
+  text-shadow: none;
+}
+
+.meditaciones .mini-b.bo {
+  color: var(--natus-error);
+  border-color: rgb(226 179 147 / 0.5);
+}
+
+.meditaciones .mini-b svg {
+  width: calc(var(--u) * 12);
+  height: calc(var(--u) * 12);
+}
+
+.meditaciones .conf {
+  font: 400 calc(var(--u) * 13) / 1.4 var(--font-sans);
+  color: var(--t1);
+  margin-top: calc(var(--u) * 12);
+}
+
+/* ── Desktop: the package's absolute columns, less the body's offset
+   (left 164, top 112, right 48). ───────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .meditaciones .t {
+    font-size: calc(var(--d) * 56);
+    line-height: 1.02;
+  }
+
+  .meditaciones .pie {
+    position: static;
+    padding: 0;
+    background: none;
+    gap: calc(var(--d) * 14);
+    margin-top: calc(var(--d) * 28);
+  }
+
+  /* Armar: the form in the left column, the statue's face free. */
+  .meditaciones.armar .sc {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: calc(var(--d) * 470);
+    padding: calc(var(--d) * 18) 0 calc(var(--d) * 40);
+  }
+
+  /* Armando: the title on the left, the serpent in the middle of the window. */
+  .meditaciones.armando .sc {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(var(--d) * 470);
+    padding: calc(var(--d) * 18) 0 0;
+    overflow: visible;
+  }
+
+  .meditaciones.armando .gen-m {
+    left: calc(50vw - var(--desk-left));
+    right: auto;
+    top: calc(50dvh - var(--header-h));
+    transform: translate(-50%, -50%);
+  }
+
+  /* Escuchar: the text above, the player below on the left, the script
+     below on the right; the moon free in the middle. */
+  .meditaciones:is(.escuchar, .practicas) .sc {
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .meditaciones:is(.escuchar, .practicas) .cabeza {
+    position: absolute;
+    left: 0;
+    top: calc(var(--d) * 18);
+    width: calc(var(--d) * 470);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .meditaciones .hueco {
+    display: none;
+  }
+
+  .meditaciones.escuchar .rep {
+    position: absolute;
+    left: 0;
+    bottom: calc(var(--d) * 40);
+    width: calc(var(--d) * 420);
+  }
+
+  .meditaciones.escuchar .guion-d {
+    position: absolute;
+    left: calc(var(--d) * 476);
+    right: 0;
+    bottom: calc(var(--d) * 40);
+  }
+
+  /* A long script scrolls inside its glass, below the moon. */
+  .meditaciones.escuchar .guion-c {
+    margin: 0;
+    padding: calc(var(--d) * 20) calc(var(--d) * 24);
+    max-height: calc(var(--d) * 222);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .meditaciones.escuchar .guion-c::-webkit-scrollbar {
+    display: none;
+  }
+
+  .meditaciones.escuchar .guion {
+    column-count: 2;
+    column-gap: calc(var(--d) * 36);
+    margin-top: calc(var(--d) * 10);
+  }
+
+  .meditaciones.escuchar .btn.s {
+    align-self: flex-start;
+    width: auto;
+    height: calc(var(--d) * 44);
+    padding: 0 calc(var(--d) * 22);
+    margin-top: calc(var(--d) * 18);
+    font-size: calc(var(--d) * 15);
+  }
+
+  /* Out of the flow, so the demo build lays out as the real one. */
+  .meditaciones.escuchar .demo {
+    position: absolute;
+    left: 0;
+    bottom: calc(var(--d) * -26);
+  }
+
+  /* Mis prácticas: the title and the button on the left, the list on the
+     right, scrolled on its own. */
+  .meditaciones.practicas .pie {
+    width: calc(var(--d) * 360);
+  }
+
+  .meditaciones.practicas .d-der {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: calc(var(--d) * 40);
+    width: calc(var(--d) * 420);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--d) * 14);
+  }
+
+  .meditaciones.practicas .d-lista {
+    display: block;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: calc(var(--d) * 8) 0 calc(var(--d) * 24);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 12), #000 90%, transparent);
+    mask-image: linear-gradient(180deg, transparent 0, #000 calc(var(--d) * 12), #000 90%, transparent);
+  }
+
+  .meditaciones.practicas .d-lista::-webkit-scrollbar {
+    display: none;
+  }
+
+  .meditaciones.practicas .d-lista > :first-child {
+    margin-top: 0;
+  }
+}
