@@ -142,6 +142,11 @@ What is left outside the code, in rough order of weight:
   somebody living abroad who selected their home country is shown a number they
   cannot ring. The international fallback on the same screen is all that covers
   it today.
+- **The help lines must follow the country the person is in (owner, 16 Oct
+  2026).** Today they follow «País donde vives», chosen once in onboarding
+  and not editable afterwards, so somebody who moves or travels keeps seeing
+  the first country's lines. How to follow it (an editable country in the
+  profile, or the location the app is opened from) is not decided.
 - The door is open: `REQUIRE_INVITE=false`, so anybody with the link is in.
   Closing it needs a Google Cloud OAuth client first — the code is built and
   waiting, the console work is not done. Access control on GitHub Pages is an
@@ -211,9 +216,9 @@ it answers 503 and PayPal retries. The secrets were set on 15 Oct 2026
 and checked (an unsigned call is refused by PayPal, so the credentials
 work); a real event has not been seen yet. **PayPal asks for a PayPal
 account even to pay a subscription by card** (the owner tried it, 15 Oct
-2026) — a large barrier. The way out is dLocal Go (card, no account, local
-currency), pending the owner's check with them (P-02); the premium logic
-stays and only the notifier changes.
+2026) — a large barrier. The payment provider is the owner's to settle
+and is off the build list (owner, 16 Oct 2026): if it changes, the premium
+logic stays and only the notifier changes.
 
 **Where Premium is offered — decided 15 Oct 2026, not built.** Three
 levels, never pressure: (1) always at hand — «Tu plan» in the profile (what
