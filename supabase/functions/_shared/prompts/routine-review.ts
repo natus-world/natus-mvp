@@ -84,6 +84,7 @@ const TRIGGER_LINE: Record<ReviewTrigger, string> = {
   bimonthly_free: 'La renovación de cada dos meses.',
   low_rating: 'Una práctica recibió dos valoraciones de 2 o menos.',
   abandoned: 'Una práctica diaria o semanal lleva dos semanas sin hacerse.',
+  memory_shift: 'Natus guardó algo nuevo sobre lo que está viviendo o lo que no le funciona.',
 };
 
 export type ReviewPractice = {

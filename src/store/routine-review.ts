@@ -1,5 +1,6 @@
 import { supabase } from '@/supabase/client';
 import type { Practice } from '@/lib/schemas';
+import type { ReviewTrigger } from '@/lib/routine-review';
 import { hasRemoteIdentity, writesSettled } from './hydrate';
 import { clearReaction, currentMatch } from './matches';
 import { applyRoutineChange } from './routine';
@@ -16,7 +17,7 @@ import { applyRoutineChange } from './routine';
 
 export type RoutineProposal = {
   id: string;
-  trigger: 'weekly' | 'bimonthly_free' | 'low_rating' | 'abandoned';
+  trigger: ReviewTrigger;
   prompt_version: string;
   proposal: {
     summary: string;

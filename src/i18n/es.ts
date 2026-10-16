@@ -104,6 +104,24 @@ export const es = {
       message: 'Esto está tardando más de lo normal. ¿Reintentamos?',
       retry: 'Reintentar',
     },
+    opening: 'Abriendo tu espacio…',
+    helpNow: {
+      button: 'Necesito ayuda',
+      label: 'Necesito ayuda ahora',
+      title: 'Líneas de ayuda',
+      body: 'Si necesitas hablar con alguien ahora, toca un número para llamar.',
+      close: 'Cerrar',
+    },
+    /** The browser tab's title, by section. */
+    titles: {
+      onboarding: 'Empezar',
+      care: 'Para cuidarte',
+      signup: 'Guardar mi mapa',
+      meditations: 'Meditaciones',
+      library: 'Biblioteca',
+      comparison: 'Cruce de mapas',
+      notFound: 'Página no encontrada',
+    },
   },
   nav: {
     label: 'Secciones',
@@ -386,7 +404,9 @@ export const es = {
       'Davraz lee lo que escribes para conocerte mejor y ajustar tus recomendaciones. Puedes borrar cualquier entrada.',
     noticeFree: 'Tu bitácora es tuya. Con Premium, Davraz la lee para conocerte mejor y ajustar tus recomendaciones.',
     voicePremium: 'La entrada por voz está incluida en Premium',
-    voiceLabel: 'Grabar por voz',
+    voiceLabel: 'Hablarlo',
+    voiceStop: 'Detener',
+    voiceListening: 'Te escuchamos. Lo que digas se escribe arriba.',
     mood: 'Ánimo',
     moodLabel: (n: number) => `Ánimo ${n} de 5`,
     moodQuestion: '¿Cómo está tu ánimo? (opcional)',
@@ -418,6 +438,8 @@ export const es = {
     name: 'Davraz de Fala',
     aiLabel: 'IA',
     remaining: (n: number) => (n === 1 ? 'Te queda 1 pregunta' : `Te quedan ${n} preguntas`),
+    newThisMonth: (n: number) =>
+      n === 1 ? 'Este mes tienes 1 pregunta nueva' : `Este mes tienes ${n} preguntas nuevas`,
     empty:
       'Pregúntale algo a tu mapa. Funciona mejor con una situación concreta que con una pregunta grande.',
     typeLabel: {

@@ -207,6 +207,12 @@ export function Chat() {
               <span className="shrink-0 text-[length:var(--fs-body-11)] text-crema/70">{text.remaining(remaining)}</span>
             )}
           </div>
+          {quota && quota.tier === 'free' && quota.newThisMonth > 0 && (
+            // Guide 9.9: said once the month has renewed it, never as pressure.
+            <p className="text-right text-[length:var(--fs-body-11)] text-crema/60">
+              {text.newThisMonth(quota.newThisMonth)}
+            </p>
+          )}
         </div>
 
         <div className="-mx-1 flex-1 overflow-y-auto px-1">

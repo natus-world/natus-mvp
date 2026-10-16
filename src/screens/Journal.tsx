@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { MicIcon } from '@/design/icons';
+import { useDictation } from '@/components/useDictation';
 import { copy } from '@/i18n';
 import { modalityBySlug } from '@/lib/catalog';
 import { detectCrisis } from '@/lib/safety';
@@ -184,10 +185,18 @@ export function NewJournalEntry() {
   const [link, setLink] = useState<About | null>(null);
   const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
   const [premium, setPremium] = useState(false);
+  const [dictated, setDictated] = useState(false);
   const options = linkOptions();
+  const dictation = useDictation(
+    useCallback((said: string) => {
+      if (!said) return;
+      setDictated(true);
+      setBody((current) => (current.trim() ? `${current.trimEnd()} ${said}` : said).slice(0, MAX_ENTRY_CHARS));
+    }, []),
+  );
 
-  // Voice is premium and not built yet: free sees the disabled microphone and
-  // the guide's line; premium sees nothing until there is something to offer.
+  // Voice is premium (B-01): free sees the disabled microphone and the
+  // guide's line; premium dictates with the browser, where it can.
   useEffect(() => {
     let live = true;
     void fetchQuota('chat').then((q) => {
@@ -201,6 +210,7 @@ export function NewJournalEntry() {
   const save = () => {
     const value = body.trim();
     if (!value) return;
+    dictation.stop();
     const verdict = detectCrisis({ texts: [value] });
     // Kept either way — it is their diary — and marked, so the memory never
     // reads an entry that raised a signal (M-01).
@@ -211,6 +221,7 @@ export function NewJournalEntry() {
       practiceId: link?.kind === 'practice' ? link.id : null,
       modalitySlug: link?.kind === 'therapy' ? link.slug : null,
       crisisFlagged: verdict.crisis,
+      source: dictated && premium ? 'voz' : 'escrito',
     });
     if (verdict.crisis) {
       const event = recordCrisisEvent(verdict, 'journal');
@@ -276,6 +287,24 @@ export function NewJournalEntry() {
               placeholder={text.placeholder}
               className="field w-full resize-none px-3.5 py-3 text-[length:var(--fs-body-13)] placeholder:text-crema/55"
             />
+            {premium && dictation.supported && (
+              <div className="flex items-center gap-2.5 text-[length:var(--fs-body-11)] text-crema/60">
+                <button
+                  type="button"
+                  aria-pressed={dictation.listening}
+                  onClick={dictation.listening ? dictation.stop : dictation.start}
+                  className={[
+                    'chip-p8 flex shrink-0 items-center gap-2 px-3.5',
+                    // No ✓ while listening: it is not a choice made, it is a recording.
+                    dictation.listening ? 'chip text-blanco' : 'chip text-crema/75',
+                  ].join(' ')}
+                >
+                  <MicIcon size={16} />
+                  {dictation.listening ? text.voiceStop : text.voiceLabel}
+                </button>
+                {dictation.listening && <span role="status">{text.voiceListening}</span>}
+              </div>
+            )}
             {!premium && (
               <div className="flex items-center gap-2.5 text-[length:var(--fs-body-11)] text-crema/55">
                 <button

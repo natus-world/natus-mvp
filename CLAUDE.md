@@ -80,14 +80,18 @@ minutes (`learnFromPending`). Premium and consent
 paused, and the chat (chat-v1.4) reads it only when alive. Deleting a source
 deletes what rested only on it, except what the person wrote or corrected.
 Check-ins are now reconciled by (practice, day) instead of replaced, so
-their rows — which the memory points at — survive a save. Not yet: the
-memory in «Descargar mis datos» (it is not mirrored, so the export misses it).
+their rows — which the memory points at — survive a save. «Descargar mis
+datos» adds the memory and the routine proposals, read from the server
+(`store/server-export.ts`), since they are not mirrored.
 
 The journal (B-01) is built (16 Oct 2026): its own tab, typed entries in
 `journal_entries`, each scanned for crisis and kept either way with
 `crisis_flagged` so the memory never reads it; deleting leaves only a
-`journal_entry_deleted` row in `system_audit_log`. Voice (premium) is not
-built. The guide's notice is shown by plan: premium with consent is told
+`journal_entry_deleted` row in `system_audit_log`. Voice (premium) is
+built (16 Oct 2026) with the browser's own dictation (Web Speech API, no
+provider, no audio kept by Natus — Chrome sends it to Google, Safari to
+Apple), premium only: the insert policy lets only premium write `voz`, and
+editing keeps whatever source an entry has. The guide's notice is shown by plan: premium with consent is told
 Davraz reads it, free is told premium would, and premium without consent
 only that it is theirs and deletable. Friends and the
 comparison between them (C-01, C-02) are built, and so is the routine
@@ -97,7 +101,9 @@ Marking a practice asks how useful it was, 1 to 5, with an optional comment
 (R-03), stored on `recommendation_checkins`; the memory and the review read it.
 The routine is reviewed (R-04, built 16 Oct 2026): premium every week and
 earlier when a practice is rated 2 or less twice or a daily or weekly one
-goes two weeks undone; free every two months. The `routine-review` function
+goes two weeks undone, or when the memory keeps something new in «Lo que no
+te funciona» or «Lo que estás viviendo» (`memory_shift`, the definition the
+owner delegated, 16 Oct 2026); free every two months. The `routine-review` function
 (routine-review-v1.0) decides from the rows whether a review is due — the
 rule is `src/lib/routine-review.ts` — and writes a proposal to
 `routine_change_proposals` (or `no_change`, which restarts the week); the
@@ -105,8 +111,7 @@ Rutina screen asks on opening and shows it with «Aceptar el cambio» and
 «Mantener mi rutina». Accepting deactivates what leaves (its check-ins stay)
 and adds what enters. The review may bring back a therapy dismissed over a
 week ago (R-05). The kicker «Un ajuste para tu rutina» and the labels
-«Sale», «Entra», «Vuelve a tus caminos» are not in the guide. Not built: the
-"important change in the memory" signal, which needs defining.
+«Sale», «Entra», «Vuelve a tus caminos» are not in the guide.
 «No me hace sentido» (R-05, built 16 Oct 2026) takes the therapy off the
 paths for 7 days — out of the cards, the constellation and the count —
 with «Quitamos {nombre} de tus caminos.» and «Deshacer».
@@ -122,10 +127,18 @@ both friends' rows in `natal_charts` and crosses them by sign between the
 visible planets and the Ascendant — no ephemeris call, no orb; a friend with
 no stored chart means no aspects. The model picks 3 to 8 and decides, for
 each, whether it flows naturally or asks for more work (owner, 15 Oct 2026).
-Decided and not built: the
-chat may talk over a comparison with a friend, receiving only its result and
-only while the friendship lasts; and Davraz redirects requests to do work
-(a thesis, code) back to how the person is living it. The
+Davraz does not do work for the person (a thesis, a report, code) and turns
+the conversation back to how they are living it (chat-v1.5, 16 Oct 2026).
+The chat counter adds «Este mes tienes 1 pregunta nueva» for a returning
+free person whose month brought one (`quota_parts` behind `my_quota`).
+Decided and not built: the chat may talk over a comparison with a friend,
+receiving only its result and only while the friendship lasts; editing the
+birth data in the profile (owner, 16 Oct 2026), which recalculates the chart
+and numbers and regenerates the Soul Map with Opus (M-02); the monthly
+regeneration with Sonnet, with the date and the previous version in Carta.
+Waiting on the owner: how to sign in besides Google — proposed, a link by
+email through a mail service the owner opens (Resend), and Apple once there
+is an Apple developer account. The
 plan, its order and the questions still open for the owner are in his doc
 «Guía de actualización de la app Natus»
 (https://claude.ai/artifact/9rw3grB3r7FQ6FVmnWfbbw); the requirements as agreed,
@@ -220,11 +233,6 @@ What is left outside the code, in rough order of weight:
   requires one before the door can close, and the app stores birth data and
   clinical answers. The text is the owner's.
 
-**Decided in v1.2 (O-06), not built yet:** «Para cuidarte» asks the PDR's four
-clinical questions. The free-text "¿Hay algo más…?" was removed for being bound
-to nothing; bringing it back means storing clinical free text, scanning it for
-crisis and keeping it out of every model payload.
-
 **What each plan gets (F-01) is built (15 Oct 2026)** and lives in
 `plan_quotas`, edited there without a deploy: free has 3 chat questions as a
 gift + 1 a month, 1 meditation in all and 2 comparisons a month; premium has
@@ -239,7 +247,9 @@ theirs, and the reservations check it under their lock. A used quota is a
 402 and shows the paywall to free; premium's cap is a 429 with `scope: cap`
 and the day it renews. Premium is read from `subscriptions`, which only the
 server writes. Payment is PayPal, US$10 a month with the first month free,
-shown in dollars because that is what PayPal charges (owner, 15 Oct 2026).
+shown in dollars because that is what PayPal charges (owner, 15 Oct 2026),
+VAT included (owner, 16 Oct 2026). The v1.2 documents in the project say
+US$7 (F-02, P-04); the owner confirmed on 16 Oct 2026 that US$10 stands.
 Premium is activated by PayPal's notifications, not by hand: the
 `paypal-webhook` function (no JWT; PayPal's signature is verified with
 PayPal before anything is written) reads the Natus id the button stamps as

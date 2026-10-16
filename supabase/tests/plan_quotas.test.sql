@@ -1,7 +1,7 @@
 -- Natus — plan quotas (v1.2 F-01), adversarially.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(18);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -29,10 +29,17 @@ $$ language sql;
 select is(public.quota_remaining('aaaaaaaa-0000-4000-8000-000000000001', 'chat'), 4,
   'A new free person has the 3-question gift and this month''s 1');
 
+select is(public.quota_parts('aaaaaaaa-0000-4000-8000-000000000001', 'chat'),
+  '{"gift_left": 3, "monthly_left": 1, "used_before": false}'::jsonb,
+  'The four of the first month are the gift and this month''s question');
+
 select pg_temp.call('aaaaaaaa-0000-4000-8000-000000000001', 'chat', 'ok', now() - interval '40 days', true)
   from generate_series(1, 3);
 select is(public.quota_remaining('aaaaaaaa-0000-4000-8000-000000000001', 'chat'), 2,
   'Three last month (one monthly, two from the gift) leave one of the gift and this month''s 1');
+select is(public.quota_parts('aaaaaaaa-0000-4000-8000-000000000001', 'chat'),
+  '{"gift_left": 1, "monthly_left": 1, "used_before": true}'::jsonb,
+  'Of those two, one is this month''s new question, for somebody returning');
 
 select pg_temp.call('aaaaaaaa-0000-4000-8000-000000000001', 'chat', 'ok', now(), true)
   from generate_series(1, 2);

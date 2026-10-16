@@ -41,26 +41,26 @@ import { Journal, NewJournalEntry } from '@/screens/Journal';
 import { FriendInvite } from '@/screens/friends/FriendInvite';
 
 const TITLES: [prefix: string, title: string][] = [
-  ['/onboarding', 'Empezar'],
+  ['/onboarding', copy.chrome.titles.onboarding],
   [PATHS.chart, copy.nav.chart],
-  ['/cuidarte', 'Para cuidarte'],
+  ['/cuidarte', copy.chrome.titles.care],
   [PATHS.paths, copy.nav.paths],
   [PATHS.journey, copy.nav.journey],
   [PATHS.journal, copy.nav.journal],
   [PATHS.today, copy.nav.today],
-  ['/registro', 'Guardar mi mapa'],
+  ['/registro', copy.chrome.titles.signup],
   [PATHS.profile, copy.nav.profile],
   [PATHS.chat, copy.nav.chat],
-  ['/meditaciones', 'Meditaciones'],
-  ['/biblioteca', 'Biblioteca'],
-  ['/comparacion', 'Cruce de mapas'],
+  ['/meditaciones', copy.chrome.titles.meditations],
+  ['/biblioteca', copy.chrome.titles.library],
+  ['/comparacion', copy.chrome.titles.comparison],
   ...(isDemoMode ? [['/lab', 'Safety lab'] as [string, string]] : []),
 ];
 
 function titleFor(pathname: string): string {
   if (pathname === '/') return 'Natus';
   const match = TITLES.find(([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`));
-  return `${match?.[1] ?? 'Página no encontrada'} · Natus`;
+  return `${match?.[1] ?? copy.chrome.titles.notFound} · Natus`;
 }
 
 export function App() {
@@ -123,7 +123,7 @@ export function App() {
           aria-live="polite"
           className="flex min-h-dvh items-center justify-center px-6 text-center"
         >
-          <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">Abriendo tu espacio…</p>
+          <p className="text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">{copy.chrome.opening}</p>
         </div>
       </PhoneFrame>
     );

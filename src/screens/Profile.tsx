@@ -10,6 +10,7 @@ import { activeProfile, getClient, updateActiveProfile } from '@/store/account';
 import { copy, type GrammaticalGender } from '@/i18n';
 import { FriendsSection } from '@/screens/friends/FriendsSection';
 import { MemorySection } from '@/screens/MemorySection';
+import { serverOnlyData } from '@/store/server-export';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { markFalsePositive } from '@/store/crisis';
 
@@ -31,9 +32,11 @@ export function Profile() {
     if (updateActiveProfile({ grammatical_gender: value })) setGender(value);
   };
 
-  const download = () => {
+  const download = async () => {
     const at = new Date().toISOString();
-    const doc = buildExport(exportAll(), { exportedAt: at });
+    // The memory and the routine proposals live only on the server (M-01,
+    // R-04); everything else is in the mirror.
+    const doc = buildExport({ ...exportAll(), ...(await serverOnlyData()) }, { exportedAt: at });
     const name = exportFileName(at);
 
     const url = URL.createObjectURL(
@@ -160,7 +163,7 @@ export function Profile() {
         <section className="surface surface-p14 mb-3">
           <p className="eyebrow mb-1.5">{t.exportKicker}</p>
           <p className="mb-3 text-[length:var(--fs-body-11_5)] leading-relaxed text-crema/60">{t.exportBody}</p>
-          <button type="button" onClick={download} className="chip chip-p10 w-full text-crema/75">
+          <button type="button" onClick={() => void download()} className="chip chip-p10 w-full text-crema/75">
             {t.exportCta}
           </button>
           {exported && (

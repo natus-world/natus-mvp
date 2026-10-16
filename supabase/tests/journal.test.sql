@@ -1,7 +1,7 @@
 -- Natus — the journal (v1.2 B-01), adversarially.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(9);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -30,7 +30,7 @@ select throws_ok(
   $$insert into public.journal_entries (user_id, entry_date, body, source)
     values ('aaaaaaaa-0000-4000-8000-000000000001', current_date, 'Dictado', 'voz')$$,
   '42501', null,
-  'Alice cannot claim an entry came by voice: voice is transcribed by the server'
+  'Alice, on the free plan, cannot write a voice entry: voice is premium'
 );
 
 select throws_ok(
@@ -70,6 +70,17 @@ select is(
   (select count(*)::int from public.system_audit_log where user_id = 'aaaaaaaa-0000-4000-8000-000000000001'),
   0,
   'Deleting the account takes the audit trail with it'
+);
+
+-- Bob is premium: voice is his.
+reset role;
+insert into public.subscriptions (user_id, status, activated_at)
+  values ('bbbbbbbb-0000-4000-8000-000000000002', 'active', now());
+select pg_temp.act_as('bbbbbbbb-0000-4000-8000-000000000002');
+select lives_ok(
+  $$insert into public.journal_entries (user_id, entry_date, body, source)
+    values ('bbbbbbbb-0000-4000-8000-000000000002', current_date, 'Lo dije en voz alta.', 'voz')$$,
+  'A premium person writes a voice entry'
 );
 
 select * from finish();

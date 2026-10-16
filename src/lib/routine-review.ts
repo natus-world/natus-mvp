@@ -1,9 +1,11 @@
 /**
  * v1.2 R-04: whether the routine is due for a review, and why.
  *
- * Premium is reviewed every week, and earlier on two signals: a practice
- * rated 2 or less twice, or a daily or weekly practice not done in two
- * weeks. Free renews every two months. Never while a proposal is waiting for
+ * Premium is reviewed every week, and earlier on three signals: a practice
+ * rated 2 or less twice, a daily or weekly practice not done in two weeks,
+ * or an important change in the memory — something new Natus kept in «Lo
+ * que no te funciona» or «Lo que estás viviendo» (defined by the owner's
+ * delegation, 16 Oct 2026). Free renews every two months. Never while a proposal is waiting for
  * an answer, and every signal counts only what happened since the last
  * review, so a proposal the person turned down is not asked again the next
  * day for the same reason.
@@ -12,7 +14,7 @@
  * the database.
  */
 
-export type ReviewTrigger = 'weekly' | 'bimonthly_free' | 'low_rating' | 'abandoned';
+export type ReviewTrigger = 'weekly' | 'bimonthly_free' | 'low_rating' | 'abandoned' | 'memory_shift';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 export const WEEKLY_MS = 7 * DAY_MS;
@@ -32,6 +34,8 @@ export type ReviewState = {
   practices: readonly { title: string; cadence: string; createdAt: number }[];
   /** Check-ins of these practices: the day (YYYY-MM-DD) and the rating, if any. */
   checkins: readonly { title: string; day: string; rating: number | null }[];
+  /** When Natus kept something new in the two categories that count; empty without a live memory. */
+  memoryShifts?: readonly number[];
 };
 
 function dayMs(day: string): number {
@@ -59,6 +63,8 @@ export function reviewDue(state: ReviewState): ReviewTrigger | null {
     );
     if (state.now - Math.max(lastDone, since) >= ABANDONED_MS) return 'abandoned';
   }
+
+  if ((state.memoryShifts ?? []).some((at) => at > since)) return 'memory_shift';
 
   return state.now - since >= WEEKLY_MS ? 'weekly' : null;
 }

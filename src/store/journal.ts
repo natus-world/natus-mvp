@@ -17,7 +17,7 @@ export type JournalEntry = {
   /** The day the entry is about, YYYY-MM-DD. */
   entry_date: string;
   body: string;
-  /** Voice is premium and transcribed by the server; this browser writes text. */
+  /** Voice is premium, dictated by the browser; the database lets only premium write it. */
   source: 'escrito' | 'voz';
   /** 1 to 5, if the person marked it. */
   mood: number | null;
@@ -51,6 +51,8 @@ export function addEntry(
     practiceId?: string | null;
     modalitySlug?: string | null;
     crisisFlagged?: boolean;
+    /** Dictated, at least in part (premium). */
+    source?: JournalEntry['source'];
   },
   now = Date.now(),
 ): JournalEntry {
@@ -63,7 +65,7 @@ export function addEntry(
     id: newId(),
     entry_date: input.entryDate,
     body,
-    source: 'escrito',
+    source: input.source ?? 'escrito',
     mood: input.mood ?? null,
     practice_id: input.practiceId ?? null,
     modality_slug: input.modalitySlug ?? null,

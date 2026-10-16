@@ -38,3 +38,10 @@ describe('S-03: the three lists reach every surface that suggests a practice', (
     );
   });
 });
+
+describe('the chat does not do work for the person (owner decision)', () => {
+  it('turns requests for work back to how they are living it', () => {
+    expect(CHAT_SYSTEM_PROMPT).toContain('No haces trabajos por la persona');
+    expect(CHAT_SYSTEM_PROMPT).toMatch(/cómo lo está\s+viviendo/);
+  });
+});

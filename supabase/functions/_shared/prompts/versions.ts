@@ -1,13 +1,24 @@
-export const CHAT_PROMPT_VERSION = 'chat-v1.4';
+export const CHAT_PROMPT_VERSION = 'chat-v1.5';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
 export const COMPARISON_PROMPT_VERSION = 'comparison-v2.1';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.6';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
-export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.0';
+export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'routine-review-v1.1',
+    date: '2026-10-16',
+    change: 'R-04\'s third signal: the review can be brought forward because the memory kept something new in «Lo que no te funciona» or «Lo que estás viviendo»; one line tells the model so.',
+  },
+  {
+    version: 'chat-v1.5',
+    date: '2026-10-16',
+    change:
+      'Davraz does not do work for the person (a thesis, a report, homework, code): it turns the conversation back to how they are living it, without scolding (owner decision, recorded in CLAUDE.md).',
+  },
   {
     version: 'routine-review-v1.0',
     date: '2026-10-16',

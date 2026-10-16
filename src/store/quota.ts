@@ -16,6 +16,11 @@ export type Quota = {
   remaining: number | null;
   /** YYYY-MM-DD, when the monthly part renews. */
   renewsOn: string;
+  /**
+   * This month's renewed part is still unused and the person used the
+   * feature in an earlier month: «Este mes tienes 1 pregunta nueva».
+   */
+  newThisMonth: number;
 };
 
 export async function fetchQuota(feature: PlanFeature): Promise<Quota | null> {
@@ -29,6 +34,8 @@ export async function fetchQuota(feature: PlanFeature): Promise<Quota | null> {
     tier: row['tier'] === 'premium' ? 'premium' : 'free',
     remaining: typeof row['remaining'] === 'number' ? row['remaining'] : null,
     renewsOn: typeof row['resets_on'] === 'string' ? row['resets_on'] : '',
+    newThisMonth:
+      row['used_before'] === true && typeof row['monthly_left'] === 'number' ? row['monthly_left'] : 0,
   };
 }
 

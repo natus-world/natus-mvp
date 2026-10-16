@@ -648,9 +648,9 @@ const journal: Adapter<JournalEntry[]> = {
       client,
       'journal_entries',
       userId,
-      // Only what the browser may write: entries typed here.
+      // A voice entry is written only while premium; the insert policy
+      // refuses it otherwise, and an existing one stays editable.
       value
-        .filter((e) => e.source === 'escrito')
         .map((e) => ({
           id: e.id,
           user_id: userId,

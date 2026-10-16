@@ -61,4 +61,10 @@ describe('when the routine is reviewed (v1.2 R-04)', () => {
     expect(reviewDue(state({ now: START + 30 * DAY, pendingProposal: true }))).toBeNull();
     expect(reviewDue(state({ now: START + 30 * DAY, practices: [] }))).toBeNull();
   });
+
+  it('premium: earlier when the memory keeps something new that counts', () => {
+    expect(reviewDue(state({ now: START + 3 * DAY, memoryShifts: [START + 2 * DAY] }))).toBe('memory_shift');
+    expect(reviewDue(state({ now: START + 3 * DAY, lastReviewAt: START + 2.5 * DAY, memoryShifts: [START + 2 * DAY] }))).toBeNull();
+    expect(reviewDue(state({ tier: 'free', now: START + 3 * DAY, memoryShifts: [START + 2 * DAY] }))).toBeNull();
+  });
 });

@@ -102,6 +102,16 @@ async function read(caller: SupabaseClient, elevated: SupabaseClient, userId: st
   const titles = new Set(practices.map((p) => p.title));
   const checkins = ((checkinRows.data ?? []) as Checkin[]).filter((c) => titles.has(c.practice_title));
 
+  // R-04's third signal reads the memory only where it is alive.
+  const shifts = (await memoryActive(caller, elevated, userId))
+    ? await caller
+        .from('memory_items')
+        .select('created_at')
+        .eq('user_id', userId)
+        .eq('edited_by_user', false)
+        .in('category', ['no_le_funciona', 'lo_que_vive'])
+    : { data: [] };
+
   const trigger = reviewDue({
     tier,
     now: Date.now(),
@@ -110,6 +120,7 @@ async function read(caller: SupabaseClient, elevated: SupabaseClient, userId: st
     pendingProposal: (pending.count ?? 0) > 0,
     practices: practices.map((p) => ({ title: p.title, cadence: p.cadence, createdAt: Date.parse(p.created_at) })),
     checkins: checkins.map((c) => ({ title: c.practice_title, day: c.checked_on, rating: c.rating })),
+    memoryShifts: ((shifts.data ?? []) as { created_at: string }[]).map((r) => Date.parse(r.created_at)),
   });
 
   return {
