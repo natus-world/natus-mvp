@@ -1053,6 +1053,50 @@ export type Database = {
         }
         Relationships: []
       }
+      routine_change_proposals: {
+        Row: {
+          created_at: string
+          id: string
+          match_id: string | null
+          prompt_version: string
+          proposal: Json
+          responded_at: string | null
+          status: string
+          trigger: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_id?: string | null
+          prompt_version: string
+          proposal: Json
+          responded_at?: string | null
+          status?: string
+          trigger: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_id?: string | null
+          prompt_version?: string
+          proposal?: Json
+          responded_at?: string | null
+          status?: string
+          trigger?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routine_change_proposals_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "modality_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       routine_practices: {
         Row: {
           body: string

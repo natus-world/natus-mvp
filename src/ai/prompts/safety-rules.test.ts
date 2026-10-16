@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CHAT_SYSTEM_PROMPT } from './chat';
 import { ROUTINE_SYSTEM_PROMPT } from './routine';
+import { ROUTINE_REVIEW_SYSTEM_PROMPT } from './routine-review';
 import { SOUL_MAP_SYSTEM_PROMPT } from './soul-map';
 import { PHYSICAL_RISK_RULES } from './shared';
 
@@ -19,6 +20,7 @@ describe('S-03: the three lists reach every surface that suggests a practice', (
     // v1.2 R-01: the routine is the one place practices are proposed; the
     // Soul Map and the match no longer suggest any.
     ['routine', ROUTINE_SYSTEM_PROMPT],
+    ['routine-review', ROUTINE_REVIEW_SYSTEM_PROMPT],
     ['chat', CHAT_SYSTEM_PROMPT],
   ])('%s carries them', (_name, prompt) => {
     expect(prompt).toContain(PHYSICAL_RISK_RULES);

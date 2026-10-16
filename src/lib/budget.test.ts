@@ -14,7 +14,7 @@ import {
 } from './budget.ts';
 import { PREMIUM_MONTHLY_CAP_USD } from './quota.ts';
 
-const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison', 'routine', 'memory'];
+const PURPOSES: Purpose[] = ['soul_map', 'match', 'chat', 'meditation', 'comparison', 'routine', 'memory', 'routine_review'];
 
 const costUsd = (usage: Usage) => priced(usage, OPUS);
 
@@ -142,7 +142,7 @@ describe('per-person limits', () => {
     // The chat's limit is its plan quota (`plan_quotas`) and premium's money
     // cap. Two numbers answering the same question is how they disagree.
     const covered = Object.keys(PURPOSE_LIMITS).sort();
-    expect(covered).toEqual(['comparison', 'match', 'meditation', 'memory', 'routine', 'soul_map']);
+    expect(covered).toEqual(['comparison', 'match', 'meditation', 'memory', 'routine', 'routine_review', 'soul_map']);
   });
 
   it('sits far enough above ordinary use to mean something went wrong', () => {

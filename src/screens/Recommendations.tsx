@@ -179,15 +179,22 @@ export function Recommendations() {
       Boolean(c.modality),
     );
 
+  // v1.2 R-05 (owner, 16 Oct 2026): a therapy the person took off leaves the
+  // constellation and the count too; «Deshacer» brings it back everywhere.
+  // Should every one be taken off, the count stays on what was proposed
+  // rather than claim one that is not there.
+  const kept = cards.filter((c) => match.reactions[c.entry.modality_slug]?.reaction !== 'dismissed');
+  const shown = kept.length > 0 ? kept : cards;
+
   return (
     <Screen backdrop="canon" scrim="heavy" opacity={PHOTO.content40}>
       <div className="flex min-h-dvh flex-col overflow-y-auto px-5 pt-[var(--top-inset)] pb-[var(--bottom-inset)] sm:min-h-0">
         <p className="eyebrow mb-3 text-center">{text.kicker}</p>
 
-        <Constellation modalities={cards.map((c) => c.modality)} />
+        <Constellation modalities={shown.map((c) => c.modality)} />
 
         <h1 className="mt-2 mb-2 text-center text-[length:var(--fs-title-27)] leading-[var(--lh-heading-1_15)] text-blanco">
-          {text.titleCount(cards.length)}
+          {text.titleCount(shown.length)}
           {text.titleMiddle}
           <span className="font-serif text-crema italic">{text.titleEmphasis}</span>
           {text.titleTail}

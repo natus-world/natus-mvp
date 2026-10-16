@@ -5,8 +5,15 @@ export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
 export const COMPARISON_PROMPT_VERSION = 'comparison-v2.1';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.6';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
+export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.0';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'routine-review-v1.0',
+    date: '2026-10-16',
+    change:
+      'v1.2 R-04, new: reviews the routine with what the person recorded (times done, ratings, comments) and, for premium with consent, the memory; proposes practices that leave and enter, and at most one therapy dismissed over a week ago to come back (R-05), or no change. No blame for what was not done. The physical-risk rules of the routine, unchanged.',
+  },
   {
     version: 'chat-v1.4',
     date: '2026-10-16',

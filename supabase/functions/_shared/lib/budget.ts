@@ -21,7 +21,7 @@ import type { SynthesisTrigger } from './model-input.ts';
  * and nothing a client can write.
  */
 
-export type Purpose = 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison' | 'routine' | 'memory';
+export type Purpose = 'soul_map' | 'match' | 'chat' | 'meditation' | 'comparison' | 'routine' | 'memory' | 'routine_review';
 
 export const OPUS = 'claude-opus-5-5';
 export const SONNET = 'claude-sonnet-5-5';
@@ -141,6 +141,9 @@ export const PURPOSE_LIMITS: Record<Exclude<Purpose, 'chat'>, PurposeLimit> = {
   // conversation — premium only, and under premium's money cap besides.
   // Three hundred is ten a day.
   memory: { calls: 300, windowHours: 720 },
+  // v1.2 R-04: premium weekly plus its two signals, free every two months.
+  // Twelve is three a week.
+  routine_review: { calls: 12, windowHours: 720 },
 };
 
 /**
@@ -187,4 +190,5 @@ export const MAX_OUTPUT_TOKENS: Record<Purpose, number> = {
   comparison: 8000,
   routine: 4000,
   memory: 3000,
+  routine_review: 4000,
 };

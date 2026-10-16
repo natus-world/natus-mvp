@@ -62,3 +62,33 @@ export function saveRoutine(matchId: string, result: RoutineResult, now = Date.n
   ]);
   return fresh;
 }
+
+/**
+ * v1.2 R-04: an accepted change. The practices that leave stay in the record,
+ * inactive — their check-ins are the person's history — and the new ones
+ * join the same routine.
+ */
+export function applyRoutineChange(
+  input: { matchId: string; removeIds: readonly string[]; add: readonly Practice[]; promptVersion: string },
+  now = Date.now(),
+): StoredPractice[] {
+  const leaving = new Set(input.removeIds);
+  const fresh: StoredPractice[] = input.add.map((p) => ({
+    title: p.title,
+    body: p.body,
+    invitation: p.invitation,
+    cadence: p.cadence,
+    connects_to: p.connects_to,
+    id: newId(),
+    match_id: input.matchId,
+    origin: 'ia',
+    prompt_version: input.promptVersion,
+    is_active: true,
+    created_at: now,
+  }));
+  write('routine_practices', [
+    ...listPractices().map((p) => (leaving.has(p.id) ? { ...p, is_active: false } : p)),
+    ...fresh,
+  ]);
+  return fresh;
+}

@@ -351,6 +351,16 @@ export const es = {
     connectsMap: 'Conversa con tu mapa',
     connectsTherapy: (therapy: string) => `Conversa con ${therapy}`,
     connectsBoth: (therapy: string) => `Conversa con tu mapa y con ${therapy}`,
+    // v1.2 R-04. The two buttons are the guide's (9.7); the rest is proposed.
+    review: {
+      kicker: 'Un ajuste para tu rutina',
+      leaves: 'Sale',
+      enters: 'Entra',
+      returns: 'Vuelve a tus caminos',
+      accept: 'Aceptar el cambio',
+      keep: 'Mantener mi rutina',
+      failed: 'No pudimos guardar tu respuesta. Intenta de nuevo.',
+    },
     rating: {
       question: '¿Qué tan útil te resultó?',
       low: 'Nada',

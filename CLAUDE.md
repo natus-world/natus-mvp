@@ -94,8 +94,22 @@ comparison between them (C-01, C-02) are built, and so is the routine
 (R-01): written after the therapies, by its own function, each practice
 saying what it converses with and keeping its origin in `routine_practices`.
 Marking a practice asks how useful it was, 1 to 5, with an optional comment
-(R-03), stored on `recommendation_checkins`; nothing reads it yet — the
-memory and the routine's adjustment will.
+(R-03), stored on `recommendation_checkins`; the memory and the review read it.
+The routine is reviewed (R-04, built 16 Oct 2026): premium every week and
+earlier when a practice is rated 2 or less twice or a daily or weekly one
+goes two weeks undone; free every two months. The `routine-review` function
+(routine-review-v1.0) decides from the rows whether a review is due — the
+rule is `src/lib/routine-review.ts` — and writes a proposal to
+`routine_change_proposals` (or `no_change`, which restarts the week); the
+Rutina screen asks on opening and shows it with «Aceptar el cambio» and
+«Mantener mi rutina». Accepting deactivates what leaves (its check-ins stay)
+and adds what enters. The review may bring back a therapy dismissed over a
+week ago (R-05). The kicker «Un ajuste para tu rutina» and the labels
+«Sale», «Entra», «Vuelve a tus caminos» are not in the guide. Not built: the
+"important change in the memory" signal, which needs defining.
+«No me hace sentido» (R-05, built 16 Oct 2026) takes the therapy off the
+paths for 7 days — out of the cards, the constellation and the count —
+with «Quitamos {nombre} de tus caminos.» and «Deshacer».
 A therapy card shows a one-or-two-sentence summary and opens, on touch, the
 full why — citing what the person told, a placement of their chart and one
 of their numbers when there are — and what happens in a session (R-02,
@@ -322,8 +336,8 @@ src/styles/  Wiring, not design: the Tailwind import, the `@theme` mapping,
 data/        Seed JSON: modalities, topics, crisis resources, bed tracks.
 
 supabase/functions/
-             soul-map · match · routine · chat · meditation · comparison
-             · natal-chart · paypal-webhook
+             soul-map · match · routine · routine-review · chat · meditation
+             · comparison · memory · natal-chart · paypal-webhook
              One directory, URL and worker each. Four share the sequence in
              _shared/serve-model.ts; chat has a quota to consult mid-flow.
 ```

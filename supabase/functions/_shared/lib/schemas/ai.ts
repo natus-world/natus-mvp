@@ -112,6 +112,30 @@ export const routineResultSchema = z.object({
 });
 export type RoutineResult = z.infer<typeof routineResultSchema>;
 
+/**
+ * v1.2 R-04: what a review of the routine proposes. Practices that leave (by
+ * their ref in the prompt), practices that enter, and at most one therapy
+ * that comes back (R-05). Every change carries the why the person reads.
+ * Nothing is applied until the person accepts.
+ */
+const reviewWhy = z.string().trim().min(1).max(400);
+export const routineReviewSchema = z
+  .object({
+    prompt_version: z.string().min(1),
+    no_change: z.boolean(),
+    summary: z.string().trim().max(300),
+    remove: z.array(z.object({ ref: z.string().min(1), why: reviewWhy })).max(3),
+    add: z.array(practiceSchema.extend({ why: reviewWhy })).max(3),
+    restore: z.object({ slug: z.string().min(1), why: reviewWhy }).nullable(),
+  })
+  .superRefine((value, ctx) => {
+    const changes = value.remove.length + value.add.length + (value.restore ? 1 : 0);
+    if (value.no_change && changes > 0) ctx.addIssue({ code: 'custom', message: 'no_change with changes' });
+    if (!value.no_change && changes === 0) ctx.addIssue({ code: 'custom', message: 'a change with nothing in it' });
+    if (!value.no_change && value.summary.length === 0) ctx.addIssue({ code: 'custom', message: 'a change without a summary' });
+  });
+export type RoutineReview = z.infer<typeof routineReviewSchema>;
+
 /** v1.2 M-01: the five kinds of thing the memory keeps. */
 export const MEMORY_CATEGORIES = ['lo_que_vive', 'le_funciona', 'no_le_funciona', 'tema_recurrente', 'contexto'] as const;
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];

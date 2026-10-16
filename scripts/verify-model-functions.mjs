@@ -448,6 +448,49 @@ if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
       `status=${fine.status}${fine.status === 503 ? ' (no model here)' : ''}`,
     );
   }
+
+  // ── the routine's review (v1.2 R-04) ───────────────────────────────────
+  // Whether a review is due is the server's decision, from the rows.
+  {
+    const withRoutine = async ({ premium: isPremium, ageDays, pending = false }) => {
+      const p = await person({ premium: isPremium, consent: false });
+      const at = new Date(Date.now() - ageDays * 24 * 60 * 60 * 1000).toISOString();
+      const { data: syn, error: synErr } = await p.client.from('soul_map_syntheses').insert({
+        user_id: p.id, synthesis: SYNTHESIS, trigger: 'onboarding', mode: 'server', prompt_version: 'verify', latency_ms: 1, is_current: true,
+      }).select('id').single();
+      if (synErr) throw new Error(`could not seed a synthesis: ${synErr.message}`);
+      const { data: match, error: matchErr } = await p.client.from('modality_matches').insert({
+        user_id: p.id, synthesis_id: syn.id, result: { matched_modalities: [] }, strategy: 'topical', prompt_version: 'verify', used_fallback: false, is_current: true,
+      }).select('id').single();
+      if (matchErr) throw new Error(`could not seed a match: ${matchErr.message}`);
+      const { error: practiceErr } = await p.client.from('routine_practices').insert(
+        ['Caminar', 'Respirar', 'Escribir'].map((title) => ({
+          user_id: p.id, match_id: match.id, title, body: 'Diez minutos.', invitation: '¿Cuándo?', cadence: 'weekly', connects_soul_map: true, created_at: at,
+        })),
+      );
+      if (practiceErr) throw new Error(`could not seed a routine: ${practiceErr.message}`);
+      if (pending) {
+        await elevated.from('routine_change_proposals').insert({ user_id: p.id, match_id: match.id, trigger: 'weekly', proposal: {}, prompt_version: 'verify', created_at: at });
+      }
+      return p;
+    };
+
+    const nobody = await person({ premium: true, consent: false });
+    const none = await call('routine-review', {}, nobody.headers);
+    check('routine-review: no routine, nothing to review', none.status === 403 && (await none.json()).reason === 'no_routine', `status=${none.status}`);
+
+    const weekOld = await withRoutine({ premium: true, ageDays: 8 });
+    const due = await call('routine-review', {}, weekOld.headers);
+    check('routine-review: premium, a week on, is reviewed', due.status === 503 || due.status === 200, `status=${due.status}${due.status === 503 ? ' (no model here)' : ''}`);
+
+    const freeWeek = await withRoutine({ premium: false, ageDays: 8 });
+    const notYet = await call('routine-review', {}, freeWeek.headers);
+    check('routine-review: free waits two months', notYet.status === 403 && (await notYet.json()).reason === 'not_due', `status=${notYet.status}`);
+
+    const waiting = await withRoutine({ premium: true, ageDays: 8, pending: true });
+    const held = await call('routine-review', {}, waiting.headers);
+    check('routine-review: never while a proposal waits for an answer', held.status === 403 && (await held.json()).reason === 'not_due', `status=${held.status}`);
+  }
 }
 
 // ── PayPal's notifications (v1.2 P-01) ─────────────────────────────────────

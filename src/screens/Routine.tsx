@@ -20,6 +20,8 @@ import {
 } from '@/store/matches';
 import { routineFor, saveRoutine } from '@/store/routine';
 import { learnFromPending } from '@/store/memory';
+import { pendingProposal, requestReview, type RoutineProposal } from '@/store/routine-review';
+import { RoutineProposalCard } from '@/screens/RoutineProposalCard';
 import { currentSynthesis } from '@/store/soulMap';
 
 /**
@@ -194,6 +196,23 @@ export function Routine() {
     }
   }, [match]);
 
+  // v1.2 R-04: the server decides whether a review is due; a proposal it
+  // wrote waits here for an answer.
+  const [proposal, setProposal] = useState<RoutineProposal | null>(null);
+  const hasPractices = practices.length > 0;
+  useEffect(() => {
+    if (!hasPractices) return;
+    let live = true;
+    void requestReview()
+      .then(pendingProposal)
+      .then((p) => {
+        if (live) setProposal(p);
+      });
+    return () => {
+      live = false;
+    };
+  }, [hasPractices]);
+
   const needsRoutine = Boolean(match) && practices.length === 0;
   useEffect(() => {
     if (needsRoutine && !generating && !failed) void generate();
@@ -265,6 +284,16 @@ export function Routine() {
         <p className="mb-6 text-[length:var(--fs-body-12_5)] leading-relaxed text-crema/55">
           {text.helper}
         </p>
+
+        {proposal && (
+          <RoutineProposalCard
+            proposal={proposal}
+            onAnswered={() => {
+              setProposal(null);
+              force((n) => n + 1);
+            }}
+          />
+        )}
 
         <div className="flex flex-col gap-2.5">
           {practices.map((practice) => {
