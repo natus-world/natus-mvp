@@ -224,10 +224,19 @@
   gap: calc(var(--u) * 6);
 }
 
-:is(.entrada, .en-paso) .fecha input.v {
+:is(.entrada, .en-paso) .fecha :is(input, select).v {
   width: auto;
   flex: none;
   field-sizing: content;
+}
+
+:is(.entrada, .en-paso) .fecha {
+  flex-wrap: wrap;
+}
+
+:is(.entrada, .en-paso) .fecha select.v:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 :is(.entrada, .en-paso) .fecha span {
@@ -235,7 +244,7 @@
   color: var(--t3);
 }
 
-:is(.entrada, .en-paso) .fecha input.v {
+:is(.entrada, .en-paso) .fecha :is(input, select).v {
   cursor: pointer;
 }
 

@@ -28,6 +28,20 @@ export const es = {
       birthTimeLabel: 'Hora (opcional)',
       // Package 01 (16 Oct 2026): the date and the hour share one row.
       birthDateTimeLabel: 'Fecha de nacimiento · Hora (opcional)',
+      // 17 Oct 2026: the date as day, month and year, so every phone can pick it.
+      dateParts: {
+        day: 'Día de nacimiento',
+        month: 'Mes de nacimiento',
+        year: 'Año de nacimiento',
+        hour: 'Hora de nacimiento (opcional)',
+        minute: 'Minutos',
+        dd: 'dd',
+        mm: 'mm',
+        yyyy: 'aaaa',
+        hh: 'hh',
+        min: 'mm',
+        months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'],
+      },
       // Package 01, proposed: the example under the gender (from Perfil).
       genderExample: 'Por ejemplo: «Hoy podrías sentir más calma».',
       // «País donde vives» read as the package draws it: «Vivo en Chile».
