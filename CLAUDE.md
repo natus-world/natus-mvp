@@ -245,6 +245,10 @@ What is left outside the code, in rough order of weight:
   sign-in. Google rather than magic links because Supabase's built-in mail
   refuses anyone outside the project team, at two messages an hour.
 - The free-tier pause question is still open.
+- **`natus-admin` is public, to be made private later (owner, 18 Oct 2026).**
+  GitHub Pages is free only for public repositories on the organisation's
+  plan; nothing secret is in it. Owed: GitHub Team (about US$4 a user a
+  month), then make it private.
 - `tokens.css` still carries the old type scale (named at its values) for
   the few parts the package does not draw; every screen now takes its sizes
   from the package (`pieces.css` and `design/screens/*.css`).
