@@ -32,11 +32,14 @@ is monitoring it and the hotline numbers are unverified.
 
 ## Work in progress
 
-`docs/DESIGN-LAYER.md` is a live plan, not a record. The design layer is now
-isolated in `src/design/` and fenced by a test; one step is left, and the file
-carries the verification protocol this repository expects of visual work. Read
-it before touching `src/design`, `src/styles` or anything visual. Delete it
-when that step is done and fold what is still true into this file.
+**The look is Nico's branding package (16 Oct 2026)** — see «The branding
+package is the look» under Resuming work. Any visual change starts from the
+package's own HTML and PNG for that screen (`natus-para-la-ia/html/NN-*`,
+`pantallas/NN-*.png`), copies its markup and numbers, and is compared side
+by side with the PNG on the phone (390) and on desktop (1440) before it is
+shown to the owner. `docs/DESIGN-LAYER.md` describes the design layer before
+the package; its step left (a designer's artifact) is superseded, and only
+its verification notes still apply.
 
 ## Where the reasoning lives
 
@@ -64,8 +67,9 @@ The product runs end to end in production: onboarding, natal chart by
 ephemeris, Soul Map, recommendations, chat, meditations and synastry, all with
 real generation, all walked on the deployed site.
 
-**v1.2 is being implemented, and most of it is not built yet:** today's
-sky, notifications, the full chart.
+**v1.2 is mostly built; not yet:** today's sky (the day's phrase, today's
+transits, Davraz's daily tip — hidden on Hoy until built) and notifications
+(N-01, last).
 The memory (M-01) is built (16 Oct 2026). «Lo que Natus sabe de ti» in the
 profile shows it, asks for consent and lets the person correct, delete and
 add; its texts are not in the guide and were approved by the owner on
@@ -110,10 +114,10 @@ rule is `src/lib/routine-review.ts` — and writes a proposal to
 Rutina screen asks on opening and shows it with «Aceptar el cambio» and
 «Mantener mi rutina». Accepting deactivates what leaves (its check-ins stay)
 and adds what enters. The review may bring back a therapy dismissed over a
-week ago (R-05). The kicker «Un ajuste para tu rutina» and the labels
-«Sale», «Entra», «Vuelve a tus caminos» are not in the guide.
+week ago (R-05). The kicker is the package's «Una propuesta para tu rutina», with «Sale»,
+«Entra» and «Por qué»; «Vuelve a tus caminos» has no design of its own.
 «No me hace sentido» (R-05, built 16 Oct 2026) takes the therapy off the
-paths for 7 days — out of the cards, the constellation and the count —
+paths for 7 days — out of the cards and the count (the package's Caminos has no constellation) —
 with «Quitamos {nombre} de tus caminos.» and «Deshacer».
 A therapy card shows a one-or-two-sentence summary and opens, on touch, the
 full why — citing what the person told, a placement of their chart and one
@@ -138,7 +142,7 @@ friendship is accepted and never for somebody clinically vulnerable, and
 holds the answer to `lintChartJudgement`. The Soul Map is written again every
 30 days with Sonnet (`store/monthly-map.ts`, on opening); a monthly rewrite
 keeps the paths, the routine and the conversation (`onlyMonthlySince`), and
-Carta shows «Actualizado el …» and the previous version. Texts approved by
+Carta shows «Tu Mapa se actualizó el …» and the previous version. Texts approved by
 the owner, 16 Oct 2026.
 The birth data is editable in the profile (M-02, built 16 Oct 2026,
 `/perfil/nacimiento`, the onboarding's own «¿Quién eres?» step): a change to
@@ -152,10 +156,9 @@ Sign-in for the launch is Google only (owner, 16 Oct 2026); the email link
 and Apple come later. Saving the map links Google to the anonymous row
 (`linkGoogle`, which needs manual linking on in the project's Auth settings)
 and `completeLinkedSignup` creates the account on the way back; the landing
-offers «Ya tengo cuenta: entrar con Google» for another device. Both appear
+offers «Volver a mi espacio» (Google) for another device. Both appear
 only once the project has Google switched on (`googleSignInEnabled` reads
-the published Auth settings); until then the email form stays. The texts «Guardar con Google», «Ya tengo cuenta: entrar con
-Google» and the note under the button are proposals. The
+the published Auth settings); until then the email form stays. The button reads «Seguir con Google» (the package's text). The
 plan, its order and the questions still open for the owner are in his doc
 «Guía de actualización de la app Natus»
 (https://claude.ai/artifact/9rw3grB3r7FQ6FVmnWfbbw); the requirements as agreed,
@@ -230,11 +233,9 @@ What is left outside the code, in rough order of weight:
   sign-in. Google rather than magic links because Supabase's built-in mail
   refuses anyone outside the project team, at two messages an hour.
 - The free-tier pause question is still open.
-- The type scale has 24 sizes across 9 roles, and several roles carry more
-  than one: `title` has four, `heading` seven for nine uses. Named at their
-  values so the drift is countable, and deliberately not collapsed — that is
-  a design decision, and a designer is reviewing it. Line-height is the same
-  story one axis over: `--fs-body-13` alone ships with four.
+- `tokens.css` still carries the old type scale (named at its values) for
+  the few parts the package does not draw; every screen now takes its sizes
+  from the package (`pieces.css` and `design/screens/*.css`).
 - `supabase/functions/_shared` is 3,933 lines copied from `src/lib` and
   `src/ai/prompts` by `pnpm sync:shared`, with a parity test to catch drift.
   It works. It is still duplication held together by tooling, and the fix is
@@ -295,8 +296,13 @@ account even to pay a subscription by card** (the owner tried it, 15 Oct
 and is off the build list (owner, 16 Oct 2026): if it changes, the premium
 logic stays and only the notifier changes.
 
-**Where Premium is offered — decided 15 Oct 2026, mostly not built.** Built
-(16 Oct 2026): the crisis rule — `my_quota` returns `offer_premium: false`
+**Where Premium is offered — decided 15 Oct 2026, partly built.** Built
+(16 Oct 2026): «Tu plan» in Perfil with «Cancelar» (PayPal's autopay page);
+the full-screen offer after the revelation (`Paywall feature="welcome"`)
+and the package-13 sheet when a free quota runs out (meditation,
+comparison; the chat keeps its own package-10 sheet). Not built: «Ver
+Premium» beside the quota counters and the level-2 moments below. Also
+built: the crisis rule — `my_quota` returns `offer_premium: false`
 for seven days after an alert the person did not mark as not their case, and
 the paywall then says what is used up without the offer. Three
 levels, never pressure: (1) always at hand — «Tu plan» in the profile (what
@@ -415,6 +421,19 @@ a rebuild that changes nothing now keeps `calculated_at`, so a new device does
 not pay for new readings. The demo reads `ai/fixtures/chart-points.ts`. The
 readings are in «Descargar mis datos» and go with the account.
 
+**The birth date is picked in parts (17 Oct 2026).** Day, month, year, hour
+and minutes are native selects (`BirthDateTime` in `BasicData.tsx`): the
+browser's own date field, drawn as bare text as the package asks, could not
+be filled from some phones. A day that does not exist leaves the date unset.
+
+**Pending the owner's word (17–18 Oct 2026):** the public price may go to
+US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
+end of the day; it needs a new PayPal plan (its `P-` id) and the webhook to
+accept both plans (`lib/paypal.ts` accepts one today). Nobody pays yet (no
+row in `subscriptions`). Premium for free, with no end, for the owner, his
+partner and his investor — inserted by hand in `subscriptions` once they send
+the Google addresses of their accounts.
+
 **Adults only, the home country chosen, a second try (owner, 16 Oct 2026).**
 The birth step refuses a date that is not 18 years past (`lib/age.ts`), so
 also any date to come, with «Natus es para personas mayores de 18 años»
@@ -477,14 +496,15 @@ src/screens/ Route-level components. Wrapped per route by `ErrorBoundary`,
              screen shows.
 
 src/design/  The visual source of truth, and the only place a surface may be
-             written. tokens.css holds palette, glass, geometry and a type
-             scale of 36 tokens over 9 roles; primitives.css holds the nine
-             named parts every screen composes from; Screen.tsx holds the
-             backdrop, the scrim and the photo opacity.
-             Named by role and value — four `title-*` and four `surface-p*`
-             exist because four of each ship, not because four were designed.
-             `architecture.test.ts` fails on a font size written as a literal,
-             and on any screen that writes its own glass.
+             written. pieces.css holds the branding package's own pieces
+             (`.pz .k .t .vid .fila .p2 …`, in `--u`/`--d`); screens/*.css one
+             file per screen, ported from the package; tokens.css the palette,
+             photo families, radii and chrome sizes; primitives.css the
+             header, tab bar/rail and the older named parts; Screen.tsx the
+             bank photo, its family tone, the even veil and the glass alpha;
+             brand-icons.tsx the package's thin-line icons.
+             `architecture.test.ts` fails on a font size written as a literal
+             in a .tsx, and on any screen that writes its own glass.
 src/styles/  Wiring, not design: the Tailwind import, the `@theme` mapping,
              the base layer, and the contrast test.
 data/        Seed JSON: modalities, topics, crisis resources, bed tracks.
@@ -511,7 +531,7 @@ pnpm verify:chat && pnpm verify:models
 
 ```
 pnpm typecheck      tsc --noEmit
-pnpm test           vitest, about 1,030 tests
+pnpm test           vitest, about 1,260 tests
 pnpm test:db        pgTAP policies + the adapters and functions against a
                     real Postgres; needs `supabase start`
 pnpm build          production build
