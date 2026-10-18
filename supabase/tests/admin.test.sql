@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(42);
+select plan(46);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -89,6 +89,10 @@ select throws_ok($$select * from public.admin_feedback_inbox()$$, '42501', 'not_
   'A person cannot read the suggestions inbox');
 select throws_ok($$select * from public.admin_crisis_list(30)$$, '42501', 'not_admin',
   'A person cannot read the crisis alerts');
+select throws_ok($$select * from public.admin_expenses()$$, '42501', 'not_admin',
+  'A person cannot read the expenses');
+select throws_ok($$select public.admin_expense_save(null, '{"service":"x"}')$$, '42501', 'not_admin',
+  'A person cannot write an expense');
 
 -- The person's own suggestions.
 select lives_ok($$insert into public.feedback_messages (user_id, author, body, screen)
@@ -145,6 +149,8 @@ select throws_ok($$select public.admin_grant_premium('nobody@example.test', null
 
 select is((select count(*) from public.admin_feedback_inbox()), 1::bigint, 'The suggestion reaches the inbox');
 select is((select name from public.admin_crisis_list(30)), 'Pepito Pérez', 'An alert says who, with the excerpt beside it');
+select lives_ok($$select public.admin_expense_save(null, '{"service":"Prueba","amount_usd":"12.5","status":"to_buy"}')$$,
+  'CONTROL: the admin records an expense');
 select lives_ok($$select public.admin_feedback_reply('bbbbbbbb-0000-4000-8000-0000000000b2', 'Gracias, lo vemos')$$,
   'The admin answers');
 
@@ -166,9 +172,12 @@ select is(
     where n.nspname = 'public' and p.proname in
       ('admin_people', 'admin_person', 'admin_person_content', 'admin_feedback_inbox',
        'admin_feedback_thread', 'admin_whoami', 'admin_grant_premium', 'admin_revoke_premium',
-       'admin_feedback_reply', 'admin_crisis_list')
+       'admin_feedback_reply', 'admin_crisis_list', 'admin_expense_save', 'admin_expense_delete')
       and p.provolatile <> 'v'),
   0::bigint, 'Every admin function that logs is volatile');
+
+select is((select amount_usd from public.tech_expenses where service = 'Prueba'), 12.50::numeric,
+  'The expense is kept with its amount');
 
 select * from finish();
 rollback;
