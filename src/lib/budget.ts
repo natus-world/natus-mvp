@@ -60,7 +60,7 @@ export const PRICE_PER_MTOK: Record<string, Prices> = {
   'claude-opus-5': { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 },
 };
 
-const UNKNOWN_MODEL_PRICES: Prices = { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
+export const UNKNOWN_MODEL_PRICES: Prices = { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
 
 export function pricesFor(model: string | null | undefined): Prices {
   return (model ? PRICE_PER_MTOK[model] : undefined) ?? UNKNOWN_MODEL_PRICES;
