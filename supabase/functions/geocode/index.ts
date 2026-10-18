@@ -20,14 +20,17 @@ import { MIN_QUERY_LENGTH, geocodingUrl, normalizePlaceName, type GeocoderResult
 
 const TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_ENTRIES = 2000;
-const cache = new Map<string, { at: number; results: GeocoderResult[] }>();
+const cache = new Map<string, { at: number; results: GeocoderResult[]; source: Source }>();
 
-function remember(key: string, results: GeocoderResult[]): void {
+/** Which endpoint answered: says, without the key, whether the paid plan works. */
+type Source = 'paid' | 'free';
+
+function remember(key: string, results: GeocoderResult[], source: Source): void {
   if (cache.size >= MAX_ENTRIES) {
     const oldest = cache.keys().next().value;
     if (oldest !== undefined) cache.delete(oldest);
   }
-  cache.set(key, { at: Date.now(), results });
+  cache.set(key, { at: Date.now(), results, source });
 }
 
 /** Only what the app reads, so nothing else crosses. */
@@ -48,7 +51,10 @@ function trim(results: unknown): GeocoderResult[] {
 async function ask(url: URL): Promise<GeocoderResult[] | null> {
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(8_000) });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error('geocoder_error', url.hostname, response.status);
+      return null;
+    }
     const payload = (await response.json()) as { results?: unknown };
     return trim(payload.results);
   } catch {
@@ -85,13 +91,17 @@ Deno.serve(async (request) => {
 
   const key = `${country}|${normalizePlaceName(term)}`;
   const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < TTL_MS) return json(request, { results: hit.results });
+  if (hit && Date.now() - hit.at < TTL_MS) return json(request, { results: hit.results, source: hit.source });
 
   const apiKey = Deno.env.get('OPEN_METEO_API_KEY');
+  let source: Source = apiKey ? 'paid' : 'free';
   let results = await ask(geocodingUrl(term, country, apiKey));
-  if (results === null && apiKey) results = await ask(geocodingUrl(term, country, null));
+  if (results === null && apiKey) {
+    source = 'free';
+    results = await ask(geocodingUrl(term, country, null));
+  }
   if (results === null) return json(request, { error: 'geocoder_unavailable' }, 502);
 
-  remember(key, results);
-  return json(request, { results });
+  remember(key, results, source);
+  return json(request, { results, source });
 });
