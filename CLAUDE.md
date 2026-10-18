@@ -198,6 +198,12 @@ with no end (`provider = 'manual'`, `granted_by`): not counted as paying,
 and Perfil shows «Te lo regalamos…» with no price and no «Cancelar».
 Next: the use funnel (return at day 1, 7, 30; what is used weekly; ratings)
 and archetypes (what works for whom, by group).
+**Where it stopped (18 Oct 2026, 18:18):** Pages is on (repository made
+public), the DNS is right (GoDaddy: CNAME `admin` → `natus-world.github.io`)
+and the site answers on http; GitHub was still issuing the HTTPS
+certificate and showing a stale «DNS check unsuccessful». Then: «Enforce
+HTTPS», `https://admin.natus.world/**` in Supabase's Redirect URLs (owner),
+and the owner's first sign-in.
 
 **Suggestions are built (owner, 18 Oct 2026):** «Sugerir o reportar» in the
 header of every screen (only the bubble below 380px) opens a short
