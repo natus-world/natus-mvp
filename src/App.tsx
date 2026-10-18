@@ -29,7 +29,7 @@ import { ProfileButton } from '@/components/ProfileButton';
 import { LegacyRedirect } from '@/components/LegacyRedirect';
 import { LEGACY_PATHS, PATHS } from '@/components/routes';
 import { copy } from '@/i18n';
-import { useTakeoverShown } from '@/components/takeover';
+import { useCrisisShown, useTakeoverShown } from '@/components/takeover';
 import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
 import { SuggestionsButton, SuggestionsSheet, useTeamUnread } from '@/screens/Suggestions';
 import { hydrate } from '@/store/hydrate.ts';
@@ -79,6 +79,7 @@ export function App() {
   const { pathname, search, hash } = useLocation();
   const navigate = useNavigate();
   const takeoverShown = useTakeoverShown();
+  const crisisShown = useCrisisShown();
   const [helpOpen, setHelpOpen] = useState(false);
   const openHelp = useCallback(() => setHelpOpen(true), []);
   const closeHelp = useCallback(() => setHelpOpen(false), []);
@@ -227,7 +228,9 @@ export function App() {
             !takeoverShown && <span className="header-brand desk-only">{copy.chrome.brand}</span>
           )}
         </div>
-        {!takeoverShown && <SuggestionsButton onOpen={openSuggest} unread={teamUnread} />}
+        {/* Every screen (owner, 18 Oct 2026), the open journal and the revelation
+            included; only the crisis screen keeps its header to the help lines. */}
+        {!crisisShown && <SuggestionsButton onOpen={openSuggest} unread={teamUnread} />}
         <HelpNowButton onOpen={openHelp} />
         {showsProfile(pathname, takeoverShown) && <ProfileButton />}
       </header>

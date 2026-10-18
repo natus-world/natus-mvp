@@ -32,7 +32,7 @@ export function CrisisScreen({
   onNotMyCase?: () => void;
   onBack?: () => void;
 }) {
-  useTakeover();
+  useTakeover(true);
   const navigate = useNavigate();
   // «Volver» always (owner, 16 Oct 2026): the caller's own way back, or the
   // screen before this one. The lines stay one tap away in the header.

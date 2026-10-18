@@ -160,7 +160,7 @@
 }
 
 @media (max-width: 1023.98px) {
-  :root:has(.bitacora.libro) .app-header .help-pill {
+  :root:has(.bitacora.libro) .app-header :is(.help-pill, .suggest-button) {
     color: rgb(11 18 14);
     border-color: rgb(11 18 14 / 0.45);
     background: rgb(236 226 205 / 0.78);
