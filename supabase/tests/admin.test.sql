@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(40);
+select plan(42);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -39,6 +39,9 @@ insert into public.admins (user_id, role) values
 
 insert into public.clients (user_id, email, legal_birth_name)
 values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'person@example.test', 'Pepito Pérez');
+
+insert into public.crisis_events (user_id, severity, category, source_surface, matched, excerpt)
+values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'low', 'ideacion', 'chat', '{"no aguanto"}', 'ya no aguanto');
 
 -- Some use, so the metrics have something to count.
 insert into public.claude_api_calls (user_id, purpose, prompt_version, model, mode, outcome,
@@ -84,6 +87,8 @@ select throws_ok($$select public.admin_grant_premium('person@example.test', null
   'A person cannot give themselves Premium');
 select throws_ok($$select * from public.admin_feedback_inbox()$$, '42501', 'not_admin',
   'A person cannot read the suggestions inbox');
+select throws_ok($$select * from public.admin_crisis_list(30)$$, '42501', 'not_admin',
+  'A person cannot read the crisis alerts');
 
 -- The person's own suggestions.
 select lives_ok($$insert into public.feedback_messages (user_id, author, body, screen)
@@ -139,6 +144,7 @@ select throws_ok($$select public.admin_grant_premium('nobody@example.test', null
   'No account, no gift');
 
 select is((select count(*) from public.admin_feedback_inbox()), 1::bigint, 'The suggestion reaches the inbox');
+select is((select name from public.admin_crisis_list(30)), 'Pepito Pérez', 'An alert says who, with the excerpt beside it');
 select lives_ok($$select public.admin_feedback_reply('bbbbbbbb-0000-4000-8000-0000000000b2', 'Gracias, lo vemos')$$,
   'The admin answers');
 
@@ -160,7 +166,7 @@ select is(
     where n.nspname = 'public' and p.proname in
       ('admin_people', 'admin_person', 'admin_person_content', 'admin_feedback_inbox',
        'admin_feedback_thread', 'admin_whoami', 'admin_grant_premium', 'admin_revoke_premium',
-       'admin_feedback_reply')
+       'admin_feedback_reply', 'admin_crisis_list')
       and p.provolatile <> 'v'),
   0::bigint, 'Every admin function that logs is volatile');
 
