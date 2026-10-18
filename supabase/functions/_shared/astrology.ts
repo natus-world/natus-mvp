@@ -1,6 +1,6 @@
 export { parseAstrologerSubject, type AstrologerSubject } from './lib/astrology.ts';
 
-import { GEOCODING_ENDPOINT, bestPlace, searchTermFor, type GeocoderResult } from './lib/places.ts';
+import { bestPlace, geocodingUrl, searchTermFor, type GeocoderResult } from './lib/places.ts';
 
 export type Located = { latitude: number; longitude: number; timezone: string };
 
@@ -27,12 +27,7 @@ export async function resolveLocation(
   nation: string,
   signal: AbortSignal,
 ): Promise<Located | null> {
-  const url = new URL(GEOCODING_ENDPOINT);
-  url.searchParams.set('name', searchTermFor(city, nation));
-  url.searchParams.set('countryCode', nation);
-  url.searchParams.set('count', '10');
-  url.searchParams.set('language', 'es');
-  url.searchParams.set('format', 'json');
+  const url = geocodingUrl(searchTermFor(city, nation), nation, Deno.env.get('OPEN_METEO_API_KEY'));
 
   const response = await fetch(url, { signal });
   if (!response.ok) return null;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestPlace, parseBirthPlace, placeLabel, rankPlaces, searchTermFor } from './places.ts';
+import { bestPlace, geocodingUrl, parseBirthPlace, placeLabel, rankPlaces, searchTermFor } from './places.ts';
 
 // Open-Meteo's answers, recorded on 16 Oct 2026 for the names that were going
 // wrong (count=10, language=es, filtered by country).
@@ -585,5 +585,21 @@ describe('the place a chart is cast for', () => {
     expect(parseBirthPlace({ ...good, timezone: 'Lima; drop' })).toBeNull();
     expect(parseBirthPlace({ ...good, country: 'Perú' })).toBeNull();
     expect(parseBirthPlace('Lima')).toBeNull();
+  });
+});
+
+describe('geocodingUrl', () => {
+  it('asks the free endpoint without a key', () => {
+    const url = geocodingUrl('Santiago', 'CL');
+    expect(url.origin).toBe('https://geocoding-api.open-meteo.com');
+    expect(url.searchParams.get('apikey')).toBeNull();
+    expect(url.searchParams.get('countryCode')).toBe('CL');
+  });
+
+  it('asks the commercial endpoint with the key', () => {
+    const url = geocodingUrl('Santiago', 'CL', 'k123');
+    expect(url.origin).toBe('https://customer-geocoding-api.open-meteo.com');
+    expect(url.searchParams.get('apikey')).toBe('k123');
+    expect(url.searchParams.get('name')).toBe('Santiago');
   });
 });

@@ -41,6 +41,25 @@ export type GeocoderResult = {
 
 export const GEOCODING_ENDPOINT = 'https://geocoding-api.open-meteo.com/v1/search';
 
+/**
+ * The commercial endpoint (owner, 18 Oct 2026): the same search with the
+ * subscription's key. The key lives only on the server; the browser asks the
+ * `geocode` function, which adds it.
+ */
+export const CUSTOMER_GEOCODING_ENDPOINT = 'https://customer-geocoding-api.open-meteo.com/v1/search';
+
+/** The search for `term` inside `country`, with the key when there is one. */
+export function geocodingUrl(term: string, country: string, apiKey?: string | null): URL {
+  const url = new URL(apiKey ? CUSTOMER_GEOCODING_ENDPOINT : GEOCODING_ENDPOINT);
+  url.searchParams.set('name', term);
+  url.searchParams.set('countryCode', country);
+  url.searchParams.set('count', '10');
+  url.searchParams.set('language', 'es');
+  url.searchParams.set('format', 'json');
+  if (apiKey) url.searchParams.set('apikey', apiKey);
+  return url;
+}
+
 /** The geocoder answers nothing for fewer letters than this. */
 export const MIN_QUERY_LENGTH = 3;
 
