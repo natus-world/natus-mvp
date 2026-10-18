@@ -15,7 +15,7 @@ import { PATHS } from '@/components/routes';
 import { serverOnlyData } from '@/store/server-export';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { listCrisisEvents, markFalsePositive } from '@/store/crisis';
-import { fetchQuota } from '@/store/quota';
+import { fetchQuota, renewalDate } from '@/store/quota';
 import { isSubscribed } from '@/store/subscription';
 import { getPreferences } from '@/store/preferences';
 import { listFriends } from '@/store/friends';
@@ -94,14 +94,20 @@ export function Profile() {
   const [paying, setPaying] = useState(false);
 
   // What the server says of the plan; unknown until it answers.
-  const [quota, setQuota] = useState<{ tier: 'free' | 'premium'; offer: boolean } | null>(null);
+  const [quota, setQuota] = useState<{
+    tier: 'free' | 'premium';
+    offer: boolean;
+    gift: boolean;
+    giftEndsOn: string | null;
+  } | null>(null);
   const [google, setGoogle] = useState(false);
   const [friendCount, setFriendCount] = useState<number | null>(null);
 
   useEffect(() => {
     let live = true;
     void fetchQuota('chat').then((q) => {
-      if (live) setQuota(q ? { tier: q.tier, offer: q.offerPremium } : null);
+      if (live)
+        setQuota(q ? { tier: q.tier, offer: q.offerPremium, gift: q.gift, giftEndsOn: q.giftEndsOn } : null);
     });
     if (remote) {
       void currentUser().then((user) => {
@@ -414,18 +420,28 @@ export function Profile() {
                 <div className="card on">
                   <p className="et">{t.plan.yours}</p>
                   <p className="nom">{t.tierPremium}</p>
-                  <p className="pr">{t.plan.renews}</p>
+                  <p className="pr">
+                    {quota?.gift
+                      ? quota.giftEndsOn
+                        ? t.plan.giftUntil(renewalDate(quota.giftEndsOn))
+                        : t.plan.giftNoEnd
+                      : t.plan.renews}
+                  </p>
                   <ul>
                     {t.plan.premiumIncludes.map((line) => (
                       <li key={line}>{line}</li>
                     ))}
                   </ul>
                 </div>
-                <div className="hueco" />
-                {/* Chile's Ley 21.398: cancelling sits where the plan is. */}
-                <button type="button" className="p2i" onClick={() => setCancelling(true)}>
-                  {t.plan.cancel}
-                </button>
+                {/* Chile's Ley 21.398: cancelling sits where the plan is. A gift has nothing to cancel. */}
+                {!quota?.gift && (
+                  <>
+                    <div className="hueco" />
+                    <button type="button" className="p2i" onClick={() => setCancelling(true)}>
+                      {t.plan.cancel}
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <>

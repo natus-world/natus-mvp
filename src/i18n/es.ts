@@ -344,6 +344,9 @@ export const es = {
       cancelAnytime: 'Cancelas cuando quieras, desde aquí.',
       // Proposal: there is no renewal date in the browser yet.
       renews: 'Se renueva cada mes por US$ 10.',
+      // Premium given from the panel (proposal, 18 Oct 2026).
+      giftUntil: (date: string) => `Te lo regalamos hasta el ${date}. No se cobra nada.`,
+      giftNoEnd: 'Te lo regalamos. No se cobra nada.',
       cancel: 'Cancelar suscripción',
       cancelTitleLead: '¿Cancelar ',
       cancelTitleEmphasis: 'Premium',
@@ -1239,10 +1242,30 @@ export const es = {
     start: 'Comenzar',
     restart: 'Empezar de nuevo',
   },
+  // Suggestions during the beta (owner, 18 Oct 2026). No package design:
+  // built from the package's pieces; every text is a proposal.
+  suggestions: {
+    button: 'Sugerencias',
+    kicker: 'Natus está en prueba',
+    titleLead: 'Cuéntanos ',
+    titleEmphasis: 'lo que sea',
+    titleTail: '',
+    intro:
+      'Lo que te gusta, lo que te molesta, lo que cambiarías. Lo leemos todo y te respondemos aquí.',
+    placeholder: 'Escribe aquí…',
+    send: 'Enviar',
+    close: 'Cerrar',
+    you: 'Tú',
+    team: 'Equipo Natus',
+    thanks: 'Gracias. Lo leemos todo.',
+    failed: 'No se pudo enviar. Inténtalo de nuevo.',
+    unavailable: 'No pudimos abrir la conversación. Inténtalo en un momento.',
+    unread: 'Tienes una respuesta del equipo',
+  },
   // Privacy policy and terms (owner, 16 Oct 2026): written to launch, to be
   // reviewed by the owner's lawyer. CONTACT is the address people write to.
   legal: {
-    updated: 'Vigente desde el 16 de octubre de 2026',
+    updated: 'Actualizada el 18 de octubre de 2026',
     contactLead: 'Escríbenos a ',
     contact: 'hola@natus.world' as string,
     back: 'Volver',
@@ -1269,6 +1292,7 @@ export const es = {
             'Lo que nos cuentas: lo que estás buscando, cómo quieres que te hablemos, tus respuestas a las preguntas sobre tu salud emocional, lo que escribes o dictas en tu bitácora, tus conversaciones con Davraz, tus valoraciones y comentarios sobre las prácticas, y lo que pides a las meditaciones.',
             'Lo que Natus sabe de ti: si tienes Premium y das tu consentimiento, Natus guarda una memoria con lo que aprende de tus conversaciones, tu bitácora y tus prácticas. Puedes verla, corregirla y borrarla desde tu perfil.',
             'Amistades: si invitas a alguien o aceptas una invitación, guardamos la amistad y las comparaciones entre sus cartas.',
+            'Tus sugerencias: lo que nos escribes en «Sugerencias», las respuestas del equipo y en qué pantalla estabas cuando escribiste.',
             'Tu cuenta: el correo y el identificador de tu cuenta de Google.',
             'Datos técnicos: registros de uso de la aplicación (qué paso se dio y cuándo, nunca el contenido), registros del costo de cada respuesta generada y, cuando algo que escribes indica una posible crisis, un registro de ese aviso con un extracto del texto.',
           ],
@@ -1276,14 +1300,15 @@ export const es = {
         {
           heading: 'Datos sensibles',
           body: [
-            'Tus respuestas sobre salud emocional, tu bitácora y tus conversaciones son datos sensibles. Los usamos solo para cuidarte dentro de la aplicación: decidir qué terapias no recomendarte, mostrarte líneas de ayuda cuando hace falta y adaptar las respuestas. Tus respuestas clínicas nunca se envían tal cual a un modelo de inteligencia artificial: solo un nivel de cuidado derivado de ellas.',
+            'Tus respuestas sobre salud emocional, tu bitácora y tus conversaciones son datos sensibles. Los usamos para cuidarte dentro de la aplicación: decidir qué terapias no recomendarte, mostrarte líneas de ayuda cuando hace falta y adaptar las respuestas. Tus respuestas clínicas nunca se envían tal cual a un modelo de inteligencia artificial: solo un nivel de cuidado derivado de ellas.',
+            'El equipo de Natus puede leer tus datos, incluidos los sensibles, junto a tu nombre y tu correo: para mejorar la aplicación, personalizar lo que te recomienda Davraz y estudiar, en grupos, qué prácticas le sirven a qué personas. Cada vez que alguien del equipo abre los datos de una persona, queda registrado quién lo hizo y cuándo.',
             'Al usar Natus y responder esas preguntas, das tu consentimiento expreso para este tratamiento. Puedes retirarlo en cualquier momento borrando tus datos.',
           ],
         },
         {
           heading: 'Para qué los usamos',
           body: [
-            'Para escribir tu Mapa del Alma, recomendarte caminos y una rutina, conversar contigo, crear meditaciones y comparar cartas con tus amistades. Para detectar señales de crisis y mostrarte líneas de ayuda. Para administrar tu plan y tus pagos. Para entender, en conjunto y sin contenido, cómo se usa la aplicación y mejorarla.',
+            'Para escribir tu Mapa del Alma, recomendarte caminos y una rutina, conversar contigo, crear meditaciones y comparar cartas con tus amistades. Para detectar señales de crisis y mostrarte líneas de ayuda. Para administrar tu plan y tus pagos. Para responder tus sugerencias. Para entender cómo se usa la aplicación y mejorarla: el equipo ve cuántas personas dan cada paso y puede leer lo que cada persona escribió, como se explica en «Datos sensibles».',
             'No vendemos tus datos. No los usamos para publicidad ni los compartimos con plataformas de anuncios, y no hay rastreadores publicitarios en la aplicación.',
           ],
         },

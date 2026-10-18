@@ -11,7 +11,14 @@ import { shouldNotifyAdmin, type CrisisDetection } from '@/lib/safety';
  * out from a static page.
  */
 
-export type CrisisSurface = 'onboarding' | 'chat' | 'meditation_intent' | 'practice_comment' | 'journal' | 'memory';
+export type CrisisSurface =
+  | 'onboarding'
+  | 'chat'
+  | 'meditation_intent'
+  | 'practice_comment'
+  | 'journal'
+  | 'memory'
+  | 'feedback';
 
 export type CrisisEvent = CrisisDetection & {
   id: string;

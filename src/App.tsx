@@ -31,6 +31,7 @@ import { LEGACY_PATHS, PATHS } from '@/components/routes';
 import { copy } from '@/i18n';
 import { useTakeoverShown } from '@/components/takeover';
 import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
+import { SuggestionsButton, SuggestionsSheet, useTeamUnread } from '@/screens/Suggestions';
 import { hydrate } from '@/store/hydrate.ts';
 import { rememberFirstTouch, track } from '@/store/funnel';
 import { ensureWholeSignChart } from '@/store/chart';
@@ -81,6 +82,13 @@ export function App() {
   const [helpOpen, setHelpOpen] = useState(false);
   const openHelp = useCallback(() => setHelpOpen(true), []);
   const closeHelp = useCallback(() => setHelpOpen(false), []);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [teamUnread, clearTeamUnread] = useTeamUnread(pathname);
+  const openSuggest = useCallback(() => {
+    setSuggestOpen(true);
+    clearTeamUnread();
+  }, [clearTeamUnread]);
+  const closeSuggest = useCallback(() => setSuggestOpen(false), []);
 
   // Load the dataset before anything reads it.
   //
@@ -219,6 +227,7 @@ export function App() {
             !takeoverShown && <span className="header-brand desk-only">{copy.chrome.brand}</span>
           )}
         </div>
+        {!takeoverShown && <SuggestionsButton onOpen={openSuggest} unread={teamUnread} />}
         <HelpNowButton onOpen={openHelp} />
         {showsProfile(pathname, takeoverShown) && <ProfileButton />}
       </header>
@@ -301,6 +310,7 @@ export function App() {
           <BottomNav lit={sub?.parent ?? null} />
         </div>
       )}
+      {suggestOpen && <SuggestionsSheet onClose={closeSuggest} />}
       {helpOpen && <HelpNowPanel onClose={closeHelp} />}
     </AppFrame>
   );

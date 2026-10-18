@@ -387,6 +387,41 @@
     inset: -6px;
   }
 
+  /* Sugerencias (18 Oct 2026): a line circle like the initial, with a cream
+     point when the team has answered. Gold stays the Sun–Moon's. */
+  .suggest-button {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-pill);
+    background: none;
+    color: var(--natus-tinta);
+    cursor: pointer;
+  }
+
+  .suggest-button::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
+  .suggest-button[data-unread]::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--natus-tinta);
+    box-shadow: 0 0 0 2px rgb(0 0 0 / 0.35);
+  }
+
   /* «Volver», in place of NATUS on a screen opened from another. */
   .header-back {
     display: inline-flex;

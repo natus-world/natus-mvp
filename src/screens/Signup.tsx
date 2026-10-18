@@ -9,6 +9,7 @@ import { googleSignInEnabled, isBackendConfigured } from '@/supabase/client.ts';
 import { LegalLinks } from '@/components/LegalLinks';
 import { linkGoogle, oauthErrorInUrl, signInWithGoogle, upgradeToEmail } from '@/supabase/session.ts';
 import { accountRequired } from '@/store/account-required';
+import { track } from '@/store/funnel';
 
 /**
  * The conversion moment of PDR section 3: the account is asked for *after* the
@@ -64,6 +65,10 @@ export function Signup() {
     return () => {
       live = false;
     };
+  }, []);
+  // The funnel's Google screen: seen with a map waiting to be saved.
+  useEffect(() => {
+    if (!isSignedIn() && currentSynthesis()) track('signup_seen');
   }, []);
   const taken = oauthErrorInUrl() === 'identity_already_exists';
   // Google before the map (owner, 16 Oct 2026): no «Ahora no».

@@ -246,3 +246,13 @@ export function BackIcon(props: IconProps) {
     </BrandIcon>
   );
 }
+
+/** Sugerencias: a speech bubble with its one point (no package icon; 18 Oct 2026). */
+export function SuggestIcon(props: IconProps) {
+  return (
+    <BrandIcon {...props}>
+      <path d="M20.5 11.5c0 4.1-3.8 7.5-8.5 7.5-1.2 0-2.3-.2-3.3-.6L4 19.8l1.4-3.6C4.2 14.9 3.5 13.3 3.5 11.5 3.5 7.4 7.3 4 12 4s8.5 3.4 8.5 7.5Z" />
+      <circle fill="currentColor" stroke="none" cx="12" cy="11.5" r=".95" />
+    </BrandIcon>
+  );
+}

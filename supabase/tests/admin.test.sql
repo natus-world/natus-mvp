@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(39);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -36,6 +36,9 @@ insert into public.admins (user_id, role) values
   ('aaaaaaaa-0000-4000-8000-0000000000a1', 'owner'),
   -- An anonymous row in the table must still not be an admin.
   ('cccccccc-0000-4000-8000-0000000000c3', 'admin');
+
+insert into public.clients (user_id, email, legal_birth_name)
+values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'person@example.test', 'Pepito Pérez');
 
 -- Some use, so the metrics have something to count.
 insert into public.claude_api_calls (user_id, purpose, prompt_version, model, mode, outcome,
@@ -71,6 +74,27 @@ select throws_ok($$insert into public.admins (user_id) values ('bbbbbbbb-0000-40
   '42501', null, 'A person cannot make themselves an admin');
 select throws_ok($$select public.admin_require('overview')$$, '42501', null,
   'The door itself is not callable from the API');
+select throws_ok($$select * from public.admin_people('')$$, '42501', 'not_admin',
+  'A person cannot list people');
+select throws_ok($$select public.admin_person('bbbbbbbb-0000-4000-8000-0000000000b2')$$, '42501', 'not_admin',
+  'A person cannot read a record, not even their own');
+select throws_ok($$select public.admin_person_content('bbbbbbbb-0000-4000-8000-0000000000b2', 'chat')$$,
+  '42501', 'not_admin', 'A person cannot read content through the panel');
+select throws_ok($$select public.admin_grant_premium('person@example.test', null)$$, '42501', 'not_admin',
+  'A person cannot give themselves Premium');
+select throws_ok($$select * from public.admin_feedback_inbox()$$, '42501', 'not_admin',
+  'A person cannot read the suggestions inbox');
+
+-- The person's own suggestions.
+select lives_ok($$insert into public.feedback_messages (user_id, author, body, screen)
+  values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'person', 'El botón de Caminos no se entiende', '/caminos')$$,
+  'CONTROL: a person leaves a suggestion');
+select throws_ok($$insert into public.feedback_messages (user_id, author, body)
+  values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'team', 'Gracias')$$,
+  '42501', null, 'A person cannot write as the team');
+select throws_ok($$insert into public.feedback_messages (user_id, author, body)
+  values ('aaaaaaaa-0000-4000-8000-0000000000a1', 'person', 'hola')$$,
+  '42501', null, 'A person cannot write in somebody else''s conversation');
 
 -- ── an anonymous row put in the table ──────────────────────────────────────
 
@@ -91,6 +115,33 @@ select is((select ai_spend_month from public.admin_overview()), 8.00::numeric,
 select is((select sum(failed) from public.admin_ai_spend(30)), 1::numeric,
   'A failed call is counted as failed');
 
+select is((select count(*) from public.admin_people('pérez')), 1::bigint,
+  'People are found by name');
+select is(public.admin_person('bbbbbbbb-0000-4000-8000-0000000000b2')->>'name', 'Pepito Pérez',
+  'The record says who the person is');
+select is(jsonb_array_length(public.admin_person_content('bbbbbbbb-0000-4000-8000-0000000000b2', 'chat')), 0,
+  'Content is readable by kind');
+select throws_ok($$select public.admin_person_content('bbbbbbbb-0000-4000-8000-0000000000b2', 'passwords')$$,
+  '22023', 'unknown_kind', 'Only the kinds listed');
+
+select lives_ok($$select public.admin_grant_premium('PERSON@example.test', 3)$$,
+  'CONTROL: the admin gives three months of Premium by email');
+select is(public.admin_person('bbbbbbbb-0000-4000-8000-0000000000b2')->>'plan', 'gift', 'The gift is Premium, as a gift');
+select ok((public.admin_person('bbbbbbbb-0000-4000-8000-0000000000b2')->'subscription'->>'ends_at')::timestamptz
+           between now() + interval '89 days' and now() + interval '93 days',
+  'It ends in three months');
+select is((select premium_gifted from public.admin_overview()), 1::bigint, 'A gift is counted as a gift');
+select is((select premium_paying from public.admin_overview()), 0::bigint, '... and not as paying');
+select lives_ok($$select public.admin_revoke_premium('bbbbbbbb-0000-4000-8000-0000000000b2')$$,
+  'The admin takes it back');
+select is(public.admin_person('bbbbbbbb-0000-4000-8000-0000000000b2')->>'plan', 'free', 'Taken back, the person is free');
+select throws_ok($$select public.admin_grant_premium('nobody@example.test', null)$$, 'P0002', 'no_account',
+  'No account, no gift');
+
+select is((select count(*) from public.admin_feedback_inbox()), 1::bigint, 'The suggestion reaches the inbox');
+select lives_ok($$select public.admin_feedback_reply('bbbbbbbb-0000-4000-8000-0000000000b2', 'Gracias, lo vemos')$$,
+  'The admin answers');
+
 select pg_temp.act_as_owner();
 
 select is((select count(*) from public.admin_access_log
@@ -98,6 +149,9 @@ select is((select count(*) from public.admin_access_log
   1::bigint, 'The sign-in is logged');
 select is((select count(*) from public.admin_access_log where what = 'overview'),
   0::bigint, 'Aggregates are not logged one by one');
+select is((select count(*) from public.admin_access_log
+           where what = 'person_chat' and subject_id = 'bbbbbbbb-0000-4000-8000-0000000000b2'),
+  1::bigint, 'Reading somebody''s chat is logged with whom');
 
 select * from finish();
 rollback;

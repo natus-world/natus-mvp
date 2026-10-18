@@ -23,6 +23,7 @@
 @import '../design/screens/premium.css';
 @import '../design/screens/meditaciones.css';
 @import '../design/screens/comparar.css';
+@import '../design/screens/sugerencias.css';
 
 @font-face {
   font-family: 'Cormorant Garamond';

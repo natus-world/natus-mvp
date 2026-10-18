@@ -222,11 +222,22 @@ export function Onboarding() {
               draft={draft}
               onChange={change}
               onNext={() => {
-                if (runSafety()) advance();
+                if (!runSafety()) return;
+                track('need_done');
+                advance();
               }}
             />
           )}
-          {step === 'apertura' && <Openness draft={draft} onChange={change} onNext={advance} />}
+          {step === 'apertura' && (
+            <Openness
+              draft={draft}
+              onChange={change}
+              onNext={() => {
+                track('openness_done');
+                advance();
+              }}
+            />
+          )}
         </StepContext.Provider>
       </div>
     </Screen>

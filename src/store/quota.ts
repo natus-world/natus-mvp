@@ -23,6 +23,10 @@ export type Quota = {
   newThisMonth: number;
   /** False for seven days after a crisis alert: the offer is held back (decided 15 Oct 2026). */
   offerPremium: boolean;
+  /** Premium given by the team from the panel: nothing renews, nothing to cancel. */
+  gift: boolean;
+  /** YYYY-MM-DD when a gift ends; null when it has no end. */
+  giftEndsOn: string | null;
 };
 
 export async function fetchQuota(feature: PlanFeature): Promise<Quota | null> {
@@ -37,6 +41,8 @@ export async function fetchQuota(feature: PlanFeature): Promise<Quota | null> {
     remaining: typeof row['remaining'] === 'number' ? row['remaining'] : null,
     renewsOn: typeof row['resets_on'] === 'string' ? row['resets_on'] : '',
     offerPremium: row['offer_premium'] !== false,
+    gift: row['gift'] === true,
+    giftEndsOn: typeof row['gift_ends_on'] === 'string' ? row['gift_ends_on'] : null,
     newThisMonth:
       row['used_before'] === true && typeof row['monthly_left'] === 'number' ? row['monthly_left'] : 0,
   };

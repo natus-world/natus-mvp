@@ -17,6 +17,9 @@ import { read, write } from './db.ts';
 export type BrowserStep =
   | 'onboarding_started'
   | 'birth_data_done'
+  | 'need_done'
+  | 'openness_done'
+  | 'signup_seen'
   | 'care_done'
   | 'paths_seen'
   | 'paywall_seen'

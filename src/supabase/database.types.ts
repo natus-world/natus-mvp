@@ -34,12 +34,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_access_log: {
+        Row: {
+          admin_id: string
+          at: string
+          id: number
+          subject_id: string | null
+          what: string
+        }
+        Insert: {
+          admin_id: string
+          at?: string
+          id?: never
+          subject_id?: string | null
+          what: string
+        }
+        Update: {
+          admin_id?: string
+          at?: string
+          id?: never
+          subject_id?: string | null
+          what?: string
+        }
+        Relationships: []
+      }
+      admins: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       anonymous_sessions: {
         Row: {
           birth_city: string
           birth_country: string
-          birth_place: Json | null
           birth_date: string | null
+          birth_place: Json | null
           birth_time: string | null
           claimed_at: string | null
           clinical_additional_notes: string | null
@@ -65,8 +110,8 @@ export type Database = {
         Insert: {
           birth_city?: string
           birth_country?: string
-          birth_place?: Json | null
           birth_date?: string | null
+          birth_place?: Json | null
           birth_time?: string | null
           claimed_at?: string | null
           clinical_additional_notes?: string | null
@@ -92,8 +137,8 @@ export type Database = {
         Update: {
           birth_city?: string
           birth_country?: string
-          birth_place?: Json | null
           birth_date?: string | null
+          birth_place?: Json | null
           birth_time?: string | null
           claimed_at?: string | null
           clinical_additional_notes?: string | null
@@ -304,8 +349,8 @@ export type Database = {
         Row: {
           birth_city: string
           birth_country: string
-          birth_place: Json | null
           birth_date: string | null
+          birth_place: Json | null
           birth_time: string | null
           claimed_session_id: string | null
           clinical_additional_notes: string | null
@@ -330,8 +375,8 @@ export type Database = {
         Insert: {
           birth_city?: string
           birth_country?: string
-          birth_place?: Json | null
           birth_date?: string | null
+          birth_place?: Json | null
           birth_time?: string | null
           claimed_session_id?: string | null
           clinical_additional_notes?: string | null
@@ -356,8 +401,8 @@ export type Database = {
         Update: {
           birth_city?: string
           birth_country?: string
-          birth_place?: Json | null
           birth_date?: string | null
+          birth_place?: Json | null
           birth_time?: string | null
           claimed_session_id?: string | null
           clinical_additional_notes?: string | null
@@ -491,6 +536,42 @@ export type Database = {
           priority?: number
           type?: string
           verified_at?: string | null
+        }
+        Relationships: []
+      }
+      feedback_messages: {
+        Row: {
+          admin_id: string | null
+          author: string
+          body: string
+          created_at: string
+          crisis_flagged: boolean
+          id: string
+          read_at: string | null
+          screen: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          author: string
+          body: string
+          created_at?: string
+          crisis_flagged?: boolean
+          id?: string
+          read_at?: string | null
+          screen?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          author?: string
+          body?: string
+          created_at?: string
+          crisis_flagged?: boolean
+          id?: string
+          read_at?: string | null
+          screen?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -927,6 +1008,30 @@ export type Database = {
           },
         ]
       }
+      model_prices: {
+        Row: {
+          cache_read: number
+          cache_write: number
+          input: number
+          model: string
+          output: number
+        }
+        Insert: {
+          cache_read: number
+          cache_write: number
+          input: number
+          model: string
+          output: number
+        }
+        Update: {
+          cache_read?: number
+          cache_write?: number
+          input?: number
+          model?: string
+          output?: number
+        }
+        Relationships: []
+      }
       natal_chart_calls: {
         Row: {
           created_at: string
@@ -1229,6 +1334,7 @@ export type Database = {
         Row: {
           activated_at: string | null
           ends_at: string | null
+          granted_by: string | null
           provider: string | null
           provider_subscription_id: string | null
           status: string
@@ -1237,6 +1343,7 @@ export type Database = {
         Insert: {
           activated_at?: string | null
           ends_at?: string | null
+          granted_by?: string | null
           provider?: string | null
           provider_subscription_id?: string | null
           status?: string
@@ -1245,6 +1352,7 @@ export type Database = {
         Update: {
           activated_at?: string | null
           ends_at?: string | null
+          granted_by?: string | null
           provider?: string | null
           provider_subscription_id?: string | null
           status?: string
@@ -1297,6 +1405,127 @@ export type Database = {
     }
     Functions: {
       accept_friend_invite: { Args: { p_token: string }; Returns: string }
+      admin_ai_spend: {
+        Args: { p_days?: number }
+        Returns: {
+          calls: number
+          cost_usd: number
+          day: string
+          failed: number
+          purpose: string
+        }[]
+      }
+      admin_call_cost: {
+        Args: { c: Database["public"]["Tables"]["claude_api_calls"]["Row"] }
+        Returns: number
+      }
+      admin_crisis_counts: {
+        Args: { p_days?: number }
+        Returns: {
+          alerts: number
+          day: string
+          not_their_case: number
+          severity: string
+          surface: string
+        }[]
+      }
+      admin_daily: {
+        Args: { p_days?: number }
+        Returns: {
+          accounts: number
+          day: string
+          opened: number
+          started: number
+        }[]
+      }
+      admin_feedback_inbox: {
+        Args: { p_limit?: number }
+        Returns: {
+          crisis: boolean
+          email: string
+          last_at: string
+          last_author: string
+          last_body: string
+          name: string
+          unread: number
+          user_id: string
+        }[]
+      }
+      admin_feedback_reply: {
+        Args: { p_body: string; p_user: string }
+        Returns: string
+      }
+      admin_feedback_thread: {
+        Args: { p_user: string }
+        Returns: {
+          author: string
+          body: string
+          created_at: string
+          crisis_flagged: boolean
+          id: string
+          screen: string
+        }[]
+      }
+      admin_funnel: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          people: number
+          step: string
+        }[]
+      }
+      admin_funnel_detail: {
+        Args: { p_from: string; p_step: string; p_to: string }
+        Returns: {
+          detail: string
+          people: number
+        }[]
+      }
+      admin_grant_premium: {
+        Args: { p_email: string; p_months?: number }
+        Returns: string
+      }
+      admin_overview: {
+        Args: never
+        Returns: {
+          accounts: number
+          accounts_7d: number
+          active_7d: number
+          ai_spend_month: number
+          anonymous: number
+          crisis_alerts_7d: number
+          premium_gifted: number
+          premium_paying: number
+        }[]
+      }
+      admin_people: {
+        Args: { p_limit?: number; p_query?: string }
+        Returns: {
+          country: string
+          created_at: string
+          email: string
+          last_opened: string
+          name: string
+          plan: string
+          user_id: string
+        }[]
+      }
+      admin_person: { Args: { p_user: string }; Returns: Json }
+      admin_person_content: {
+        Args: { p_kind: string; p_limit?: number; p_user: string }
+        Returns: Json
+      }
+      admin_plan: { Args: { p_user: string }; Returns: string }
+      admin_require: {
+        Args: { p_log?: boolean; p_subject?: string; p_what: string }
+        Returns: undefined
+      }
+      admin_revoke_premium: { Args: { p_user: string }; Returns: undefined }
+      admin_whoami: {
+        Args: never
+        Returns: {
+          role: string
+        }[]
+      }
       caller_has_account: { Args: never; Returns: boolean }
       deployment_token_totals: {
         Args: { since: string }
@@ -1309,11 +1538,13 @@ export type Database = {
         }[]
       }
       end_friendship: { Args: { p_friendship: string }; Returns: undefined }
+      feedback_mark_read: { Args: never; Returns: undefined }
       first_name_of: { Args: { p_user: string }; Returns: string }
       funnel_dedupe_key: {
         Args: { p_detail: string; p_step: string }
         Returns: string
       }
+      i_am_premium: { Args: never; Returns: boolean }
       invite_preview: {
         Args: { p_token: string }
         Returns: {
@@ -1323,6 +1554,7 @@ export type Database = {
           valid: boolean
         }[]
       }
+      is_admin: { Args: never; Returns: boolean }
       my_friends: {
         Args: never
         Returns: {
@@ -1335,6 +1567,10 @@ export type Database = {
       my_invite_token: { Args: never; Returns: string }
       my_quota: { Args: { p_feature: string }; Returns: Json }
       plan_tier: { Args: { p_user: string }; Returns: string }
+      quota_parts: {
+        Args: { p_feature: string; p_now?: string; p_user: string }
+        Returns: Json
+      }
       quota_remaining: {
         Args: { p_feature: string; p_now?: string; p_user: string }
         Returns: number
