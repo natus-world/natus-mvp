@@ -94,8 +94,8 @@ export const BANK = {
   maderaOscura: { file: 'madera-oscura', wide: 'madera-oscura-ancha', family: 'tierra' },
   surcosArena: { file: 'surcos-arena', wide: 'surcos-arena-ancha', family: 'grafito' },
   vela: { file: 'vela', wide: 'vela-ancha', family: 'verde' },
-  muroSombra: { file: 'muro-sombra', family: 'arena' },
-  cieloEstrellas: { file: 'cielo-estrellas', family: 'azul' },
+  muroSombra: { file: 'muro-sombra', wide: 'muro-sombra-ancha', family: 'arena' },
+  cieloEstrellas: { file: 'cielo-estrellas', wide: 'cielo-estrellas-ancha', family: 'azul' },
   rocaBlanca: { file: 'roca-blanca', wide: 'roca-blanca-ancha', family: 'grafito' },
   hojasPlatano: { file: 'hojas-platano', wide: 'hojas-platano-ancha', family: 'verde' },
   maderaQuemada: { file: 'madera-quemada', wide: 'madera-quemada-ancha', family: 'tierra' },
@@ -105,10 +105,10 @@ export const BANK = {
   lunaDunas: { file: 'luna-dunas', wide: 'luna-dunas-ancha', family: 'arena' },
   maderaCafe: { file: 'madera-cafe', wide: 'madera-cafe-ancha', family: 'tierra' },
   sedaAzul: { file: 'seda-azul', wide: 'seda-azul-ancha', family: 'azul' },
-  bote: { file: 'bote2', family: 'azul' },
-  travertino: { file: 'travertino-madera', family: 'tierra' },
-  ola: { file: 'ola', family: 'azul' },
-  orilla: { file: 'orilla-aerea', family: 'azul' },
+  bote: { file: 'bote2', wide: 'bote2-ancha', family: 'azul' },
+  travertino: { file: 'travertino-madera', wide: 'travertino-madera-ancha', family: 'tierra' },
+  ola: { file: 'ola', wide: 'ola-ancha', family: 'azul' },
+  orilla: { file: 'orilla-aerea', wide: 'orilla-aerea-ancha', family: 'azul' },
 } as const satisfies Record<string, BankPhoto>;
 
 export type Photo = keyof typeof BANK;
