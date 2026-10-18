@@ -1247,11 +1247,11 @@ export const es = {
   suggestions: {
     button: 'Sugerencias',
     kicker: 'Natus está en prueba',
-    titleLead: 'Cuéntanos ',
-    titleEmphasis: 'lo que sea',
+    titleLead: '',
+    titleEmphasis: 'Sugerencias',
     titleTail: '',
     intro:
-      'Lo que te gusta, lo que te molesta, lo que cambiarías. Lo leemos todo y te respondemos aquí.',
+      'Sugiérenos cambios, arreglos o lo que se te ocurra para mejorar Natus. Lo leemos todo y te respondemos aquí.',
     placeholder: 'Escribe aquí…',
     send: 'Enviar',
     close: 'Cerrar',

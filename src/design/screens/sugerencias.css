@@ -66,7 +66,8 @@
 
 .sugerencias .cabeza .t {
   margin-top: calc(var(--u) * 8);
-  font-size: calc(var(--u) * 28);
+  font-size: calc(var(--u) * 40);
+  line-height: 1;
 }
 
 .sugerencias .cerrar-s {
