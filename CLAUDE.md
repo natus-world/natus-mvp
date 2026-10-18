@@ -178,22 +178,34 @@ id>', 'first_charge')` in the same session that writes the subscription.
 Campaign links carry `utm_source` and `utm_campaign`; the first one a browser
 arrives with travels on `onboarding_started`.
 
-**The admin panel comes after launch (owner, 15 Oct 2026),** on its own link —
-`admin.natus.world`, never inside the user app — with its own sign-in for the
-team's addresses and the three levels agreed: aggregate metrics for everyone,
-an operational record per person without content, and sensitive content
-only with restricted access and a log of who looked. First piece: the funnel
-already being recorded in `funnel_events`. Until then, numbers are pulled on
-request with SQL.
+**The admin panel is built (owner, 18 Oct 2026)** in its own repository,
+`natus-world/natus-admin`, published at `admin.natus.world` — never inside
+the user app. Google sign-in, then `public.admins` decides (rows written by
+hand with SQL; the owner since 18 Oct, his partner next with the same
+access). Every read and action is an `admin_*` function here
+(`20261018120000_admin.sql`, `20261018140000_feedback.sql`) that starts with
+`admin_require()`; a function that writes `admin_access_log` must be
+`volatile`, because PostgREST runs a stable one read-only. What it shows:
+the overview, the funnels (onboarding with `need_done`, `openness_done` and
+`signup_seen` since 18 Oct; use; payment, with where Premium was seen),
+model spend per day and purpose priced by `model_prices` (kept equal to
+`budget.ts` by `admin-prices.test.ts`), crisis counts, and **each person with
+who they are and everything they wrote** — chat, journal, check-ins,
+memory, crisis excerpts, clinical answers. The owner decided to keep and see
+everything with names (18 Oct 2026); every look at one person is logged, and
+the privacy policy says so. Premium can be given by email for 1–36 months or
+with no end (`provider = 'manual'`, `granted_by`): not counted as paying,
+and Perfil shows «Te lo regalamos…» with no price and no «Cancelar».
+Next: the use funnel (return at day 1, 7, 30; what is used weekly; ratings)
+and archetypes (what works for whom, by group).
 
-**Beta notice and feedback (owner, 15 Oct 2026), for later:** while in beta,
-a message saying the app is being tested and a place to leave suggestions,
-changes and annoyances. Being designed in the branding conversation. When
-built: the feedback is free text, so it goes through the crisis detector,
-never into a model payload or the funnel, and is readable only by the team.
-The suggestions and complaints arrive in the admins' panel (owner, 15 Oct
-2026): its own section there, beside each person's operational record —
-not rows in `funnel_events`.
+**Suggestions are built (owner, 18 Oct 2026):** «Sugerir o reportar» in the
+header of every screen (only the bubble below 380px) opens a short
+conversation with the team (`feedback_messages`, `screens/Suggestions.tsx`).
+Scanned for crisis in the browser like the journal, kept either way with
+`crisis_flagged`; never a model payload or the funnel. The panel's inbox
+answers, and the answer appears in the person's sheet. In «Descargar mis
+datos». Texts are proposals the owner approved.
 
 What is left outside the code, in rough order of weight:
 
