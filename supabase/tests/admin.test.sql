@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(39);
+select plan(40);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -152,6 +152,17 @@ select is((select count(*) from public.admin_access_log where what = 'overview')
 select is((select count(*) from public.admin_access_log
            where what = 'person_chat' and subject_id = 'bbbbbbbb-0000-4000-8000-0000000000b2'),
   1::bigint, 'Reading somebody''s chat is logged with whom');
+
+-- PostgREST runs a stable function in a read-only transaction, so one that
+-- writes the access log must be volatile or the panel gets an error.
+select is(
+  (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.proname in
+      ('admin_people', 'admin_person', 'admin_person_content', 'admin_feedback_inbox',
+       'admin_feedback_thread', 'admin_whoami', 'admin_grant_premium', 'admin_revoke_premium',
+       'admin_feedback_reply')
+      and p.provolatile <> 'v'),
+  0::bigint, 'Every admin function that logs is volatile');
 
 select * from finish();
 rollback;

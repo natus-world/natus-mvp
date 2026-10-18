@@ -394,14 +394,30 @@
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
-    justify-content: center;
-    width: 2rem;
+    gap: 6px;
     height: 2rem;
-    border-radius: 50%;
+    padding: 0 11px 0 9px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--line-pill);
     background: none;
     color: var(--natus-tinta);
+    font-family: var(--font-sans);
+    font-size: var(--fs-body-12);
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
     cursor: pointer;
+  }
+
+  /* A narrow phone keeps only the bubble: the word would run into NATUS. */
+  @media (max-width: 379.98px) {
+    .suggest-button {
+      padding: 0 8px;
+    }
+
+    .suggest-button span {
+      display: none;
+    }
   }
 
   .suggest-button::after {

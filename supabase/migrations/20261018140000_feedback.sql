@@ -24,6 +24,7 @@ create table public.feedback_messages (
 );
 
 create index feedback_messages_user_idx on public.feedback_messages (user_id, created_at);
+create index feedback_messages_admin_idx on public.feedback_messages (admin_id);
 create index feedback_messages_inbox_idx on public.feedback_messages (created_at desc) where author = 'person';
 
 alter table public.feedback_messages enable row level security;
@@ -73,7 +74,7 @@ returns table (
   crisis        boolean
 )
 language plpgsql
-stable
+volatile
 security definer
 set search_path = ''
 as $$

@@ -25,6 +25,8 @@ create table public.admins (
   added_by  uuid references auth.users (id) on delete set null
 );
 
+create index admins_added_by_idx on public.admins (added_by);
+
 alter table public.admins enable row level security;
 -- No policy and no grant: nobody reads or writes this through the API.
 grant select, insert, update, delete on public.admins to service_role;
@@ -61,6 +63,8 @@ create table public.admin_access_log (
 );
 
 create index admin_access_log_at_idx on public.admin_access_log (at);
+create index admin_access_log_admin_idx on public.admin_access_log (admin_id);
+create index admin_access_log_subject_idx on public.admin_access_log (subject_id);
 
 alter table public.admin_access_log enable row level security;
 grant select, insert on public.admin_access_log to service_role;
@@ -342,6 +346,8 @@ alter table public.subscriptions add constraint subscriptions_provider_check
 alter table public.subscriptions
   add column granted_by uuid references auth.users (id) on delete set null;
 
+create index subscriptions_granted_by_idx on public.subscriptions (granted_by);
+
 comment on column public.subscriptions.granted_by is
   'The admin who gave this premium by hand (provider manual).';
 
@@ -441,7 +447,7 @@ returns table (
   last_opened timestamptz
 )
 language plpgsql
-stable
+volatile
 security definer
 set search_path = ''
 as $$
@@ -473,7 +479,7 @@ $$;
 create function public.admin_person(p_user uuid)
 returns jsonb
 language plpgsql
-stable
+volatile
 security definer
 set search_path = ''
 as $$
@@ -545,7 +551,7 @@ $$;
 create function public.admin_person_content(p_user uuid, p_kind text, p_limit integer default 200)
 returns jsonb
 language plpgsql
-stable
+volatile
 security definer
 set search_path = ''
 as $$

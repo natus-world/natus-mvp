@@ -1246,6 +1246,10 @@ export const es = {
   // built from the package's pieces; every text is a proposal.
   suggestions: {
     button: 'Sugerencias',
+    // Beside the icon in the header (owner, 18 Oct 2026: «que se entienda»).
+    buttonLabel: 'Sugerir o reportar',
+    // The phone's header has room for one word.
+    buttonShort: 'Sugerir',
     kicker: 'Natus está en prueba',
     titleLead: '',
     titleEmphasis: 'Sugerencias',

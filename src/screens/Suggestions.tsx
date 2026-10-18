@@ -34,7 +34,9 @@ export function SuggestionsButton({ onOpen, unread }: { onOpen: () => void; unre
       className="suggest-button"
       data-unread={unread ? '' : undefined}
     >
-      <SuggestIcon size={18} />
+      <SuggestIcon size={16} />
+      <span className="phone-only">{t.buttonShort}</span>
+      <span className="desk-only">{t.buttonLabel}</span>
     </button>
   );
 }
