@@ -102,6 +102,15 @@ their rows — which the memory points at — survive a save. «Descargar mis
 datos» adds the memory and the routine proposals, read from the server
 (`store/server-export.ts`), since they are not mirrored.
 
+**How the journal opens (owner, 19 Oct 2026, chosen from the mockup «Abrir
+la Bitácora»):** on desktop the open book travels from where the cover lies
+and its left page turns on the spine with the leather behind it (3 s, the
+same backwards to close), and it stays on the same wood; on the phone the
+page slides in from the right over the closed book (1.56 s). The spread is
+as large as the screen allows and always whole (`--fit` in bitacora.css).
+`screens/journal-motion.ts`; `data-book` on the root fades the tab bar or
+rail, NATUS and the initial meanwhile. Reduced motion: no movement.
+
 The journal (B-01) is built (16 Oct 2026): its own tab, typed entries in
 `journal_entries`, each scanned for crisis and kept either way with
 `crisis_flagged` so the memory never reads it; deleting leaves only a

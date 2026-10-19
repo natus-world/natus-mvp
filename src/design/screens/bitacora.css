@@ -47,13 +47,7 @@
   box-shadow:
     0 calc(var(--u) * 2) calc(var(--u) * 3) rgb(0 0 0 / 0.5),
     0 calc(var(--u) * 30) calc(var(--u) * 50) calc(var(--u) * -12) rgb(0 0 0 / 0.9);
-  transform-origin: left center;
-  transition: transform 0.9s cubic-bezier(0.55, 0.05, 0.35, 1);
   cursor: pointer;
-}
-
-.bitacora .tapaR.abriendo {
-  transform: perspective(calc(var(--u) * 1400)) rotateY(-100deg);
 }
 
 .bitacora .tocaR {
@@ -98,8 +92,24 @@
   }
 }
 
+/*
+ * While the book opens or closes (`data-book` on the root, owner 19 Oct 2026),
+ * the app's chrome fades instead of vanishing: the tab bar or rail, NATUS and
+ * the initial. They come back the same way when it closes.
+ */
+.nav-bar,
+.app-header :is(.header-brand, .profile-button) {
+  transition: opacity 0.6s ease;
+}
+
+:root[data-book] :is(.nav-bar, .app-header .header-brand, .app-header .profile-button) {
+  opacity: 0;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .bitacora .tapaR {
+  .nav-bar,
+  .app-header :is(.header-brand, .profile-button) {
     transition: none;
   }
 }
@@ -155,18 +165,19 @@
 }
 
 /* The chrome above the open book: «Necesito ayuda» on paper, no initial. */
-:root:has(.bitacora.libro) .app-header .profile-button {
+:root:has(.bitacora.libro):not([data-book]) .app-header .profile-button {
   display: none;
 }
 
+/* On paper once the page has slid in, not while it slides. */
 @media (max-width: 1023.98px) {
-  :root:has(.bitacora.libro) .app-header :is(.help-pill, .suggest-button) {
+  :root:has(.bitacora.libro):not([data-book]) .app-header :is(.help-pill, .suggest-button) {
     color: rgb(11 18 14);
     border-color: rgb(11 18 14 / 0.45);
     background: rgb(236 226 205 / 0.78);
   }
 
-  :root:has(.bitacora.libro) .app-header .help-pill::before {
+  :root:has(.bitacora.libro):not([data-book]) .app-header .help-pill::before {
     background: rgb(11 18 14);
   }
 }
@@ -864,12 +875,11 @@
 /* ── Desktop: the open book, two pages ──────────────────────────────────── */
 
 @media (min-width: 1024px) {
+  /* The open book lies on the same wood it was closed on (owner, 19 Oct 2026). */
   .bitacora.libroD {
     --u: calc(var(--d) * 1.08);
     --lift: 0px;
-    background:
-      radial-gradient(70% 60% at 50% 45%, rgb(236 226 208 / 0.06), transparent 70%),
-      #0b120e;
+    background: none;
   }
 
   .bitacora.libroD .cab {
@@ -892,17 +902,84 @@
     transform: translateX(-50%);
   }
 
+  /*
+   * As large as the screen allows, always whole (owner, 19 Oct 2026): the
+   * spread keeps its 1144 × 780 proportion and takes the smaller of the width
+   * and the height left under «Cerrar» and «Necesito ayuda», centred. Inside
+   * it `--d` is that fitted unit, so the pages scale with it.
+   */
   .bitacora .abierto {
-    position: absolute;
-    left: calc(var(--d) * 148);
-    top: calc(var(--d) * 84);
-    width: calc(var(--d) * 1144);
-    height: calc(var(--d) * 780);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    box-shadow:
+    --fit: min(calc((100vw - 80px) / 1144), calc((100dvh - 108px) / 780), 1.5px);
+    --d: var(--fit);
+    --sombra-libro:
       0 calc(var(--d) * 30) calc(var(--d) * 70) calc(var(--d) * -10) rgb(0 0 0 / 0.9),
       0 0 0 1px rgb(0 0 0 / 0.4);
+    position: absolute;
+    left: 50%;
+    top: calc(84px + (100dvh - 108px - var(--d) * 780) / 2);
+    width: calc(var(--d) * 1144);
+    height: calc(var(--d) * 780);
+    margin-left: calc(var(--d) * -572);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    perspective: calc(var(--d) * 2600);
+    box-shadow: var(--sombra-libro);
+  }
+
+  /* The left page turns on the spine; its back is the leather of the cover. */
+  .bitacora .giro {
+    position: relative;
+    z-index: 1;
+    transform-style: preserve-3d;
+    transform-origin: right center;
+  }
+
+  .bitacora .giro > .pg {
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .bitacora .giro > .dorso {
+    position: absolute;
+    inset: 0;
+    background: var(--tapa) center / cover;
+    border-radius: calc(var(--d) * 3) calc(var(--d) * 7) calc(var(--d) * 7) calc(var(--d) * 3);
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    pointer-events: none;
+  }
+
+  .bitacora .sombra-giro {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .bitacora .pg.der .sombra-giro {
+    background: linear-gradient(90deg, rgb(0 0 0 / 0.6), rgb(0 0 0 / 0.15));
+  }
+
+  .bitacora .giro .sombra-giro {
+    background: linear-gradient(90deg, rgb(0 0 0 / 0), rgb(0 0 0 / 0.55));
+  }
+
+  /* While it moves, each page carries its own shadow: the left one has not landed yet. */
+  .bitacora .abierto.moviendo {
+    box-shadow: none;
+  }
+
+  .bitacora .abierto.moviendo :is(.pg.der, .giro > .pg) {
+    box-shadow: var(--sombra-libro);
+  }
+
+  .bitacora .abierto.moviendo .giro > .dorso {
+    box-shadow:
+      0 calc(var(--d) * 2) calc(var(--d) * 3) rgb(0 0 0 / 0.5),
+      0 calc(var(--d) * 30) calc(var(--d) * 50) calc(var(--d) * -12) rgb(0 0 0 / 0.9);
   }
 
   .bitacora .pg {
@@ -1066,5 +1143,18 @@
     top: 50%;
     transform: translate(-50%, -50%);
     width: calc(var(--d) * 460);
+  }
+}
+
+/* ── The phone's slide (owner, 19 Oct 2026) ─────────────────────────────── */
+
+.bitacora-escena {
+  height: 100%;
+  width: 100%;
+}
+
+@media (max-width: 1023.98px) {
+  .bitacora.libro.desliza {
+    box-shadow: -12px 0 30px rgb(0 0 0 / 0.45);
   }
 }

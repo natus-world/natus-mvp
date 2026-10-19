@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Screen } from '@/design/Screen';
 import { MicIcon } from '@/design/icons';
@@ -13,6 +13,7 @@ import { detectCrisis } from '@/lib/safety';
 import { hasBirthTime } from '@/astrology/natal-chart';
 import { PATHS } from '@/components/routes';
 import { CrisisScreen } from '@/screens/CrisisScreen';
+import { DESK_MS, markBookMoving, PHONE_MS, playDesk, playPhone, rememberCover } from '@/screens/journal-motion';
 import { activeProfile } from '@/store/account';
 import { hasRecentLowSeverity, markFalsePositive, recordCrisisEvent } from '@/store/crisis';
 import { CrisisBanner } from '@/components/CrisisBanner';
@@ -642,18 +643,22 @@ function OutsideBanner() {
 // ── The book, closed ────────────────────────────────────────────────────────
 
 function Closed({ onOpen }: { onOpen: () => void }) {
-  const [opening, setOpening] = useState(false);
-  const open = () => {
-    if (opening) return;
-    setOpening(true);
-    window.setTimeout(onOpen, stillMotion() ? 0 : 800);
-  };
+  const cover = useRef<HTMLDivElement>(null);
+  // Where the cover lies, for the book to travel from it and back to it.
+  useLayoutEffect(() => {
+    const el = cover.current;
+    if (!el) return;
+    const remember = () => rememberCover(el);
+    remember();
+    window.addEventListener('resize', remember);
+    return () => window.removeEventListener('resize', remember);
+  }, []);
   return (
     <div className="pz bitacora cerrado" style={PAPER}>
       {hasRecentLowSeverity() && <CrisisBanner country={activeProfile()?.draft.country} />}
       <div className="mesaR">
-        <div className={opening ? 'tapaR abriendo' : 'tapaR'} aria-hidden="true" onClick={open} />
-        <button type="button" className="tocaR" onClick={open}>
+        <div ref={cover} className="tapaR" aria-hidden="true" onClick={onOpen} />
+        <button type="button" className="tocaR" onClick={onOpen}>
           {text.open}
         </button>
       </div>
@@ -681,13 +686,70 @@ export function Journal() {
   const desk = useDesk();
   const plan = usePlan();
   const [view, setView] = useState<View>(() => viewFrom(location.state));
+  const [motion, setMotion] = useState<'opening' | 'closing' | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [, force] = useState(0);
   const entries = listEntries();
   const notice = noticeFor(plan);
   const profile = activeProfile();
   const sky = skyOf(profile?.draft);
-  useBookOpen(view.kind !== 'closed');
+  // The app's chrome leaves when the book has opened, and comes back as it closes.
+  useBookOpen(view.kind !== 'closed' && motion === null);
+
+  const bookRef = useRef<HTMLDivElement>(null);
+  const turnRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const rightShadeRef = useRef<HTMLDivElement>(null);
+  const turnShadeRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
+
+  // Set before the chrome mounts again, so it comes back faded and rises.
+  useLayoutEffect(() => {
+    markBookMoving(motion !== null);
+    return () => markBookMoving(false);
+  }, [motion]);
+
+  useLayoutEffect(() => {
+    if (motion === null) return;
+    const forward = motion === 'opening';
+    const book = bookRef.current;
+    let played: Promise<void> | null = null;
+    if (desk && book && turnRef.current && rightRef.current) {
+      played = playDesk(
+        {
+          book,
+          turn: turnRef.current,
+          rightPage: rightRef.current,
+          rightShade: rightShadeRef.current,
+          turnShade: turnShadeRef.current,
+          close: book.parentElement?.querySelector<HTMLElement>(':scope > .cab') ?? null,
+        },
+        forward,
+      );
+    } else if (!desk && pageRef.current && sceneRef.current) {
+      played = playPhone(pageRef.current, sceneRef.current, forward);
+    }
+    if (!played) {
+      if (!forward) setView({ kind: 'closed' });
+      setMotion(null);
+      return;
+    }
+    let live = true;
+    // Closing, the chrome starts to rise in the last quarter, before the book lands.
+    const rise = forward ? 0 : window.setTimeout(() => markBookMoving(false), (desk ? DESK_MS : PHONE_MS) * 0.72);
+    void played.then(() => {
+      if (!live) return;
+      if (!forward) setView({ kind: 'closed' });
+      setMotion(null);
+    });
+    return () => {
+      live = false;
+      window.clearTimeout(rise);
+    };
+    // Runs once per change of `motion`, on the view mounted at that moment.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [motion]);
 
   const { supported } = useDictation(ignore);
   const write = () => navigate(`${PATHS.journal}/nueva`);
@@ -698,12 +760,18 @@ export function Journal() {
     setView({ kind: 'day', id });
   };
 
+  const closedScene = (onOpen: () => void) => (
+    <Screen photo="maderaQuemada" veil={0.25}>
+      <Closed onOpen={onOpen} />
+    </Screen>
+  );
+
   if (view.kind === 'closed') {
-    return (
-      <Screen photo="maderaQuemada" veil={0.25}>
-        <Closed onOpen={() => setView(sky.name ? { kind: 'first' } : { kind: 'list' })} />
-      </Screen>
-    );
+    return closedScene(() => {
+      if (motion) return;
+      setView(sky.name ? { kind: 'first' } : { kind: 'list' });
+      if (!stillMotion()) setMotion('opening');
+    });
   }
 
   const index = view.kind === 'day' ? entries.findIndex((e) => e.id === view.id) : -1;
@@ -711,8 +779,10 @@ export function Journal() {
   const older = index >= 0 ? entries[index + 1] : undefined;
   const newer = index > 0 ? entries[index - 1] : undefined;
   const close = () => {
+    if (motion) return;
     setConfirming(false);
-    setView({ kind: 'closed' });
+    if (stillMotion()) setView({ kind: 'closed' });
+    else setMotion('closing');
   };
 
   const day = entry ? (
@@ -749,23 +819,29 @@ export function Journal() {
         <div className="bitacora libro libroD" style={PAPER}>
           <InkFilters />
           <BookButton back={false} onClick={close} />
-          <div className="abierto">
-            {showFirst ? (
-              <div className="pg izq lunasP">
-                <Patch cx={1760 - CX} />
-                <Wheel sky={sky} cx={1760 - CX} />
-                <Written sky={sky} />
-                <span className="folio">{text.folios[0]}</span>
-              </div>
-            ) : (
-              <div className="pg izq">
-                <div className="velo-p" />
-                {list(entry?.id)}
-                <span className="folio">{text.folios[1]}</span>
-                {foot}
-              </div>
-            )}
-            <div className="pg der">
+          <div ref={bookRef} className={motion ? 'abierto moviendo' : 'abierto'} inert={motion ? true : undefined}>
+            <div ref={turnRef} className="giro">
+              {showFirst ? (
+                <div className="pg izq lunasP">
+                  <Patch cx={1760 - CX} />
+                  <Wheel sky={sky} cx={1760 - CX} />
+                  <Written sky={sky} />
+                  <span className="folio">{text.folios[0]}</span>
+                  <div ref={turnShadeRef} className="sombra-giro" />
+                </div>
+              ) : (
+                <div className="pg izq">
+                  <div className="velo-p" />
+                  {list(entry?.id)}
+                  <span className="folio">{text.folios[1]}</span>
+                  {foot}
+                  <div ref={turnShadeRef} className="sombra-giro" />
+                </div>
+              )}
+              <div className="dorso" />
+            </div>
+            <div ref={rightRef} className="pg der">
+              <div ref={rightShadeRef} className="sombra-giro" />
               <div className="velo-p" />
               {showFirst ? (
                 <>
@@ -789,40 +865,54 @@ export function Journal() {
   }
 
   const freeNote = plan.tier !== 'premium' && plan.offerPremium;
+  const page = (
+    <div ref={pageRef} className={motion ? 'bitacora libro desliza' : 'bitacora libro'} style={PAPER} inert={motion ? true : undefined}>
+      <InkFilters />
+      {view.kind === 'first' ? (
+        <div className="hojaL">
+          <Patch cx={CX} />
+          <Wheel sky={sky} cx={CX} />
+          <Written sky={sky} />
+          <span className="folio">{text.folios[0]}</span>
+          <div className="pasar">
+            <button type="button" className="tinta-1" onClick={() => setView({ kind: 'list' })}>
+              {text.turnPage}
+              <svg viewBox="0 0 26 12" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M1 6.5c6-1.5 12 .5 22-.5M18.5 2l5 4-5 4" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      ) : entry ? (
+        <div className="pag">
+          {day}
+          {confirm}
+        </div>
+      ) : (
+        <div className="pag">
+          {list()}
+          <span className={freeNote ? 'folio alto' : 'folio'}>{text.folios[1]}</span>
+          {foot}
+        </div>
+      )}
+      <BookButton back={false} onClick={close} />
+      <OutsideBanner />
+    </div>
+  );
+  // While it slides, the closed book stays underneath and moves aside.
+  if (motion) {
+    return (
+      <>
+        <div ref={sceneRef} className="bitacora-escena">
+          {closedScene(ignore)}
+        </div>
+        {page}
+      </>
+    );
+  }
   return (
     <Screen photo="maderaQuemada" veil={0.25}>
-      <div className="bitacora libro" style={PAPER}>
-        <InkFilters />
-        {view.kind === 'first' ? (
-          <div className="hojaL">
-            <Patch cx={CX} />
-            <Wheel sky={sky} cx={CX} />
-            <Written sky={sky} />
-            <span className="folio">{text.folios[0]}</span>
-            <div className="pasar">
-              <button type="button" className="tinta-1" onClick={() => setView({ kind: 'list' })}>
-                {text.turnPage}
-                <svg viewBox="0 0 26 12" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M1 6.5c6-1.5 12 .5 22-.5M18.5 2l5 4-5 4" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        ) : entry ? (
-          <div className="pag">
-            {day}
-            {confirm}
-          </div>
-        ) : (
-          <div className="pag">
-            {list()}
-            <span className={freeNote ? 'folio alto' : 'folio'}>{text.folios[1]}</span>
-            {foot}
-          </div>
-        )}
-        <BookButton back={false} onClick={close} />
-        <OutsideBanner />
-      </div>
+      {page}
     </Screen>
   );
 }
