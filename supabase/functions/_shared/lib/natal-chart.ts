@@ -204,6 +204,11 @@ export function dignityOf(planet: string, sign: Sign): Dignity | null {
   return null;
 }
 
+/** The traditional ruler of a sign. */
+export function rulerOf(sign: Sign): Traditional {
+  return RULER[sign];
+}
+
 /** House by whole sign, counted from the Ascendant's sign. */
 export function wholeSignHouse(sign: Sign, ascendantSign: Sign): number {
   return ((signIndex(sign) - signIndex(ascendantSign) + 12) % 12) + 1;
