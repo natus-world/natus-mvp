@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
 import { CheckIcon, ChevronIcon } from '@/design/icons';
@@ -16,6 +16,14 @@ import { copy } from '@/i18n';
 import { comparisonWithheld } from '@/screens/comparison/Gate';
 import { pendingInvite } from '@/store/friends';
 import { routineFor } from '@/store/routine';
+import { Ouroboros } from '@/design/Ouroboros';
+import { GlyphMark } from '@/design/chart-marks';
+import { PLANET_GLYPHS } from '@/design/planet-glyphs';
+import { Paywall } from '@/components/Paywall';
+import { fetchQuota } from '@/store/quota';
+import { isDemoMode } from '@/supabase/client';
+import { loadTodaySky, loadTodayTip, localDate, todaySky, type TodaySky } from '@/store/daily-sky';
+import type { Transit } from '@/lib/daily-sky';
 
 const t = copy.today;
 const routineText = copy.routine;
@@ -23,6 +31,111 @@ const CADENCE = copy.practice.cadence;
 
 function firstNameOf(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] ?? '';
+}
+
+const sky = copy.sky;
+
+/** How a transit meets the chart, for the catalog: flowing, meeting, asking for more work. */
+const FAMILY = {
+  conjunction: 'meet',
+  sextile: 'flow',
+  trine: 'flow',
+  square: 'tension',
+  opposition: 'tension',
+} as const;
+
+/** The catalog's phrase for a transit, with its one word in italic. */
+function phraseOf(t: Transit): string {
+  return sky.energy[t.planet][FAMILY[t.type]];
+}
+
+/** «*densas*» → Cormorant italic, as the package draws the phrase of the day. */
+function Emphasis({ text }: { text: string }): ReactNode {
+  return text.split(/(\*[^*]+\*)/).map((part, i) =>
+    part.startsWith('*') && part.endsWith('*') ? <em key={i}>{part.slice(1, -1)}</em> : part,
+  );
+}
+
+function plain(text: string): string {
+  return text.replace(/\*/g, '');
+}
+
+function capital(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** «Marte se roza con tu Luna», the transit named for the list. */
+function transitName(t: Transit): string {
+  return `${capital(sky.planet[t.planet])} ${sky.aspectVerb[t.type]} ${sky.natal[t.natal]}`;
+}
+
+/**
+ * The day as the server calculated it (v1.2 D-01), asked once a day; what is
+ * known renders at once. `retry` asks again after a failure.
+ */
+function useTodaySky(date: string): { state: TodaySky | 'loading'; retry: () => void } {
+  const [state, setState] = useState<TodaySky | 'loading'>(() => todaySky(date) ?? 'loading');
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let live = true;
+    void loadTodaySky(date).then((value) => {
+      if (live) setState(value);
+    });
+    return () => {
+      live = false;
+    };
+  }, [date, attempt]);
+  return {
+    state,
+    retry: () => {
+      setState('loading');
+      setAttempt((n) => n + 1);
+    },
+  };
+}
+
+type Plan = { premium: boolean; offer: boolean } | null;
+
+/** The tier and whether Premium may be offered now (held back after a crisis alert). */
+function usePlan(): Plan {
+  const [plan, setPlan] = useState<Plan>(null);
+  useEffect(() => {
+    let live = true;
+    void fetchQuota('chat').then((q) => {
+      if (!live) return;
+      // The demo has no server: free, unless the demo is told otherwise.
+      const demoPremium = isDemoMode && !q && readDemoTier() === 'premium';
+      setPlan({ premium: q?.tier === 'premium' || demoPremium, offer: q ? q.offerPremium : true });
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  return plan;
+}
+
+function readDemoTier(): string | null {
+  try {
+    return globalThis.localStorage?.getItem('natus:demo_tier') ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Davraz's tip (premium), asked once the day is there; silent when it fails. */
+function useTip(date: string, ask: boolean): string[] | null {
+  const [tips, setTips] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!ask) return;
+    let live = true;
+    void loadTodayTip(date).then((value) => {
+      if (live) setTips(value);
+    });
+    return () => {
+      live = false;
+    };
+  }, [date, ask]);
+  return tips;
 }
 
 export function Today() {
@@ -34,6 +147,13 @@ export function Today() {
   const profile = activeProfile();
   const synthesis = currentSynthesis();
   const match = synthesis ? currentMatchFor(synthesis.id) : undefined;
+  // v1.2 D-01: today's sky, the person's own calendar day.
+  const skyDate = localDate();
+  const { state: daySky, retry: retrySky } = useTodaySky(skyDate);
+  const plan = usePlan();
+  const ready = daySky !== 'loading' && daySky.status === 'ready' ? daySky : null;
+  const tips = useTip(skyDate, Boolean(plan?.premium && ready && ready.day.transits.length > 0));
+  const [paywall, setPaywall] = useState(false);
 
   if (localCrisis) {
     return (
@@ -79,8 +199,13 @@ export function Today() {
   };
   const marked = t.marked(doneToday, practices.length);
 
-  // Package 03 (16 Oct 2026). The day's phrase, today's sky and Davraz's tip
-  // stay out until «Tus astros de hoy» is built (owner, 16 Oct 2026).
+  const main = ready?.day.transits[0];
+  const personal =
+    ready ? ready.day.personal_day : daySky !== 'loading' && daySky.status === 'no_chart' ? daySky.personalDay : null;
+  const shownTips = ready?.tips ?? tips;
+
+  // Package 03 (16 Oct 2026), with «Tus astros de hoy» (v1.2 D-01, catalog
+  // approved by the owner, 18 Oct 2026).
   return (
     <Screen photo="muroSombra" veil={0.42} glassAlpha={0.77}>
       <div className="pz hoy scroll">
@@ -96,6 +221,21 @@ export function Today() {
               t.greetingWithoutName
             )}
           </p>
+
+          {daySky === 'loading' ? (
+            <Ouroboros size={28} />
+          ) : daySky.status === 'error' ? (
+            <div className="vid fila">
+              <p className="fd">{sky.slow}</p>
+              <button type="button" className="p2" onClick={retrySky}>
+                {sky.retry}
+              </button>
+            </div>
+          ) : main ? (
+            <p className="fr">
+              <Emphasis text={phraseOf(main)} />
+            </p>
+          ) : null}
 
           {hasRecentLowSeverity() && <CrisisBanner country={profile.draft.country} />}
 
@@ -135,6 +275,26 @@ export function Today() {
             </div>
           )}
 
+          {main && plan?.premium && shownTips ? (
+            <div className="vid pad">
+              <p className="ia">
+                {sky.tipLabel} <b>{sky.tipBadge}</b> · {sky.tipKicker}
+              </p>
+              {shownTips.map((tip) => (
+                <p key={tip} className="tip">
+                  {tip}
+                </p>
+              ))}
+            </div>
+          ) : main && plan && !plan.premium && plan.offer ? (
+            <button type="button" className="vid fila" onClick={() => setPaywall(true)}>
+              <span className="upsell">{sky.freeTip}</span>
+              <span className="chev">
+                <ChevronIcon />
+              </span>
+            </button>
+          ) : null}
+
           {!isSignedIn() && (
             <Link to="/registro" className="vid fila">
               <div>
@@ -172,6 +332,40 @@ export function Today() {
         </div>
 
         <div className="col2">
+          {personal !== null && (
+            <div className="vid pad astros">
+              <p className="k">{sky.kicker}</p>
+              <div className="num">
+                <b>{personal}</b>
+                <span className="fk">{sky.personalDay}</span>
+              </div>
+              <p className="fd">{sky.day[personal]}</p>
+              {ready && ready.day.transits.length > 0 && (
+                <>
+                  <div className="sep" />
+                  <ul className="lista-astros">
+                    {ready.day.transits.slice(0, 3).map((t, i, list) => {
+                      // A phrase already read above (the day's, or an earlier
+                      // line's) is not repeated: the transit says where instead.
+                      const said = list.slice(0, i).some((u) => phraseOf(u) === phraseOf(t));
+                      return (
+                        <li key={`${t.planet}-${t.natal}`}>
+                          <span>
+                            <GlyphMark {...PLANET_GLYPHS[t.planet]} evenOdd={t.planet === 'Sun'} />
+                          </span>
+                          {i === 0 || said
+                            ? `${transitName(t)}, ${sky.natalIs[t.natal]}.`
+                            : `${transitName(t)}. ${plain(phraseOf(t))}`}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              )}
+              {ready && !ready.day.has_birth_time && <p className="fd">{sky.noTime}</p>}
+            </div>
+          )}
+
           {practices.length > 0 && (
             <div className="vid">
               <div className="fila">
@@ -210,6 +404,8 @@ export function Today() {
             </p>
           </Link>
         </div>
+
+        {paywall && <Paywall feature="welcome" place="tip" onDismiss={() => setPaywall(false)} />}
 
         {sheet && (
           <div className="rutina">

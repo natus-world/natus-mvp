@@ -15,10 +15,24 @@
     position: absolute;
     left: 0;
     top: calc(var(--d) * 38);
+    /* The day's phrase and the tip (D-01) can take the shortcuts below the
+       fold: the column scrolls on its own, as the detail does. */
+    bottom: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding-bottom: calc(var(--d) * 40);
     width: min(calc(var(--d) * 560), calc(100% - var(--d) * 470 - 24px));
     display: flex;
     flex-direction: column;
     gap: calc(var(--d) * 20);
+  }
+
+  .hoy .col1::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hoy .col1 > * {
+    flex-shrink: 0;
   }
 
   .hoy .col2 {
@@ -51,4 +65,95 @@
   .hoy .col1 > .dos {
     order: 9;
   }
+}
+
+/*
+ * «Tus astros de hoy» (v1.2 D-01), the package's own pieces: Davraz's tip
+ * marked IA, the free line, the personal day and the transits with their
+ * glyphs (outlines, never Unicode).
+ */
+.pz .ia {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  margin: 0;
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t2);
+}
+
+.pz .ia b {
+  font-weight: 500;
+  border: 1px solid rgb(236 226 208 / 0.4);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 3) calc(var(--u) * 5);
+  letter-spacing: 0.1em;
+  color: var(--t1);
+}
+
+.pz .tip {
+  margin: calc(var(--u) * 8) 0 0;
+  font: italic 300 calc(var(--u) * 17) / 1.4 var(--font-serif);
+  color: var(--t1);
+}
+
+.pz button.vid.fila {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.pz .upsell {
+  display: block;
+  font: 300 calc(var(--u) * 14) / 1.35 var(--font-sans);
+  color: var(--t2);
+}
+
+.pz .astros .num {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 10);
+  margin-top: calc(var(--u) * 14);
+}
+
+.pz .astros .num b {
+  font: 300 calc(var(--u) * 44) / 0.9 var(--font-serif);
+}
+
+.pz .astros .num + .fd {
+  margin-top: calc(var(--u) * 6);
+}
+
+.pz .lista-astros {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: calc(var(--u) * 10);
+}
+
+.pz .lista-astros li {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 22) minmax(0, 1fr);
+  gap: calc(var(--u) * 10);
+  font: 300 calc(var(--u) * 15) / 1.45 var(--font-sans);
+  color: var(--t2);
+}
+
+.pz .lista-astros li span {
+  display: flex;
+  justify-content: center;
+  padding-top: calc(var(--u) * 2);
+  font-size: calc(var(--u) * 16);
+  color: var(--t1);
+}
+
+.pz .lista-astros .glifo {
+  height: 1em;
+}
+
+.pz .astros .lista-astros + .fd {
+  margin-top: calc(var(--u) * 12);
 }

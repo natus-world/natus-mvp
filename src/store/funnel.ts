@@ -26,7 +26,7 @@ export type BrowserStep =
   | 'app_opened'
   | 'friend_invited';
 
-export type PaywallPlace = 'chat' | 'meditation' | 'comparison' | 'profile' | 'welcome';
+export type PaywallPlace = 'chat' | 'meditation' | 'comparison' | 'profile' | 'welcome' | 'tip';
 
 type FirstTouch = { source: string | null; campaign: string | null };
 

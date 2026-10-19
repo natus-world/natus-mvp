@@ -539,6 +539,36 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_insights: {
+        Row: {
+          chart_calculated_at: string
+          created_at: string
+          insight_date: string
+          personal_day: number
+          sky: Json
+          tips: Json | null
+          user_id: string
+        }
+        Insert: {
+          chart_calculated_at: string
+          created_at?: string
+          insight_date: string
+          personal_day: number
+          sky: Json
+          tips?: Json | null
+          user_id: string
+        }
+        Update: {
+          chart_calculated_at?: string
+          created_at?: string
+          insight_date?: string
+          personal_day?: number
+          sky?: Json
+          tips?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback_messages: {
         Row: {
           admin_id: string | null
@@ -1288,6 +1318,27 @@ export type Database = {
           },
         ]
       }
+      sky_days: {
+        Row: {
+          created_at: string
+          day: string
+          points: Json
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          points: Json
+          provider?: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          points?: Json
+          provider?: string
+        }
+        Relationships: []
+      }
       soul_map_syntheses: {
         Row: {
           created_at: string
@@ -1381,6 +1432,51 @@ export type Database = {
         }
         Relationships: []
       }
+      tech_expenses: {
+        Row: {
+          amount_usd: number | null
+          frequency: string
+          id: string
+          notes: string
+          paid_by: string
+          plan: string
+          purpose: string
+          service: string
+          since: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount_usd?: number | null
+          frequency?: string
+          id?: string
+          notes?: string
+          paid_by?: string
+          plan?: string
+          purpose?: string
+          service: string
+          since?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount_usd?: number | null
+          frequency?: string
+          id?: string
+          notes?: string
+          paid_by?: string
+          plan?: string
+          purpose?: string
+          service?: string
+          since?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       topics: {
         Row: {
           name_en: string
@@ -1429,6 +1525,24 @@ export type Database = {
           surface: string
         }[]
       }
+      admin_crisis_list: {
+        Args: { p_days?: number }
+        Returns: {
+          at: string
+          category: string
+          email: string
+          excerpt: string
+          from_clinical: boolean
+          has_account: boolean
+          id: string
+          matched: string[]
+          name: string
+          not_their_case: boolean
+          severity: string
+          surface: string
+          user_id: string
+        }[]
+      }
       admin_daily: {
         Args: { p_days?: number }
         Returns: {
@@ -1437,6 +1551,31 @@ export type Database = {
           opened: number
           started: number
         }[]
+      }
+      admin_expense_delete: { Args: { p_id: string }; Returns: undefined }
+      admin_expense_save: { Args: { p: Json; p_id: string }; Returns: string }
+      admin_expenses: {
+        Args: never
+        Returns: {
+          amount_usd: number | null
+          frequency: string
+          id: string
+          notes: string
+          paid_by: string
+          plan: string
+          purpose: string
+          service: string
+          since: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "tech_expenses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       admin_feedback_inbox: {
         Args: { p_limit?: number }

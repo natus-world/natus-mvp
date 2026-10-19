@@ -67,9 +67,23 @@ The product runs end to end in production: onboarding, natal chart by
 ephemeris, Soul Map, recommendations, chat, meditations and synastry, all with
 real generation, all walked on the deployed site.
 
-**v1.2 is mostly built; not yet:** today's sky (the day's phrase, today's
-transits, Davraz's daily tip — hidden on Hoy until built) and notifications
-(N-01, last).
+**v1.2 is mostly built; not yet:** notifications (N-01, last).
+**Today's sky (D-01) is built (18 Oct 2026, owner).** The `daily-sky`
+function asks the ephemeris once a day for everybody where the seven visible
+planets are (`sky_days`, noon UTC) and crosses them with the person's stored
+chart in `src/lib/daily-sky.ts`: aspects by whole sign, ordered by orb, the
+Moon, the main points and the lord of the year by annual profection — used
+only to choose, never named (owner) — plus the personal day; kept once per
+person and day in `daily_insights`. Free reads the catalog in `copy.sky`
+(approved by the owner, 18 Oct 2026): the phrase of the day says how the
+day's energies come, a small gesture and what it is for — never how the
+person is («menos paciencia», «irritable» were refused) — by planet and by
+flow, meeting or more work; plus the personal day's sense. Premium also
+gets Davraz's tip (`daily-tip`, daily-tip-v1.0, Sonnet, once a day, same
+three parts), and the chat reads the day (chat-v2.0). The free line «Con
+Premium, Davraz te deja un tip para el día» opens the welcome offer (funnel
+place `tip`), never after a crisis alert. «Secta» is never said: «naciste de
+día / de noche» (owner, 18 Oct 2026; `lintChartJudgement` refuses it).
 The memory (M-01) is built (16 Oct 2026). «Lo que Natus sabe de ti» in the
 profile shows it, asks for consent and lets the person correct, delete and
 add; its texts are not in the guide and were approved by the owner on
@@ -415,8 +429,8 @@ own pieces (`.k .t .vid .fila .p2 .tile .scroll`, measured in `--u`, 1px at
 with its family tone, an even veil and the glass alpha; the frame is the whole
 viewport at every width (no phone drawn on desktop): a floating tab bar below
 1024px, the rail above. Screens opened from another show «Volver»
-(`subScreenOf`). Decided against the package: US$ 10; no today's sky, Davraz
-tip, notifications or e-mail export until built; Google only; the app's order
+(`subScreenOf`). Decided against the package: US$ 10; no notifications or
+e-mail export until built; Google only; the app's order
 of onboarding (account after the map); the Care button lights when the three
 questions are answered (the package's rule, owner). Right after the
 revelation (option B) Premium is offered once with the free month day by day

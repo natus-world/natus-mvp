@@ -2,7 +2,7 @@ import { copy } from '@/i18n';
 import { useEffect, useState } from 'react';
 import { fetchQuota, renewalDate } from '@/store/quota';
 import { PayPalSubscribe } from './PayPalSubscribe';
-import { track } from '@/store/funnel';
+import { track, type PaywallPlace } from '@/store/funnel';
 
 const text = copy.paywall;
 
@@ -69,7 +69,16 @@ function FreeMonth() {
  * bridge until dLocal Go (v1.2 P-01). Only the server can make anybody
  * premium.
  */
-export function Paywall({ feature, onDismiss }: { feature: SheetFeature; onDismiss: () => void }) {
+export function Paywall({
+  feature,
+  onDismiss,
+  place,
+}: {
+  feature: SheetFeature;
+  onDismiss: () => void;
+  /** Where it was opened from, for the funnel, when that is not the feature (Hoy's tip line). */
+  place?: PaywallPlace;
+}) {
   // After a crisis alert the server holds the offer back for seven days
   // (decided 15 Oct 2026): what is used up is still said, Premium is not.
   // Unknown until the server answers, so the offer never flashes.
@@ -95,8 +104,8 @@ export function Paywall({ feature, onDismiss }: { feature: SheetFeature; onDismi
   }, [feature, onDismiss]);
 
   useEffect(() => {
-    if (offer) track('paywall_seen', feature);
-  }, [feature, offer]);
+    if (offer) track('paywall_seen', place ?? feature);
+  }, [feature, offer, place]);
 
   if (offer === null) return null;
   // Free meditations do not renew; the comparisons say when they come back,
