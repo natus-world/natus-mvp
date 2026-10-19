@@ -371,9 +371,18 @@ provider on in Supabase, Site URL and redirect set, manual linking on. The
 owner walked a new map through Google on the deployed site (16 Oct 2026,
 12:04): the account, the map, the chart and the funnel steps all landed on
 one non-anonymous row. Not yet walked, on hold by the owner: signing in on a
-second device, and a real PayPal subscription. Also owed: the project is on
-Supabase's free plan (pauses after a week idle, low limits) — Pro before
-paying users; and a total spend limit in Anthropic's console.
+second device. **Capacity for the launch (owner, 18 Oct 2026, about 10,000
+people in two weeks from an influencer):** Supabase is on Pro (the website's
+waitlist project moved to a free organisation, «Natus WEB»); the birth-place
+search goes through the `geocode` function with Open-Meteo's paid key
+(`OPEN_METEO_API_KEY`, set by the owner; `source: 'paid'` checked live);
+Astrologer is on RapidAPI's Ultra plan (50,000 charts a month). What each
+costs is in the panel's «Gastos» (`tech_expenses`). Still owed: Anthropic's
+spend limit (about US$100 today, far below a launch). The owner's idea, to
+see on 19 Oct: pay Anthropic from the company's Mercado Pago account with
+auto-reload, fed by the subscriptions. Ways to lower the cost per person,
+proposed and not decided: ask for Google before writing the map, or write
+the first map with Sonnet.
 
 **Google before the map is seen (owner, 16 Oct 2026, built).** Once the
 project has Google on, a map made from then on is saved before it is shown:
@@ -389,7 +398,7 @@ the first page load and nothing purges them.
 
 **The birth place is picked, not guessed (owner, 16 Oct 2026).** The birth
 step asks the country of birth first, then the city with suggestions inside
-that country (Open-Meteo, from the browser; `components/onboarding/
+that country (Open-Meteo, through the `geocode` function since 18 Oct; `components/onboarding/
 BirthPlaceField.tsx`, ranking and aliases in `lib/places.ts`). The pick —
 name, region, coordinates, IANA timezone — is stored in `birth_place` on
 `clients` and `anonymous_sessions` and sent to `natal-chart`, which casts the
@@ -469,8 +478,8 @@ be filled from some phones. A day that does not exist leaves the date unset.
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
 end of the day; it needs a new PayPal plan (its `P-` id) and the webhook to
-accept both plans (`lib/paypal.ts` accepts one today). Nobody pays yet (no
-row in `subscriptions`). Premium for free, with no end, for the owner, his
+accept both plans (`lib/paypal.ts` accepts one today). One PayPal
+subscription is active since 18 Oct 2026. Premium for free, with no end, for the owner, his
 partner and his investor — inserted by hand in `subscriptions` once they send
 the Google addresses of their accounts.
 
