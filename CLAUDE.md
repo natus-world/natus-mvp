@@ -500,6 +500,15 @@ perfecto»), which had failed a person's Caminos and gift meditation.
 Numerology joins the correspondences (chat-v1.8): the life path's ruling
 planet, stones and colours.
 
+**Also open with the owner (18 Oct 2026, end of the day):** his own changes
+for the Premium conversion project (he will bring them); whether the
+welcome offer's list of what Premium adds should name the tip of the day
+(proposed); telling the people already in that the privacy policy changed
+(the team may read what they write, with name, logged); deleting the old
+«Gastos» artifact, superseded by the panel (offered, no answer). On the
+panel side, the delete through the Supabase connector and every other write
+asks the owner's approval in the moment; reads do not.
+
 **An open question with the data now being collected for it:** whether the
 prompt cache is worth its 25% write surcharge on the once-per-account surfaces
 (`cache_read_tokens` answers it).
