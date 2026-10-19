@@ -73,6 +73,10 @@ const SIMPLE_POINTS = new Set(['Sun', 'Moon', 'Ascendant', 'Descendant', 'Medium
 const SIMPLE_ASPECTS = new Set(['Sun', 'Moon', 'Ascendant']);
 const ELEMENTS = ['fire', 'earth', 'air', 'water'] as const;
 const MODALITIES = ['cardinal', 'fixed', 'mutable'] as const;
+/** The table's rows (owner, 19 Oct 2026). ELEMENTS stays in the zodiac's order, which `mirrored` counts by. */
+const TABLE_ELEMENTS = ['fire', 'air', 'earth', 'water'] as const;
+/** What the table places, in each cell's order; its totals count only the ten planets. */
+const TABLE_POINTS = ['Ascendant', 'Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'North_Node', 'Chiron', 'Medium_Coeli'];
 const NUMBER_ORDER: (keyof typeof copy.practice.numberLabels)[] = ['life_path', 'expression', 'soul_urge', 'personality', 'birthday'];
 const DESK = '(min-width: 1024px)';
 
@@ -569,6 +573,7 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
   };
   const byElement = count((p) => p.element, ELEMENTS);
   const byModality = count((p) => p.modality, MODALITIES);
+  const inTable = TABLE_POINTS.flatMap((k) => points.filter((p) => p.key === k));
   const listed = aspects.filter((x) => filter === 'all' || x.type === filter);
 
   const parts = (
@@ -585,22 +590,60 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
         <>
           <section className="vid">
             <h2 className="sub">{text.elementsHead}</h2>
-            <div className="eq">
-              {ELEMENTS.map((e) => (
-                <div key={e}>
-                  <ElementIcon element={e} />
-                  <b>{byElement[e]}</b>
-                  {text.elements[e]}
+            <div className="em" role="table" aria-label={text.elementsTable}>
+              <div className="em-fila" role="row">
+                <span role="columnheader" />
+                {MODALITIES.map((m) => (
+                  <span key={m} className="em-h" role="columnheader">
+                    {text.modalities[m]}
+                  </span>
+                ))}
+                <span role="columnheader">
+                  <span className="em-sr">{text.elementsPlanets}</span>
+                </span>
+              </div>
+              {TABLE_ELEMENTS.map((e) => (
+                <div key={e} className="em-fila" role="row">
+                  <span className="em-el" role="rowheader">
+                    <ElementIcon element={e} />
+                    {text.elements[e]}
+                  </span>
+                  {MODALITIES.map((m) => (
+                    <span key={m} className="em-c" role="cell">
+                      {inTable
+                        .filter((p) => p.point.element === e && p.point.modality === m)
+                        .map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            className={selected === p.id ? 'on' : undefined}
+                            aria-pressed={selected === p.id}
+                            aria-label={`${p.name}, ${signName(p.point.sign)} ${degreeOf(p.point)}`}
+                            onClick={() => pickPoint(p.id, 'list')}
+                          >
+                            <Mark p={p} />
+                          </button>
+                        ))}
+                    </span>
+                  ))}
+                  <span className="em-n" role="cell">
+                    {byElement[e]}
+                  </span>
                 </div>
               ))}
-            </div>
-            <div className="eq tres">
-              {MODALITIES.map((m) => (
-                <div key={m}>
-                  <b>{byModality[m]}</b>
-                  {text.modalities[m]}
-                </div>
-              ))}
+              <div className="em-fila em-tot" role="row">
+                <span className="em-el" role="rowheader">
+                  {text.elementsPlanets}
+                </span>
+                {MODALITIES.map((m) => (
+                  <span key={m} className="em-n" role="cell">
+                    {byModality[m]}
+                  </span>
+                ))}
+                <span className="em-n" role="cell">
+                  {planets.length}
+                </span>
+              </div>
             </div>
           </section>
           {(['pl', 'pu', 'ej'] as const).map((g) => {

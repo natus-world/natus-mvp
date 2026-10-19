@@ -740,7 +740,10 @@ export const es = {
     readingLoading: 'Cargando',
     parts: { puntos: 'Puntos', aspectos: 'Aspectos', casas: 'Casas', numeros: 'Números' },
     partsLabel: 'Partes de tu carta',
-    elementsHead: 'Elementos y modalidades · de tus 10 planetas',
+    elementsHead: 'Elementos y modalidades · de tu carta',
+    elementsTable: 'Elementos por modalidad',
+    /** The totals of the table count the planets only, never the axes, the Node or Chiron. */
+    elementsPlanets: 'Planetas',
     groups: { pl: 'Planetas', pu: 'Puntos', ej: 'Ejes' },
     noAspects: 'No hay aspectos de este tipo en tu carta.',
     housesHead: 'Casas por signo entero · cada una mide 30°',
