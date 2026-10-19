@@ -500,6 +500,15 @@ perfecto»), which had failed a person's Caminos and gift meditation.
 Numerology joins the correspondences (chat-v1.8): the life path's ruling
 planet, stones and colours.
 
+**Icons (owner, 19 Oct 2026):** the ouroboros does not read at 16 pixels,
+so each site has its own tab icon. The app: the wordmark's N in gold
+(`#C9A876`) on a night tile — `public/favicon.svg`, and the home-screen
+PNGs (`icon-192`, `icon-512`, `icon-maskable-512` with a safe margin,
+`apple-touch-icon` with square corners). The website: the N alone,
+cream or green with the browser's theme. The panel: the snake's head cut
+from the ouroboros. The N is the wordmark's own outline, never typed. The
+brand skill (`natus-marca`) records the same.
+
 **Also open with the owner (18 Oct 2026, end of the day):** his own changes
 for the Premium conversion project (he will bring them); whether the
 welcome offer's list of what Premium adds should name the tip of the day
