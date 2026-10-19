@@ -105,6 +105,8 @@ export const BANK = {
   lunaDunas: { file: 'luna-dunas', wide: 'luna-dunas-ancha', family: 'arena' },
   maderaCafe: { file: 'madera-cafe', wide: 'madera-cafe-ancha', family: 'tierra' },
   sedaAzul: { file: 'seda-azul', wide: 'seda-azul-ancha', family: 'azul' },
+  // The chat since 18 Oct 2026 (owner): seda azul did not read well behind it.
+  marProfundo: { file: 'mar-profundo', wide: 'mar-profundo-ancha', family: 'azul' },
   bote: { file: 'bote2', wide: 'bote2-ancha', family: 'azul' },
   travertino: { file: 'travertino-madera', wide: 'travertino-madera-ancha', family: 'tierra' },
   ola: { file: 'ola', wide: 'ola-ancha', family: 'azul' },
