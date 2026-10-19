@@ -242,7 +242,12 @@ What is left outside the code, in rough order of weight:
   lines of its own shows the international directory and the emergency
   instruction. Open: Anthropic does not serve people physically in Venezuela
   or Cuba (its supported-regions policy), and nothing blocks the model
-  surfaces there yet — the owner has not answered whether to.
+  surfaces there yet. The owner deferred it (18 Oct 2026), calling it
+  critical: people in Venezuela want to invest. The calls reach Anthropic
+  from Supabase, so Anthropic does not see the country; complying is ours.
+  The proposal on the table: by the phone's zone (`countryFromTimeZone`) and
+  «País donde vives», show the chart and numbers (no model) and say the
+  model surfaces are not available there.
 - The door is open: `REQUIRE_INVITE=false`, so anybody with the link is in.
   Closing it needs a Google Cloud OAuth client first — the code is built and
   waiting, the console work is not done. Access control on GitHub Pages is an
