@@ -30,7 +30,8 @@ export type Purpose =
   | 'routine'
   | 'memory'
   | 'routine_review'
-  | 'chart_points';
+  | 'chart_points'
+  | 'daily_tip';
 
 export const OPUS = 'claude-opus-5-5';
 export const SONNET = 'claude-sonnet-5-5';
@@ -157,6 +158,10 @@ export const PURPOSE_LIMITS: Record<Exclude<Purpose, 'chat'>, PurposeLimit> = {
   // chart, written again only when the chart is (a birth-data change, a
   // rebuild). Ten is the Soul Map's order.
   chart_points: { calls: 10, windowHours: 720 },
+  // v1.2 D-01: Davraz's tip of the day, premium only, once per person and
+  // day (a chart rewritten that day asks once more). Forty is a month and a
+  // margin.
+  daily_tip: { calls: 40, windowHours: 720 },
 };
 
 /**
@@ -206,4 +211,6 @@ export const MAX_OUTPUT_TOKENS: Record<Purpose, number> = {
   routine_review: 4000,
   // Up to eighteen readings of one or two sentences, plus thinking.
   chart_points: 6000,
+  // One or two short tips, plus thinking.
+  daily_tip: 2000,
 };

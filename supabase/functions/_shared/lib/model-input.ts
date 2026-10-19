@@ -213,6 +213,11 @@ export const routineReviewInputSchema = z.object({});
 /** Package 05. Nothing: the function reads the person's stored chart itself. */
 export const chartPointsInputSchema = z.object({});
 
+/** v1.2 D-01: the person's own calendar day; the function reads the rest. */
+export const dailyTipInputSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
 export const routineInputSchema = z
   .object({
     synthesis: soulMapSynthesisSchema,

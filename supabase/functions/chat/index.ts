@@ -17,6 +17,7 @@ import { chatResponseSchema, comparisonResultSchema, type ComparisonResult } fro
 import { lintChartJudgement } from '../_shared/lib/copy-lint.ts';
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 import { hasFoodOrWeightSignal, lintPhysicalRisk } from '../_shared/lib/physical-risk.ts';
+import { DAILY_SKY_VERSION, type DailySky } from '../_shared/lib/daily-sky.ts';
 import {
   CHAT_PROMPT_VERSION,
   CHAT_SYSTEM_PROMPT,
@@ -60,6 +61,32 @@ const MODEL = modelFor('chat');
  * checked here too. Only its result; nothing else about the friend. Not for
  * somebody clinically vulnerable, the comparison's own rule 6.
  */
+/**
+ * v1.2 D-01 (chat-v2.0): premium's sky of the day, the latest row of the
+ * last two days (the phone's day can be UTC's yesterday or tomorrow), read
+ * as the person. Null when there is none: the block is then left out.
+ */
+async function todaysSky(
+  caller: SupabaseClient,
+  userId: string,
+): Promise<{ day: DailySky; tips: string[] | null } | null> {
+  const since = new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10);
+  const { data, error } = await caller
+    .from('daily_insights')
+    .select('sky, tips')
+    .eq('user_id', userId)
+    .gte('insight_date', since)
+    .order('insight_date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  const row = data as { sky: unknown; tips: unknown };
+  const sky = row.sky as DailySky | null;
+  if (!sky || sky.version !== DAILY_SKY_VERSION || !Array.isArray(sky.transits)) return null;
+  const tips = Array.isArray(row.tips) ? row.tips.filter((t): t is string => typeof t === 'string') : null;
+  return { day: sky, tips };
+}
+
 async function comparisonToTalkOver(
   caller: SupabaseClient,
   userId: string,
@@ -210,7 +237,7 @@ Deno.serve(async (request) => {
   const context = chatContextSchema.safeParse(body);
   if (!context.success) return json(request, { error: 'invalid_context' }, 400);
 
-  const [vulnerable, gender, person, memory] = await Promise.all([
+  const [vulnerable, gender, person, memory, today] = await Promise.all([
     callerIsClinicallyVulnerable(caller, userId),
     callerGrammaticalGender(caller, userId),
     // chat-v1.7: the chart, the numbers and what the person told, read here.
@@ -218,6 +245,8 @@ Deno.serve(async (request) => {
     // v1.2 M-01: premium with consent reads the memory on every answer;
     // otherwise it is paused and the block is left out.
     quota.tier === 'premium' && (await memoryConsented(caller, userId)) ? readMemory(caller, userId) : null,
+    // v1.2 D-01: premium's sky of the day.
+    quota.tier === 'premium' ? todaysSky(caller, userId) : null,
   ]);
   const recommendedSlugs = withoutClinicalExclusions(context.data.recommendedSlugs, vulnerable).kept;
   const comparison = await comparisonToTalkOver(caller, userId, context.data.comparisonFriendshipId, vulnerable);
@@ -250,6 +279,7 @@ Deno.serve(async (request) => {
         memory,
         comparison,
         person: { chart: person.chart, birth: person.birth, told: person.told, routine: person.routine },
+        today,
       }),
       schema: chatResponseSchema,
       maxTokens: MAX_OUTPUT_TOKENS.chat,

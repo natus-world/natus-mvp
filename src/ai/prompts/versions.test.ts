@@ -5,6 +5,7 @@ import FINGERPRINTS from './prompt-fingerprints.json' with { type: 'json' };
 import {
   CHART_POINTS_PROMPT_VERSION,
   CHAT_PROMPT_VERSION,
+  DAILY_TIP_PROMPT_VERSION,
   COMPARISON_PROMPT_VERSION,
   MATCH_PROMPT_VERSION,
   MEDITATION_PROMPT_VERSION,
@@ -42,6 +43,7 @@ const SURFACES = [
   ['memory.ts', MEMORY_PROMPT_VERSION],
   ['routine-review.ts', ROUTINE_REVIEW_PROMPT_VERSION],
   ['chart-points.ts', CHART_POINTS_PROMPT_VERSION],
+  ['daily-tip.ts', DAILY_TIP_PROMPT_VERSION],
 ] as const;
 
 function withoutComments(source: string): string {

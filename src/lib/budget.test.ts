@@ -24,6 +24,7 @@ const PURPOSES: Purpose[] = [
   'memory',
   'routine_review',
   'chart_points',
+  'daily_tip',
 ];
 
 const costUsd = (usage: Usage) => priced(usage, OPUS);
@@ -155,6 +156,7 @@ describe('per-person limits', () => {
     expect(covered).toEqual([
       'chart_points',
       'comparison',
+      'daily_tip',
       'match',
       'meditation',
       'memory',

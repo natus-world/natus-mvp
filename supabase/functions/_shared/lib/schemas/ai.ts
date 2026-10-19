@@ -243,6 +243,13 @@ export const chartPointReadingsSchema = z.object({
 });
 export type ChartPointReadings = z.infer<typeof chartPointReadingsSchema>;
 
+/** v1.2 D-01: Davraz's tip of the day (premium), one or two, short. */
+export const MAX_DAILY_TIP_CHARS = 240;
+export const dailyTipsSchema = z.object({
+  tips: z.array(z.string().trim().min(1).max(MAX_DAILY_TIP_CHARS)).min(1).max(2),
+});
+export type DailyTips = z.infer<typeof dailyTipsSchema>;
+
 /** PDR 6.2. Calculated in TypeScript, never by the model — the model is told
  *  to treat these as symbolic facts and not recompute them. */
 export const numerologySchema = z.object({

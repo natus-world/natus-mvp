@@ -4,6 +4,8 @@ import type { GrammaticalGender } from '@/lib/model-input.ts';
 import type { NatalChart } from '@/lib/natal-chart.ts';
 import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
 import { SPIRITUAL_RULES, describeCorrespondences, describeNumberCorrespondences } from './spiritual.ts';
+import { describeDay } from './daily-tip.ts';
+import type { DailySky } from '@/lib/daily-sky.ts';
 
 /**
  * The conversation of PDR section 10. Reconstructed — see `shared.ts` for
@@ -156,6 +158,11 @@ export function buildChatUserMessage(input: {
     told: string;
     routine: readonly string[];
   } | null;
+  /**
+   * v1.2 D-01 (owner, 18 Oct 2026): premium's sky of the day, as daily-sky
+   * calculated it, and the tip Davraz left, so the chat can answer about it.
+   */
+  today?: { day: DailySky; tips: readonly string[] | null } | null;
 }): string {
   const person = input.person ?? null;
   const numbers = input.numerology
@@ -188,6 +195,14 @@ export function buildChatUserMessage(input: {
           person.told ? personText(person.told) : '(nada)',
           '',
           `SU RUTINA: ${person.routine.length ? person.routine.join(' · ') : 'todavía no tiene'}`,
+        ]
+      : []),
+    ...(input.today
+      ? [
+          '',
+          'SUS ASTROS DE HOY (ya calculados; úsalos si pregunta por su día o por los astros, como lente, nunca como predicción)',
+          ...describeDay(input.today.day),
+          ...(input.today.tips?.length ? [`EL TIP QUE YA LE DEJASTE HOY: ${input.today.tips.join(' ')}`] : []),
         ]
       : []),
     `MODALIDADES YA SUGERIDAS (únicos slugs permitidos): ${input.recommendedSlugs.join(', ') || 'ninguna'}`,

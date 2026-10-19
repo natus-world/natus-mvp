@@ -5,8 +5,7 @@
 -- ephemeris once for everybody: positions do not depend on where one is.
 -- `daily_insights` holds each person's day, once per (person, day), so
 -- opening Hoy again costs nothing. Both are written only by the daily-sky
--- function; `tips` stays null until Davraz's tip of the day (premium) is
--- written for it.
+-- function and `tips` by daily-tip, Davraz's tip of the day (premium).
 
 create table public.sky_days (
   day         date primary key,
@@ -35,13 +34,11 @@ create table public.daily_insights (
   sky                 jsonb not null,
   -- The chart it was calculated from: a new chart makes the day stale.
   chart_calculated_at timestamptz not null,
+  -- Davraz's tips of the day, written by the daily-tip function (premium).
   tips                jsonb,
-  claude_api_call_id  uuid references public.claude_api_calls (id) on delete set null,
   created_at          timestamptz not null default now(),
   primary key (user_id, insight_date)
 );
-
-create index daily_insights_call_idx on public.daily_insights (claude_api_call_id);
 
 alter table public.daily_insights enable row level security;
 
@@ -51,3 +48,8 @@ create policy "own day is readable"
 
 grant select on public.daily_insights to authenticated;
 grant select, insert, update, delete on public.daily_insights to service_role;
+
+alter table public.claude_api_calls
+  drop constraint claude_api_calls_purpose_check,
+  add constraint claude_api_calls_purpose_check
+    check (purpose in ('soul_map', 'match', 'chat', 'meditation', 'comparison', 'routine', 'memory', 'routine_review', 'chart_points', 'daily_tip'));

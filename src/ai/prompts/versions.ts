@@ -1,4 +1,4 @@
-export const CHAT_PROMPT_VERSION = 'chat-v1.9';
+export const CHAT_PROMPT_VERSION = 'chat-v2.0';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
@@ -7,8 +7,21 @@ export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.7';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
 export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.1';
+export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.0';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chat-v2.0',
+    date: '2026-10-18',
+    change:
+      'v1.2 D-01, proposed and accepted by the owner (18 Oct 2026): premium\'s chat reads its sky of the day (the transits in order, the Moon, the personal day) and the tip Davraz left, to answer about them as a lens, never as a prediction.',
+  },
+  {
+    version: 'daily-tip-v1.0',
+    date: '2026-10-18',
+    change:
+      'New (v1.2 D-01, guide §9.4): Davraz\'s tip of the day for premium, one or two small practical tips from the day\'s transits over the chart, the Moon and the personal day, calculated by src/lib/daily-sky.ts, with the Hellenistic and propositive rules. The lord of the year only orders the transits and is never handed to the model.',
+  },
   {
     version: 'chart-points-v1.1',
     date: '2026-10-18',

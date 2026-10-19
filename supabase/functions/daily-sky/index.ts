@@ -159,7 +159,6 @@ Deno.serve(async (request) => {
     chart_calculated_at: row.calculated_at,
     // A new chart makes the day's tip stale with it.
     tips: null,
-    claude_api_call_id: null,
   });
   if (error) console.error('daily_insight_store_failed', error.code);
 
