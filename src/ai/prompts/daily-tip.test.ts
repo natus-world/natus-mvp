@@ -45,6 +45,11 @@ describe('the tip of the day (daily-tip-v1.0)', () => {
     expect(DAILY_TIP_SYSTEM_PROMPT).toContain('Nunca una orden');
     expect(DAILY_TIP_SYSTEM_PROMPT).toContain('Sin predicción');
   });
+
+  it('speaks of the day\'s energies, never of how the person is (owner, 18 Oct 2026)', () => {
+    expect(DAILY_TIP_SYSTEM_PROMPT).toContain('cómo vienen las\n  energías hoy, un gesto pequeño, y para qué sirve');
+    expect(DAILY_TIP_SYSTEM_PROMPT).toContain('nunca de cómo está o cómo es la persona');
+  });
 });
 
 describe('the chat reads the sky of the day (chat-v2.0)', () => {
