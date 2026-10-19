@@ -577,8 +577,8 @@ export const es = {
     titleWithoutName: 'Tu carta ',
     titleEmphasis: 'completa',
     wheelLabel: 'Tu carta completa. Toca un punto o una línea para leerlo.',
-    sect: 'Secta',
-    sectKind: { diurna: 'Carta diurna', nocturna: 'Carta nocturna' },
+    sect: 'De día o de noche',
+    sectKind: { diurna: 'Naciste de día', nocturna: 'Naciste de noche' },
     // «bajo el horizonte» is the package's line for a day chart, turned for a night one.
     sectWhy: { diurna: 'El Sol estaba sobre el horizonte', nocturna: 'El Sol estaba bajo el horizonte' },
     ruler: 'Regente del Ascendente',
@@ -586,7 +586,7 @@ export const es = {
     rulerWhere: (sign: string, dignity: string | null, house: number | null) =>
       [`En ${sign}`, dignity, house !== null ? `casa ${house}` : null].filter(Boolean).join(', '),
     noTime:
-      'Sin hora exacta no hablamos de Ascendente ni de casas. Tampoco de secta ni de regente del Ascendente.',
+      'Sin hora exacta no hablamos de Ascendente ni de casas. Tampoco de si naciste de día o de noche, ni del regente del Ascendente.',
     noTimeHouses: 'Sin hora exacta no hablamos de Ascendente ni de casas.',
     modesLabel: 'Vista de la rueda',
     modes: { simple: 'Simple', completa: 'Completa' },

@@ -15,16 +15,17 @@ export const HELLENISTIC_RULES = `
 BASE HELENÍSTICA
 - Lees la carta desde la astrología helenística. Te llega ya calculada:
   casas por signo entero, aspectos por signo, regencias tradicionales,
-  regente del Ascendente, secta y dignidades. No las recalcules ni las
-  corrijas.
+  regente del Ascendente, si nació de día o de noche, y dignidades. No las
+  recalcules ni las corrijas.
 - Los siete planetas visibles (Sol, Luna, Mercurio, Venus, Marte, Júpiter,
   Saturno) rigen los signos. Urano, Neptuno, Plutón, Quirón y Lilith puedes
   comentarlos como complemento, pero no rigen nada.
 - Dignidades: domicilio o exaltación son recursos más disponibles, que suelen
   fluir con menos esfuerzo; exilio o caída son áreas que piden más trabajo
   consciente.
-- La secta dice qué planetas trabajan con más soltura en esta carta.
-  Nómbrala solo si suma a la lectura.
+- Haber nacido de día o de noche dice qué planetas trabajan con más soltura
+  en esta carta. Nómbralo solo si suma a la lectura, siempre como «naciste de
+  día» o «naciste de noche»; nunca uses la palabra «secta».
 - Sin predicción: nada de profecciones ni pronósticos. La carta es una lente
   para conocerse, no un calendario.
 - Planetas, signos y aspectos, siempre en español.
@@ -67,9 +68,12 @@ export function describeChart(chart: NatalChart): string {
       const r = chart.ascendant_ruler;
       lines.push(`Regente del Ascendente: ${r.planet}, en ${r.sign}${r.house ? `, casa ${r.house}` : ''}`);
     }
-    if (chart.sect) lines.push(`Secta: carta ${chart.sect.kind}; planetas de la secta: ${chart.sect.planets.join(', ')}`);
+    if (chart.sect) {
+      const when = chart.sect.kind === 'diurna' ? 'de día' : 'de noche';
+      lines.push(`Nació ${when}; planetas que trabajan con más soltura: ${chart.sect.planets.join(', ')}`);
+    }
   } else {
-    lines.push('Sin hora de nacimiento: no hay Ascendente, casas ni secta. No los menciones ni los deduzcas.');
+    lines.push('Sin hora de nacimiento: no hay Ascendente ni casas, y no se sabe si nació de día o de noche. No los menciones ni los deduzcas.');
   }
   lines.push('Puntos:');
   for (const p of chart.points) {

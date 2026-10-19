@@ -1,14 +1,38 @@
-export const CHAT_PROMPT_VERSION = 'chat-v1.8';
+export const CHAT_PROMPT_VERSION = 'chat-v1.9';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
-export const COMPARISON_PROMPT_VERSION = 'comparison-v2.1';
-export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.6';
+export const COMPARISON_PROMPT_VERSION = 'comparison-v2.2';
+export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.7';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
-export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.0';
+export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chart-points-v1.1',
+    date: '2026-10-18',
+    change:
+      'Never the word «secta» (owner, 18 Oct 2026): the shared chart reading says «nació de día» or «de noche» and tells the model to say «naciste de día» or «naciste de noche»; `lintChartJudgement` refuses the word.',
+  },
+  {
+    version: 'chat-v1.9',
+    date: '2026-10-18',
+    change:
+      'Never the word «secta» (owner, 18 Oct 2026): the shared chart reading says «nació de día» or «de noche» and tells the model to say «naciste de día» or «naciste de noche»; `lintChartJudgement` refuses the word.',
+  },
+  {
+    version: 'comparison-v2.2',
+    date: '2026-10-18',
+    change:
+      'Never the word «secta» (owner, 18 Oct 2026): the shared chart reading says «nació de día» or «de noche» and tells the model to say «naciste de día» or «naciste de noche»; `lintChartJudgement` refuses the word.',
+  },
+  {
+    version: 'soul-map-v2.7',
+    date: '2026-10-18',
+    change:
+      'Never the word «secta» (owner, 18 Oct 2026): the shared chart reading says «nació de día» or «de noche» and tells the model to say «naciste de día» or «naciste de noche»; `lintChartJudgement` refuses the word.',
+  },
   {
     version: 'chart-points-v1.0',
     date: '2026-10-16',

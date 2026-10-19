@@ -370,15 +370,30 @@ export function countSentences(text: string): number {
 const CHART_JUDGEMENT =
   /\b(?:mal[eé]fic[oa]s?|ben[eé]fic[oa]s?|desfavorables?|favorables?|aspectos? (?:malos?|buenos?|negativos?|positivos?)|(?:mal|buen) aspecto)\b/i;
 
+/** The owner, 18 Oct 2026: «naciste de día» or «de noche», never the jargon. */
+const SECT_WORD = /\bsectas?\b/i;
+
 export function lintChartJudgement(value: unknown, path = '$'): (CopyViolation & { path: string })[] {
   if (typeof value === 'string') {
-    const match = CHART_JUDGEMENT.exec(prose(value));
-    return match
+    const text = prose(value);
+    const match = CHART_JUDGEMENT.exec(text);
+    if (match) {
+      return [
+        {
+          rule: 'chart-judgement',
+          match: match[0],
+          why: 'A chart is never rated good or bad: what flows, flows naturally; what is hard asks for more work (A-02).',
+          path,
+        },
+      ];
+    }
+    const sect = SECT_WORD.exec(text);
+    return sect
       ? [
           {
             rule: 'chart-judgement',
-            match: match[0],
-            why: 'A chart is never rated good or bad: what flows, flows naturally; what is hard asks for more work (A-02).',
+            match: sect[0],
+            why: 'Say «naciste de día» or «naciste de noche»; the word «secta» is never used (owner, 18 Oct 2026).',
             path,
           },
         ]
