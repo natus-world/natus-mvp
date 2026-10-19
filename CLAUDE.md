@@ -521,6 +521,13 @@ and prints the fingerprint to record in `prompt-fingerprints.json`. Do not
 edit prompt text without a decided item behind it — the design is somebody's
 work.
 
+**Ask before deciding for the owner (owner, 19 Oct 2026).** Even after
+«démosle» or «te confío», every choice he has not made himself — a text, a
+behaviour, an option left open in a mockup — is asked before it is built,
+not decided and told afterwards. It came up when the elements table went
+live with a title, the planets-only totals and the touch behaviour chosen
+by Claude (he approved them, and asked for this from now on).
+
 Keep this section current. It is now the only handover there is: when one of
 the items above closes, delete it, and when something new is left open, write
 it down here.
