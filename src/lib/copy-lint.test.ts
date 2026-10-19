@@ -218,6 +218,8 @@ describe('v1.2 A-02 — a chart is never rated', () => {
     'Tienes aspectos negativos con la Luna.',
     'Júpiter, el benéfico mayor, está en tu casa 2.',
     'Hoy es un momento favorable para hablar.',
+    'Tu carta es de secta diurna.',
+    'Los planetas de la Secta trabajan con soltura.',
   ])('flags "%s"', (text) => {
     expect(lintChartJudgement({ a: text })).toHaveLength(1);
   });
@@ -225,7 +227,7 @@ describe('v1.2 A-02 — a chart is never rated', () => {
   it('lets what flows and what asks for work through', () => {
     expect(
       lintChartJudgement({
-        a: 'Tu Venus en Tauro es un recurso que fluye naturalmente; tu Marte en Cáncer pide más trabajo consciente.',
+        a: 'Naciste de noche: tu Venus en Tauro es un recurso que fluye naturalmente; tu Marte en Cáncer pide más trabajo consciente.',
       }),
     ).toEqual([]);
   });

@@ -35,7 +35,8 @@ describe('Soul Map astrological context (v1.2 A-02)', () => {
     expect(message).toContain('- Mercury: Gemini 28°, casa 10, domicilio, retrógrado');
     expect(message).toContain('- Mars: Cancer 20°, casa 11, caida');
     expect(message).toContain('- Sun cuadratura Ascendant');
-    expect(message).toMatch(/Secta: carta (diurna|nocturna)/);
+    expect(message).toMatch(/Nació de (día|noche); planetas que trabajan con más soltura/);
+    expect(message).not.toMatch(/Secta:/);
     expect(message).not.toContain('No hay carta disponible');
   });
 
@@ -45,7 +46,7 @@ describe('Soul Map astrological context (v1.2 A-02)', () => {
       numerology: null,
       gender: 'neutro',
     });
-    expect(without).toContain('Sin hora de nacimiento: no hay Ascendente, casas ni secta.');
+    expect(without).toContain('Sin hora de nacimiento: no hay Ascendente ni casas, y no se sabe si nació de día o de noche.');
     expect(without).not.toContain('Ascendente: Virgo');
     expect(without).not.toContain('casa ');
   });
