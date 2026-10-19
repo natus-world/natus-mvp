@@ -280,7 +280,7 @@ export function Chat() {
 
   if (!synthesis || !profile || !conversation) {
     return (
-      <Screen photo="marProfundo" veil={0.3} glassAlpha={0.5} tone="6 12 18">
+      <Screen photo="marProfundo" veil={0.4} glassAlpha={0.5} tone="6 12 18">
         <div className="pz chat-sin scroll">
           <p className="k">{text.kicker}</p>
           <p className="t">
@@ -411,7 +411,7 @@ export function Chat() {
   };
 
   return (
-    <Screen photo="marProfundo" veil={0.3} glassAlpha={0.5} tone="6 12 18">
+    <Screen photo="marProfundo" veil={0.4} glassAlpha={0.5} tone="6 12 18">
       <div
         className="pz chat"
         data-focus={focus || paywallOpen ? 'true' : 'false'}
