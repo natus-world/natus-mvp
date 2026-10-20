@@ -243,7 +243,7 @@ What is left outside the code, in rough order of weight:
   owner accepting them as transcribed from the PDR — not a call placed to each
   line. The PDR calls telephone verification an absolute launch blocker; the
   owner decided on 16 Oct 2026 to launch without the calls, with the numbers
-  shown and dialled on touch. The calls are still the way to verify them.
+  shown and dialled on touch, and on 20 Oct 2026 not to place the calls at all.
 - Nine of the seventeen — *4141, 1515, 131, 911, 192, 106, 135, 113, 123 — are short
   codes and cannot be dialled from abroad. Nothing in the data records that, so
   somebody living abroad who selected their home country is shown a number they
@@ -254,7 +254,9 @@ What is left outside the code, in rough order of weight:
   phone's IANA zone — no permission, no network — for the five countries and
   zones no other country shares; `linesCountry` (components/help-country.ts)
   is what every list of lines goes through, and falls back to «País donde
-  vives», which Perfil can change. Away from home the help sheet says «Tu
+  vives», which Perfil can change. The owner restated the rule on 20 Oct
+  2026: the person sees the lines of the country they are in when they
+  enter. Away from home the help sheet says «Tu
   teléfono está en {país}: te mostramos sus líneas.» (proposal). A phone in a
   country outside the five still shows the home lines, short codes included.
 - **Anybody may be born or live in any country (owner, 16 Oct 2026, built).**
@@ -263,14 +265,8 @@ What is left outside the code, in rough order of weight:
   the five with help lines first — and Perfil picks the rest from one list.
   «Otro país» (`XX`) stays only for who chose it before. A country without
   lines of its own shows the international directory and the emergency
-  instruction. Open: Anthropic does not serve people physically in Venezuela
-  or Cuba (its supported-regions policy), and nothing blocks the model
-  surfaces there yet. The owner deferred it (18 Oct 2026), calling it
-  critical: people in Venezuela want to invest. The calls reach Anthropic
-  from Supabase, so Anthropic does not see the country; complying is ours.
-  The proposal on the table: by the phone's zone (`countryFromTimeZone`) and
-  «País donde vives», show the chart and numbers (no model) and say the
-  model surfaces are not available there.
+  instruction. The owner took the question of Venezuela and Cuba (outside
+  Anthropic's supported regions) off the list on 20 Oct 2026.
 - The door is open: `REQUIRE_INVITE=false`, so anybody with the link is in.
   Closing it needs a Google Cloud OAuth client first — the code is built and
   waiting, the console work is not done. Access control on GitHub Pages is an
@@ -379,8 +375,8 @@ notifications** (N-01 goes last). Google is switched on in production
 provider on in Supabase, Site URL and redirect set, manual linking on. The
 owner walked a new map through Google on the deployed site (16 Oct 2026,
 12:04): the account, the map, the chart and the funnel steps all landed on
-one non-anonymous row. Not yet walked, on hold by the owner: signing in on a
-second device. **Capacity for the launch (owner, 18 Oct 2026, about 10,000
+one non-anonymous row. Signing in on a second device was walked by the owner
+on 20 Oct 2026. **Capacity for the launch (owner, 18 Oct 2026, about 10,000
 people in two weeks from an influencer):** Supabase is on Pro (the website's
 waitlist project moved to a free organisation, «Natus WEB»); the birth-place
 search goes through the `geocode` function with Open-Meteo's paid key
@@ -488,17 +484,16 @@ be filled from some phones. A day that does not exist leaves the date unset.
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
 end of the day; it needs a new PayPal plan (its `P-` id) and the webhook to
 accept both plans (`lib/paypal.ts` accepts one today). One PayPal
-subscription is active since 18 Oct 2026. Premium for free, with no end, for the owner, his
-partner and his investor — inserted by hand in `subscriptions` once they send
-the Google addresses of their accounts.
+subscription is active since 18 Oct 2026.
 
 **Adults only, the home country chosen, a second try (owner, 16 Oct 2026).**
 The birth step refuses a date that is not 18 years past (`lib/age.ts`), so
 also any date to come, with «Natus es para personas mayores de 18 años»
 (proposed). «País donde vives» starts empty and must be chosen: it decides
-the help lines. Accounts and sessions made before by people under 18 were
-to be deleted later, with three anonymous test users made on 16 Oct 2026
-(owner: all tests): 136f25bc-0f04-48ca-bb45-e970bb34e7e1,
+the help lines. Deleting the accounts and sessions made before by people
+under 18 is off the list until its legal implications are reviewed (owner,
+20 Oct 2026). Five anonymous test users made on 16 Oct 2026 (owner: all
+tests): 136f25bc-0f04-48ca-bb45-e970bb34e7e1,
 14945aac-dee1-47a6-92ef-4928b5fbf632, d15715b0-4cc1-4243-9a67-b52ecec8e883,
 175c72c4-dfcb-46f8-9576-ac766300d2a1, d446a420-6ec3-409f-92a7-ef529180faa0.
 A delete through the Supabase connector needs the owner's approval in the
