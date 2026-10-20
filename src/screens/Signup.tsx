@@ -8,7 +8,11 @@ import { currentSynthesis } from '@/store/soulMap';
 import { googleSignInEnabled, isBackendConfigured } from '@/supabase/client.ts';
 import { LegalLinks } from '@/components/LegalLinks';
 import { linkGoogle, oauthErrorInUrl, signInWithGoogle, upgradeToEmail } from '@/supabase/session.ts';
-import { accountRequired } from '@/store/account-required';
+import { accountRequired, clearAccountRequirement } from '@/store/account-required';
+import { completeLinkedSignup } from '@/store/account-link';
+import { CodeEntry } from '@/components/onboarding/CodeEntry';
+import { EmailCodeForm } from '@/components/onboarding/EmailCodeForm';
+import { readPendingCode, savePendingCode, type PendingCode } from '@/components/onboarding/pending-code';
 import { track } from '@/store/funnel';
 
 /**
@@ -36,11 +40,27 @@ const text = copy.signup;
  * email form shows only while Google is not switched on in the project.
  */
 
-/** Package 01, «Crear cuenta»: the incense; «Revisa tu correo»: the night ocean. */
-function Page({ photo = 'incienso', children }: { photo?: 'incienso' | 'oceanoNoche'; children: ReactNode }) {
+/**
+ * Package 01, «Crear cuenta»: the incense; «Revisa tu correo»: the night ocean.
+ * «Escribe tu código» (mockup «Entrar con un código», 20 Oct 2026): the wave,
+ * veil .18 and glass .48; «Volver a tu espacio»: the blue silk, .30 and .30.
+ */
+export function Page({
+  photo = 'incienso',
+  veil = 0.14,
+  glassAlpha = 0.3,
+  className = '',
+  children,
+}: {
+  photo?: 'incienso' | 'oceanoNoche' | 'ola' | 'sedaAzul';
+  veil?: number;
+  glassAlpha?: number;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <Screen photo={photo} veil={0.14} glassAlpha={0.3}>
-      <div className="pz entrada cuenta">
+    <Screen photo={photo} veil={veil} glassAlpha={glassAlpha}>
+      <div className={`pz entrada cuenta${className ? ` ${className}` : ''}`}>
         <div className="sc">
           <div className="d-izq medio">{children}</div>
         </div>
@@ -55,6 +75,12 @@ export function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  // The code on its way (owner, 20 Oct 2026): to which address, and when.
+  const [code, setCodeState] = useState<PendingCode | null>(() => readPendingCode('save'));
+  const setCode = (next: PendingCode | null) => {
+    savePendingCode('save', next);
+    setCodeState(next);
+  };
   // Somebody sent here to save a new map already knows Google is on.
   const [google, setGoogle] = useState(() => accountRequired());
   useEffect(() => {
@@ -102,6 +128,36 @@ export function Signup() {
             {text.start}
           </Link>
         </div>
+      </Page>
+    );
+  }
+
+  // The code matched: the anonymous row now carries the address, and the
+  // account is created from it as after Google; the map it was asked for opens.
+  const saved = () => {
+    void completeLinkedSignup().then((created) => {
+      if (created) {
+        savePendingCode('save', null);
+        clearAccountRequirement();
+        navigate('/carta', { replace: true });
+      } else {
+        setCode(null);
+        setGoogleError(text.localFailed);
+      }
+    });
+  };
+
+  if (code) {
+    return (
+      <Page photo="ola" veil={0.18} glassAlpha={0.48} className="codigo">
+        <CodeEntry
+          email={code.email}
+          purpose="save"
+          sentAt={code.sentAt}
+          onVerified={saved}
+          onResent={(sentAt) => setCode({ email: code.email, sentAt })}
+          onOtherEmail={() => setCode(null)}
+        />
       </Page>
     );
   }
@@ -205,6 +261,15 @@ export function Signup() {
             <GoogleMark />
             {sending ? text.saving : required ? r.cta : text.google}
           </button>
+          {required && (
+            <EmailCodeForm
+              purpose="save"
+              email={email}
+              onEmail={setEmail}
+              onSent={(sentAt) => setCode({ email: email.trim(), sentAt })}
+              failureText={() => null}
+            />
+          )}
           <p className="aviso">{required ? r.note : text.googleNote}</p>
           {required ? (
             taken && (

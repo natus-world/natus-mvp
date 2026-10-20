@@ -405,6 +405,29 @@ signs into it and the new map stays behind on the anonymous row (that text
 and the message above it are proposals). Anonymous rows are still created at
 the first page load and nothing purges them.
 
+**Entering with a 6-digit code by e-mail (owner, 20 Oct 2026, branch
+`nico/entrar-con-codigo`, not merged yet).** Built from the approved mockup
+«Entrar con un código» (`entrar-con-codigo.zip`; the cerebro keeps it):
+«Tu mapa está listo» offers the address under Google, «Volver a mi espacio»
+in the welcome opens `/volver` (`screens/Returning.tsx`), and both lead to
+«Escribe tu código» (`components/onboarding/CodeEntry.tsx`): six boxes over
+one real input, checked on the sixth digit, «Reenviar» after Supabase's
+minute, «vencido» told by the time the code was sent because Supabase
+answers a wrong code and an expired one alike. Saving the map is
+`updateUser({ email })` on the anonymous row (template «Change email
+address», checked as `email_change`); coming back is `signInWithOtp` with
+`shouldCreateUser: false` (template «Magic link», checked as `email`). Both
+walked end to end against the local stack on 20 Oct 2026. The templates are
+`supabase/templates/codigo-*.html`, pasted by hand into the hosted project;
+mail goes through Resend from `confirmacion@mail.natus.world` (owner, 20 Oct
+2026, free plan: 100 a day, to raise before the influencer, and Supabase's 30
+mails an hour with it). It needs «Confirm email» on in the project (it is,
+read from the public Auth settings on 20 Oct 2026), and local
+`enable_confirmations` is now true to match it. The pending code is kept for
+the tab (`pending-code.ts`), so coming back from the mail app lands on the
+code again. Open with the owner: what saving with an address that already
+has a space says, and the two texts for a failed network.
+
 **The birth place is picked, not guessed (owner, 16 Oct 2026).** The birth
 step asks the country of birth first, then the city with suggestions inside
 that country (Open-Meteo, through the `geocode` function since 18 Oct; `components/onboarding/
