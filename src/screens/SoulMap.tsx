@@ -13,6 +13,7 @@ import { currentMatchFor, isCheckedToday, toggleCheckIn, totalCheckIns } from '@
 import { routineFor } from '@/store/routine';
 import type { OnboardingDraft } from '@/store/session';
 import { PATHS } from '@/components/routes';
+import { CARE_PATH, needsCare } from '@/store/care';
 import { connectsLabel, FeedbackSheet } from '@/screens/Routine';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { markFalsePositive } from '@/store/crisis';
@@ -337,6 +338,7 @@ export function SoulMap() {
   }
 
   const name = firstNameOf(profile?.draft.legal_birth_name ?? '');
+  const careOwed = needsCare();
   const chart = profile ? chartOf(profile.draft) : null;
   // The chart was asked for and is not there: said, not hidden (16 Oct 2026).
   const chartMissing = profile !== null && !chart && shouldCalculateNatalChart(profile.draft) && !profile.draft.natal_chart;
@@ -375,10 +377,19 @@ export function SoulMap() {
           <NumbersNote numerology={stored.numerology} />
 
           <div className="pie">
-            <Link to={PATHS.paths} className="p2">
-              {text.toPaths}
-              <span aria-hidden="true">→</span>
-            </Link>
+            {/* Right after saving (owner, 21 Oct 2026): «Cómo trabajar» and
+                «Para cuidarte» are still owed, and this is the way on. */}
+            {careOwed ? (
+              <Link to={CARE_PATH} state={{ next: PATHS.paths }} className="p1 seguir">
+                {text.onToCare}
+                <span aria-hidden="true">→</span>
+              </Link>
+            ) : (
+              <Link to={PATHS.paths} className="p2">
+                {text.toPaths}
+                <span aria-hidden="true">→</span>
+              </Link>
+            )}
 
             {/* PDR section 3: the account is offered, never required here. */}
             {!isSignedIn() && (

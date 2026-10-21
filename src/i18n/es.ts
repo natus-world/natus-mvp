@@ -616,7 +616,8 @@ export const es = {
       birthday: 'Cumple',
     },
     // Proposed (21 Oct 2026): the preview before the account.
-    save: 'Guardar mi mapa',
+    // The owner's text (21 Oct 2026).
+    save: 'Ver mi carta completa',
     saveLine: 'Guarda tu mapa para leerlo completo y ver tus caminos.',
   },
   soulMap: {
@@ -658,6 +659,8 @@ export const es = {
     empty: 'Todavía no tenemos tu mapa. Empieza por el principio y lo calculamos.',
     start: 'Empezar',
     toPaths: 'Ver mis caminos',
+    // Proposed (21 Oct 2026): right after saving, on to «Cómo trabajar» and «Para cuidarte».
+    onToCare: 'Seguir a tus caminos',
     save: 'Guardar mi mapa',
     // v1.2 M-02, proposed (not in the guide): when the map was last written
     // and the version before it.

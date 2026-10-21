@@ -29,7 +29,6 @@ import { BackChevron } from '@/design/chart-marks';
 import { ProfileButton } from '@/components/ProfileButton';
 import { LegacyRedirect } from '@/components/LegacyRedirect';
 import { LEGACY_PATHS, PATHS } from '@/components/routes';
-import { CARE_PATH } from '@/store/care';
 import { revelationPending, revelationShowing } from '@/store/revelation';
 import { currentSynthesis } from '@/store/soulMap';
 import { copy } from '@/i18n';
@@ -124,11 +123,11 @@ export function App() {
       if (result.kind === 'remote') {
         track('app_opened');
         // Back from Google with a map to keep: the account is created now,
-        // before anything renders, and the way goes on to «Cómo trabajar»
-        // and «Para cuidarte» (owner, 20 Oct 2026).
+        // before anything renders, and the whole map opens; «Cómo trabajar»
+        // and «Para cuidarte» follow from there (owner, 21 Oct 2026).
         if (await completeLinkedSignup()) {
           clearAccountRequirement();
-          navigate(CARE_PATH, { replace: true, state: { next: PATHS.paths } });
+          navigate('/carta', { replace: true });
         }
         const profile = activeProfile();
         if (profile) void ensureWholeSignChart(profile.draft);

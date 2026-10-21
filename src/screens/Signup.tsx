@@ -14,8 +14,6 @@ import { CodeEntry } from '@/components/onboarding/CodeEntry';
 import { EmailCodeForm } from '@/components/onboarding/EmailCodeForm';
 import { readPendingCode, savePendingCode, type PendingCode } from '@/components/onboarding/pending-code';
 import { track } from '@/store/funnel';
-import { CARE_PATH } from '@/store/care';
-import { PATHS } from '@/components/routes';
 import { reopenRevelation } from '@/store/revelation';
 import { BackChevron } from '@/design/chart-marks';
 
@@ -146,14 +144,15 @@ export function Signup() {
   }
 
   // The code matched: the anonymous row now carries the address, and the
-  // account is created from it as after Google; the way goes on to «Cómo
-  // trabajar» and «Para cuidarte» (owner, 20 Oct 2026).
+  // account is created from it as after Google; the whole map opens, as the
+  // preview's button promised, and goes on to «Cómo trabajar» from there
+  // (owner, 21 Oct 2026).
   const saved = () => {
     void completeLinkedSignup().then((created) => {
       if (created) {
         savePendingCode('save', null);
         clearAccountRequirement();
-        navigate(CARE_PATH, { replace: true, state: { next: PATHS.paths } });
+        navigate('/carta', { replace: true });
       } else {
         setCode(null);
         setGoogleError(text.localFailed);
