@@ -94,6 +94,8 @@ export const es = {
       placeholder: 'Escribe lo que se te ocurra…',
     },
     openness: {
+      // Proposed (21 Oct 2026): «Cómo trabajar» now opens «Para cuidarte».
+      beforePaths: 'Antes de tus caminos',
       otherLabel: 'Otro tipo de trabajo',
       otherPlaceholder: 'Otro: cuéntanos cuál',
     },
@@ -613,6 +615,9 @@ export const es = {
       personality: 'Person.',
       birthday: 'Cumple',
     },
+    // Proposed (21 Oct 2026): the preview before the account.
+    save: 'Guardar mi mapa',
+    saveLine: 'Guarda tu mapa para leerlo completo y ver tus caminos.',
   },
   soulMap: {
     kicker: 'Tu mapa del alma',
@@ -1344,9 +1349,10 @@ export const es = {
     // Google before the map (owner, 16 Oct 2026); approved texts. Helper and
     // note changed with the code (owner, 20 Oct 2026).
     required: {
-      titleLead: 'Tu mapa ',
-      titleEmphasis: 'está listo',
-      helper: 'Guárdalo para verlo y volver a él cuando quieras, desde cualquier dispositivo.',
+      // Proposed (21 Oct 2026): it now comes right after the preview.
+      titleLead: 'Para leerlo ',
+      titleEmphasis: 'completo',
+      helper: 'Guárdalo con Google o con tu correo y sigue a tus caminos. Así vuelves a él cuando quieras, desde cualquier dispositivo.',
       cta: 'Continuar con Google',
       note: 'Usamos tu correo o tu cuenta de Google solo para que puedas volver a entrar. No hay contraseña.',
       // Proposed: that Google account already has its own space.

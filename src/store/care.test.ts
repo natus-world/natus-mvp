@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { answerYesNo, careDestination, completeCare, hasAnsweredCare, needsCare } from './care';
+import { answerYesNo, careDestination, completeCare, hasAnsweredCare, needsCare, needsOpenness, saveOpenness } from './care';
 import { activeProfile, signUp } from './account';
 import { activeHighSeverityEvent, listCrisisEvents } from './crisis';
 import { getOrCreateSession, updateDraft } from './session';
@@ -66,7 +66,7 @@ describe('O-06 — «Para cuidarte» sits between the map and Caminos', () => {
     withMap();
     const outcome = completeCare({ ideation_6m: 'frecuentes', prefer_not_to_say: ['psychiatric_medication'] }, T0);
 
-    expect(outcome).toEqual({ next: 'continue' });
+    expect(outcome).toEqual({ next: 'continue', alerted: false });
     expect(activeProfile(T0)?.draft.clinical_basics.ideation_6m).toBe('frecuentes');
     expect(listCrisisEvents()).toHaveLength(0);
   });
@@ -83,7 +83,7 @@ describe('O-06 — «Para cuidarte» sits between the map and Caminos', () => {
     withMap();
     const outcome = completeCare({ ideation_6m: 'no', additional_notes: 'Trabajo de noche y duermo poco.' }, T0);
 
-    expect(outcome).toEqual({ next: 'continue' });
+    expect(outcome).toEqual({ next: 'continue', alerted: false });
     expect(activeProfile(T0)?.draft.clinical_basics.additional_notes).toBe('Trabajo de noche y duermo poco.');
     expect(listCrisisEvents()).toHaveLength(0);
   });
@@ -127,5 +127,35 @@ describe('O-06 — «Para cuidarte» sits between the map and Caminos', () => {
     expect(careDestination('/recorrido')).toBe('/recorrido');
     expect(careDestination('https://example.com')).toBe('/caminos');
     expect(careDestination(undefined)).toBe('/caminos');
+  });
+
+  it('tells the caller when a low signal was recorded, so nothing commercial follows', () => {
+    withMap();
+    const outcome = completeCare({ ideation_6m: 'no', additional_notes: 'Ya no aguanto, no doy mas.' }, T0);
+
+    expect(outcome).toEqual({ next: 'continue', alerted: true });
+    expect(listCrisisEvents()).toHaveLength(1);
+  });
+});
+
+describe('«Cómo trabajar» before «Para cuidarte» (owner, 20 Oct 2026)', () => {
+  it('is asked of whoever has not answered it, and of nobody else', () => {
+    expect(needsOpenness(undefined)).toBe(true);
+    expect(needsOpenness([])).toBe(true);
+    expect(needsOpenness(['psicologia_clinica'])).toBe(false);
+  });
+
+  it('keeps the answer on the account once there is one', () => {
+    withMap();
+    signUp({ email: 'ana@ejemplo.cl', now: T0 });
+    saveOpenness(['psicologia_clinica'], T0);
+    expect(activeProfile(T0)?.draft.openness_to_modalities).toEqual(['psicologia_clinica']);
+    expect(needsOpenness(activeProfile(T0)?.draft.openness_to_modalities)).toBe(false);
+  });
+
+  it('keeps it on the anonymous session before', () => {
+    withMap();
+    saveOpenness(['psicologia_clinica'], T0);
+    expect(activeProfile(T0)?.draft.openness_to_modalities).toEqual(['psicologia_clinica']);
   });
 });

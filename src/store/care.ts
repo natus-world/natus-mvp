@@ -1,5 +1,5 @@
 import { detectCrisis, type ClinicalBasics } from '@/lib/safety';
-import { activeProfile, updateClientProfile } from './account';
+import { activeProfile, updateActiveProfile, updateClientProfile } from './account';
 import { currentSynthesis } from './soulMap';
 import { updateDraft } from './session';
 import { recordCrisisEvent } from './crisis';
@@ -33,13 +33,27 @@ export function answerYesNo(basics: ClinicalBasics, field: Skippable, value: boo
   return next;
 }
 
+/**
+ * «Cómo trabajar» now opens «Para cuidarte», right before Caminos (owner,
+ * 20 Oct 2026): asked of whoever has not answered it — every new map since,
+ * and nobody from before, who answered it in the onboarding.
+ */
+export function needsOpenness(openness: readonly string[] | undefined): boolean {
+  return (openness?.length ?? 0) === 0;
+}
+
+export function saveOpenness(openness: string[], now = Date.now()): void {
+  updateActiveProfile({ openness_to_modalities: openness }, now);
+}
+
 export function needsCare(now = Date.now()): boolean {
   const profile = activeProfile(now);
   if (!profile || currentSynthesis() === undefined) return false;
   return !hasAnsweredCare(profile.draft.clinical_basics);
 }
 
-export type CareOutcome = { next: 'crisis'; eventId: string } | { next: 'continue' };
+/** `alerted`: a low signal was recorded — nothing commercial follows it. */
+export type CareOutcome = { next: 'crisis'; eventId: string } | { next: 'continue'; alerted: boolean };
 
 export function completeCare(basics: ClinicalBasics, now = Date.now()): CareOutcome {
   if (basics.ideation_6m === undefined) throw new Error('The ideation answer is required.');
@@ -56,5 +70,5 @@ export function completeCare(basics: ClinicalBasics, now = Date.now()): CareOutc
     return { next: 'crisis', eventId: recordCrisisEvent(verdict, 'onboarding', now).id };
   }
   if (verdict.crisis) recordCrisisEvent(verdict, 'onboarding', now);
-  return { next: 'continue' };
+  return { next: 'continue', alerted: verdict.crisis };
 }

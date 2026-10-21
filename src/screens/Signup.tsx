@@ -14,6 +14,8 @@ import { CodeEntry } from '@/components/onboarding/CodeEntry';
 import { EmailCodeForm } from '@/components/onboarding/EmailCodeForm';
 import { readPendingCode, savePendingCode, type PendingCode } from '@/components/onboarding/pending-code';
 import { track } from '@/store/funnel';
+import { CARE_PATH } from '@/store/care';
+import { PATHS } from '@/components/routes';
 
 /**
  * The conversion moment of PDR section 3: the account is asked for *after* the
@@ -141,13 +143,14 @@ export function Signup() {
   }
 
   // The code matched: the anonymous row now carries the address, and the
-  // account is created from it as after Google; the map it was asked for opens.
+  // account is created from it as after Google; the way goes on to «Cómo
+  // trabajar» and «Para cuidarte» (owner, 20 Oct 2026).
   const saved = () => {
     void completeLinkedSignup().then((created) => {
       if (created) {
         savePendingCode('save', null);
         clearAccountRequirement();
-        navigate('/carta', { replace: true });
+        navigate(CARE_PATH, { replace: true, state: { next: PATHS.paths } });
       } else {
         setCode(null);
         setGoogleError(text.localFailed);

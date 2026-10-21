@@ -1,22 +1,28 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Screen } from '@/design/Screen';
 import { PLANET_GLYPHS } from '@/design/planet-glyphs';
 import { SIGN_GLYPHS, type GlyphSign } from '@/design/zodiac-glyphs';
 import { useTakeover } from '@/components/takeover';
-import { Paywall } from '@/components/Paywall';
 import { PATHS } from '@/components/routes';
 import { hasBirthTime } from '@/astrology/natal-chart';
 import { buildNatalChart, SIGNS, type NatalChart } from '@/lib/natal-chart';
 import { activeProfile } from '@/store/account';
+import { accountRequired } from '@/store/account-required';
+import { CARE_PATH } from '@/store/care';
 import { currentSynthesis, type StoredSynthesis } from '@/store/soulMap';
-import { clearRevelation, revelationPending } from '@/store/revelation';
+import { endRevelation, markWelcomeOfferDue, revelationPending, startRevelation } from '@/store/revelation';
 import { copy } from '@/i18n';
 
 /**
  * The revelation of the map (package 02, option B «Un punto de luz», chosen
- * by Nico, 16 Oct 2026). Seen once, right after «Generando» — or after the
- * trip through Google that sometimes stands between them.
+ * by Nico, 16 Oct 2026). Seen once, right after «Generando», and since the
+ * reorder of 20–21 Oct 2026 it is the preview that comes before the account:
+ * each reading shows its first sentence and fades into lines that carry none
+ * of the rest — the full text is not on the page — and every way out leads to
+ * «Guarda tu mapa», or to «Cómo trabajar» for somebody who already has an
+ * account. Premium's welcome offer no longer opens here; it comes after
+ * «Para cuidarte».
  *
  * A plain night with no photograph: nothing else to look at in this moment.
  * A point of light is born in the centre, the ring of the chart is drawn from
@@ -35,12 +41,17 @@ const SECTIONS = Object.keys(text.sections) as (keyof typeof text.sections)[];
 export function RevealFirst({ children }: { children: ReactNode }) {
   const stored = currentSynthesis();
   const [open, setOpen] = useState(() => revelationPending(stored?.id));
+  // Cleared as it opens, so closing the app on it does not bring it back.
+  useEffect(() => {
+    if (open) startRevelation();
+    return () => endRevelation();
+  }, [open]);
   if (open && stored) {
     return (
       <Revelation
         stored={stored}
         onSeen={() => {
-          clearRevelation();
+          endRevelation();
           setOpen(false);
         }}
       />
@@ -69,13 +80,14 @@ function firstSentence(body: string): string {
 export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen: () => void }) {
   useTakeover();
   const navigate = useNavigate();
-  // Right after the map, Premium with the free month first (owner, 16 Oct
-  // 2026) — once, and never to a premium person or after a crisis alert.
-  const [invite, setInvite] = useState(false);
+  // Read once: the way out is decided by whether the account is still owed.
+  const [toSave] = useState(() => accountRequired());
   const goOn = useCallback(() => {
+    markWelcomeOfferDue();
     onSeen();
-    navigate(PATHS.paths);
-  }, [onSeen, navigate]);
+    if (toSave) navigate('/registro');
+    else navigate(CARE_PATH, { state: { next: PATHS.paths } });
+  }, [onSeen, navigate, toSave]);
   const root = useRef<HTMLDivElement>(null);
   const chart = useMemo(readChart, []);
   const firstName = (activeProfile()?.draft.legal_birth_name ?? '').trim().split(/\s+/)[0] ?? '';
@@ -149,10 +161,15 @@ export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen
 
           <div className="vid">
             {SECTIONS.map((key) => (
-              <button key={key} type="button" className="fila el-l" onClick={onSeen}>
+              <button key={key} type="button" className="fila el-l" onClick={goOn}>
                 <span>
                   <span className="ft">{text.sections[key]}</span>
                   <span className="fd">{firstSentence(synthesis.soul_map_synthesis[key])}</span>
+                  {/* What follows, faded: lines with none of the text in them. */}
+                  <span className="sigue" aria-hidden="true">
+                    <i />
+                    <i />
+                  </span>
                 </span>
                 <span className="chev" aria-hidden="true">
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3">
@@ -165,19 +182,15 @@ export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen
         </div>
 
         <div className="pie el-pie">
-          <button
-            type="button"
-            className="p1"
-            onClick={() => setInvite(true)}
-          >
-            {copy.common.continue}
+          {toSave && <p className="guarda">{copy.revelation.saveLine}</p>}
+          <button type="button" className="p1" onClick={goOn}>
+            {toSave ? copy.revelation.save : copy.common.continue}
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
               <path d="M3 8h10M9 4l4 4-4 4" />
             </svg>
           </button>
         </div>
       </div>
-      {invite && <Paywall feature="welcome" onDismiss={goOn} />}
     </Screen>
   );
 }

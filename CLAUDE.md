@@ -389,17 +389,29 @@ auto-reload, fed by the subscriptions. Ways to lower the cost per person,
 proposed and not decided: ask for Google before writing the map, or write
 the first map with Sonnet.
 
-**Google before the map is seen (owner, 16 Oct 2026, built).** Once the
-project has Google on, a map made from then on is saved before it is shown:
-the onboarding ends on `/registro` with «Tu mapa está listo» and «Continuar
-con Google», no «Ahora no», and every other route sends there until the
-account exists (`store/account-required.ts`; the policies stay readable).
-Back from Google, the account is created and the map opens. Somebody who
-started without an account before keeps «Guardar mi mapa» as an offer. When
-the Google account already has its own space, «Entrar con esa cuenta»
-signs into it and the new map stays behind on the anonymous row (that text
-and the message above it are proposals). Anonymous rows are still created at
-the first page load and nothing purges them.
+**The onboarding funnel, reordered (owner, 20–21 Oct 2026; replaces «Google
+before the map is seen» of 16 Oct).** Built on `nico/onboarding-embudo` from
+the cerebro's `traspasos/2026-10-20-pdr-usuario-onboarding-flujo.md`: two
+steps («01 DE 02»: ¿Quién eres?, ¿Qué te estás preguntando?), «Generando»,
+then the preview of the map on `/carta` (`RevealFirst`): each reading shows
+its first sentence and fades into two lines that carry none of the rest — the
+full text is not on the page — and every way out goes to «Guarda tu mapa»
+(`/registro`, Google or the code, no «Ahora no»), or to the next step for
+somebody already signed in. `requireAccount()` is set when the map is ready;
+`sendsToSignup` lets only the preview on screen stand in front of the account,
+and the preview is cleared as it opens (`startRevelation`), so closing the app
+on it comes back to «Guarda tu mapa», never to the preview. Saving goes on to
+`/cuidarte`, which now opens with «Cómo trabajar» under «Antes de tus caminos»
+(no step number) for whoever has none, then the four questions, then
+Premium's welcome offer once (`welcome_offer_due`, set on leaving the
+preview) — never after a crisis screen, a recorded alert or the answer
+«frecuentes» (proposed), and the server's `offer_premium` decides as well.
+The soul-map prompt is unchanged: it gets no openness and writes «sin
+preferencia». The funnel now records `openness_done` after `account_created`;
+the panel's labels follow. Texts are proposals waiting for the owner. When
+the Google account already has its own space, «Entrar con esa cuenta» signs
+into it and the new map stays behind on the anonymous row. Anonymous rows are
+still created at the first page load and nothing purges them.
 
 **Entering with a 6-digit code by e-mail (owner, 20 Oct 2026, published the
 same night).** Built from the approved mockup
@@ -480,10 +492,10 @@ the tab bar, so an open card reads in the whole screen (option A, owner,
 21 Oct 2026, from his iPhone video); «Cerrar sesión» also at the foot of
 Perfil, above the legal links, only for an account (option B, owner, 21 Oct
 2026), while «Borrar mi cuenta» stays two screens deep; the Care button lights when the three
-questions are answered (the package's rule, owner). Right after the
-revelation (option B) Premium is offered once with the free month day by day
-(`Paywall feature="welcome"`, funnel detail `welcome`), never to premium nor
-after a crisis alert. The crisis screen always has «Volver» (owner). Carta
+questions are answered (the package's rule, owner). After «Para cuidarte»
+(moved from right after the revelation, 20 Oct 2026) Premium is offered once
+with the free month day by day (`Paywall feature="welcome"`, funnel detail
+`welcome`), never to premium nor after a crisis alert. The crisis screen always has «Volver» (owner). Carta
 completa (05) is `screens/FullChart.tsx`, with Davraz's reading of each point
 from the server (below). Open with the owner: the why of a therapy in three parts needs a
 prompt change; texts the package marks «propuesta» were applied unless they

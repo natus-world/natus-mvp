@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { accountRequired, clearAccountRequirement } from '@/store/account-required';
+import { clearAccountRequirement, sendsToSignup } from '@/store/account-required';
 import { AppFrame } from '@/components/AppFrame';
 import { SaveFailureNotice } from '@/components/SaveFailureNotice';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -29,6 +29,9 @@ import { BackChevron } from '@/design/chart-marks';
 import { ProfileButton } from '@/components/ProfileButton';
 import { LegacyRedirect } from '@/components/LegacyRedirect';
 import { LEGACY_PATHS, PATHS } from '@/components/routes';
+import { CARE_PATH } from '@/store/care';
+import { revelationPending, revelationShowing } from '@/store/revelation';
+import { currentSynthesis } from '@/store/soulMap';
 import { copy } from '@/i18n';
 import { useCrisisShown, useTakeoverShown } from '@/components/takeover';
 import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
@@ -121,10 +124,11 @@ export function App() {
       if (result.kind === 'remote') {
         track('app_opened');
         // Back from Google with a map to keep: the account is created now,
-        // before anything renders, and the map it was asked for is shown.
+        // before anything renders, and the way goes on to «Cómo trabajar»
+        // and «Para cuidarte» (owner, 20 Oct 2026).
         if (await completeLinkedSignup()) {
           clearAccountRequirement();
-          navigate('/carta', { replace: true });
+          navigate(CARE_PATH, { replace: true, state: { next: PATHS.paths } });
         }
         const profile = activeProfile();
         if (profile) void ensureWholeSignChart(profile.draft);
@@ -183,9 +187,11 @@ export function App() {
     );
   }
 
-  // A map made after Google became required is saved before it is seen
-  // (owner, 16 Oct 2026). The policies stay readable on the way.
-  if (accountRequired() && !['/registro', '/privacidad', '/terminos'].includes(pathname)) {
+  // A new map is saved right after its preview (owner, 20–21 Oct 2026): only
+  // the preview on screen stands in front of the account, and the policies
+  // stay readable on the way.
+  const previewing = revelationShowing() || revelationPending(currentSynthesis()?.id);
+  if (sendsToSignup(pathname, previewing)) {
     return <Navigate to={{ pathname: '/registro', search, hash }} replace />;
   }
 

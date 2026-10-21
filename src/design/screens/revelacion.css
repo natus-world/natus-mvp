@@ -241,7 +241,7 @@
   inset: 0;
   overflow-y: auto;
   scrollbar-width: none;
-  padding: calc(var(--header-h) + var(--u) * 8) calc(var(--u) * 24) calc(var(--u) * 110);
+  padding: calc(var(--header-h) + var(--u) * 8) calc(var(--u) * 24) calc(var(--u) * 150);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -372,10 +372,31 @@
   display: block;
 }
 
-.revelacion .fd {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* The preview before the account (owner, 20–21 Oct 2026): the first
+   sentence whole, then what follows faded — two lines that carry no text. */
+.revelacion .sigue {
+  display: grid;
+  gap: calc(var(--u) * 7);
+  margin-top: calc(var(--u) * 9);
+}
+
+.revelacion .sigue i {
+  display: block;
+  height: calc(var(--u) * 8);
+  border-radius: 99px;
+  background: linear-gradient(90deg, rgb(236 226 208 / 0.2), rgb(236 226 208 / 0.03));
+  filter: blur(calc(var(--u) * 1.5));
+}
+
+.revelacion .sigue i + i {
+  width: 68%;
+}
+
+.revelacion .guarda {
+  margin: 0 0 calc(var(--u) * 14);
+  text-align: center;
+  font: 300 calc(var(--u) * 14) / 1.45 var(--font-sans);
+  color: var(--t2);
 }
 
 .revelacion .pie {

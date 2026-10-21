@@ -26,10 +26,12 @@ export type Namespace =
   | 'first_touch'
   /** Which stored chart was last rebuilt by whole sign (v1.2 A-01). */
   | 'whole_sign_chart'
-  /** The map was made after Google became required: save it before seeing it. */
+  /** The map was made after the account became required: save it after its preview. */
   | 'account_required'
-  /** The map just written in onboarding, still to be revealed (package 02). */
+  /** The map just written in onboarding, still to be previewed (package 02). */
   | 'revelation_pending'
+  /** Premium's welcome offer, owed after «Para cuidarte» (owner, 20 Oct 2026). */
+  | 'welcome_offer_due'
   /** Davraz's readings of the full chart, as last read from the server (package 05). */
   | 'chart_readings';
 

@@ -12,10 +12,13 @@ import { copy } from '@/i18n';
  * slugs before the draft is written. The stored contract is untouched.
  */
 export function Openness({
+  kicker,
   draft,
   onChange,
   onNext,
 }: {
+  /** «Antes de tus caminos», where it now opens «Para cuidarte» (owner, 20 Oct 2026). */
+  kicker?: string;
   draft: OnboardingDraft;
   onChange: (patch: Partial<OnboardingDraft>) => void;
   onNext: () => void;
@@ -50,6 +53,7 @@ export function Openness({
   // (it clears the others), and «Otro» to write.
   return (
     <StepBody
+      {...(kicker ? { kicker } : {})}
       title={emphasizeLast(opennessFile.prompt_es)}
       helper={opennessFile.helper_es}
       action={<NextButton disabled={!canContinue} onClick={onNext} />}

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { accountRequired, clearAccountRequirement, requireAccount } from './account-required';
+import { accountRequired, clearAccountRequirement, requireAccount, sendsToSignup } from './account-required';
 import { signUp } from './account';
 import { attachSoulMap, getOrCreateSession, updateDraft } from './session';
 import { clearAll } from './db';
@@ -30,5 +30,25 @@ describe('Google before the map (owner, 16 Oct 2026)', () => {
     requireAccount();
     clearAccountRequirement();
     expect(accountRequired()).toBe(false);
+  });
+});
+
+describe('the preview before the account (owner, 20–21 Oct 2026)', () => {
+  it('lets only the preview on screen stand in front of «Guarda tu mapa»', () => {
+    requireAccount();
+    expect(sendsToSignup('/carta', true)).toBe(false);
+    expect(sendsToSignup('/carta', false)).toBe(true);
+    expect(sendsToSignup('/caminos', true)).toBe(true);
+    expect(sendsToSignup('/cuidarte', true)).toBe(true);
+    expect(sendsToSignup('/hoy', false)).toBe(true);
+  });
+
+  it('keeps the form and the policies open while the account is owed', () => {
+    requireAccount();
+    for (const path of ['/registro', '/privacidad', '/terminos']) expect(sendsToSignup(path, false)).toBe(false);
+  });
+
+  it('sends nobody anywhere once nothing is owed', () => {
+    expect(sendsToSignup('/caminos', false)).toBe(false);
   });
 });

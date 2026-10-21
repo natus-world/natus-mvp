@@ -21,13 +21,13 @@ import { markFalsePositive, recordCrisisEvent } from '@/store/crisis';
 import { copy } from '@/i18n';
 import { BasicData } from './BasicData';
 import { PresentingNeed } from './PresentingNeed';
-import { Openness } from './Openness';
 import { Generating, GeneratingFailed } from './Generating';
 
 /**
- * The three steps of O-06 and the generation that follows them. The landing
- * comes before and the Soul Map after; the clinical questions are no longer
- * here — they are «Para cuidarte», between the map and Caminos.
+ * The two steps of O-06 and the generation that follows them (reordered by
+ * the owner, 20–21 Oct 2026). The landing comes before; after, the preview of
+ * the map, the account, and then «Cómo trabajar» and «Para cuidarte» on the
+ * way to Caminos (`Care.tsx`).
  *
  * Layer 1 safety runs on leaving the step where the person writes, which is
  * before generation, where PDR 6.5 puts it in the pipeline. A high-severity
@@ -37,7 +37,7 @@ import { Generating, GeneratingFailed } from './Generating';
  * screen, with the lines the server attached.
  */
 
-const STEPS = ['quien', 'pregunta', 'apertura', 'generando'] as const;
+const STEPS = ['quien', 'pregunta', 'generando'] as const;
 type StepName = (typeof STEPS)[number];
 
 /**
@@ -47,7 +47,6 @@ type StepName = (typeof STEPS)[number];
 const LOOKS = {
   quien: { photo: 'concretoSombra', veil: 0.4, alpha: 0.7 },
   pregunta: { photo: 'maderaOscura', veil: 0.3, alpha: 0.3 },
-  apertura: { photo: 'surcosArena', veil: 0.46, alpha: 0.3 },
 } as const;
 
 type Crisis = { eventId: string; message: string; layer: 'text' | 'model' };
@@ -127,12 +126,11 @@ export function Onboarding() {
     };
   }, []);
 
+  // The preview of the map comes first, the account after it (owner, 20–21
+  // Oct 2026): the requirement is set now, so that leaving the preview, or
+  // closing the app on it, lands on «Guarda tu mapa».
   const onDone = useCallback(() => {
-    if (googleOn && !isSignedIn()) {
-      requireAccount();
-      navigate('/registro');
-      return;
-    }
+    if (googleOn && !isSignedIn()) requireAccount();
     navigate('/carta');
   }, [navigate, googleOn]);
 
@@ -224,16 +222,6 @@ export function Onboarding() {
               onNext={() => {
                 if (!runSafety()) return;
                 track('need_done');
-                advance();
-              }}
-            />
-          )}
-          {step === 'apertura' && (
-            <Openness
-              draft={draft}
-              onChange={change}
-              onNext={() => {
-                track('openness_done');
                 advance();
               }}
             />
