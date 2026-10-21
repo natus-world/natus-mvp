@@ -410,9 +410,11 @@ The soul-map prompt is unchanged: it gets no openness and writes «sin
 preferencia». The funnel now records `openness_done` after `account_created`;
 the panel's labels follow. The texts were approved by the owner on 21 Oct
 2026; «Guarda tu mapa» takes the olive leaves (the incense has copyright and
-left the app) and «Cómo trabajar» the dunes, both owner's picks. Still open:
-a desktop layout for the preview (a phone column today) and the offer over
-«Para cuidarte». When
+left the app) and «Cómo trabajar» the dunes, both owner's picks. The preview
+takes Carta's starry sky and on desktop fills the window in two columns, and
+«Guarda tu mapa» opens with «Volver a mi mapa», which shows the preview again,
+still, in that visit (`reopenRevelation`; owner, 21 Oct 2026). Still open: the
+offer over «Para cuidarte». When
 the Google account already has its own space, «Entrar con esa cuenta» signs
 into it and the new map stays behind on the anonymous row. Anonymous rows are
 still created at the first page load and nothing purges them.
