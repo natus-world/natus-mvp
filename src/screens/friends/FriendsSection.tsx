@@ -9,7 +9,7 @@ import {
   renewInviteUrl,
   type Friend,
 } from '@/store/friends';
-import { track } from '@/store/funnel';
+import { InviteButtons } from './invite';
 
 const t = copy.friends;
 
@@ -31,7 +31,6 @@ export function FriendsSection({ onCount }: { onCount?: (n: number) => void }) {
   const [link, setLink] = useState<string | null>(null);
   const [friends, setFriends] = useState<Friend[] | null>(null);
   const [failed, setFailed] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const waiting = pendingInvite();
@@ -51,28 +50,6 @@ export function FriendsSection({ onCount }: { onCount?: (n: number) => void }) {
   useEffect(() => {
     void load();
   }, [load]);
-
-  const copyLink = async () => {
-    if (!link) return;
-    try {
-      await navigator.clipboard.writeText(link);
-      track('friend_invited');
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2_500);
-    } catch {
-      // Some browsers refuse the clipboard; the link is on screen to select.
-    }
-  };
-
-  const share = async () => {
-    if (!link) return;
-    try {
-      await navigator.share({ text: t.shareText, url: link });
-      track('friend_invited');
-    } catch {
-      // Cancelled, or not supported: copying is the fallback beside it.
-    }
-  };
 
   const renew = async () => {
     setBusy(true);
@@ -99,8 +76,6 @@ export function FriendsSection({ onCount }: { onCount?: (n: number) => void }) {
       setBusy(false);
     }
   };
-
-  const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   return (
     <>
@@ -181,18 +156,7 @@ export function FriendsSection({ onCount }: { onCount?: (n: number) => void }) {
 
       {link && (
         <>
-          <button
-            type="button"
-            className="p1i"
-            onClick={() => void (canShare ? share() : copyLink())}
-          >
-            {!canShare && copied ? t.copied : t.inviteCta}
-          </button>
-          {canShare && (
-            <button type="button" className="p2i" onClick={() => void copyLink()}>
-              {copied ? t.copied : t.copy}
-            </button>
-          )}
+          <InviteButtons link={link} primary="p1i" secondary="p2i" />
           <p className="nota enlace">{link}</p>
           <p className="nota">{t.body}</p>
           <button type="button" disabled={busy} onClick={() => void renew()} className="enl">

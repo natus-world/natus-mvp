@@ -5,21 +5,22 @@ import { PATHS } from '@/components/routes';
 import { copy } from '@/i18n';
 import { activeProfile, getClient } from '@/store/account';
 import { hasRemoteIdentity } from '@/store/hydrate.ts';
-import { listFriends, type Friend } from '@/store/friends';
+import { listFriends, myInviteUrl, type Friend } from '@/store/friends';
 import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
+import { InviteButtons } from '../friends/invite';
 import { ComparisonGate } from './Gate';
 import { Chevron, firstNameOf, initialOf, sinceLabel, useWide } from './pieces';
 
 const t = copy.comparison.home;
 
-/** Where «Invitar a alguien» and «Ir a Perfil» lead: Amigos, in Perfil. */
+/** Where «Invitar a alguien» leads once there are friends: Amigos, in Perfil. */
 const TO_FRIENDS = `${PATHS.profile}?ver=amigos`;
 
 /**
  * Comparar cartas, from Hoy (guide 9.14; package 15, 16 Oct 2026): the
  * friends to compare with. v1.2 C-01 — only friends inside Natus, astrology
- * and numerology only. Invitations are links, shared from Perfil; nobody is
- * searched for here.
+ * and numerology only. Invitations are links, shared from Perfil, or from here
+ * while there are no friends yet (owner, 21 Oct 2026); nobody is searched for.
  *
  * The phone lists them; the desktop lays them out as circles around yours,
  * to be dragged onto it or clicked.
@@ -28,6 +29,8 @@ export function ComparisonHome() {
   const hasAccount = getClient() !== null && hasRemoteIdentity();
   const [friends, setFriends] = useState<Friend[] | null>(null);
   const [failed, setFailed] = useState(false);
+  // With no friends yet, the invitation is made here (owner, 21 Oct 2026).
+  const [link, setLink] = useState<string | null>(null);
   // v1.2 F-01: what the plan has left, said before choosing.
   const [quota, setQuota] = useState<Quota | null>(null);
   const wide = useWide();
@@ -37,7 +40,14 @@ export function ComparisonHome() {
     if (!hasAccount) return;
     let live = true;
     listFriends()
-      .then((list) => live && setFriends(list))
+      .then(async (list) => {
+        if (!live) return;
+        setFriends(list);
+        if (list.length === 0) {
+          const url = await myInviteUrl();
+          if (live) setLink(url);
+        }
+      })
       .catch(() => live && setFailed(true));
     void fetchQuota('comparison').then((q) => live && setQuota(q));
     return () => {
@@ -78,9 +88,11 @@ export function ComparisonHome() {
               {friends && friends.length === 0 && (
                 <>
                   <p className="cuerpo">{t.empty}</p>
-                  <Link to={TO_FRIENDS} className="btn s sola">
-                    {t.toProfile}
-                  </Link>
+                  {link && (
+                    <div className="invitar-aqui">
+                      <InviteButtons link={link} primary="btn p" secondary="btn s" />
+                    </div>
+                  )}
                 </>
               )}
             </div>

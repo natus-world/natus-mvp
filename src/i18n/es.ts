@@ -1707,8 +1707,7 @@ export const es = {
         'Elige a un amigo de Natus para comparar sus cartas: solo astrología y numerología. Nunca sale un veredicto sobre la relación: sale material para conversar.',
       needAccount: 'Para comparar cartas con tus amigos necesitas tu cuenta.',
       createAccount: 'Crear mi cuenta',
-      empty: 'Todavía no tienes amigos en Natus. Invita a alguien desde Perfil con tu link.',
-      toProfile: 'Ir a Perfil',
+      empty: 'Todavía no tienes amigos en Natus. Invita a alguien con tu link.',
       unavailable: 'No pudimos cargar tus amigos. Intenta de nuevo en un momento.',
       // Package 15 (16 Oct 2026). «Invitar a alguien» and the desktop table's
       // texts are proposals.

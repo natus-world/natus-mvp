@@ -160,6 +160,14 @@
   margin-top: calc(var(--u) * 22);
 }
 
+/* «Invitar a alguien» and «Copiar mi link» under an empty list (owner,
+   21 Oct 2026): the same place and width as the button they replace. */
+.comparar .invitar-aqui {
+  display: grid;
+  gap: calc(var(--u) * 12);
+  margin-top: calc(var(--u) * 22);
+}
+
 .comparar .link {
   text-align: center;
   font: 400 calc(var(--u) * 14) / 1.3 var(--font-sans);
@@ -497,6 +505,12 @@
 
   .comparar .btn.sola {
     width: calc(var(--d) * 360);
+    margin-top: calc(var(--d) * 28);
+  }
+
+  .comparar .invitar-aqui {
+    width: calc(var(--d) * 360);
+    gap: calc(var(--d) * 12);
     margin-top: calc(var(--d) * 28);
   }
 
