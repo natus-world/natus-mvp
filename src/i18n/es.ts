@@ -618,7 +618,8 @@ export const es = {
     // Proposed (21 Oct 2026): the preview before the account.
     // The owner's text (21 Oct 2026).
     save: 'Ver mi carta completa',
-    saveLine: 'Guarda tu mapa para leerlo completo y ver tus caminos.',
+    // The owner's text (21 Oct 2026).
+    saveLine: 'Guarda tu mapa gratis para leerlo completo y ver tus caminos.',
   },
   soulMap: {
     kicker: 'Tu mapa del alma',
