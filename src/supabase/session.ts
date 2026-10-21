@@ -157,6 +157,101 @@ export async function linkGoogle(): Promise<void> {
 }
 
 /**
+ * Entering with a 6-digit code by e-mail (owner, 20 Oct 2026, the approved
+ * mockup «Entrar con un código»). Two ways in, one code screen:
+ *
+ * - Saving the map: the address goes onto the anonymous row that has existed
+ *   since the first page load (`updateUser`), so its id — and every row keyed
+ *   to it — stays, as with `linkGoogle`. Supabase mails the code with the
+ *   «Change email address» template and the code is checked as
+ *   `email_change`. Needs «Confirm email» on in the project: without it the
+ *   address is attached with no code at all.
+ * - Coming back on another device: `signInWithOtp` with `shouldCreateUser:
+ *   false`, so an address with no space gets no mail and no empty account.
+ *   «Magic link» template, checked as `email`.
+ *
+ * Both were walked against the local stack with the approved templates on
+ * 20 Oct 2026. Supabase answers a wrong code and an expired one the same way
+ * (`otp_expired`), so the screen tells them apart by the time the code was
+ * sent — see `CODE_TTL_MS`.
+ */
+export type CodePurpose = 'save' | 'return';
+
+/** Why a code could not be sent or checked, in the terms the screen speaks. */
+export type CodeFailure =
+  /** The address already has its own space (saving the map). */
+  | 'taken'
+  /** No space with that address (coming back). */
+  | 'none'
+  /** Supabase allows one code a minute per address. */
+  | 'wait'
+  /** The code does not match, or it expired. */
+  | 'invalid'
+  /** Anything else: the network, the mail service. */
+  | 'failed';
+
+export class CodeError extends Error {
+  constructor(readonly failure: CodeFailure) {
+    super(failure);
+  }
+}
+
+/** The project's «Email OTP expiration» (3600 s, checked 20 Oct 2026). */
+export const CODE_TTL_MS = 60 * 60 * 1000;
+
+/** Supabase's minimum interval between two mails to the same address. */
+export const RESEND_AFTER_MS = 60 * 1000;
+
+function sendFailure(error: { code?: string | undefined; status?: number | undefined }): CodeFailure {
+  if (error.code === 'email_exists' || error.code === 'user_already_exists') return 'taken';
+  if (error.code === 'otp_disabled') return 'none';
+  if (error.code === 'over_email_send_rate_limit' || error.status === 429) return 'wait';
+  return 'failed';
+}
+
+/** Mail a code: to save the map with this address, or to come back with it. */
+export async function sendCode(email: string, purpose: CodePurpose): Promise<void> {
+  if (!supabase) throw new CodeError('failed');
+  const address = email.trim();
+  try {
+    const { error } =
+      purpose === 'save'
+        ? await supabase.auth.updateUser({ email: address })
+        : await supabase.auth.signInWithOtp({ email: address, options: { shouldCreateUser: false } });
+    if (error) throw new CodeError(sendFailure(error));
+  } catch (e) {
+    throw e instanceof CodeError ? e : new CodeError('failed');
+  }
+}
+
+/** Mail the code again. Saving resends the pending address change. */
+export async function resendCode(email: string, purpose: CodePurpose): Promise<void> {
+  if (!supabase) throw new CodeError('failed');
+  if (purpose === 'return') return sendCode(email, purpose);
+  try {
+    const { error } = await supabase.auth.resend({ type: 'email_change', email: email.trim() });
+    if (error) throw new CodeError(sendFailure(error));
+  } catch (e) {
+    throw e instanceof CodeError ? e : new CodeError('failed');
+  }
+}
+
+/** Check the six digits. On success the session is the account's. */
+export async function verifyCode(email: string, token: string, purpose: CodePurpose): Promise<void> {
+  if (!supabase) throw new CodeError('failed');
+  try {
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token,
+      type: purpose === 'save' ? 'email_change' : 'email',
+    });
+    if (error) throw new CodeError(error.code === 'otp_expired' || error.status === 403 ? 'invalid' : 'failed');
+  } catch (e) {
+    throw e instanceof CodeError ? e : new CodeError('failed');
+  }
+}
+
+/**
  * What came back in the address after a Google round trip that failed, if
  * anything: `identity_already_exists` means that Google account already has
  * its own Natus space.

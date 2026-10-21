@@ -656,6 +656,169 @@
   }
 }
 
+/* ── Entrar con un código (owner, 20 Oct 2026) ─────────────────────────────
+ * The approved mockup «Entrar con un código»: its own block `codigo-20oct`,
+ * with the package's names and numbers. «o» between Google and the address,
+ * the six boxes (the same glass as a field, corners of 8 like the buttons),
+ * the line under them, and «Volver a tu espacio».
+ */
+
+.cuenta .o {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 12);
+  font: 400 calc(var(--u) * 12) / 1 var(--font-sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--t3);
+  /* 18 above and below, with the column's gap of 12. */
+  margin: calc(var(--u) * 6) 0;
+}
+
+.cuenta .o::before,
+.cuenta .o::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgb(236 226 208 / 0.2);
+}
+
+.entrada .campo-err {
+  border-color: var(--natus-error) !important;
+}
+
+.entrada .estado {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 10);
+  margin-top: calc(var(--u) * 16);
+  font: 400 calc(var(--u) * 14) / 1.4 var(--font-sans);
+  color: var(--t2);
+}
+
+.entrada .estado.err {
+  color: var(--natus-error);
+  align-items: flex-start;
+}
+
+/* Under the field: 16 from it, with the column's gap of 12. */
+.cuenta .botones .estado {
+  margin-top: calc(var(--u) * 4);
+}
+
+.entrada .estado .pulso {
+  width: calc(var(--u) * 6);
+  height: calc(var(--u) * 6);
+  border-radius: 50%;
+  background: var(--t1);
+  flex: none;
+  animation: codigo-respira 1.6s ease-in-out infinite;
+}
+
+@keyframes codigo-respira {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.codigo .cod-caja {
+  position: relative;
+  margin-top: calc(var(--u) * 26);
+}
+
+.codigo .cod {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: calc(var(--u) * 8);
+}
+
+.codigo .cod span {
+  height: calc(var(--u) * 60);
+  display: grid;
+  place-items: center;
+  border-radius: calc(var(--u) * 8);
+  background: rgb(var(--v) / var(--glass-alpha));
+  -webkit-backdrop-filter: blur(calc(var(--u) * 24));
+  backdrop-filter: blur(calc(var(--u) * 24));
+  border: 1px solid rgb(255 255 255 / 0.18);
+  font: 300 calc(var(--u) * 32) / 1 var(--font-serif);
+  font-variant-numeric: lining-nums;
+  color: var(--t1);
+  text-shadow: none;
+}
+
+.codigo .cod span.foco {
+  border-color: var(--natus-dorado);
+  box-shadow: 0 0 0 1px var(--natus-dorado);
+}
+
+.codigo .cod span.foco::after {
+  content: '';
+  width: 1px;
+  height: calc(var(--u) * 28);
+  background: var(--t1);
+  animation: codigo-parpadeo 1.1s steps(1) infinite;
+}
+
+@keyframes codigo-parpadeo {
+  50% {
+    opacity: 0;
+  }
+}
+
+.codigo .cod.revisa span {
+  color: var(--t2);
+}
+
+.codigo .cod.err span {
+  border-color: var(--natus-error);
+}
+
+/* The real input lies over the boxes: the phone offers the code from the
+   mail, opens the number pad and pastes all six. It is never seen. */
+.codigo .cod-in {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  font-size: 16px;
+  opacity: 0;
+  cursor: text;
+}
+
+.codigo .botones.abajo {
+  gap: calc(var(--u) * 14);
+}
+
+.codigo .espera {
+  font: 300 calc(var(--u) * 13) / 1.4 var(--font-sans);
+  color: var(--t2);
+  text-align: center;
+  margin-top: calc(var(--u) * -4);
+}
+
+.volver .primera {
+  text-align: center;
+}
+
+.volver .primera a {
+  color: var(--t1);
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entrada .estado .pulso,
+  .codigo .cod span.foco::after {
+    animation: none;
+  }
+}
+
 /* ── Desktop: text on the left, the form on the right ─────────────────── */
 
 @media (min-width: 1024px) {
@@ -765,6 +928,40 @@
 
   .cuenta .botones .aviso {
     margin: 0;
+  }
+
+  .cuenta .botones :is(.o, .estado) {
+    margin: 0;
+  }
+
+  .codigo :is(.cod-zona, .botones) {
+    width: calc(var(--d) * 460);
+  }
+
+  .codigo .cod-caja {
+    margin-top: calc(var(--d) * 28);
+  }
+
+  .codigo .cod {
+    gap: calc(var(--d) * 10);
+  }
+
+  .codigo .cod span {
+    height: calc(var(--d) * 68);
+    font-size: calc(var(--d) * 36);
+  }
+
+  .entrada .estado {
+    font-size: calc(var(--d) * 15);
+  }
+
+  .codigo .espera {
+    font-size: calc(var(--d) * 14);
+    margin-top: 0;
+  }
+
+  .volver .primera {
+    text-align: left;
   }
 
   .entrada .aviso-crisis {

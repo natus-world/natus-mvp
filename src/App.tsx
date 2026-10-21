@@ -16,6 +16,7 @@ import { Recommendations } from '@/screens/Recommendations';
 import { Routine } from '@/screens/Routine';
 import { Today } from '@/screens/Today';
 import { Signup } from '@/screens/Signup';
+import { Returning } from '@/screens/Returning';
 import { Profile } from '@/screens/Profile';
 import { Chat } from '@/screens/Chat';
 import { Meditation } from '@/screens/Meditation';
@@ -59,6 +60,7 @@ const TITLES: [prefix: string, title: string][] = [
   [PATHS.journal, copy.nav.journal],
   [PATHS.today, copy.nav.today],
   ['/registro', copy.chrome.titles.signup],
+  ['/volver', copy.signup.returning.kicker],
   [PATHS.profile, copy.nav.profile],
   [PATHS.chat, copy.nav.chat],
   ['/meditaciones', copy.chrome.titles.meditations],
@@ -283,6 +285,7 @@ export function App() {
             <Route path={`${PATHS.journal}/nueva`} element={<NewJournalEntry />} />
             <Route path={PATHS.today} element={<Today />} />
             <Route path="/registro" element={<Signup />} />
+            <Route path="/volver" element={<Returning />} />
             <Route path={PATHS.profile} element={<Profile />} />
             <Route path={`${PATHS.profile}/nacimiento`} element={<BirthDataEdit />} />
             <Route

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Screen } from '@/design/Screen';
 import { ForwardIcon } from '@/components/onboarding/icons';
@@ -6,8 +5,7 @@ import { copy } from '@/i18n';
 import { currentSynthesis } from '@/store/soulMap';
 import { restartOnboarding } from '@/store/session';
 import { isSignedIn } from '@/store/account';
-import { googleSignInEnabled } from '@/supabase/client';
-import { signInWithGoogle } from '@/supabase/session';
+import { isBackendConfigured } from '@/supabase/client';
 
 const text = copy.landing;
 
@@ -17,16 +15,6 @@ const text = copy.landing;
  * the map, as it always has.
  */
 export function Landing() {
-  const [google, setGoogle] = useState(false);
-  useEffect(() => {
-    let live = true;
-    void googleSignInEnabled().then((on) => {
-      if (live) setGoogle(on);
-    });
-    return () => {
-      live = false;
-    };
-  }, []);
   const navigate = useNavigate();
   // Someone who already has a map should not be met by a first-run screen.
   const returning = currentSynthesis() !== undefined;
@@ -49,10 +37,10 @@ export function Landing() {
               <ForwardIcon />
             </button>
 
-            {/* Launch with Google (owner, 16 Oct 2026): somebody coming back on a
-                new device signs in and finds their space. */}
-            {!returning && google && !isSignedIn() && (
-              <button type="button" className="link" onClick={() => void signInWithGoogle().catch(() => {})}>
+            {/* Somebody coming back on a new device finds their space, with
+                Google or with a code (owner, 20 Oct 2026): «Volver a tu espacio». */}
+            {!returning && isBackendConfigured && !isSignedIn() && (
+              <button type="button" className="link" onClick={() => navigate('/volver')}>
                 <u>{text.returning}</u>
               </button>
             )}

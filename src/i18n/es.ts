@@ -1308,14 +1308,47 @@ export const es = {
       'Esa cuenta de Google ya tiene su propio espacio en Natus. Para usarla, entra con ella desde el inicio.',
     googleFailed: 'No pudimos abrir el ingreso con Google. Inténtalo de nuevo en un momento.',
     later: 'Ahora no',
-    // Google before the map (owner, 16 Oct 2026); approved texts.
+    // Entering with a 6-digit code (owner, 20 Oct 2026, mockup «Entrar con
+    // un código», approved with its proposed texts).
+    send: 'Enviarme el código',
+    otherEmail: 'Usar otro correo',
+    // Saving the map with an address that already has a space: option A,
+    // proposed and approved by the owner (20 Oct 2026), as with Google.
+    emailTaken: 'Ese correo ya tiene su propio espacio en Natus. Puedes entrar con él, o usar otro correo para guardar este mapa.',
+    useThatEmail: 'Entrar con ese correo',
+    code: {
+      titleLead: 'Escribe tu ',
+      titleEmphasis: 'código',
+      leadHead: 'Te enviamos un código de 6 dígitos a ',
+      leadTail: '.',
+      resend: 'Reenviar el código',
+      wait: 'Puedes pedir otro en un minuto.',
+      checking: 'Revisando el código…',
+      wrong: 'Ese código no coincide. Revisa los números o pide uno nuevo.',
+      expired: 'Este código ya venció. Pide uno nuevo: llega en unos segundos.',
+      newCode: 'Pedir un código nuevo',
+      resent: 'Te mandamos un código nuevo.',
+      // The network or the mail service failed (proposed, owner approved 20 Oct 2026).
+      sendFailed: 'No pudimos enviar el código. Inténtalo de nuevo en un momento.',
+      checkFailed: 'No pudimos revisar el código. Inténtalo de nuevo en un momento.',
+    },
+    returning: {
+      kicker: 'Volver a tu espacio',
+      titleLead: 'Entra a tu ',
+      titleEmphasis: 'espacio',
+      helper: 'Con la misma cuenta con la que guardaste tu mapa.',
+      firstLead: '¿Es tu primera vez? ',
+      firstLink: 'Empieza desde el inicio',
+      none: 'No encontramos un espacio con ese correo. Revisa la dirección, o entra con Google si guardaste tu mapa así.',
+    },
+    // Google before the map (owner, 16 Oct 2026); approved texts. Helper and
+    // note changed with the code (owner, 20 Oct 2026).
     required: {
       titleLead: 'Tu mapa ',
       titleEmphasis: 'está listo',
-      helper:
-        'Guárdalo en tu cuenta de Google para verlo y volver a él cuando quieras, desde cualquier dispositivo.',
+      helper: 'Guárdalo para verlo y volver a él cuando quieras, desde cualquier dispositivo.',
       cta: 'Continuar con Google',
-      note: 'Usamos tu cuenta de Google solo para que puedas volver a entrar.',
+      note: 'Usamos tu correo o tu cuenta de Google solo para que puedas volver a entrar. No hay contraseña.',
       // Proposed: that Google account already has its own space.
       taken:
         'Esa cuenta de Google ya tiene su propio espacio en Natus. Puedes entrar con ella, o elegir otra cuenta para guardar este mapa.',
