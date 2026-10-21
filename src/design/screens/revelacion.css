@@ -223,15 +223,12 @@
 .revelacion {
   position: absolute;
   inset: 0;
-  /* Under the bank photo the screen's body starts at the header's foot; the
-     composition is measured from the top of the window. */
-  top: calc(-1 * var(--header-h));
 }
 
 .revelacion .halo {
   position: absolute;
   left: 50%;
-  top: calc(var(--header-h) + var(--u) * 242);
+  top: calc(var(--u) * 242);
   width: calc(var(--u) * 520);
   height: calc(var(--u) * 520);
   transform: translate(-50%, -50%);
@@ -244,7 +241,10 @@
   inset: 0;
   overflow-y: auto;
   scrollbar-width: none;
-  padding: calc(var(--header-h) + var(--u) * 8) calc(var(--u) * 24) calc(var(--u) * 150);
+  /* On the phone the scroll starts at the header's foot, like every other
+     screen: nothing passes under «Sugerir», «Necesito ayuda» or the initial
+     (owner's capture, 21 Oct 2026). */
+  padding: calc(var(--u) * 8) calc(var(--u) * 24) calc(var(--u) * 150);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -447,6 +447,7 @@
 
   .revelacion .halo {
     left: 28%;
+    top: calc(var(--header-h) + var(--u) * 242);
   }
 
   .revelacion .cont {
