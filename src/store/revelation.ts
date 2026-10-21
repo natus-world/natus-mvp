@@ -45,6 +45,24 @@ export function revelationShowing(): boolean {
 }
 
 /**
+ * «Volver a mi mapa» from «Guarda tu mapa» (owner, 21 Oct 2026): the preview
+ * once more, in this visit only and without the animation from the start.
+ */
+let reopened = false;
+
+export function reopenRevelation(): void {
+  reopened = true;
+  showing = true;
+}
+
+/** True once: reading it clears it. */
+export function takeReopenedRevelation(): boolean {
+  const was = reopened;
+  reopened = false;
+  return was;
+}
+
+/**
  * Premium's welcome offer comes after «Para cuidarte» (owner, 20 Oct 2026),
  * once, for whoever left the preview of a new map. Kept in this browser so the
  * trip through Google or the mail does not lose it.

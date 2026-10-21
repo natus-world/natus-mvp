@@ -16,6 +16,8 @@ import { readPendingCode, savePendingCode, type PendingCode } from '@/components
 import { track } from '@/store/funnel';
 import { CARE_PATH } from '@/store/care';
 import { PATHS } from '@/components/routes';
+import { reopenRevelation } from '@/store/revelation';
+import { BackChevron } from '@/design/chart-marks';
 
 /**
  * The conversion moment of PDR section 3: the account is asked for *after* the
@@ -252,6 +254,20 @@ export function Signup() {
 
   return (
     <Page>
+      {/* Back to the preview of the map, still (owner, 21 Oct 2026). */}
+      {required && (
+        <button
+          type="button"
+          className="volver-mapa"
+          onClick={() => {
+            reopenRevelation();
+            navigate('/carta');
+          }}
+        >
+          <BackChevron />
+          {r.backToMap}
+        </button>
+      )}
       <p className="k">{text.kicker}</p>
       <h1 className="t mt">
         {required ? r.titleLead : text.titleLead}

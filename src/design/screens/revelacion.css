@@ -223,6 +223,9 @@
 .revelacion {
   position: absolute;
   inset: 0;
+  /* Under the bank photo the screen's body starts at the header's foot; the
+     composition is measured from the top of the window. */
+  top: calc(-1 * var(--header-h));
 }
 
 .revelacion .halo {
@@ -405,8 +408,10 @@
   right: 0;
   bottom: 0;
   z-index: 4;
-  padding: calc(var(--u) * 24) calc(var(--u) * 24) calc(var(--u) * 34);
-  background: linear-gradient(180deg, rgb(11 18 14 / 0), rgb(11 18 14 / 0.94) 40%);
+  /* Opaque before the line «Guarda tu mapa…», so it never sits over a
+     reading (owner's capture, 21 Oct 2026). */
+  padding: calc(var(--u) * 44) calc(var(--u) * 24) calc(var(--u) * 34);
+  background: linear-gradient(180deg, rgb(var(--v) / 0), rgb(var(--v) / 0.94) 22%);
 }
 
 .revelacion .p1 {
@@ -429,15 +434,74 @@
   height: calc(var(--u) * 16);
 }
 
-/* Desktop has no drawing of its own: the phone's column, in the middle of
-   the night, at the phone's sizes. */
+/* Desktop (owner, 21 Oct 2026; the package draws only the phone): the whole
+   window under the starry sky of Carta, in two columns — the name, the wheel,
+   the trio and the numbers on the left; the three readings, the line and
+   «Guardar mi mapa» on the right. */
 @media (min-width: 1024px) {
-  .revelacion .t {
-    font-size: calc(var(--u) * 32);
-    line-height: 1.08;
+  .revelacion {
+    top: calc(-1 * var(--header-h));
+    left: calc(-1 * var(--desk-left));
+    right: calc(-1 * var(--desk-right));
+  }
+
+  .revelacion .halo {
+    left: 28%;
+  }
+
+  .revelacion .cont {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: calc(var(--d) * 96);
+    row-gap: calc(var(--d) * 14);
+    align-content: start;
+    padding: calc(var(--header-h) + var(--d) * 48) calc(var(--d) * 120) calc(var(--d) * 200);
+  }
+
+  .revelacion .cont > * {
+    grid-column: 1;
+  }
+
+  .revelacion .cont > .vid {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    align-self: start;
+    margin-top: calc(var(--d) * 24);
   }
 
   .revelacion .k {
-    font-size: calc(var(--u) * 11);
+    font-size: calc(var(--d) * 12);
+  }
+
+  .revelacion .t {
+    font-size: calc(var(--d) * 46);
+    line-height: 1.05;
+  }
+
+  .revelacion .rueda {
+    justify-self: center;
+    width: calc(var(--d) * 330);
+    height: calc(var(--d) * 300);
+  }
+
+  .revelacion .fila {
+    padding: calc(var(--d) * 20) calc(var(--d) * 22);
+  }
+
+  .revelacion .ft {
+    font-size: calc(var(--d) * 17);
+  }
+
+  .revelacion .fd {
+    font-size: calc(var(--d) * 15);
+    line-height: 1.5;
+  }
+
+  .revelacion .pie {
+    left: calc(50% + var(--d) * 48);
+    right: calc(var(--d) * 120);
+    bottom: calc(var(--d) * 56);
+    padding: calc(var(--d) * 24) 0 0;
+    background: none;
   }
 }

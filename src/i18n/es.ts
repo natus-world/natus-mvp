@@ -1354,6 +1354,8 @@ export const es = {
       titleEmphasis: 'completo',
       helper: 'Guárdalo con Google o con tu correo y sigue a tus caminos. Así vuelves a él cuando quieras, desde cualquier dispositivo.',
       cta: 'Continuar con Google',
+      // Back to the preview (owner, 21 Oct 2026).
+      backToMap: 'Volver a mi mapa',
       note: 'Usamos tu correo o tu cuenta de Google solo para que puedas volver a entrar. No hay contraseña.',
       // Proposed: that Google account already has its own space.
       taken:

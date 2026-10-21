@@ -11,7 +11,13 @@ import { activeProfile } from '@/store/account';
 import { accountRequired } from '@/store/account-required';
 import { CARE_PATH } from '@/store/care';
 import { currentSynthesis, type StoredSynthesis } from '@/store/soulMap';
-import { endRevelation, markWelcomeOfferDue, revelationPending, startRevelation } from '@/store/revelation';
+import {
+  endRevelation,
+  markWelcomeOfferDue,
+  revelationPending,
+  startRevelation,
+  takeReopenedRevelation,
+} from '@/store/revelation';
 import { copy } from '@/i18n';
 
 /**
@@ -24,7 +30,8 @@ import { copy } from '@/i18n';
  * account. Premium's welcome offer no longer opens here; it comes after
  * «Para cuidarte».
  *
- * A plain night with no photograph: nothing else to look at in this moment.
+ * Under the starry sky of Carta since 21 Oct 2026 (owner; the package drew a
+ * plain night), on desktop in two columns.
  * A point of light is born in the centre, the ring of the chart is drawn from
  * it, the signs appear, the light settles on the Sun and the gold thread
  * reaches the Moon; then the trio, the five numbers and the three readings,
@@ -40,7 +47,9 @@ const SECTIONS = Object.keys(text.sections) as (keyof typeof text.sections)[];
 
 export function RevealFirst({ children }: { children: ReactNode }) {
   const stored = currentSynthesis();
-  const [open, setOpen] = useState(() => revelationPending(stored?.id));
+  // Back from «Guarda tu mapa»: the same preview, still.
+  const [again] = useState(() => takeReopenedRevelation());
+  const [open, setOpen] = useState(() => again || revelationPending(stored?.id));
   // Cleared as it opens, so closing the app on it does not bring it back.
   useEffect(() => {
     if (open) startRevelation();
@@ -50,6 +59,7 @@ export function RevealFirst({ children }: { children: ReactNode }) {
     return (
       <Revelation
         stored={stored}
+        still={again}
         onSeen={() => {
           endRevelation();
           setOpen(false);
@@ -77,7 +87,16 @@ function firstSentence(body: string): string {
   return (match ? match[0] : body).trim();
 }
 
-export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen: () => void }) {
+export function Revelation({
+  stored,
+  still = false,
+  onSeen,
+}: {
+  stored: StoredSynthesis;
+  /** Seen before in this visit: the final state at once. */
+  still?: boolean;
+  onSeen: () => void;
+}) {
   useTakeover();
   const navigate = useNavigate();
   // Read once: the way out is decided by whether the account is still owed.
@@ -111,7 +130,7 @@ export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    if (still || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     const running = play(el, sunAt);
     return () => {
       for (const animation of running) animation.cancel();
@@ -121,7 +140,8 @@ export function Revelation({ stored, onSeen }: { stored: StoredSynthesis; onSeen
   }, []);
 
   return (
-    <Screen tone="11 18 14">
+    // The starry sky of Carta, on the phone and on desktop (owner, 21 Oct 2026).
+    <Screen photo="cieloEstrellas" veil={0.25} glassAlpha={0.32}>
       <div ref={root} className="pz revelacion">
         <div className="halo" aria-hidden="true" />
         <div className="cont">

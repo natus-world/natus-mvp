@@ -973,3 +973,24 @@
     padding: 0;
   }
 }
+
+/* «Volver a mi mapa» over «Guarda tu mapa» (owner, 21 Oct 2026): back to the
+   preview, quiet, above the kicker. */
+.entrada.cuenta .volver-mapa {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 6);
+  align-self: flex-start;
+  margin: 0 0 calc(var(--u) * 18);
+  padding: calc(var(--u) * 6) 0;
+  border: 0;
+  background: none;
+  color: var(--t2);
+  font: 400 calc(var(--u) * 14) / 1 var(--font-sans);
+  cursor: pointer;
+}
+
+.entrada.cuenta .volver-mapa svg {
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+}
