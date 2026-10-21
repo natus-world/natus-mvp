@@ -394,14 +394,19 @@ before the map is seen» of 16 Oct; published 21 Oct 2026, 17:00).** Built from
 the cerebro's `traspasos/2026-10-20-pdr-usuario-onboarding-flujo.md`: two
 steps («01 DE 02»: ¿Quién eres?, ¿Qué te estás preguntando?), «Generando»,
 then the preview of the map on `/carta` (`RevealFirst`): each reading shows
-its first sentence and fades into two lines that carry none of the rest — the
-full text is not on the page — and every way out goes to «Guarda tu mapa»
-(`/registro`, Google or the code, no «Ahora no»), or to the next step for
-somebody already signed in. `requireAccount()` is set when the map is ready;
+its first sentence, and «Lo que estás trabajando» its first two, never the
+whole reading (`revelation-preview.ts`), and fades into two lines that carry
+none of the rest — the full text is not on the page — and every way out,
+«Ver mi carta completa» under «Guarda tu mapa gratis para leerlo completo y
+ver tus caminos.» (the owner's texts), goes to «Guarda tu mapa» (`/registro`,
+Google or the code, no «Ahora no»), or to the next step for somebody already
+signed in. `requireAccount()` is set when the map is ready;
 `sendsToSignup` lets only the preview on screen stand in front of the account,
 and the preview is cleared as it opens (`startRevelation`), so closing the app
-on it comes back to «Guarda tu mapa», never to the preview. Saving goes on to
-`/cuidarte`, which now opens with «Cómo trabajar» under «Antes de tus caminos»
+on it comes back to «Guarda tu mapa», never to the preview. Saving opens
+Carta, the whole map, as the button promised; while «Para cuidarte» is owed
+Carta ends with «Seguir a tus caminos» (owner, 21 Oct 2026, for now) on to
+`/cuidarte`, where the gated tabs also send. `/cuidarte` now opens with «Cómo trabajar» under «Antes de tus caminos»
 (no step number) for whoever has none, then the four questions, then
 Premium's welcome offer once (`welcome_offer_due`, set on leaving the
 preview) — never after a crisis screen, a recorded alert or the answer
