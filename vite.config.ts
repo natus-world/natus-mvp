@@ -8,7 +8,7 @@ import type { Plugin } from 'vite';
 function linkPreview(): Plugin {
   const site = process.env['VITE_SITE_URL']?.replace(/\/?$/, '/');
   const title = 'Natus';
-  const description = 'Un espejo para lo que estás atravesando. Sin cuenta, sin diagnóstico.';
+  const description = 'Un espejo para conocerte: tu carta, tus números y caminos para lo que vives.';
   return {
     name: 'natus-link-preview',
     transformIndexHtml() {
@@ -20,7 +20,7 @@ function linkPreview(): Plugin {
       });
       return [
         meta('property', 'og:type', 'website'),
-        meta('property', 'og:locale', 'es_AR'),
+        meta('property', 'og:locale', 'es_LA'),
         meta('property', 'og:title', title),
         meta('property', 'og:description', description),
         meta('property', 'og:url', site),
