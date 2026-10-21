@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { PHOTO, Screen } from '@/design/Screen';
-import { CheckIcon, ChevronIcon } from '@/design/icons';
+import { ArrowIcon, ChevronIcon } from '@/design/icons';
 import { CompareIcon, MeditationsIcon } from '@/design/brand-icons';
 import { CrisisBanner } from '@/components/CrisisBanner';
 import { PATHS } from '@/components/routes';
@@ -366,34 +366,17 @@ export function Today() {
             </div>
           )}
 
+          {/* The routine is not repeated under «Lo siguiente»: the count and a
+              way to it (owner, 21 Oct 2026). */}
           {practices.length > 0 && (
             <div className="vid">
               <div className="fila">
-                <div>
-                  <p className="fk">{t.practicesKicker}</p>
-                  <p className="ft">{marked}</p>
-                </div>
+                <p className="ft">{marked}</p>
+                <Link to={PATHS.journey} className="p2">
+                  {copy.recommendations.toRoutine}
+                  <ArrowIcon />
+                </Link>
               </div>
-              {practices.map((practice) => {
-                const done = isCheckedToday(practice.title, today);
-                return (
-                  <div key={practice.title} className="fila">
-                    <div>
-                      <p className="fk">{CADENCE[practice.cadence]}</p>
-                      <p className="ft">{practice.title}</p>
-                    </div>
-                    <button
-                      type="button"
-                      className={done ? 'p2 on' : 'p2'}
-                      aria-pressed={done}
-                      onClick={() => mark(practice.title)}
-                    >
-                      {done && <CheckIcon />}
-                      {done ? routineText.doneToday : routineText.markToday}
-                    </button>
-                  </div>
-                );
-              })}
             </div>
           )}
 

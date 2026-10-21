@@ -208,7 +208,6 @@ export const es = {
     nextAllDone: (n: number) => `Hoy ya marcaste tus ${n} prácticas.`,
     nextNone: 'Hoy no hay prácticas pendientes.',
     nextNoRoutine: 'Elige un camino para armar tu rutina.',
-    practicesKicker: 'Tus prácticas de hoy',
     needMapKicker: 'Qué necesitas ahora · de tu mapa',
     greeting: 'Hola, ',
     greetingWithoutName: 'Hola',
