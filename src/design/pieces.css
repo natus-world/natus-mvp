@@ -236,6 +236,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   scrollbar-width: none;
   padding: calc(var(--u) * 30) calc(var(--u) * 24) calc(var(--u) * 112);
   display: flex;

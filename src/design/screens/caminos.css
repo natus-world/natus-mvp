@@ -49,6 +49,12 @@
   display: flex;
   gap: calc(var(--u) * 12);
   overflow-x: auto;
+  /* Said, not left to compute as auto: a carousel that may also scroll
+     vertically keeps the swipe down on the iPhone, and the page above it
+     stays put (owner's video, 20 Oct 2026). */
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   margin: calc(var(--u) * 4) calc(var(--u) * -24) 0;
@@ -380,6 +386,13 @@
     z-index: 3;
     display: grid;
     gap: calc(var(--u) * 16);
+    /* Only the dots and the button take a touch: a swipe between them
+       reaches the page underneath. */
+    pointer-events: none;
+  }
+
+  .caminos .fijo > * {
+    pointer-events: auto;
   }
 
   .caminos .fijo::before {

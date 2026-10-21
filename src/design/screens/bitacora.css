@@ -742,8 +742,20 @@
   --sepia: 122 84 46;
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  background: var(--hoja-lunas-alta) top center / 100% auto no-repeat, #d8c9a8;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  background: var(--hoja-lunas-alta) top center / 100% auto no-repeat local, #d8c9a8;
+}
+
+.bitacora .hojaL::-webkit-scrollbar {
+  display: none;
+}
+
+/* The page as the package draws it, 844 tall; taller screens keep it whole. */
+.bitacora .hojaL-dibujo {
+  position: relative;
+  min-height: max(100%, calc(var(--u) * 844));
 }
 
 .bitacora :is(.mapa, .parche) {

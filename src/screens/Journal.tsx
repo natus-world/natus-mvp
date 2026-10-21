@@ -870,17 +870,22 @@ export function Journal() {
       <InkFilters />
       {view.kind === 'first' ? (
         <div className="hojaL">
-          <Patch cx={CX} />
-          <Wheel sky={sky} cx={CX} />
-          <Written sky={sky} />
-          <span className="folio">{text.folios[0]}</span>
-          <div className="pasar">
-            <button type="button" className="tinta-1" onClick={() => setView({ kind: 'list' })}>
-              {text.turnPage}
-              <svg viewBox="0 0 26 12" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M1 6.5c6-1.5 12 .5 22-.5M18.5 2l5 4-5 4" />
-              </svg>
-            </button>
+          {/* The page as drawn, never shorter than the package's frame: on a
+              phone whose browser bars eat the height, it scrolls instead of
+              laying the writing under «pasar la página». */}
+          <div className="hojaL-dibujo">
+            <Patch cx={CX} />
+            <Wheel sky={sky} cx={CX} />
+            <Written sky={sky} />
+            <span className="folio">{text.folios[0]}</span>
+            <div className="pasar">
+              <button type="button" className="tinta-1" onClick={() => setView({ kind: 'list' })}>
+                {text.turnPage}
+                <svg viewBox="0 0 26 12" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M1 6.5c6-1.5 12 .5 22-.5M18.5 2l5 4-5 4" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       ) : entry ? (
