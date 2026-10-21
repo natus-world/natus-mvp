@@ -19,6 +19,7 @@ import {
   takeReopenedRevelation,
 } from '@/store/revelation';
 import { copy } from '@/i18n';
+import { leadSentences, PREVIEW_SENTENCES } from './revelation-preview';
 
 /**
  * The revelation of the map (package 02, option B «Un punto de luz», chosen
@@ -79,12 +80,6 @@ function readChart(): NatalChart | null {
   } catch {
     return null;
   }
-}
-
-/** The reading's first sentence: the row shows one line, Carta the whole. */
-function firstSentence(body: string): string {
-  const match = /^.*?[.?!…](?=\s|$)/s.exec(body.trim());
-  return (match ? match[0] : body).trim();
 }
 
 export function Revelation({
@@ -184,7 +179,7 @@ export function Revelation({
               <button key={key} type="button" className="fila el-l" onClick={goOn}>
                 <span>
                   <span className="ft">{text.sections[key]}</span>
-                  <span className="fd">{firstSentence(synthesis.soul_map_synthesis[key])}</span>
+                  <span className="fd">{leadSentences(synthesis.soul_map_synthesis[key], PREVIEW_SENTENCES[key])}</span>
                   {/* What follows, faded: lines with none of the text in them. */}
                   <span className="sigue" aria-hidden="true">
                     <i />
