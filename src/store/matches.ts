@@ -159,6 +159,28 @@ export function toggleCheckIn(title: string, today: string): void {
   );
 }
 
+/**
+ * A practice done once («Una vez», cadence `one_off`; owner, 21 Oct 2026):
+ * done as soon as it has a check-in on any day, and it stays done.
+ */
+export function isDoneOnce(title: string): boolean {
+  return listCheckIns().some((c) => c.practice_title === title);
+}
+
+/**
+ * Marks a practice done once today, or, when it was already done on whatever
+ * day, unmarks it: every check-in it has goes, with its rating.
+ */
+export function toggleOnce(title: string, today: string): void {
+  const existing = listCheckIns();
+  write(
+    'recommendation_checkins',
+    existing.some((c) => c.practice_title === title)
+      ? existing.filter((c) => c.practice_title !== title)
+      : [...existing, { practice_title: title, checked_on: today }],
+  );
+}
+
 /** Today's check-in of a practice, if it was marked. */
 export function checkInToday(title: string, today: string): CheckIn | undefined {
   return listCheckIns().find((c) => c.practice_title === title && c.checked_on === today);

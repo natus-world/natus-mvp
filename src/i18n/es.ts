@@ -912,6 +912,9 @@ export const es = {
     helper: 'Marca lo que hiciste si te sirve tenerlo a la vista. Nadie te va a decir nada si dejas de marcar.',
     markToday: 'Marcar hoy',
     doneToday: 'Hecho hoy',
+    // «Una vez» (one_off): done once, and it stays done (owner, 21 Oct 2026).
+    markOnce: 'Lo hice',
+    doneOnce: 'Hecho',
     empty: 'Tu rutina sale de tus caminos. Empieza por verlos.',
     toPaths: 'Ver mis caminos',
     backToPaths: 'Volver a los caminos',
