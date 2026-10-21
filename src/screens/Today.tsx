@@ -255,9 +255,7 @@ export function Today() {
                 <div>
                   <p className="fk">{t.nextKicker}</p>
                   <p className="ft">{next.title}</p>
-                  <p className="fd">
-                    {CADENCE[next.cadence]} · {marked}
-                  </p>
+                  <p className="fd">{CADENCE[next.cadence]}</p>
                 </div>
                 <button type="button" className="p2" aria-pressed={false} onClick={() => mark(next.title)}>
                   {routineText.markToday}
