@@ -306,19 +306,23 @@ export function Recommendations() {
             )}
           </div>
         </div>
-      </div>
 
-      <div className="fijo">
-        <div className="puntos" aria-hidden="true">
-          {cards.map((c, i) => (
-            <i key={c.entry.modality_slug} className={i === idx ? 'on' : undefined} />
-          ))}
+        {/* On the phone the dots sit under the cards and «Ver mi rutina» closes
+            the page, so an open card reads in the whole screen (owner, 21 Oct
+            2026, option A, against the package's fixed button). On desktop it
+            stays at the foot. */}
+        <div className="fijo">
+          <div className="puntos" aria-hidden="true">
+            {cards.map((c, i) => (
+              <i key={c.entry.modality_slug} className={i === idx ? 'on' : undefined} />
+            ))}
+          </div>
+          <span className="esp-pie" />
+          <Link to={PATHS.journey} className="p1">
+            {text.toRoutine}
+            <ArrowIcon />
+          </Link>
         </div>
-        <span className="esp-pie" />
-        <Link to={PATHS.journey} className="p1">
-          {text.toRoutine}
-          <ArrowIcon />
-        </Link>
       </div>
     </>,
   );

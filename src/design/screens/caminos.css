@@ -23,10 +23,6 @@
   text-shadow: none;
 }
 
-.caminos .scroll {
-  padding-bottom: calc(var(--u) * 196);
-}
-
 .caminos .t em {
   font-style: italic;
 }
@@ -378,33 +374,24 @@
     display: contents;
   }
 
+  /* Option A (owner, 21 Oct 2026; the package holds them above the tab
+     bar): the dots follow the cards and «Ver mi rutina» closes the page,
+     so an open card reads in the whole screen and nothing passes under a
+     fixed button. */
   .caminos .fijo {
-    position: absolute;
-    left: calc(var(--u) * 24);
-    right: calc(var(--u) * 24);
-    bottom: calc(var(--u) * 98);
-    z-index: 3;
-    display: grid;
-    gap: calc(var(--u) * 16);
-    /* Only the dots and the button take a touch: a swipe between them
-       reaches the page underneath. */
-    pointer-events: none;
+    display: contents;
   }
 
-  .caminos .fijo > * {
-    pointer-events: auto;
+  .caminos .puntos {
+    order: 1;
   }
 
-  .caminos .fijo::before {
-    content: '';
-    position: absolute;
-    left: calc(var(--u) * -24);
-    right: calc(var(--u) * -24);
-    bottom: calc(var(--u) * -98);
-    height: calc(var(--u) * 150);
-    background: linear-gradient(180deg, rgb(var(--v) / 0), rgb(var(--v) / 0.9) 60%);
-    z-index: -1;
-    pointer-events: none;
+  .caminos .avisos {
+    order: 2;
+  }
+
+  .caminos .fijo .p1 {
+    order: 3;
   }
 
   .caminos .esp-pie {
