@@ -11,6 +11,12 @@ const text = copy.signup;
  * «Enviarme el código». What went wrong shows right under the field, which
  * keeps what was written; nothing is sent to an address that does not look
  * like one.
+ *
+ * Saving with an address that already has its own space (option A, owner,
+ * 20 Oct 2026): it says so, and the button becomes «Entrar con ese correo»,
+ * which mails the code to come back into that space; the new map stays
+ * behind, as with «Entrar con esa cuenta» on Google. Editing the address
+ * brings «Enviarme el código» back.
  */
 export function EmailCodeForm({
   purpose,
@@ -18,6 +24,7 @@ export function EmailCodeForm({
   onEmail,
   onSent,
   failureText,
+  onReturnSent,
 }: {
   purpose: CodePurpose;
   email: string;
@@ -25,9 +32,13 @@ export function EmailCodeForm({
   onSent: (sentAt: number) => void;
   /** What the screen says for a failure of its own (`taken`, `none`). */
   failureText: (failure: CodeFailure) => string | null;
+  /** When the address already has a space: the code to enter it was sent. */
+  onReturnSent?: (sentAt: number) => void;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [taken, setTaken] = useState<string | null>(null);
+  const enterTaken = onReturnSent !== undefined && taken !== null && taken === email.trim();
 
   const submit = () => {
     if (sending) return;
@@ -35,12 +46,27 @@ export function EmailCodeForm({
       setError(text.invalidEmail);
       return;
     }
-    setError(null);
     setSending(true);
+    if (enterTaken) {
+      sendCode(email, 'return')
+        .then(() => onReturnSent(Date.now()))
+        .catch((e: unknown) => {
+          const failure: CodeFailure = e instanceof CodeError ? e.failure : 'failed';
+          setError(failure === 'wait' ? text.code.wait : text.code.sendFailed);
+        })
+        .finally(() => setSending(false));
+      return;
+    }
+    setError(null);
     sendCode(email, purpose)
       .then(() => onSent(Date.now()))
       .catch((e: unknown) => {
         const failure: CodeFailure = e instanceof CodeError ? e.failure : 'failed';
+        if (failure === 'taken' && onReturnSent) {
+          setTaken(email.trim());
+          setError(text.emailTaken);
+          return;
+        }
         setError(failureText(failure) ?? (failure === 'wait' ? text.code.wait : text.code.sendFailed));
       })
       .finally(() => setSending(false));
@@ -64,6 +90,7 @@ export function EmailCodeForm({
           onChange={(e) => {
             onEmail(e.target.value);
             setError(null);
+            setTaken(null);
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') submit();
@@ -78,7 +105,7 @@ export function EmailCodeForm({
         </p>
       )}
       <button type="button" className="btn s" disabled={email.trim() === '' || sending} onClick={submit}>
-        {text.send}
+        {enterTaken ? text.useThatEmail : text.send}
       </button>
     </>
   );

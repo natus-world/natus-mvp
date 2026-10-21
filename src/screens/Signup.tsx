@@ -7,7 +7,7 @@ import { SignupError, isSignedIn, signUp } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { googleSignInEnabled, isBackendConfigured } from '@/supabase/client.ts';
 import { LegalLinks } from '@/components/LegalLinks';
-import { linkGoogle, oauthErrorInUrl, signInWithGoogle, upgradeToEmail } from '@/supabase/session.ts';
+import { linkGoogle, oauthErrorInUrl, signInWithGoogle, upgradeToEmail, type CodePurpose } from '@/supabase/session.ts';
 import { accountRequired, clearAccountRequirement } from '@/store/account-required';
 import { completeLinkedSignup } from '@/store/account-link';
 import { CodeEntry } from '@/components/onboarding/CodeEntry';
@@ -76,9 +76,17 @@ export function Signup() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   // The code on its way (owner, 20 Oct 2026): to which address, and when.
-  const [code, setCodeState] = useState<PendingCode | null>(() => readPendingCode('save'));
-  const setCode = (next: PendingCode | null) => {
-    savePendingCode('save', next);
+  // Saving, or entering the space an address already has (option A).
+  type Pending = PendingCode & { purpose: CodePurpose };
+  const [code, setCodeState] = useState<Pending | null>(() => {
+    const save = readPendingCode('save');
+    if (save) return { ...save, purpose: 'save' };
+    const back = readPendingCode('return');
+    return back ? { ...back, purpose: 'return' } : null;
+  });
+  const setCode = (next: Pending | null) => {
+    savePendingCode(next?.purpose ?? 'save', next && { email: next.email, sentAt: next.sentAt });
+    if (!next) savePendingCode('return', null);
     setCodeState(next);
   };
   // Somebody sent here to save a new map already knows Google is on.
@@ -152,10 +160,19 @@ export function Signup() {
       <Page photo="ola" veil={0.18} glassAlpha={0.48} className="codigo">
         <CodeEntry
           email={code.email}
-          purpose="save"
+          purpose={code.purpose}
           sentAt={code.sentAt}
-          onVerified={saved}
-          onResent={(sentAt) => setCode({ email: code.email, sentAt })}
+          onVerified={
+            code.purpose === 'save'
+              ? saved
+              : () => {
+                  // Into the space that address already has; the new map
+                  // stays behind on the anonymous row, as with Google.
+                  savePendingCode('return', null);
+                  window.location.replace(`${import.meta.env.BASE_URL}hoy`);
+                }
+          }
+          onResent={(sentAt) => setCode({ ...code, sentAt })}
           onOtherEmail={() => setCode(null)}
         />
       </Page>
@@ -266,7 +283,8 @@ export function Signup() {
               purpose="save"
               email={email}
               onEmail={setEmail}
-              onSent={(sentAt) => setCode({ email: email.trim(), sentAt })}
+              onSent={(sentAt) => setCode({ email: email.trim(), sentAt, purpose: 'save' })}
+              onReturnSent={(sentAt) => setCode({ email: email.trim(), sentAt, purpose: 'return' })}
               failureText={() => null}
             />
           )}

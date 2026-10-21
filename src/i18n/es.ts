@@ -1312,6 +1312,10 @@ export const es = {
     // un código», approved with its proposed texts).
     send: 'Enviarme el código',
     otherEmail: 'Usar otro correo',
+    // Saving the map with an address that already has a space: option A,
+    // proposed and approved by the owner (20 Oct 2026), as with Google.
+    emailTaken: 'Ese correo ya tiene su propio espacio en Natus. Puedes entrar con él, o usar otro correo para guardar este mapa.',
+    useThatEmail: 'Entrar con ese correo',
     code: {
       titleLead: 'Escribe tu ',
       titleEmphasis: 'código',
@@ -1324,7 +1328,7 @@ export const es = {
       expired: 'Este código ya venció. Pide uno nuevo: llega en unos segundos.',
       newCode: 'Pedir un código nuevo',
       resent: 'Te mandamos un código nuevo.',
-      // Proposed (20 Oct 2026), asked: the network or the mail service failed.
+      // The network or the mail service failed (proposed, owner approved 20 Oct 2026).
       sendFailed: 'No pudimos enviar el código. Inténtalo de nuevo en un momento.',
       checkFailed: 'No pudimos revisar el código. Inténtalo de nuevo en un momento.',
     },

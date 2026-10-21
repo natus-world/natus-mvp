@@ -425,8 +425,12 @@ mails an hour with it). It needs «Confirm email» on in the project (it is,
 read from the public Auth settings on 20 Oct 2026), and local
 `enable_confirmations` is now true to match it. The pending code is kept for
 the tab (`pending-code.ts`), so coming back from the mail app lands on the
-code again. Open with the owner: what saving with an address that already
-has a space says, and the two texts for a failed network.
+code again. Saving with an address that already has a space says so and
+turns the button into «Entrar con ese correo», which mails the code to come
+back into that space and leaves the new map on the anonymous row, as Google's
+«Entrar con esa cuenta» does (option A, owner, 20 Oct 2026); the two texts
+for a failed network were approved the same day. Open with the owner: whether
+«Privacidad · Términos» stays under the form (the mockup does not draw it).
 
 **The birth place is picked, not guessed (owner, 16 Oct 2026).** The birth
 step asks the country of birth first, then the city with suggestions inside
