@@ -87,7 +87,6 @@ type BankPhoto = { file: string; wide?: string; family: Family };
 
 export const BANK = {
   monstera: { file: 'monstera', wide: 'monstera-ancha', family: 'verde' },
-  incienso: { file: 'incienso', wide: 'incienso-ancha', family: 'azul' },
   oceanoNoche: { file: 'oceano-noche', wide: 'oceano-noche-ancha', family: 'azul' },
   hojaGotas: { file: 'hoja-gotas', wide: 'hoja-gotas-ancha', family: 'verde' },
   concretoSombra: { file: 'concreto-sombra', wide: 'concreto-sombra-ancha', family: 'grafito' },
@@ -111,6 +110,11 @@ export const BANK = {
   travertino: { file: 'travertino-madera', wide: 'travertino-madera-ancha', family: 'tierra' },
   ola: { file: 'ola', wide: 'ola-ancha', family: 'azul' },
   orilla: { file: 'orilla-aerea', wide: 'orilla-aerea-ancha', family: 'azul' },
+  // The onboarding since 21 Oct 2026 (owner): the olive leaves replace the
+  // incense, which has copyright; the dunes are «Cómo trabajar». Both come
+  // from the bank in vertical only: the wide crop is cut from the same photo.
+  hojasOlivo: { file: 'hojas-olivo', wide: 'hojas-olivo-ancha', family: 'verde' },
+  dunas: { file: 'dunas', wide: 'dunas-ancha', family: 'arena' },
 } as const satisfies Record<string, BankPhoto>;
 
 export type Photo = keyof typeof BANK;

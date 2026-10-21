@@ -64,10 +64,11 @@ export function Care() {
     );
   }
 
-  // Package 01, «Cómo trabajar»: the furrows in the sand, as in the onboarding.
+  // «Cómo trabajar»: the dunes (owner, 21 Oct 2026), in place of the package's
+  // furrows in the sand.
   if (askOpenness && openness) {
     return (
-      <Screen photo="surcosArena" veil={0.46} glassAlpha={0.3}>
+      <Screen photo="dunas" veil={0.55} glassAlpha={0.3}>
         <div className="pz entrada paso apertura">
           <Openness
             kicker={copy.onboarding.openness.beforePaths}

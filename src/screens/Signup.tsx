@@ -43,18 +43,19 @@ const text = copy.signup;
  */
 
 /**
- * Package 01, «Crear cuenta»: the incense; «Revisa tu correo»: the night ocean.
+ * Package 01, «Crear cuenta»: the olive leaves since 21 Oct 2026 (owner; the
+ * package's incense has copyright); «Revisa tu correo»: the night ocean.
  * «Escribe tu código» (mockup «Entrar con un código», 20 Oct 2026): the wave,
  * veil .18 and glass .48; «Volver a tu espacio»: the blue silk, .30 and .30.
  */
 export function Page({
-  photo = 'incienso',
-  veil = 0.14,
+  photo = 'hojasOlivo',
+  veil = 0.2,
   glassAlpha = 0.3,
   className = '',
   children,
 }: {
-  photo?: 'incienso' | 'oceanoNoche' | 'ola' | 'sedaAzul';
+  photo?: 'hojasOlivo' | 'oceanoNoche' | 'ola' | 'sedaAzul';
   veil?: number;
   glassAlpha?: number;
   className?: string;
