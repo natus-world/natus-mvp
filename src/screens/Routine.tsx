@@ -18,7 +18,9 @@ import {
   currentMatchFor,
   isCheckedToday,
   rateCheckIn,
+  isDoneOnce,
   toggleCheckIn,
+  toggleOnce,
   totalCheckIns,
 } from '@/store/matches';
 import { routineFor, saveRoutine } from '@/store/routine';
@@ -423,7 +425,10 @@ export function Routine() {
 
           <div className="vclaro">
             {practices.map((practice) => {
-              const done = isCheckedToday(practice.title, date);
+              // «Una vez» is done once and stays done, with no count of days
+              // (owner, 21 Oct 2026); the rest are marked day by day.
+              const once = practice.cadence === 'one_off';
+              const done = once ? isDoneOnce(practice.title) : isCheckedToday(practice.title, date);
               // A total, never a consecutive run. See the note above.
               const total = totalCheckIns(practice.title);
 
@@ -434,12 +439,13 @@ export function Routine() {
                     <h2 className="pt">{practice.title}</h2>
                     <p className="pc solo-pc">{practice.body}</p>
                     <p className="cv">{connectsLabel(practice)}</p>
-                    <p className="pd">{copy.practice.totalDays(total)}</p>
+                    {!once && <p className="pd">{copy.practice.totalDays(total)}</p>}
                   </div>
                   <button
                     type="button"
                     onClick={(e) => {
-                      toggleCheckIn(practice.title, date);
+                      if (once) toggleOnce(practice.title, date);
+                      else toggleCheckIn(practice.title, date);
                       // R-03: marking asks how useful it was; unmarking takes
                       // the rating with it.
                       if (!done) {
@@ -452,7 +458,13 @@ export function Routine() {
                     className={done ? 'p2 on' : 'p2'}
                   >
                     {done && <CheckIcon />}
-                    {done ? text.doneToday : text.markToday}
+                    {once
+                      ? done
+                        ? text.doneOnce
+                        : text.markOnce
+                      : done
+                        ? text.doneToday
+                        : text.markToday}
                   </button>
                 </article>
               );

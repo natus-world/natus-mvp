@@ -2,11 +2,14 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   checkInToday,
   clearReaction,
+  isCheckedToday,
+  isDoneOnce,
   rateCheckIn,
   recentlyDismissedSlugs,
   saveMatch,
   setReaction,
   toggleCheckIn,
+  toggleOnce,
   totalCheckIns,
 } from './matches';
 import type { MatchResult } from '@/lib/schemas';
@@ -19,6 +22,30 @@ beforeEach(() => {
 });
 
 const DAY = '2026-10-15';
+
+describe('«Una vez» — a practice done once stays done (owner, 21 Oct 2026)', () => {
+  it('is done from the day it is marked on, and the days after', () => {
+    expect(isDoneOnce('Escribir una carta')).toBe(false);
+    toggleOnce('Escribir una carta', '2026-10-14');
+    expect(isDoneOnce('Escribir una carta')).toBe(true);
+    expect(isCheckedToday('Escribir una carta', DAY)).toBe(false);
+    expect(totalCheckIns('Escribir una carta')).toBe(1);
+  });
+
+  it('marking it today can be rated, like any other', () => {
+    toggleOnce('Escribir una carta', DAY);
+    rateCheckIn('Escribir una carta', DAY, 5);
+    expect(checkInToday('Escribir una carta', DAY)?.rating).toBe(5);
+  });
+
+  it('touching it again unmarks it, whatever day it was done', () => {
+    toggleOnce('Escribir una carta', '2026-10-01');
+    toggleCheckIn('Caminar', '2026-10-01');
+    toggleOnce('Escribir una carta', DAY);
+    expect(isDoneOnce('Escribir una carta')).toBe(false);
+    expect(totalCheckIns('Caminar')).toBe(1);
+  });
+});
 
 describe('v1.2 R-03 — how useful a marked practice was', () => {
   it('keeps the rating and the comment on that day only', () => {
