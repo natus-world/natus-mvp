@@ -390,7 +390,7 @@ proposed and not decided: ask for Google before writing the map, or write
 the first map with Sonnet.
 
 **The onboarding funnel, reordered (owner, 20–21 Oct 2026; replaces «Google
-before the map is seen» of 16 Oct).** Built on `nico/onboarding-embudo` from
+before the map is seen» of 16 Oct; published 21 Oct 2026, 17:00).** Built from
 the cerebro's `traspasos/2026-10-20-pdr-usuario-onboarding-flujo.md`: two
 steps («01 DE 02»: ¿Quién eres?, ¿Qué te estás preguntando?), «Generando»,
 then the preview of the map on `/carta` (`RevealFirst`): each reading shows
@@ -408,7 +408,11 @@ preview) — never after a crisis screen, a recorded alert or the answer
 «frecuentes» (proposed), and the server's `offer_premium` decides as well.
 The soul-map prompt is unchanged: it gets no openness and writes «sin
 preferencia». The funnel now records `openness_done` after `account_created`;
-the panel's labels follow. Texts are proposals waiting for the owner. When
+the panel's labels follow. The texts were approved by the owner on 21 Oct
+2026; «Guarda tu mapa» takes the olive leaves (the incense has copyright and
+left the app) and «Cómo trabajar» the dunes, both owner's picks. Still open:
+a desktop layout for the preview (a phone column today) and the offer over
+«Para cuidarte». When
 the Google account already has its own space, «Entrar con esa cuenta» signs
 into it and the new map stays behind on the anonymous row. Anonymous rows are
 still created at the first page load and nothing purges them.
