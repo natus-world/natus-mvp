@@ -615,6 +615,13 @@
   margin-top: calc(var(--u) * 10);
 }
 
+/* «Cerrar sesión» at the foot of Perfil (option B, owner, 21 Oct 2026). */
+.perfil .salir {
+  display: grid;
+  gap: calc(var(--u) * 10);
+  margin-top: calc(var(--u) * 8);
+}
+
 /* Filled parts take no shadow. */
 .perfil :is(.p1i, .p1err, .ck, .on, input, textarea, [aria-checked='true'], [aria-pressed='true']) {
   text-shadow: none;

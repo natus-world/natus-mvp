@@ -699,6 +699,17 @@ export function Profile() {
                 to="?ver=datos"
               />
             </div>
+            {/* «Cerrar sesión» in sight at the foot of Perfil (option B,
+                owner, 21 Oct 2026); it stays in «Cuenta» too. Only for an
+                account: without one, leaving loses the map. */}
+            {remote && (
+              <div className="salir">
+                <button type="button" className="p2i" disabled={busy} onClick={() => void leave()}>
+                  {t.signOut}
+                </button>
+                <p className="nota centro">{t.signOutNote}</p>
+              </div>
+            )}
             <LegalLinks className="legales" />
           </div>
         </div>

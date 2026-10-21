@@ -477,7 +477,9 @@ e-mail export until built; Google only; the app's order
 of onboarding (account after the map); on the phone Caminos keeps the dots
 under the cards and «Ver mi rutina» at the end of the page, not fixed above
 the tab bar, so an open card reads in the whole screen (option A, owner,
-21 Oct 2026, from his iPhone video); the Care button lights when the three
+21 Oct 2026, from his iPhone video); «Cerrar sesión» also at the foot of
+Perfil, above the legal links, only for an account (option B, owner, 21 Oct
+2026), while «Borrar mi cuenta» stays two screens deep; the Care button lights when the three
 questions are answered (the package's rule, owner). Right after the
 revelation (option B) Premium is offered once with the free month day by day
 (`Paywall feature="welcome"`, funnel detail `welcome`), never to premium nor
