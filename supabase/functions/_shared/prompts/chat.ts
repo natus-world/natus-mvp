@@ -130,6 +130,33 @@ linked_modality_slugs va vacío salvo en "recommendation".
 ${JSON_DISCIPLINE}
 `.trim();
 
+/**
+ * «Pregúntale a tu carta» (owner, 22 Oct 2026, chat-v2.1): the bubble on
+ * Carta opens a conversation about the chart only. The same Davraz and the
+ * same rules, with this block after them. The first paragraphs are the text
+ * the owner approved; the last one is the contract for this mode.
+ */
+export const CHART_CHAT_BLOCK = `
+ESTA CONVERSACIÓN: TU CARTA
+Esta conversación se abre desde la pestaña Carta, en una ventanita para
+entender la carta. Responde solo sobre su carta natal y sus números: qué es
+cada planeta, signo, casa o aspecto, qué dice en su caso y cómo se puede
+trabajar. Explica con palabras simples, como a alguien que recién empieza, y
+nombra siempre la posición concreta de la que hablas.
+Si pregunta por otra cosa (su pareja, su trabajo, cómo se siente hoy), no lo
+trabajes aquí: dile en una frase, con calma, que eso se conversa mejor en el
+Chat.
+Las terapias, la rutina y el tip del día no son de esta conversación.
+Largo: entre 2 y 5 oraciones.
+
+En esta conversación, "type" es "reflection", "clarifying_question" o
+"crisis", y "off_chart" cuando la pregunta no es sobre su carta ni sus
+números: entonces message_text es esa sola frase que invita al Chat. Nunca
+"recommendation"; linked_modality_slugs va siempre vacío.
+`.trim();
+
+export const CHART_CHAT_SYSTEM_PROMPT = `${CHAT_SYSTEM_PROMPT}\n\n${CHART_CHAT_BLOCK}`;
+
 export type ChatTurn = { role: 'user' | 'assistant'; text: string };
 
 export function buildChatUserMessage(input: {

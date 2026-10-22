@@ -1,0 +1,400 @@
+/*
+ * «Pregúntale a tu carta» (owner, 22 Oct 2026; mockup «Pregúntale a tu
+ * carta», option B): a pill on Carta, fixed on the right over the tab bar,
+ * that becomes a circle once the person scrolls down; it opens a glass sheet
+ * from below (two thirds of the phone), or a panel on the right on desktop,
+ * under the header so «Necesito ayuda» stays within reach. The answer is a
+ * verse, as in the Chat (package 10).
+ */
+
+.carta-chat .burbuja {
+  position: fixed;
+  z-index: 45;
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--tab-bar-gap) + var(--h-tab-bar) + 14px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  height: calc(var(--u) * 52);
+  max-width: calc(var(--u) * 260);
+  padding: 0 calc(var(--u) * 18) 0 calc(var(--u) * 15);
+  border-radius: 99px;
+  border: 1px solid rgb(236 226 208 / 0.3);
+  background: rgb(14 24 30 / 0.74);
+  -webkit-backdrop-filter: blur(calc(var(--u) * 18));
+  backdrop-filter: blur(calc(var(--u) * 18));
+  color: var(--t1);
+  font: 400 calc(var(--u) * 14) / 1 var(--font-sans);
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 calc(var(--u) * 10) calc(var(--u) * 30) rgb(0 0 0 / 0.35);
+  transition:
+    max-width 0.35s var(--ease-natus),
+    padding 0.35s var(--ease-natus);
+}
+
+.carta-chat .burbuja svg {
+  flex: none;
+  width: calc(var(--u) * 22);
+  height: calc(var(--u) * 22);
+}
+
+.carta-chat .burbuja .rotulo {
+  transition: opacity 0.25s ease;
+}
+
+/* Reading further down: only the circle. */
+.carta-chat .burbuja[data-compact='true'] {
+  max-width: calc(var(--u) * 52);
+  padding: 0 calc(var(--u) * 14);
+}
+
+.carta-chat .burbuja[data-compact='true'] .rotulo {
+  opacity: 0;
+}
+
+/* ── The sheet ────────────────────────────────────────────────────────── */
+
+.carta-chat .velo-c {
+  position: fixed;
+  z-index: 46;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* «Necesito ayuda», in the header, stays within reach. */
+  top: var(--header-h);
+  background: rgb(5 9 8 / 0.55);
+}
+
+.carta-chat .hoja-c {
+  position: fixed;
+  z-index: 47;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: min(calc(100dvh - var(--header-h) - 8px), calc(var(--u) * 620));
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--u) * 10) calc(var(--u) * 24) calc(var(--u) * 18 + env(safe-area-inset-bottom, 0px));
+  border-radius: calc(var(--u) * 24) calc(var(--u) * 24) 0 0;
+  border-top: 1px solid rgb(255 255 255 / 0.15);
+  background: rgb(14 24 30 / 0.88);
+  -webkit-backdrop-filter: blur(calc(var(--u) * 26));
+  backdrop-filter: blur(calc(var(--u) * 26));
+  animation: carta-chat-sube 0.35s var(--ease-natus);
+}
+
+@keyframes carta-chat-sube {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+.carta-chat .asa {
+  width: calc(var(--u) * 40);
+  height: calc(var(--u) * 4);
+  border-radius: 99px;
+  background: rgb(236 226 208 / 0.3);
+  margin: 0 auto calc(var(--u) * 12);
+}
+
+.carta-chat .cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.carta-chat .quien {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  font: 400 calc(var(--u) * 14) / 1 var(--font-sans);
+}
+
+.carta-chat .ia {
+  font: 500 calc(var(--u) * 10) / 1 var(--font-sans);
+  letter-spacing: 0.1em;
+  border: 1px solid rgb(236 226 208 / 0.4);
+  border-radius: calc(var(--u) * 6);
+  padding: calc(var(--u) * 3) calc(var(--u) * 5);
+}
+
+.carta-chat .cerrar {
+  width: calc(var(--u) * 36);
+  height: calc(var(--u) * 36);
+  border-radius: 50%;
+  border: 1px solid rgb(236 226 208 / 0.3);
+  background: none;
+  color: var(--t1);
+  display: grid;
+  place-items: center;
+}
+
+.carta-chat .cerrar svg {
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+}
+
+.carta-chat .hilo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(var(--u) * 12);
+}
+
+.carta-chat .saludo {
+  font: 300 calc(var(--u) * 30) / 1.12 var(--font-serif);
+  color: var(--t1);
+  margin-top: calc(var(--u) * 22);
+  text-wrap: balance;
+}
+
+.carta-chat .saludo em {
+  font-style: italic;
+}
+
+.carta-chat .sub {
+  font: 300 calc(var(--u) * 14) / 1.45 var(--font-sans);
+  color: var(--t2);
+  margin: calc(var(--u) * 6) 0 calc(var(--u) * 22);
+}
+
+.carta-chat .qs {
+  display: grid;
+  margin-top: calc(var(--u) * 10);
+  border-radius: calc(var(--u) * 20);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(255 255 255 / 0.04);
+}
+
+.carta-chat .q {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 12);
+  align-items: center;
+  padding: calc(var(--u) * 13) calc(var(--u) * 16);
+  background: none;
+  border: 0;
+  text-align: left;
+  font: 400 calc(var(--u) * 15) / 1.3 var(--font-sans);
+  color: var(--t1);
+}
+
+.carta-chat .q + .q {
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+}
+
+.carta-chat .chev {
+  width: calc(var(--u) * 28);
+  height: calc(var(--u) * 28);
+  border-radius: 50%;
+  border: 1px solid rgb(236 226 208 / 0.25);
+  display: grid;
+  place-items: center;
+}
+
+.carta-chat .chev svg {
+  width: calc(var(--u) * 12);
+  height: calc(var(--u) * 12);
+}
+
+.carta-chat .yo {
+  align-self: flex-end;
+  max-width: 80%;
+  margin-top: calc(var(--u) * 20);
+  padding-right: calc(var(--u) * 12);
+  border-right: 1px solid rgb(236 226 208 / 0.45);
+  text-align: right;
+  font: 400 calc(var(--u) * 15) / 1.45 var(--font-sans);
+  color: rgb(236 226 208 / 0.85);
+  white-space: pre-wrap;
+}
+
+.carta-chat .verso {
+  margin-top: calc(var(--u) * 20);
+}
+
+.carta-chat .verso .et {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 10);
+  font: 500 calc(var(--u) * 11) / 1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(236 226 208 / 0.75);
+}
+
+.carta-chat .verso .et::after {
+  content: '';
+  flex: 0 0 calc(var(--u) * 36);
+  height: 1px;
+  background: rgb(236 226 208 / 0.35);
+}
+
+.carta-chat .verso p {
+  font: italic 300 calc(var(--u) * 22) / 1.32 var(--font-serif);
+  color: #f1e9da;
+  margin-top: calc(var(--u) * 10);
+  white-space: pre-wrap;
+}
+
+.carta-chat .al-chat {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 8);
+  height: calc(var(--u) * 40);
+  margin-top: calc(var(--u) * 16);
+  padding: 0 calc(var(--u) * 16);
+  border-radius: calc(var(--u) * 8);
+  border: 1px solid rgb(236 226 208 / 0.4);
+  color: var(--t1);
+  font: 400 calc(var(--u) * 14) / 1 var(--font-sans);
+  text-decoration: none;
+}
+
+.carta-chat .al-chat svg {
+  width: calc(var(--u) * 15);
+  height: calc(var(--u) * 15);
+}
+
+.carta-chat .chat {
+  margin-top: calc(var(--u) * 20);
+}
+
+.carta-chat .escribiendo {
+  display: inline-flex;
+  gap: calc(var(--u) * 5);
+  margin-top: calc(var(--u) * 16);
+}
+
+.carta-chat .escribiendo i {
+  width: calc(var(--u) * 5);
+  height: calc(var(--u) * 5);
+  border-radius: 50%;
+  background: rgb(236 226 208 / 0.7);
+  animation: chat-resp 1.6s ease-in-out infinite;
+}
+
+.carta-chat .escribiendo i:nth-of-type(2) {
+  animation-delay: 0.2s;
+}
+
+.carta-chat .escribiendo i:nth-of-type(3) {
+  animation-delay: 0.4s;
+}
+
+.carta-chat .abajo {
+  display: grid;
+  gap: calc(var(--u) * 12);
+}
+
+.carta-chat .cupo {
+  text-align: center;
+  font: 400 calc(var(--u) * 13) / 1 var(--font-sans);
+  color: var(--t2);
+}
+
+.carta-chat .aviso {
+  font: 400 calc(var(--u) * 14) / 1.45 var(--font-sans);
+  color: var(--t1);
+}
+
+.carta-chat .linea {
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--u) * 12);
+  padding-bottom: calc(var(--u) * 10);
+  border-bottom: 1px solid rgb(236 226 208 / 0.35);
+}
+
+.carta-chat .linea textarea {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  max-height: calc(var(--u) * 120);
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--t1);
+  /* 16px at least: iOS zooms into a smaller field. */
+  font: italic 300 max(16px, calc(var(--u) * 18)) / 1.3 var(--font-serif);
+  padding: calc(var(--u) * 10) 0;
+}
+
+.carta-chat .linea textarea::placeholder {
+  color: rgb(236 226 208 / 0.45);
+}
+
+.carta-chat .env {
+  flex: none;
+  width: calc(var(--u) * 44);
+  height: calc(var(--u) * 44);
+  border-radius: 50%;
+  border: 0;
+  background: var(--t1);
+  color: #0b120e;
+  display: grid;
+  place-items: center;
+}
+
+.carta-chat .env:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.carta-chat .env svg {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+}
+
+/* Desktop: the pill in the corner, the panel on the right under the header. */
+@media (min-width: 1024px) {
+  .carta-chat .burbuja {
+    right: var(--desk-right);
+    bottom: 32px;
+  }
+
+  .carta-chat .velo-c {
+    background: transparent;
+  }
+
+  .carta-chat .hoja-c {
+    left: auto;
+    right: var(--desk-right);
+    top: var(--header-h);
+    bottom: 24px;
+    width: calc(var(--d) * 440);
+    height: auto;
+    padding: calc(var(--u) * 22) calc(var(--u) * 26);
+    border-radius: calc(var(--d) * 20);
+    border: 1px solid rgb(255 255 255 / 0.15);
+    background: rgb(14 24 30 / 0.9);
+    box-shadow: 0 20px 60px rgb(0 0 0 / 0.4);
+  }
+
+  .carta-chat .asa {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carta-chat .burbuja,
+  .carta-chat .burbuja .rotulo {
+    transition: none;
+  }
+
+  .carta-chat .hoja-c {
+    animation: none;
+  }
+
+  .carta-chat .escribiendo i {
+    animation: none;
+    opacity: 0.6;
+  }
+}

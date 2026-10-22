@@ -43,6 +43,10 @@ describe('isChargeable', () => {
     // line item this product could have.
     expect(isChargeable('crisis')).toBe(false);
   });
+
+  it('never charges for sending a question off the chart to the Chat (owner, 22 Oct 2026)', () => {
+    expect(isChargeable('off_chart')).toBe(false);
+  });
 });
 
 describe('the month a plan counts (v1.2 F-01)', () => {

@@ -430,6 +430,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          kind: string
           memory_processed_at: string | null
           synthesis_id: string
           user_id: string
@@ -437,6 +438,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          kind?: string
           memory_processed_at?: string | null
           synthesis_id: string
           user_id: string
@@ -444,6 +446,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          kind?: string
           memory_processed_at?: string | null
           synthesis_id?: string
           user_id?: string

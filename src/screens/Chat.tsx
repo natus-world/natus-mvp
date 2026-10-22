@@ -47,11 +47,11 @@ const text = copy.chat;
 
 const CONTAINMENT_TEXT = text.containmentMessage;
 
-const TYPE_LABEL: Record<NonNullable<StoredMessage['type']>, string> = text.typeLabel;
+export const TYPE_LABEL: Record<NonNullable<StoredMessage['type']>, string> = text.typeLabel;
 
 /** What a crisis turn answers: containment for a high signal, the package's
  *  softer reply for a low one. Neither is charged. */
-function crisisAnswer(severity: 'high' | 'low') {
+export function crisisAnswer(severity: 'high' | 'low') {
   return {
     type: 'crisis' as const,
     message_text: severity === 'high' ? CONTAINMENT_TEXT : text.crisisReply,
@@ -68,7 +68,7 @@ const svg = {
   'aria-hidden': true,
 } as const;
 
-function SendIcon() {
+export function SendIcon() {
   return (
     <svg {...svg} strokeWidth={1.6}>
       <path d="M5 12h14M13 6l6 6-6 6" />
@@ -102,7 +102,7 @@ function moonSign(draft: Parameters<typeof chartPlacements>[0]): string | null {
  * The lines to call, under a crisis turn: the person's country, then the
  * international directory, then the notice when a number is unverified.
  */
-function HelpLines({ country }: { country: string | undefined }) {
+export function HelpLines({ country }: { country: string | undefined }) {
   const set = resourcesForCountry(linesCountry(country));
   return (
     <div className="lineas" role="region" aria-label={text.crisisLines}>
@@ -150,7 +150,7 @@ function HelpLines({ country }: { country: string | undefined }) {
  * server answers, so the offer never flashes. What the person typed stays in
  * the line behind it.
  */
-function ChatPaywall({ quota, onDismiss }: { quota: Quota | null; onDismiss: () => void }) {
+export function ChatPaywall({ quota, onDismiss }: { quota: Quota | null; onDismiss: () => void }) {
   const pw = text.paywall;
   const [offer, setOffer] = useState<boolean | null>(null);
   const [trying, setTrying] = useState(false);

@@ -21,6 +21,7 @@ import { DAILY_SKY_VERSION, type DailySky } from '../_shared/lib/daily-sky.ts';
 import {
   CHAT_PROMPT_VERSION,
   CHAT_SYSTEM_PROMPT,
+  CHART_CHAT_SYSTEM_PROMPT,
   buildChatUserMessage,
 } from '../_shared/prompts/chat.ts';
 
@@ -248,8 +249,13 @@ Deno.serve(async (request) => {
     // v1.2 D-01: premium's sky of the day.
     quota.tier === 'premium' ? todaysSky(caller, userId) : null,
   ]);
-  const recommendedSlugs = withoutClinicalExclusions(context.data.recommendedSlugs, vulnerable).kept;
-  const comparison = await comparisonToTalkOver(caller, userId, context.data.comparisonFriendshipId, vulnerable);
+  // «Pregúntale a tu carta» (owner, 22 Oct 2026): the chart and the numbers
+  // only — no therapies, no routine, no comparison, no sky of the day.
+  const carta = context.data.focus === 'carta';
+  const recommendedSlugs = carta ? [] : withoutClinicalExclusions(context.data.recommendedSlugs, vulnerable).kept;
+  const comparison = carta
+    ? null
+    : await comparisonToTalkOver(caller, userId, context.data.comparisonFriendshipId, vulnerable);
   const risk = vulnerable && context.data.risk === 'none' ? 'elevated' : context.data.risk;
 
   // The prompt is built here, from the contract in `_shared/prompts`, and
@@ -267,7 +273,7 @@ Deno.serve(async (request) => {
   try {
     const generated = await generate({
       model: MODEL,
-      system: CHAT_SYSTEM_PROMPT,
+      system: carta ? CHART_CHAT_SYSTEM_PROMPT : CHAT_SYSTEM_PROMPT,
       user: buildChatUserMessage({
         question: message,
         synthesis: context.data.synthesis,
@@ -278,8 +284,8 @@ Deno.serve(async (request) => {
         gender,
         memory,
         comparison,
-        person: { chart: person.chart, birth: person.birth, told: person.told, routine: person.routine },
-        today,
+        person: { chart: person.chart, birth: person.birth, told: person.told, routine: carta ? [] : person.routine },
+        today: carta ? null : today,
       }),
       schema: chatResponseSchema,
       maxTokens: MAX_OUTPUT_TOKENS.chat,
@@ -313,8 +319,14 @@ Deno.serve(async (request) => {
       );
     }
 
+    // Each mode answers with its own types: the Chat never sends to itself,
+    // and the chart's conversation never recommends a therapy.
+    if (!carta && generated.value.type === 'off_chart') generated.value.type = 'reflection';
+    if (carta && generated.value.type === 'recommendation') generated.value.type = 'reflection';
+
     // The model can classify a turn as crisis too, and that turn is free for
-    // the same reason the deterministic one is.
+    // the same reason the deterministic one is; a question off the chart,
+    // answered with a line that sends to the Chat, is free as well.
     const charged = isChargeable(generated.value.type);
 
     await logCall(elevated, {

@@ -159,9 +159,13 @@ export const memoryResultSchema = z.object({
 });
 export type MemoryResult = z.infer<typeof memoryResultSchema>;
 
-/** PDR 10.3. */
+/**
+ * PDR 10.3. `off_chart` answers, in «Pregúntale a tu carta» only (owner,
+ * 22 Oct 2026), a question that is not about the chart: one short line that
+ * sends the person to the Chat.
+ */
 export const chatResponseSchema = z.object({
-  type: z.enum(['reflection', 'recommendation', 'clarifying_question', 'crisis']),
+  type: z.enum(['reflection', 'recommendation', 'clarifying_question', 'crisis', 'off_chart']),
   message_text: z.string().min(1),
   linked_modality_slugs: z.array(z.string().min(1)),
 });

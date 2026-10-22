@@ -1087,6 +1087,26 @@ export const es = {
       return Number(m[1]) === thisYear ? day : `${day} de ${m[1]}`;
     },
   },
+  /**
+   * «Pregúntale a tu carta», the bubble on Carta (owner, 22 Oct 2026; texts
+   * approved by him from the mockup, the questions chosen on the same day).
+   */
+  chartChat: {
+    bubble: 'Pregúntale a tu carta',
+    greetingLead: 'Pregúntame lo que quieras de ',
+    greetingEmphasis: 'tu carta',
+    sub: 'Tus planetas, tus casas y tus números, explicados con calma.',
+    startLabel: 'Para empezar',
+    /** The first from the person's own Moon (owner, 22 Oct 2026). */
+    questions: (moon: string | null, sun: string | null) => [
+      moon ? `¿Cómo afecta mi Luna en ${moon} a mis relaciones?` : '¿Cómo afecta mi Luna a mis relaciones?',
+      '¿Qué patrón se repite en mi vida?',
+      sun ? `¿Qué me pide mi Sol en ${sun} para sentirme yo?` : '¿Qué me pide mi Sol para sentirme yo?',
+    ],
+    placeholder: 'Escribe tu pregunta…',
+    toChat: 'Conversar en el Chat',
+    close: 'Cerrar',
+  },
   chat: {
     kicker: 'Chat',
     name: 'Davraz de Fala',
@@ -1128,6 +1148,7 @@ export const es = {
       recommendation: 'Un camino',
       clarifying_question: 'Una pregunta',
       crisis: 'Antes de seguir',
+      off_chart: 'Fuera de tu carta',
     },
     /** Package 10, chat.crisis.*: the answer to a low signal, and the lines under it. */
     crisisReply:

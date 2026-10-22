@@ -3,6 +3,7 @@ import {
   FREE_QUESTIONS,
   appendAssistantMessage,
   appendUserMessage,
+  chartConversationFor,
   conversationFor,
   dropMessage,
   hasQuestionsLeft,
@@ -32,6 +33,25 @@ function ask(conversationId: string, type: ChatResponse['type'], at: number) {
   appendUserMessage(conversationId, 'una pregunta', at);
   appendAssistantMessage(conversationId, reply(type), at + 1);
 }
+
+describe('«Pregúntale a tu carta» (owner, 22 Oct 2026)', () => {
+  it('keeps its own conversation, apart from the Chat\'s', () => {
+    const chat = conversationFor('synthesis-1', T0);
+    const carta = chartConversationFor('synthesis-1', T0 + 1);
+    expect(carta.id).not.toBe(chat.id);
+    expect(carta.kind).toBe('carta');
+    expect(conversationFor('synthesis-1', T0 + 2).id).toBe(chat.id);
+    expect(chartConversationFor('synthesis-1', T0 + 3).id).toBe(carta.id);
+  });
+
+  it('spends the same questions as the Chat, and a question off the chart spends none', () => {
+    const carta = chartConversationFor('synthesis-1', T0);
+    ask(carta.id, 'reflection', T0 + 1);
+    ask(carta.id, 'off_chart', T0 + 3);
+    expect(usedQuestions()).toBe(1);
+    expect(remainingQuestions()).toBe(FREE_QUESTIONS - 1);
+  });
+});
 
 describe('the conversation', () => {
   it('is one thread per Soul Map, so a regenerated map starts fresh', () => {

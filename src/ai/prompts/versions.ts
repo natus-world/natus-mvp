@@ -1,4 +1,4 @@
-export const CHAT_PROMPT_VERSION = 'chat-v2.0';
+export const CHAT_PROMPT_VERSION = 'chat-v2.1';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
@@ -10,6 +10,12 @@ export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.1';
 export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.0';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chat-v2.1',
+    date: '2026-10-22',
+    change:
+      '«Pregúntale a tu carta» (owner, 22 Oct 2026, text approved by him): a bubble on Carta opens a conversation about the chart only. The function adds CHART_CHAT_BLOCK after the chat prompt in that mode: only the chart and the numbers, in simple words, naming the placement; anything else gets one line inviting to the Chat, typed `off_chart` and not charged; never a recommendation; 2 to 5 sentences. The Chat itself is unchanged.',
+  },
   {
     version: 'chat-v2.0',
     date: '2026-10-18',

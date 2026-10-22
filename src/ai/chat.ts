@@ -19,6 +19,8 @@ export type ChatAsk = {
   country: string;
   /** A comparison with a friend to talk over; the server reads it, if they are still friends. */
   comparisonFriendshipId?: string | null;
+  /** «Pregúntale a tu carta», the bubble on Carta: about the chart only (owner, 22 Oct 2026). */
+  focus?: 'chat' | 'carta';
 };
 
 export async function askChat(input: ChatAsk): Promise<AiResult<ChatResponse>> {
@@ -40,6 +42,7 @@ export async function askChat(input: ChatAsk): Promise<AiResult<ChatResponse>> {
         recommendedSlugs: [...input.recommendedSlugs],
         history: [...history],
         comparisonFriendshipId: input.comparisonFriendshipId ?? null,
+        focus: input.focus ?? 'chat',
       },
     },
     fixture: () =>

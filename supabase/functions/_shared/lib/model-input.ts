@@ -96,6 +96,11 @@ export const chatContextSchema = z.object({
    * while the friendship is accepted.
    */
   comparisonFriendshipId: z.string().uuid().nullable().default(null),
+  /**
+   * «Pregúntale a tu carta» (owner, 22 Oct 2026): the bubble on Carta asks
+   * about the chart only. The Chat is `chat`.
+   */
+  focus: z.enum(['chat', 'carta']).default('chat'),
 });
 export type ChatContext = z.infer<typeof chatContextSchema>;
 

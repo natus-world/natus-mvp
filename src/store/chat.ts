@@ -40,6 +40,11 @@ export type Conversation = {
    *  new thread rather than continuing one built on superseded text. */
   synthesis_id: string;
   created_at: number;
+  /**
+   * `carta`: the conversation of «Pregúntale a tu carta», the bubble on Carta
+   * (owner, 22 Oct 2026). Kept apart from the Chat's; absent means the Chat.
+   */
+  kind?: 'chat' | 'carta';
 };
 
 /**
@@ -67,12 +72,25 @@ export function listMessages(conversationId: string): StoredMessage[] {
   return listAllMessages().filter((m) => m.conversation_id === conversationId);
 }
 
+const kindOf = (c: Conversation): 'chat' | 'carta' => c.kind ?? 'chat';
+
+/** The Chat's conversation about this map. */
 export function conversationFor(synthesisId: string, now = Date.now()): Conversation {
-  const existing = listConversations().find((c) => c.synthesis_id === synthesisId);
+  return conversationOf('chat', synthesisId, now);
+}
+
+/** The conversation of «Pregúntale a tu carta» about this map (owner, 22 Oct 2026). */
+export function chartConversationFor(synthesisId: string, now = Date.now()): Conversation {
+  return conversationOf('carta', synthesisId, now);
+}
+
+function conversationOf(kind: 'chat' | 'carta', synthesisId: string, now: number): Conversation {
+  const mine = listConversations().filter((c) => kindOf(c) === kind);
+  const existing = mine.find((c) => c.synthesis_id === synthesisId);
   if (existing) return existing;
   // v1.2 M-02: the monthly rewrite of the map continues the same conversation;
   // a rewrite for changed birth data starts a new one.
-  const continued = [...listConversations()]
+  const continued = [...mine]
     .sort((a, b) => b.created_at - a.created_at)
     .find((c) => onlyMonthlySince(c.synthesis_id, synthesisId));
   if (continued) return continued;
@@ -81,6 +99,7 @@ export function conversationFor(synthesisId: string, now = Date.now()): Conversa
     id: newId('conversation'),
     synthesis_id: synthesisId,
     created_at: now,
+    ...(kind === 'carta' ? { kind } : {}),
   };
   write('conversations', [...listConversations(), conversation]);
   return conversation;

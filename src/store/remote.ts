@@ -514,6 +514,7 @@ const conversations: Adapter<Conversation[]> = {
       id: r.id,
       synthesis_id: r.synthesis_id,
       created_at: ms(r.created_at),
+      ...(r.kind === 'carta' ? { kind: 'carta' as const } : {}),
     }));
   },
   save: (client, userId, value) =>
@@ -526,6 +527,7 @@ const conversations: Adapter<Conversation[]> = {
         user_id: userId,
         synthesis_id: c.synthesis_id,
         created_at: iso(c.created_at),
+        kind: c.kind ?? 'chat',
       })),
     ),
 };

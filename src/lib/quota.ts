@@ -79,5 +79,8 @@ export function hasQuestionsLeft(used: number, subscribed: boolean): boolean {
  * in crisis never reaches the paywall at all.
  */
 export function isChargeable(responseType: string): boolean {
-  return responseType !== 'crisis';
+  // A question that is not about the chart, in «Pregúntale a tu carta», is
+  // answered with a line that sends to the Chat: not charged either (owner,
+  // 22 Oct 2026).
+  return responseType !== 'crisis' && responseType !== 'off_chart';
 }

@@ -16,6 +16,7 @@ import { PATHS } from '@/components/routes';
 import { CARE_PATH, needsCare } from '@/store/care';
 import { connectsLabel, FeedbackSheet } from '@/screens/Routine';
 import { CrisisScreen } from '@/screens/CrisisScreen';
+import { ChartChat } from '@/screens/ChartChat';
 import { markFalsePositive } from '@/store/crisis';
 import type { Numerology } from '@/lib/schemas';
 
@@ -406,6 +407,8 @@ export function SoulMap() {
           )}
         </div>
       </div>
+      {/* «Pregúntale a tu carta» (owner, 22 Oct 2026). */}
+      <ChartChat stored={stored} onCrisis={setLocalCrisis} />
     </Screen>
   );
 }
