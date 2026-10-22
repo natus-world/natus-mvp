@@ -153,6 +153,12 @@
   display: flex;
   gap: calc(var(--u) * 8);
   overflow-x: auto;
+  /* Sideways only, and it keeps its swipe to itself (owner's iPhone video,
+     22 Oct 2026): the row also scrolled 3px up and down, and a swipe on it
+     moved the page — the same as Caminos' cards on 20 Oct. */
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
   scrollbar-width: none;
   margin: 0 calc(var(--u) * -24);
   padding: 0 calc(var(--u) * 24);
