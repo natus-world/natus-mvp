@@ -212,6 +212,17 @@ is activated by hand, record them with `select public.record_step('<user
 id>', 'first_charge')` in the same session that writes the subscription.
 Campaign links carry `utm_source` and `utm_campaign`; the first one a browser
 arrives with travels on `onboarding_started`.
+**For the launch night (owner, 22 Oct 2026, `20261022210000_admin_launch.sql`):**
+without a utm the browser guesses the origin from the in-app browser (user
+agent) or the referrer's network (`guessSource`), and keeps an empty first
+touch so the sign-in round trip is never an origin; `onboarding_started`
+carries `device-browser` (`movil-instagram`, `computador-navegador`…),
+`birth_data_done` carries `con-hora` / `sin-hora` / `solo-numeros`, and
+`birth_city_not_found` records once that a typed city found nothing (also
+when the geocoder failed — it answers an empty list). The panel leaves out
+admins and the `qa-natus` robot (`is_internal_user`), counts «Usaron la app»
+with accounts only, splits Premium into paying (a `first_charge`) and the
+free month, and reads `admin_hourly` and `admin_funnel_by_source`.
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside
