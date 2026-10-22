@@ -27,6 +27,41 @@ function recognitionClass(): (new () => Recognition) | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
+type ResultList = ArrayLike<{ isFinal: boolean; 0: { transcript: string } }>;
+
+/**
+ * What each recognition result said, kept until it is handed over once. Safari
+ * on the iPhone, in continuous mode, may never mark a result final, or mark it
+ * only as it stops; Chrome marks each as it goes. So the latest words of every
+ * result are kept, a final one is handed over at once, and whatever is left is
+ * handed over when the recognition ends (owner's report, 22 Oct 2026: the
+ * journal's microphone did not transcribe).
+ */
+export function transcriptCollector(onText: (text: string) => void) {
+  const latest = new Map<number, string>();
+  const given = new Set<number>();
+  const give = (index: number, text: string) => {
+    if (given.has(index) || !text) return;
+    given.add(index);
+    onText(text);
+  };
+  return {
+    result(resultIndex: number, results: ResultList) {
+      for (let i = resultIndex; i < results.length; i++) {
+        const result = results[i];
+        if (!result) continue;
+        const text = (result[0]?.transcript ?? '').trim();
+        if (result.isFinal) give(i, text);
+        else latest.set(i, text);
+      }
+    },
+    end() {
+      for (const [i, text] of latest) give(i, text);
+      latest.clear();
+    },
+  };
+}
+
 export function useDictation(onText: (text: string) => void) {
   const [listening, setListening] = useState(false);
   const ref = useRef<Recognition | null>(null);
@@ -41,14 +76,12 @@ export function useDictation(onText: (text: string) => void) {
     const recognition = new Klass();
     recognition.lang = navigator.language?.startsWith('es') ? navigator.language : 'es-419';
     recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.onresult = (event) => {
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result?.isFinal) onText(result[0].transcript.trim());
-      }
-    };
+    // Interim results too: on the iPhone they may be all there is.
+    recognition.interimResults = true;
+    const words = transcriptCollector(onText);
+    recognition.onresult = (event) => words.result(event.resultIndex, event.results);
     recognition.onend = () => {
+      words.end();
       ref.current = null;
       setListening(false);
     };
