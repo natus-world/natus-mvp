@@ -113,9 +113,19 @@ export function FriendInvite() {
                 ) : (
                   <>
                     <p className="cuerpo">{hasMap ? t.needAccount : t.needMap}</p>
-                    <Link to={hasMap ? '/registro' : '/onboarding'} className="btn p sola">
-                      {hasMap ? t.createAccount : t.startMap}
-                    </Link>
+                    {/* A new account, or the one they already have (owner,
+                        22 Oct 2026): the invitation waits either way, and
+                        Hoy offers it again once they are in. */}
+                    <div className="acciones">
+                      <Link to={hasMap ? '/registro' : '/onboarding'} className="btn p">
+                        {hasMap ? t.createAccount : t.startMap}
+                      </Link>
+                      <p className="link">
+                        <Link to="/volver">
+                          <u>{t.haveAccount}</u>
+                        </Link>
+                      </p>
+                    </div>
                   </>
                 )}
               </>
