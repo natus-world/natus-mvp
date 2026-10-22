@@ -55,7 +55,11 @@ export const es = {
         country: 'Falta el país donde vives',
         place: 'Falta elegir tu ciudad de la lista',
         withoutTime: 'Falta decidir si calculamos tu carta sin la hora',
+        // Proposed (22 Oct 2026): not knowing the hour is said, not guessed.
+        time: 'Falta tu hora, o elige «No sé mi hora»',
       },
+      // Proposed (22 Oct 2026, the owner asked for it explicit).
+      noHour: 'No sé mi hora',
       birthCityLabel: 'Ciudad de nacimiento (opcional)',
       birthCityPlaceholder: 'Escribe y elige tu ciudad',
       // The birth place picked from suggestions (16 Oct 2026); proposed texts.
