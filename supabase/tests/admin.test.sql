@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(47);
+select plan(51);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -67,6 +67,10 @@ select throws_ok($$select * from public.admin_overview()$$, '42501', 'not_admin'
   'A person cannot read the overview');
 select throws_ok($$select * from public.admin_funnel(current_date - 30, current_date)$$, '42501', 'not_admin',
   'A person cannot read the funnel');
+select throws_ok($$select * from public.admin_retention(12)$$, '42501', 'not_admin',
+  'A person cannot read the retention');
+select throws_ok($$select public.admin_person_summary('aaaaaaaa-0000-4000-8000-0000000000a1')$$, '42501', 'not_admin',
+  'Nor anybody''s summary');
 select throws_ok($$select * from public.admin_ai_spend(30)$$, '42501', 'not_admin',
   'A person cannot read the spend');
 select throws_ok($$select * from public.admin_crisis_counts(30)$$, '42501', 'not_admin',
@@ -119,6 +123,10 @@ select is((select accounts from public.admin_overview()), 1::bigint,
   'Accounts count people with an account, not anonymous sessions, and not the team');
 select is((select count(*) from public.admin_hourly((now() at time zone 'America/Santiago')::date)), 24::bigint,
   'A day reads hour by hour');
+select is((select count(*) from public.admin_daily_range(current_date - 9, current_date)), 10::bigint,
+  'Any range of days reads day by day');
+select ok(public.admin_person_summary('bbbbbbbb-0000-4000-8000-0000000000b2') ? 'need',
+  'The summary says what brought the person');
 -- Sonnet: 1M in at 2 + 0.1M out at 10 = 3. Unknown model: 1M in at 5 = 5.
 -- The fixture call is not money.
 select is((select ai_spend_month from public.admin_overview()), 8.00::numeric,

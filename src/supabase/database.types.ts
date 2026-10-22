@@ -1514,12 +1514,32 @@ export type Database = {
           purpose: string
         }[]
       }
+      admin_ai_spend_range: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          calls: number
+          cost_usd: number
+          day: string
+          failed: number
+          purpose: string
+        }[]
+      }
       admin_call_cost: {
         Args: { c: Database["public"]["Tables"]["claude_api_calls"]["Row"] }
         Returns: number
       }
       admin_crisis_counts: {
         Args: { p_days?: number }
+        Returns: {
+          alerts: number
+          day: string
+          not_their_case: number
+          severity: string
+          surface: string
+        }[]
+      }
+      admin_crisis_counts_range: {
+        Args: { p_from: string; p_to: string }
         Returns: {
           alerts: number
           day: string
@@ -1548,6 +1568,15 @@ export type Database = {
       }
       admin_daily: {
         Args: { p_days?: number }
+        Returns: {
+          accounts: number
+          day: string
+          opened: number
+          started: number
+        }[]
+      }
+      admin_daily_range: {
+        Args: { p_from: string; p_to: string }
         Returns: {
           accounts: number
           day: string
@@ -1608,6 +1637,13 @@ export type Database = {
           screen: string
         }[]
       }
+      admin_first_action: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          action: string
+          people: number
+        }[]
+      }
       admin_funnel: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -1657,6 +1693,16 @@ export type Database = {
           premium_trial: number
         }[]
       }
+      admin_pending: {
+        Args: never
+        Returns: {
+          app_errors_7d: number
+          crisis_7d: number
+          payment_failures_7d: number
+          top_error_path: string
+          unread_suggestions: number
+        }[]
+      }
       admin_people: {
         Args: { p_limit?: number; p_query?: string }
         Returns: {
@@ -1674,12 +1720,46 @@ export type Database = {
         Args: { p_kind: string; p_limit?: number; p_user: string }
         Returns: Json
       }
+      admin_person_summary: { Args: { p_user: string }; Returns: Json }
       admin_plan: { Args: { p_user: string }; Returns: string }
       admin_require: {
         Args: { p_log?: boolean; p_subject?: string; p_what: string }
         Returns: undefined
       }
+      admin_retention: {
+        Args: { p_weeks?: number }
+        Returns: {
+          accounts: number
+          activated: number
+          back_after: number
+          back_d1: number
+          back_m1: number
+          back_w1: number
+          back_w2: number
+          week_start: string
+        }[]
+      }
       admin_revoke_premium: { Args: { p_user: string }; Returns: undefined }
+      admin_step_times: {
+        Args: { p_from: string; p_steps: string[]; p_to: string }
+        Returns: {
+          median_seconds: number
+          people: number
+          step: string
+        }[]
+      }
+      admin_weekly_use: {
+        Args: { p_weeks?: number }
+        Returns: {
+          active: number
+          chat: number
+          comparisons: number
+          journal: number
+          meditations: number
+          practices: number
+          week_start: string
+        }[]
+      }
       admin_whoami: {
         Args: never
         Returns: {
@@ -1700,6 +1780,7 @@ export type Database = {
       end_friendship: { Args: { p_friendship: string }; Returns: undefined }
       feedback_mark_read: { Args: never; Returns: undefined }
       first_name_of: { Args: { p_user: string }; Returns: string }
+      first_value_at: { Args: { p_user: string }; Returns: string }
       funnel_dedupe_key: {
         Args: { p_detail: string; p_step: string }
         Returns: string
