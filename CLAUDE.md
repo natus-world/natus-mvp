@@ -223,6 +223,13 @@ when the geocoder failed — it answers an empty list). The panel leaves out
 admins and the `qa-natus` robot (`is_internal_user`), counts «Usaron la app»
 with accounts only, splits Premium into paying (a `first_charge`) and the
 free month, and reads `admin_hourly` and `admin_funnel_by_source`.
+Second round the same night (`20261022220000_admin_ranges_retention.sql`):
+any date range (`admin_*_range`), the median time between steps
+(`admin_step_times`), retention by week of the account (`admin_retention`),
+first action and weekly use, pending work (`admin_pending`) and one
+person's summary for Davraz (`admin_person_summary`, logged). **Activated
+(owner, 22 Oct 2026):** in the first 7 days a practice marked, a question to
+Davraz or a journal entry (`first_value_at`).
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside
