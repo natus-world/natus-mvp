@@ -84,6 +84,18 @@ three parts), and the chat reads the day (chat-v2.0). The free line «Con
 Premium, Davraz te deja un tip para el día» opens the welcome offer (funnel
 place `tip`), never after a crisis alert. «Secta» is never said: «naciste de
 día / de noche» (owner, 18 Oct 2026; `lintChartJudgement` refuses it).
+**«Pregúntale a tu carta» is built (owner, 22 Oct 2026).** A pill on Carta
+(`screens/ChartChat.tsx`, `design/screens/carta-chat.css`), on the right over
+the tab bar, a circle once the person scrolls, opens a sheet (a panel under
+the header on desktop) with three questions — «¿Cómo afecta mi Luna en
+{signo} a mis relaciones?» (the Moon's sign only with the hour: nothing is
+guessed), «¿Qué patrón se repite en mi vida?», «¿Cómo afecta mi Marte en
+{signo} a mi forma de trabajar?» — and a conversation about the chart only:
+its own row (`conversations.kind = 'carta'`), out of the Chat and read by the
+memory; the chat function in focus `carta` adds `CHART_CHAT_BLOCK`
+(chat-v2.1, text approved by the owner); the same chat quota, and a question
+off the chart gets one line and «Conversar en el Chat», typed `off_chart` and
+not charged. The panel shows its messages mixed with the Chat's.
 The memory (M-01) is built (16 Oct 2026). «Lo que Natus sabe de ti» in the
 profile shows it, asks for consent and lets the person correct, delete and
 add; its texts are not in the guide and were approved by the owner on
