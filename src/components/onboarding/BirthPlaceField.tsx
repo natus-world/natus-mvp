@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { copy } from '@/i18n';
 import { MIN_QUERY_LENGTH, placeLabel, type BirthPlace } from '@/lib/places';
 import { searchPlaces } from '@/astrology/places';
+import { track } from '@/store/funnel';
 
 const text = copy.onboarding.basicData;
 const WAIT_MS = 300;
@@ -67,6 +68,17 @@ export function BirthPlaceField({
     setOptions([]);
     onChange(chosen.name, chosen);
   };
+
+  // A typed city that found nothing, once per field (owner, 22 Oct 2026):
+  // that it happened, never what was typed.
+  const toldNone = useRef(false);
+  const none = searched && !searching && options.length === 0;
+  useEffect(() => {
+    if (none && !toldNone.current) {
+      toldNone.current = true;
+      track('birth_city_not_found');
+    }
+  }, [none]);
 
   const helper = place
     ? placeLabel(place)

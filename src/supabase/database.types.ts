@@ -1615,6 +1615,14 @@ export type Database = {
           step: string
         }[]
       }
+      admin_funnel_by_source: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          people: number
+          source: string
+          step: string
+        }[]
+      }
       admin_funnel_detail: {
         Args: { p_from: string; p_step: string; p_to: string }
         Returns: {
@@ -1625,6 +1633,15 @@ export type Database = {
       admin_grant_premium: {
         Args: { p_email: string; p_months?: number }
         Returns: string
+      }
+      admin_hourly: {
+        Args: { p_day: string }
+        Returns: {
+          accounts: number
+          hour: number
+          map_seen: number
+          started: number
+        }[]
       }
       admin_overview: {
         Args: never
@@ -1637,6 +1654,7 @@ export type Database = {
           crisis_alerts_7d: number
           premium_gifted: number
           premium_paying: number
+          premium_trial: number
         }[]
       }
       admin_people: {
@@ -1697,6 +1715,7 @@ export type Database = {
         }[]
       }
       is_admin: { Args: never; Returns: boolean }
+      is_internal_user: { Args: { p_user: string }; Returns: boolean }
       my_friends: {
         Args: never
         Returns: {

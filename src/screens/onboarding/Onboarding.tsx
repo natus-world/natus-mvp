@@ -3,6 +3,7 @@ import { isSignedIn } from '@/store/account';
 import { requireAccount } from '@/store/account-required';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { track } from '@/store/funnel';
+import { hasBirthTime } from '@/astrology/natal-chart';
 import { useNavigate } from 'react-router-dom';
 import { Screen } from '@/design/Screen';
 import { CrisisBanner } from '@/components/CrisisBanner';
@@ -210,7 +211,11 @@ export function Onboarding() {
               draft={draft}
               onChange={change}
               onNext={() => {
-                track('birth_data_done');
+                // Whether the hour was given (owner, 22 Oct 2026): a word, never the hour.
+                track(
+                  'birth_data_done',
+                  hasBirthTime(draft) ? 'con-hora' : draft.chart_without_time === false ? 'solo-numeros' : 'sin-hora',
+                );
                 advance();
               }}
             />

@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(46);
+select plan(47);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -115,8 +115,10 @@ select is(public.is_admin(), false, 'An anonymous session is never an admin, eve
 select pg_temp.act_as('aaaaaaaa-0000-4000-8000-0000000000a1');
 
 select is((select role from public.admin_whoami()), 'owner', 'CONTROL: the admin signs in');
-select is((select accounts from public.admin_overview()), 2::bigint,
-  'Accounts count people with Google, not anonymous sessions');
+select is((select accounts from public.admin_overview()), 1::bigint,
+  'Accounts count people with an account, not anonymous sessions, and not the team');
+select is((select count(*) from public.admin_hourly((now() at time zone 'America/Santiago')::date)), 24::bigint,
+  'A day reads hour by hour');
 -- Sonnet: 1M in at 2 + 0.1M out at 10 = 3. Unknown model: 1M in at 5 = 5.
 -- The fixture call is not money.
 select is((select ai_spend_month from public.admin_overview()), 8.00::numeric,

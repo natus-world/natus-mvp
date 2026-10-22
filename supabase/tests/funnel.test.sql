@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(17);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -58,6 +58,9 @@ select public.track_step('app_opened');
 select public.track_step('app_opened');
 select public.track_step('paths_seen', 'instagram', 'lanzamiento');
 select public.track_step('paywall_seen', null, null, 'chat');
+
+select public.track_step('birth_data_done', null, null, 'sin-hora');
+select public.track_step('birth_city_not_found', null, null, 'Santiago de Chile');
 
 select throws_ok(
   $$select public.track_step('first_charge')$$,
@@ -128,6 +131,19 @@ select is(
    where user_id = 'aaaaaaaa-0000-4000-8000-000000000001' and step = 'paywall_seen'),
   'chat',
   'The paywall keeps where it appeared'
+);
+
+select is(
+  (select detail from public.funnel_events
+    where user_id = 'aaaaaaaa-0000-4000-8000-000000000001' and step = 'birth_data_done'),
+  'sin-hora',
+  'The birth step says whether the hour was given, from a closed list'
+);
+select is(
+  (select detail from public.funnel_events
+    where user_id = 'aaaaaaaa-0000-4000-8000-000000000001' and step = 'birth_city_not_found'),
+  null,
+  'A city that found nothing is recorded, never what was typed'
 );
 
 -- ── steps the database records itself ──────────────────────────────────────
