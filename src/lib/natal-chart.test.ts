@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { aspectsBySign, buildNatalChart, ChartParseError, dignityOf, wholeSignHouse } from './natal-chart.ts';
+import { aspectsBySign, buildNatalChart, ChartParseError, dignityOf, moonSignCertain, wholeSignHouse } from './natal-chart.ts';
 import { withoutBirthTime } from './astrology.ts';
 
 // The provider's shape, with invented positions.
@@ -110,6 +110,37 @@ describe('without the hour of birth (PDR US-1.2 CA2)', () => {
     const lenient = buildNatalChart(CHART, false);
     expect(lenient.ascendant).toBeNull();
     expect(lenient.points.every((p) => p.house === null)).toBe(true);
+  });
+});
+
+describe('without the hour, only what is known (owner, 22 Oct 2026)', () => {
+  const at = (degree: string) => withoutBirthTime(CHART.replace('position="2.10" sign="Libra"', `position="${degree}" sign="Libra"`));
+
+  it('keeps the Moon only when its sign is certain all that day', () => {
+    expect(buildNatalChart(at('2.10'), false).points.some((p) => p.name === 'Moon')).toBe(false);
+    expect(buildNatalChart(at('15.00'), false).points.find((p) => p.name === 'Moon')?.sign).toBe('Libra');
+    expect(buildNatalChart(at('25.00'), false).points.some((p) => p.name === 'Moon')).toBe(false);
+  });
+
+  it('knows more of the Moon when the person was born by day', () => {
+    expect(moonSignCertain(6.5, null)).toBe(false);
+    expect(moonSignCertain(6.5, 'noche')).toBe(false);
+    expect(moonSignCertain(6.5, 'dia')).toBe(true);
+    expect(moonSignCertain(24.5, 'dia')).toBe(false);
+  });
+
+  it('takes day or night from the person, and leaves the Ascendant and the houses unknown', () => {
+    const day = buildNatalChart(at('15.00'), false, 'dia');
+    expect(day.sect?.kind).toBe('diurna');
+    expect(day.ascendant).toBeNull();
+    expect(day.points.every((p) => p.house === null)).toBe(true);
+    expect(buildNatalChart(at('15.00'), false, 'noche').sect?.kind).toBe('nocturna');
+  });
+
+  it('with the hour, the Moon is always there and day or night comes from the chart', () => {
+    const chart = buildNatalChart(CHART, true, 'noche');
+    expect(chart.points.some((p) => p.name === 'Moon')).toBe(true);
+    expect(chart.sect?.kind).toBe('diurna');
   });
 });
 

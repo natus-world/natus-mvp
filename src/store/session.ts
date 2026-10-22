@@ -49,6 +49,12 @@ export type OnboardingDraft = {
    *  calculated (Nico, 15 Oct 2026). Undefined until they are asked. Kept in
    *  the draft only: it is read once, when the map is generated. */
   chart_without_time?: boolean;
+  /**
+   * Without the hour, whether they were born by day or by night, or that they
+   * do not know it (owner, 22 Oct 2026). Kept on the server: the chart is
+   * cast with it.
+   */
+  birth_daynight?: 'dia' | 'noche' | 'no_se';
 };
 
 export type AnonymousSession = {

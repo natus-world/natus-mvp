@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { hasBirthTime } from '@/astrology/natal-chart';
+import { dayNightOf, hasBirthTime } from '@/astrology/natal-chart';
 import { Screen } from '@/design/Screen';
 import { Ouroboros } from '@/design/Ouroboros';
 import { FullChartWheel, type WheelAspect, type WheelAxis, type WheelPoint } from '@/design/FullChartWheel';
@@ -101,7 +101,7 @@ function chartOf(draft: OnboardingDraft): NatalChart | null {
   const stored = draft.natal_chart;
   if (!stored || stored.parse_status !== 'parsed') return null;
   try {
-    return buildNatalChart(stored.context, hasBirthTime(draft));
+    return buildNatalChart(stored.context, hasBirthTime(draft), dayNightOf(draft));
   } catch {
     return null;
   }

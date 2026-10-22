@@ -17,7 +17,11 @@
  *
  * Calculated here, like the numerology, so the model receives them as given
  * and is told not to recompute them. Without the hour of birth there is no
- * Ascendant, no house and no sect: the fields are null, never guessed.
+ * Ascendant and no house: the fields are null, never guessed. The sect then
+ * comes only from the person, who may say whether they were born by day or by
+ * night (owner, 22 Oct 2026), and the Moon is kept only when its sign is
+ * certain (`moonSignCertain`): a chart without the hour is cast at noon, and
+ * the Moon may change sign during the day.
  *
  * Pure: no I/O, no browser, so the Edge Function and the browser run the
  * same code.
@@ -119,7 +123,7 @@ export type NatalChart = {
   ascendant: { sign: Sign; degree: number } | null;
   /** The traditional ruler of the Ascendant's sign, and where it sits. */
   ascendant_ruler: { planet: Traditional; sign: Sign; house: number | null } | null;
-  /** Day or night chart, and the planets of that sect. Null without the hour. */
+  /** Day or night chart, and the planets of that sect. Without the hour, only as the person said it. */
   sect: { kind: 'diurna' | 'nocturna'; planets: Traditional[] } | null;
   /** By sign, between every pair of points that are not the same axis. */
   aspects: ChartAspect[];
@@ -238,7 +242,25 @@ export function readPoints(context: string): RawPoint[] {
 
 const AXES = new Set(['Ascendant', 'Descendant', 'Medium_Coeli', 'Imum_Coeli']);
 
-export function buildNatalChart(context: string, hasBirthTime: boolean): NatalChart {
+/** Whether the person said they were born by day or by night (no hour known). */
+export type DayNight = 'dia' | 'noche';
+
+/** The Moon moves at most about 15.4° a day, about 0.65° an hour. */
+const MOON_DEGREES_PER_HOUR = 0.65;
+
+/**
+ * Whether the Moon's sign at local noon is its sign at birth, the hour not
+ * being known (owner, 22 Oct 2026: nothing is guessed). Born any time that
+ * day, the Moon was within twelve hours of noon; born by day, within nine
+ * (05:00 to 21:00 covers the longest daylight with some room). It kept its
+ * sign if it was that far from both edges.
+ */
+export function moonSignCertain(degreeInSign: number, dayNight: DayNight | null): boolean {
+  const margin = (dayNight === 'dia' ? 9 : 12) * MOON_DEGREES_PER_HOUR;
+  return degreeInSign >= margin && degreeInSign <= 30 - margin;
+}
+
+export function buildNatalChart(context: string, hasBirthTime: boolean, dayNight: DayNight | null = null): NatalChart {
   const raw = readPoints(context);
   const sun = raw.find((p) => p.name === 'Sun');
   if (!sun) throw new ChartParseError('The chart has no Sun to read.');
@@ -249,6 +271,8 @@ export function buildNatalChart(context: string, hasBirthTime: boolean): NatalCh
   const points: ChartPoint[] = raw
     // Without the hour the angles are inventions of the noon that stood in for it.
     .filter((p) => ascSign !== null || !AXES.has(p.name))
+    // And the Moon too, unless its sign is certain all that day.
+    .filter((p) => ascSign !== null || p.name !== 'Moon' || moonSignCertain(p.position, dayNight))
     .map((p) => {
       const sign = p.sign as Sign;
       const index = signIndex(sign);
@@ -277,6 +301,12 @@ export function buildNatalChart(context: string, hasBirthTime: boolean): NatalCh
     const fromAscendant = (sun.abs_pos - asc.abs_pos + 360) % 360;
     sect =
       fromAscendant > 180
+        ? { kind: 'diurna', planets: ['Sun', 'Jupiter', 'Saturn'] }
+        : { kind: 'nocturna', planets: ['Moon', 'Venus', 'Mars'] };
+  } else if (dayNight) {
+    // Said by the person: by day the Sun was above the horizon.
+    sect =
+      dayNight === 'dia'
         ? { kind: 'diurna', planets: ['Sun', 'Jupiter', 'Saturn'] }
         : { kind: 'nocturna', planets: ['Moon', 'Venus', 'Mars'] };
   }

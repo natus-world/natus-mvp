@@ -175,7 +175,10 @@ export function buildSoulMapUserMessage(input: {
 function readChart(draft: SoulMapDraft): NatalChart | null {
   if (!draft.natal_chart || draft.natal_chart.parse_status !== 'parsed') return null;
   try {
-    return buildNatalChart(draft.natal_chart.context, /^\d{1,2}:\d{2}$/.test(draft.birth_time.trim()));
+    const timeKnown = /^\d{1,2}:\d{2}$/.test(draft.birth_time.trim());
+    // Without the hour, day or night as the person said it (owner, 22 Oct 2026).
+    const dayNight = !timeKnown && (draft.birth_daynight === 'dia' || draft.birth_daynight === 'noche') ? draft.birth_daynight : null;
+    return buildNatalChart(draft.natal_chart.context, timeKnown, dayNight);
   } catch (error) {
     if (error instanceof ChartParseError) return null;
     throw error;

@@ -12,7 +12,11 @@ import { NATAL_CHART_VERSION } from '@/lib/natal-chart.ts';
 export async function ensureWholeSignChart(draft: OnboardingDraft): Promise<void> {
   if (!isBackendConfigured || !supabase || !draft.natal_chart) return;
   // A new version of the calculation rebuilds every stored chart once more.
-  const marker = `${NATAL_CHART_VERSION}:${draft.natal_chart.calculated_at}:${draft.natal_chart.context.length}`;
+  // Without the hour, the Moon's rule and day or night (owner, 22 Oct 2026)
+  // rebuild those charts only: a chart with the hour is unchanged by it, and
+  // rebuilding it would make its readings stale for nothing.
+  const noHour = /^\d{2}:\d{2}$/.test(draft.birth_time.trim()) ? '' : `:sin-hora-v1:${draft.birth_daynight ?? ''}`;
+  const marker = `${NATAL_CHART_VERSION}:${draft.natal_chart.calculated_at}:${draft.natal_chart.context.length}${noHour}`;
   if (read<string | null>('whole_sign_chart', null) === marker) return;
   try {
     const { error } = await supabase.functions.invoke('natal-chart', { body: { rebuild: true } });

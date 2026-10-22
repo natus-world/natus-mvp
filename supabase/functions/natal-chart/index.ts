@@ -2,7 +2,7 @@ import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
 import { parseAstrologerSubject, resolveLocation } from '../_shared/astrology.ts';
 import { withoutBirthTime } from '../_shared/lib/astrology.ts';
-import { buildNatalChart, ChartParseError } from '../_shared/lib/natal-chart.ts';
+import { buildNatalChart, ChartParseError, type DayNight } from '../_shared/lib/natal-chart.ts';
 import { parseBirthPlace } from '../_shared/lib/places.ts';
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
 
@@ -10,6 +10,11 @@ const ENDPOINT = 'https://astrologer.p.rapidapi.com/api/v6/context/birth-chart';
 const HOST = 'astrologer.p.rapidapi.com';
 const TIMEOUT_MS = 20_000;
 const CALLS_PER_DAY = 5;
+
+/** Day or night, when the person said it; anything else is not knowing. */
+function dayNightOf(value: unknown): DayNight | null {
+  return value === 'dia' || value === 'noche' ? value : null;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -33,9 +38,10 @@ async function keepWholeSignChart(
   userId: string,
   context: string,
   hasBirthTime: boolean,
+  dayNight: DayNight | null,
 ): Promise<boolean> {
   try {
-    const chart = buildNatalChart(context, hasBirthTime);
+    const chart = buildNatalChart(context, hasBirthTime, dayNight);
     // The same chart keeps its `calculated_at`: the readings of the full
     // chart (package 05) are written for it, and a rebuild on another device
     // that changes nothing must not make them stale.
@@ -65,12 +71,13 @@ async function rebuild(caller: SupabaseClient, elevated: SupabaseClient, userId:
   for (const table of ['clients', 'anonymous_sessions'] as const) {
     const { data } = await caller
       .from(table)
-      .select('natal_chart, birth_time')
+      .select('natal_chart, birth_time, birth_daynight')
       .eq('user_id', userId)
       .maybeSingle();
     const stored = isRecord(data) && isRecord(data.natal_chart) ? data.natal_chart : null;
     if (stored && typeof stored.context === 'string' && stored.context.trim() !== '') {
-      return keepWholeSignChart(elevated, userId, stored.context, data?.birth_time != null);
+      const timeKnown = data?.birth_time != null;
+      return keepWholeSignChart(elevated, userId, stored.context, timeKnown, timeKnown ? null : dayNightOf(data?.birth_daynight));
     }
   }
   return false;
@@ -162,7 +169,8 @@ Deno.serve(async (request) => {
     // v1.2 A-01: without the hour there is no Ascendant and there are no
     // houses. Removed here, before the chart is stored anywhere.
     const context = timeKnown ? raw : withoutBirthTime(raw);
-    await keepWholeSignChart(elevated, userId, context, timeKnown);
+    // Without the hour, day or night as the person said it (owner, 22 Oct 2026).
+    await keepWholeSignChart(elevated, userId, context, timeKnown, timeKnown ? null : dayNightOf(isRecord(body) ? body.day_night : null));
 
     return json(request, { status: 'OK', api_version: 'v6', context, time_known: timeKnown });
   } catch (error) {

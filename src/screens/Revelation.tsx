@@ -5,7 +5,7 @@ import { PLANET_GLYPHS } from '@/design/planet-glyphs';
 import { SIGN_GLYPHS, type GlyphSign } from '@/design/zodiac-glyphs';
 import { useTakeover } from '@/components/takeover';
 import { PATHS } from '@/components/routes';
-import { hasBirthTime } from '@/astrology/natal-chart';
+import { dayNightOf, hasBirthTime } from '@/astrology/natal-chart';
 import { buildNatalChart, SIGNS, type NatalChart } from '@/lib/natal-chart';
 import { activeProfile } from '@/store/account';
 import { accountRequired } from '@/store/account-required';
@@ -76,7 +76,7 @@ function readChart(): NatalChart | null {
   const stored = draft?.natal_chart;
   if (!draft || !stored || stored.parse_status !== 'parsed') return null;
   try {
-    return buildNatalChart(stored.context, hasBirthTime(draft));
+    return buildNatalChart(stored.context, hasBirthTime(draft), dayNightOf(draft));
   } catch {
     return null;
   }
