@@ -160,9 +160,12 @@ export function BasicData({
   onChange: (patch: Partial<OnboardingDraft>) => void;
   onNext: () => void;
 }) {
-  // Without the hour, and only when there is enough to calculate a chart at
-  // all, the person decides whether to calculate it. Nothing is preselected.
-  const askWithoutTime = !hasBirthTime(draft) && hasNatalChartInput(draft);
+  // Not knowing the hour is said, with «No sé mi hora» under the date (owner,
+  // 22 Oct 2026): a blank hour is no longer read as not knowing it. Then, and
+  // only when there is enough to calculate a chart at all, the person decides
+  // there whether to calculate it. Nothing is preselected.
+  const [noHour, setNoHour] = useState(() => !hasBirthTime(draft) && draft.chart_without_time !== undefined);
+  const askWithoutTime = noHour && !hasBirthTime(draft) && hasNatalChartInput(draft);
   // A city typed but not picked from the list would be guessed at; the chart
   // is cast only for a place the person chose (16 Oct 2026).
   const placeUnpicked = draft.birth_city.trim() !== '' && !draft.birth_place;
@@ -171,7 +174,8 @@ export function BasicData({
   const dateGiven = /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date);
   const underage = dateGiven && !isAdultOn(draft.birth_date, today);
   const nameGiven = draft.legal_birth_name.trim().length > 1;
-  const timeDecided = !askWithoutTime || draft.chart_without_time !== undefined;
+  const timeGiven = hasBirthTime(draft) || noHour;
+  const timeDecided = timeGiven && (!askWithoutTime || draft.chart_without_time !== undefined);
   const canContinue = !placeUnpicked && !underage && draft.country !== '' && nameGiven && dateGiven && timeDecided;
 
   // The package: «El botón queda fijo abajo; si falta algo, dice qué.»
@@ -185,9 +189,11 @@ export function BasicData({
           ? text.missing.country
           : placeUnpicked
             ? text.missing.place
-            : !timeDecided
-              ? text.missing.withoutTime
-              : null;
+            : !timeGiven
+              ? text.missing.time
+              : !timeDecided
+                ? text.missing.withoutTime
+                : null;
 
   return (
     <StepBody
@@ -231,7 +237,10 @@ export function BasicData({
               time={draft.birth_time}
               latestYear={Number(latestAdultBirthDate(today).slice(0, 4))}
               onDate={(value) => onChange({ birth_date: value, natal_chart: null })}
-              onTime={(value) => onChange({ birth_time: value, natal_chart: null })}
+              onTime={(value) => {
+                if (value) setNoHour(false);
+                onChange({ birth_time: value, natal_chart: null });
+              }}
             />
             {underage ? (
               <p id="birth-date-helper" role="alert" className="l error">
@@ -241,6 +250,45 @@ export function BasicData({
               <p id="birth-date-helper" className="l">
                 {text.birthDateTimeLabel}
               </p>
+            )}
+            <div className="chips sin-hora">
+              <button
+                type="button"
+                aria-pressed={noHour}
+                className={noHour ? 'chip on' : 'chip'}
+                onClick={() => {
+                  const next = !noHour;
+                  setNoHour(next);
+                  // Not knowing it clears the hour; knowing it again asks for it.
+                  if (next) onChange({ birth_time: '', natal_chart: null });
+                }}
+              >
+                {text.noHour}
+              </button>
+            </div>
+            {askWithoutTime && (
+              <div className="sin-hora-p">
+                <p className="v" id="without-time-label">
+                  {text.withoutTimeLabel}
+                </p>
+                <div className="chips" role="radiogroup" aria-labelledby="without-time-label">
+                  {text.withoutTimeOptions.map(([value, label]) => {
+                    const checked = draft.chart_without_time === (value === 'yes');
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        role="radio"
+                        aria-checked={checked}
+                        onClick={() => onChange({ chart_without_time: value === 'yes', natal_chart: null })}
+                        className={checked ? 'chip on' : 'chip'}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -333,30 +381,6 @@ export function BasicData({
           <p className="l">{text.genderExample}</p>
         </div>
 
-        {askWithoutTime && (
-          <div className="campo solo">
-            <p className="v" id="without-time-label">
-              {text.withoutTimeLabel}
-            </p>
-            <div className="chips" role="radiogroup" aria-labelledby="without-time-label">
-              {text.withoutTimeOptions.map(([value, label]) => {
-                const checked = draft.chart_without_time === (value === 'yes');
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    role="radio"
-                    aria-checked={checked}
-                    onClick={() => onChange({ chart_without_time: value === 'yes', natal_chart: null })}
-                    className={checked ? 'chip on' : 'chip'}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
 
       <p className="aviso">{text.notice}</p>
