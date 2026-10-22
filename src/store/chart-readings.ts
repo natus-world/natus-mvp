@@ -1,3 +1,4 @@
+import { dayNightOf } from '@/astrology/natal-chart';
 import { isBackendConfigured, isDemoMode, supabase } from '@/supabase/client';
 import { generateChartReadings } from '@/ai/chart-points';
 import { buildChartPointsFixture } from '@/ai/fixtures/chart-points';
@@ -54,7 +55,7 @@ function draftChart(): NatalChart | null {
   const draft = activeProfile()?.draft;
   if (!draft?.natal_chart) return null;
   try {
-    return buildNatalChart(draft.natal_chart.context, /^\d{1,2}:\d{2}$/.test(draft.birth_time.trim()));
+    return buildNatalChart(draft.natal_chart.context, /^\d{1,2}:\d{2}$/.test(draft.birth_time.trim()), dayNightOf(draft));
   } catch (error) {
     if (error instanceof ChartParseError) return null;
     throw error;

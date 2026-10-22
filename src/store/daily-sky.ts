@@ -1,3 +1,4 @@
+import { dayNightOf } from '@/astrology/natal-chart';
 import { isBackendConfigured, isDemoMode, supabase } from '@/supabase/client';
 import { DEMO_SKY, DEMO_TIPS } from '@/ai/fixtures/daily-sky';
 import { DAILY_SKY_VERSION, dailySky, personalDay, type DailySky } from '@/lib/daily-sky';
@@ -55,7 +56,7 @@ function demoSky(date: string): TodaySky {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) return { status: 'none' };
   if (!draft?.natal_chart) return { status: 'no_chart', personalDay: personalDay(birthDate, date) };
   try {
-    const chart = buildNatalChart(draft.natal_chart.context, /^\d{1,2}:\d{2}$/.test(draft.birth_time.trim()));
+    const chart = buildNatalChart(draft.natal_chart.context, /^\d{1,2}:\d{2}$/.test(draft.birth_time.trim()), dayNightOf(draft));
     return { status: 'ready', day: dailySky({ chart, sky: DEMO_SKY, birthDate, date }), tips: null };
   } catch (error) {
     if (error instanceof ChartParseError) return { status: 'no_chart', personalDay: personalDay(birthDate, date) };

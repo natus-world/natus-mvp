@@ -1,6 +1,6 @@
 import { isBackendConfigured, supabase } from '@/supabase/client';
 import type { NatalChartDraft, OnboardingDraft } from '@/store/session';
-import { buildNatalChart, mainPlacements, type Placement } from '@/lib/natal-chart';
+import { buildNatalChart, mainPlacements, type DayNight, type Placement } from '@/lib/natal-chart';
 
 type NatalChartResponse = {
   context?: unknown;
@@ -76,7 +76,7 @@ export async function calculateNatalChart(draft: OnboardingDraft): Promise<Natal
   try {
     response = await supabase.functions.invoke<NatalChartResponse>('natal-chart', {
       // The place picked from suggestions, when there is one (16 Oct 2026).
-      body: { subject, time_known: hasBirthTime(draft), place: draft.birth_place ?? null },
+      body: { subject, time_known: hasBirthTime(draft), place: draft.birth_place ?? null, day_night: dayNightOf(draft) },
     });
   } catch {
     throw new NatalChartError(
@@ -110,8 +110,17 @@ export function chartPlacements(draft: OnboardingDraft): Placement[] | null {
   const chart = draft.natal_chart;
   if (!chart || chart.parse_status !== 'parsed') return null;
   try {
-    return mainPlacements(buildNatalChart(chart.context, hasBirthTime(draft)));
+    return mainPlacements(buildNatalChart(chart.context, hasBirthTime(draft), dayNightOf(draft)));
   } catch {
     return null;
   }
+}
+
+/**
+ * Without the hour, day or night as the person said it (owner, 22 Oct 2026);
+ * with the hour the chart knows it, and «no sé» is no answer.
+ */
+export function dayNightOf(draft: Pick<OnboardingDraft, 'birth_time' | 'birth_daynight'>): DayNight | null {
+  if (/^\d{2}:\d{2}$/.test(draft.birth_time.trim())) return null;
+  return draft.birth_daynight === 'dia' || draft.birth_daynight === 'noche' ? draft.birth_daynight : null;
 }

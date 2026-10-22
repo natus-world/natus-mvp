@@ -88,8 +88,8 @@ día / de noche» (owner, 18 Oct 2026; `lintChartJudgement` refuses it).
 (`screens/ChartChat.tsx`, `design/screens/carta-chat.css`), on the right over
 the tab bar, a circle once the person scrolls, opens a sheet (a panel under
 the header on desktop) with three questions — «¿Cómo afecta mi Luna en
-{signo} a mis relaciones?» (the Moon's sign only with the hour: nothing is
-guessed), «¿Qué patrón se repite en mi vida?», «¿Cómo afecta mi Marte en
+{signo} a mis relaciones?» (the Moon's sign only when the chart is sure of
+it: nothing is guessed), «¿Qué patrón se repite en mi vida?», «¿Cómo afecta mi Marte en
 {signo} a mi forma de trabajar?» — and a conversation about the chart only:
 its own row (`conversations.kind = 'carta'`), out of the Chat and read by the
 memory; the chat function in focus `carta` adds `CHART_CHAT_BLOCK`
@@ -302,9 +302,18 @@ What is left outside the code, in rough order of weight:
   2026).** Nothing built yet. Today
   the detector has a `panico` category in `crisis-keywords.json` and routes it
   like any other crisis; there is no dedicated in-the-moment response.
-- A chart without the hour is calculated at noon, so for somebody born on a
-  day the Moon changed sign, the Moon's sign may be wrong. The fix is a
-  second call (00:00 and 23:59) to tell whether it changed; left for later.
+- **Without the hour, only what is known (owner, 22 Oct 2026).** Not
+  knowing the hour is said with «No sé mi hora» under the date, which asks
+  «¿Sabes si naciste de día o de noche?» (De día · De noche · No sé, kept in
+  `birth_daynight` on `clients` and `anonymous_sessions`) and then «Sin la
+  hora, ¿calculamos tu carta?». The chart is still cast at noon, but
+  `buildNatalChart` takes day or night as the person's word for the sect and
+  keeps the Moon only when `moonSignCertain` (far enough from the sign's
+  edges for the whole day, or the daylight hours when born by day); a kept
+  Moon goes to the model without its degree. Every reading prompt was bumped
+  for it (soul-map-v2.8, chat-v2.2, comparison-v2.3, chart-points-v1.2,
+  daily-tip-v1.1). Charts without the hour are rebuilt once (`store/chart.ts`
+  marker), charts with it are untouched.
 - `crisis-keywords.json` is `"status": "preliminary"` and wants a clinician.
   For that review, the owner's rule since 15 Oct 2026 is better too many
   alerts than too few (v3): a negation never silences a direct term ("no

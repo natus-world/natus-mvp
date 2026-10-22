@@ -73,11 +73,23 @@ export function describeChart(chart: NatalChart): string {
       lines.push(`Nació ${when}; planetas que trabajan con más soltura: ${chart.sect.planets.join(', ')}`);
     }
   } else {
-    lines.push('Sin hora de nacimiento: no hay Ascendente ni casas, y no se sabe si nació de día o de noche. No los menciones ni los deduzcas.');
+    // Without the hour (owner, 22 Oct 2026): only what is known. Day or night
+    // when the person said it; the Moon only when its sign is certain.
+    if (chart.sect) {
+      const when = chart.sect.kind === 'diurna' ? 'de día' : 'de noche';
+      lines.push('Sin hora de nacimiento: no hay Ascendente ni casas. No los menciones ni los deduzcas.');
+      lines.push(`Nació ${when} (lo dijo la persona); planetas que trabajan con más soltura: ${chart.sect.planets.join(', ')}`);
+    } else {
+      lines.push('Sin hora de nacimiento: no hay Ascendente ni casas, y no se sabe si nació de día o de noche. No los menciones ni los deduzcas.');
+    }
+    if (!chart.points.some((p) => p.name === 'Moon')) {
+      lines.push('Sin la hora no se sabe en qué signo estaba la Luna: no la menciones ni deduzcas su signo.');
+    }
   }
   lines.push('Puntos:');
   for (const p of chart.points) {
-    const parts = [`${p.sign} ${p.degree}°`];
+    // Without the hour the Moon's sign is certain, its degree is not.
+    const parts = [!chart.has_birth_time && p.name === 'Moon' ? p.sign : `${p.sign} ${p.degree}°`];
     if (p.house) parts.push(`casa ${p.house}`);
     if (p.dignity) parts.push(p.dignity);
     if (p.retrograde) parts.push('retrógrado');

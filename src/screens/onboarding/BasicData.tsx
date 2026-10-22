@@ -175,7 +175,8 @@ export function BasicData({
   const underage = dateGiven && !isAdultOn(draft.birth_date, today);
   const nameGiven = draft.legal_birth_name.trim().length > 1;
   const timeGiven = hasBirthTime(draft) || noHour;
-  const timeDecided = timeGiven && (!askWithoutTime || draft.chart_without_time !== undefined);
+  const dayNightGiven = !askWithoutTime || draft.birth_daynight !== undefined;
+  const timeDecided = timeGiven && dayNightGiven && (!askWithoutTime || draft.chart_without_time !== undefined);
   const canContinue = !placeUnpicked && !underage && draft.country !== '' && nameGiven && dateGiven && timeDecided;
 
   // The package: «El botón queda fijo abajo; si falta algo, dice qué.»
@@ -191,7 +192,9 @@ export function BasicData({
             ? text.missing.place
             : !timeGiven
               ? text.missing.time
-              : !timeDecided
+              : !dayNightGiven
+                ? text.missing.dayNight
+                : !timeDecided
                 ? text.missing.withoutTime
                 : null;
 
@@ -266,6 +269,27 @@ export function BasicData({
                 {text.noHour}
               </button>
             </div>
+            {askWithoutTime && (
+              <div className="sin-hora-p">
+                <p className="v" id="day-night-label">
+                  {text.dayNightLabel}
+                </p>
+                <div className="chips" role="radiogroup" aria-labelledby="day-night-label">
+                  {text.dayNightOptions.map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="radio"
+                      aria-checked={draft.birth_daynight === value}
+                      onClick={() => onChange({ birth_daynight: value, natal_chart: null })}
+                      className={draft.birth_daynight === value ? 'chip on' : 'chip'}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {askWithoutTime && (
               <div className="sin-hora-p">
                 <p className="v" id="without-time-label">

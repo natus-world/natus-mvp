@@ -57,6 +57,7 @@ export const es = {
         withoutTime: 'Falta decidir si calculamos tu carta sin la hora',
         // Proposed (22 Oct 2026): not knowing the hour is said, not guessed.
         time: 'Falta tu hora, o elige «No sé mi hora»',
+        dayNight: 'Falta decir si naciste de día o de noche',
       },
       // Proposed (22 Oct 2026, the owner asked for it explicit).
       noHour: 'No sé mi hora',
@@ -88,6 +89,13 @@ export const es = {
         ['XX', 'Otro país'],
       ] as [string, string][],
       notice: 'Sin hora exacta no hablamos de Ascendente ni de casas.',
+      // Owner, 22 Oct 2026: day or night, when the hour is not known.
+      dayNightLabel: '¿Sabes si naciste de día o de noche?',
+      dayNightOptions: [
+        ['dia', 'De día'],
+        ['noche', 'De noche'],
+        ['no_se', 'No sé'],
+      ] as ['dia' | 'noche' | 'no_se', string][],
       withoutTimeLabel: 'Sin la hora, ¿calculamos tu carta?',
       withoutTimeOptions: [
         ['yes', 'Sí, sin Ascendente ni casas'],

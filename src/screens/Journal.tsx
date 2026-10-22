@@ -10,7 +10,7 @@ import { modalityBySlug } from '@/lib/catalog';
 import { buildNatalChart } from '@/lib/natal-chart';
 import { lifePath } from '@/lib/numerology';
 import { detectCrisis } from '@/lib/safety';
-import { hasBirthTime } from '@/astrology/natal-chart';
+import { dayNightOf, hasBirthTime } from '@/astrology/natal-chart';
 import { PATHS } from '@/components/routes';
 import { CrisisScreen } from '@/screens/CrisisScreen';
 import { DESK_MS, markBookMoving, PHONE_MS, playDesk, playPhone, rememberCover } from '@/screens/journal-motion';
@@ -267,7 +267,7 @@ function skyOf(draft: OnboardingDraft | undefined): Sky {
   let chart: ReturnType<typeof buildNatalChart> | null = null;
   if (draft?.natal_chart) {
     try {
-      chart = buildNatalChart(draft.natal_chart.context, hasBirthTime(draft));
+      chart = buildNatalChart(draft.natal_chart.context, hasBirthTime(draft), dayNightOf(draft));
     } catch {
       chart = null;
     }

@@ -1,4 +1,4 @@
-import { hasBirthTime, shouldCalculateNatalChart } from '@/astrology/natal-chart';
+import { dayNightOf, hasBirthTime, shouldCalculateNatalChart } from '@/astrology/natal-chart';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isDemoMode } from '@/supabase/client';
@@ -60,7 +60,7 @@ function chartOf(draft: OnboardingDraft): NatalChart | null {
   const stored = draft.natal_chart;
   if (!stored || stored.parse_status !== 'parsed') return null;
   try {
-    return buildNatalChart(stored.context, hasBirthTime(draft));
+    return buildNatalChart(stored.context, hasBirthTime(draft), dayNightOf(draft));
   } catch {
     return null;
   }

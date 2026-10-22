@@ -116,6 +116,8 @@ export const soulMapDraftSchema = z.object({
   legal_birth_name: z.string().trim().max(160),
   birth_date: z.string().trim().max(40),
   birth_time: z.string().trim().max(20).default(''),
+  /** Without the hour, day or night as the person said it (owner, 22 Oct 2026). */
+  birth_daynight: z.enum(['dia', 'noche', 'no_se']).nullable().optional(),
   birth_city: z.string().trim().max(120).default(''),
   country: z.string().trim().max(40).default('CL'),
   presenting_need_text: z.string().max(MAX_PROSE).default(''),

@@ -5,7 +5,7 @@ import { ChatTabIcon } from '@/design/brand-icons';
 import { ArrowIcon } from '@/design/icons';
 import { PATHS } from '@/components/routes';
 import { detectCrisis, riskLevel } from '@/lib/safety';
-import { chartPlacements, hasBirthTime } from '@/astrology/natal-chart';
+import { chartPlacements } from '@/astrology/natal-chart';
 import { askChat } from '@/ai/chat';
 import { AiError } from '@/ai/client';
 import { activeProfile } from '@/store/account';
@@ -28,13 +28,12 @@ const chat = copy.chat;
 
 /**
  * A planet's sign in Spanish, for the questions made from the chart. Without
- * the hour the Moon's sign is not named: on the day it changes sign, the noon
- * that stands in for the hour can get it wrong, and nothing is guessed (owner,
- * 22 Oct 2026).
+ * the hour the chart keeps the Moon only when its sign is certain, so nothing
+ * is guessed (owner, 22 Oct 2026).
  */
 function signOf(planet: 'Moon' | 'Mars'): string | null {
   const draft = activeProfile()?.draft;
-  if (!draft || (planet === 'Moon' && !hasBirthTime(draft))) return null;
+  if (!draft) return null;
   const placement = chartPlacements(draft)?.find((p) => p.name === planet);
   return placement ? (chat.signs[placement.sign] ?? null) : null;
 }

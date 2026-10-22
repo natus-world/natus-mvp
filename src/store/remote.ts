@@ -79,6 +79,7 @@ type DraftColumns = {
   grammatical_gender: string;
   birth_date: string | null;
   birth_time: string | null;
+  birth_daynight: string | null;
   birth_city: string;
   birth_country: string;
   birth_place: BirthPlace | null;
@@ -101,6 +102,7 @@ function draftToColumns(draft: OnboardingDraft): DraftColumns {
     grammatical_gender: draft.grammatical_gender,
     birth_date: blankToNull(draft.birth_date),
     birth_time: blankToNull(draft.birth_time),
+    birth_daynight: draft.birth_daynight ?? null,
     birth_city: draft.birth_city,
     birth_country: draft.birth_country,
     birth_place: draft.birth_place ?? null,
@@ -153,6 +155,9 @@ function columnsToDraft(row: DraftRow): OnboardingDraft {
     birth_date: nullToBlank(row.birth_date),
     // Postgres returns `time` as HH:MM:SS; the input element wants HH:MM.
     birth_time: nullToBlank(row.birth_time).slice(0, 5),
+    ...(row.birth_daynight === 'dia' || row.birth_daynight === 'noche' || row.birth_daynight === 'no_se'
+      ? { birth_daynight: row.birth_daynight }
+      : {}),
     birth_city: row.birth_city,
     birth_country: row.birth_country,
     birth_place: parseBirthPlace(row.birth_place),

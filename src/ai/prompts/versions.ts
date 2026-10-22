@@ -1,15 +1,45 @@
-export const CHAT_PROMPT_VERSION = 'chat-v2.1';
+export const CHAT_PROMPT_VERSION = 'chat-v2.2';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
-export const COMPARISON_PROMPT_VERSION = 'comparison-v2.2';
-export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.7';
+export const COMPARISON_PROMPT_VERSION = 'comparison-v2.3';
+export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.8';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
-export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.1';
-export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.0';
+export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.2';
+export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'soul-map-v2.8',
+    date: '2026-10-22',
+    change:
+      'Without the hour of birth, only what is known (owner, 22 Oct 2026): the shared chart description (chart-reading.ts) says day or night when the person said it («lo dijo la persona»), leaves out the Moon when its sign is not certain all that day and tells the model not to name it, and gives a kept Moon only its sign, not its degree.',
+  },
+  {
+    version: 'chat-v2.2',
+    date: '2026-10-22',
+    change:
+      'Without the hour of birth, only what is known (owner, 22 Oct 2026): the shared chart description (chart-reading.ts) says day or night when the person said it («lo dijo la persona»), leaves out the Moon when its sign is not certain all that day and tells the model not to name it, and gives a kept Moon only its sign, not its degree.',
+  },
+  {
+    version: 'comparison-v2.3',
+    date: '2026-10-22',
+    change:
+      'Without the hour of birth, only what is known (owner, 22 Oct 2026): the shared chart description (chart-reading.ts) says day or night when the person said it («lo dijo la persona»), leaves out the Moon when its sign is not certain all that day and tells the model not to name it, and gives a kept Moon only its sign, not its degree.',
+  },
+  {
+    version: 'chart-points-v1.2',
+    date: '2026-10-22',
+    change:
+      'Without the hour of birth, only what is known (owner, 22 Oct 2026): the shared chart description (chart-reading.ts) says day or night when the person said it («lo dijo la persona»), leaves out the Moon when its sign is not certain all that day and tells the model not to name it, and gives a kept Moon only its sign, not its degree.',
+  },
+  {
+    version: 'daily-tip-v1.1',
+    date: '2026-10-22',
+    change:
+      'Without the hour of birth, only what is known (owner, 22 Oct 2026): the shared chart description (chart-reading.ts) says day or night when the person said it («lo dijo la persona»), leaves out the Moon when its sign is not certain all that day and tells the model not to name it, and gives a kept Moon only its sign, not its degree.',
+  },
   {
     version: 'chat-v2.1',
     date: '2026-10-22',

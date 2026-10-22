@@ -33,6 +33,7 @@ const BIRTH_FIELDS = [
   'birth_city',
   'birth_country',
   'chart_without_time',
+  'birth_daynight',
 ] as const;
 
 /** Two «San Fernando» in one country are two places: compared by where they are. */
