@@ -5,7 +5,7 @@ import { ChatTabIcon } from '@/design/brand-icons';
 import { ArrowIcon } from '@/design/icons';
 import { PATHS } from '@/components/routes';
 import { detectCrisis, riskLevel } from '@/lib/safety';
-import { chartPlacements } from '@/astrology/natal-chart';
+import { chartPlacements, hasBirthTime } from '@/astrology/natal-chart';
 import { askChat } from '@/ai/chat';
 import { AiError } from '@/ai/client';
 import { activeProfile } from '@/store/account';
@@ -26,10 +26,16 @@ import { ChatPaywall, HelpLines, SendIcon, TYPE_LABEL, crisisAnswer } from '@/sc
 const text = copy.chartChat;
 const chat = copy.chat;
 
-/** A planet's sign in Spanish, for the questions made from the chart. */
-function signOf(planet: 'Moon' | 'Sun'): string | null {
+/**
+ * A planet's sign in Spanish, for the questions made from the chart. Without
+ * the hour the Moon's sign is not named: on the day it changes sign, the noon
+ * that stands in for the hour can get it wrong, and nothing is guessed (owner,
+ * 22 Oct 2026).
+ */
+function signOf(planet: 'Moon' | 'Mars'): string | null {
   const draft = activeProfile()?.draft;
-  const placement = draft ? chartPlacements(draft)?.find((p) => p.name === planet) : undefined;
+  if (!draft || (planet === 'Moon' && !hasBirthTime(draft))) return null;
+  const placement = chartPlacements(draft)?.find((p) => p.name === planet);
   return placement ? (chat.signs[placement.sign] ?? null) : null;
 }
 
@@ -222,7 +228,7 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
                   <p className="sub">{text.sub}</p>
                   <p className="k">{text.startLabel}</p>
                   <div className="qs">
-                    {text.questions(signOf('Moon'), signOf('Sun')).map((q) => (
+                    {text.questions(signOf('Moon'), signOf('Mars')).map((q) => (
                       <button key={q} type="button" className="q" onClick={() => void send(q)}>
                         <span>{q}</span>
                         <span className="chev" aria-hidden="true">

@@ -1097,11 +1097,14 @@ export const es = {
     greetingEmphasis: 'tu carta',
     sub: 'Tus planetas, tus casas y tus números, explicados con calma.',
     startLabel: 'Para empezar',
-    /** The first from the person's own Moon (owner, 22 Oct 2026). */
-    questions: (moon: string | null, sun: string | null) => [
+    /**
+     * The Moon and Mars from the person's own chart (owner, 22 Oct 2026). A
+     * sign is named only when it is known: never the Moon without the hour.
+     */
+    questions: (moon: string | null, mars: string | null) => [
       moon ? `¿Cómo afecta mi Luna en ${moon} a mis relaciones?` : '¿Cómo afecta mi Luna a mis relaciones?',
       '¿Qué patrón se repite en mi vida?',
-      sun ? `¿Qué me pide mi Sol en ${sun} para sentirme yo?` : '¿Qué me pide mi Sol para sentirme yo?',
+      mars ? `¿Cómo afecta mi Marte en ${mars} a mi forma de trabajar?` : '¿Cómo afecta mi Marte a mi forma de trabajar?',
     ],
     placeholder: 'Escribe tu pregunta…',
     toChat: 'Conversar en el Chat',
