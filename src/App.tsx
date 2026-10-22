@@ -49,6 +49,7 @@ import { Gate } from '@/screens/Gate';
 import { Legal } from '@/screens/Legal';
 import { RevealFirst } from '@/screens/Revelation';
 import { NotFound } from '@/screens/NotFound';
+import { RebillTest } from '@/screens/RebillTest';
 import { Journal, NewJournalEntry } from '@/screens/Journal';
 import { BirthDataEdit } from '@/screens/BirthDataEdit';
 import { FriendInvite } from '@/screens/friends/FriendInvite';
@@ -308,6 +309,7 @@ export function App() {
             <Route path="/amigos/:token" element={<FriendInvite />} />
             <Route path="/privacidad" element={<Legal doc="privacy" />} />
             <Route path="/terminos" element={<Legal doc="terms" />} />
+            <Route path="/prueba/rebill" element={<RebillTest />} />
             {Object.entries(LEGACY_PATHS).map(([from, to]) => (
               <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
             ))}

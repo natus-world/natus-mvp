@@ -469,3 +469,8 @@ enabled = true
 # PayPal's own signature is checked inside the function instead.
 [functions.paypal-webhook]
 verify_jwt = false
+
+# Rebill calls this, not a person (sandbox trial, owner, 22 Oct 2026). Its
+# HMAC signature over the raw body is checked inside the function instead.
+[functions.rebill-webhook]
+verify_jwt = false

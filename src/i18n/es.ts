@@ -1592,6 +1592,18 @@ export const es = {
     body: 'Puede que el enlace esté mal escrito o sea de una versión anterior.',
     home: 'Ir al inicio',
   },
+  rebillTest: {
+    // The hidden Rebill sandbox trial, `/prueba/rebill` (proposal, 22 Oct 2026).
+    opening: 'Abriendo el pago de prueba…',
+    errors: {
+      account_required: 'Entra con tu cuenta para probar el pago.',
+      not_available: 'Este pago de prueba no está abierto para esta cuenta.',
+      already_premium: 'Esta cuenta ya tiene Premium.',
+      not_configured: 'Falta cargar la clave de Rebill.',
+      rebill_unavailable: 'Rebill no respondió. Prueba de nuevo en un rato.',
+      failed: 'No se pudo abrir el pago de prueba.',
+    },
+  },
   crisisScreen: {
     // Package 12 (16 Oct 2026).
     kicker: 'Un momento',

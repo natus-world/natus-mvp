@@ -1188,6 +1188,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rebill_checkouts: {
+        Row: {
+          created_at: string
+          payment_link_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          payment_link_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          payment_link_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rebill_plans: {
+        Row: {
+          created_at: string
+          key_hash: string
+          plan_id: string
+        }
+        Insert: {
+          created_at?: string
+          key_hash: string
+          plan_id: string
+        }
+        Update: {
+          created_at?: string
+          key_hash?: string
+          plan_id?: string
+        }
+        Relationships: []
+      }
       recommendation_checkins: {
         Row: {
           checked_on: string

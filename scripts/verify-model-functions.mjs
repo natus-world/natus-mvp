@@ -517,6 +517,31 @@ if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
   check('paypal-webhook: only POST', wrongVerb.status === 405, `status=${wrongVerb.status}`);
 }
 
+// ── Rebill's notifications (sandbox trial, owner, 22 Oct 2026) ─────────────
+//
+// The same rule: a notification Rebill did not sign changes nothing, whether
+// or not the function has its secrets here.
+{
+  const forged = await fetch(`${API}/functions/v1/rebill-webhook`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-rebill-signature': 'ab'.repeat(32) },
+    body: JSON.stringify({
+      data: { payment: { status: 'approved', amount: 0 }, paymentLinkId: 'pl_forged', subscriptionId: 'sub_forged' },
+      webhook: { event: 'payment.created', logId: `we_log_${crypto.randomUUID()}` },
+    }),
+  });
+  const { data: mine } = await client.from('subscriptions').select('status').eq('user_id', userId).maybeSingle();
+  check(
+    'rebill-webhook: a notification Rebill did not sign makes nobody premium',
+    forged.status !== 200 && mine?.status !== 'active',
+    `status=${forged.status} subscription=${mine?.status ?? 'none'}`,
+  );
+  const wrongVerb = await fetch(`${API}/functions/v1/rebill-webhook`, { method: 'GET' });
+  check('rebill-webhook: only POST', wrongVerb.status === 405, `status=${wrongVerb.status}`);
+  const anonymous = await fetch(`${API}/functions/v1/rebill-checkout`, { method: 'POST' });
+  check('rebill-checkout: nobody without a session', anonymous.status === 401, `status=${anonymous.status}`);
+}
+
 // ── the chart by whole sign, rebuilt from what is stored (v1.2 A-01) ───────
 //
 // No provider call: the positions are in the stored text, so this runs here
