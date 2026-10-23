@@ -3,7 +3,7 @@ import { isBackendConfigured, isDemoMode, supabase } from '@/supabase/client';
 import { generateChartReadings } from '@/ai/chart-points';
 import { buildChartPointsFixture } from '@/ai/fixtures/chart-points';
 import { CHART_POINTS_PROMPT_VERSION } from '@/ai/prompts/versions';
-import { checkChartPointReadings, readablePoints, readingsByPoint } from '@/lib/chart-points';
+import { keepChartPointReadings, readablePoints, readingsByPoint } from '@/lib/chart-points';
 import { readStoredChart } from '@/lib/comparison-payload';
 import { buildNatalChart, ChartParseError, type NatalChart } from '@/lib/natal-chart';
 import { chartPointReadingsSchema } from '@/lib/schemas';
@@ -103,10 +103,10 @@ async function storedReadings(row: ChartRow): Promise<Kept | null> {
     .maybeSingle();
   if (error || !data || Date.parse(data.chart_calculated_at) !== Date.parse(row.calculatedAt)) return null;
   const parsed = chartPointReadingsSchema.safeParse({ readings: data.readings });
-  if (!parsed.success || checkChartPointReadings(parsed.data, readablePoints(row.chart))) return null;
+  if (!parsed.success) return null;
   return {
     promptVersion: data.prompt_version,
-    readings: readingsByPoint(parsed.data),
+    readings: readingsByPoint(keepChartPointReadings(parsed.data, readablePoints(row.chart))),
     chartCalculatedAt: row.calculatedAt,
     draftChartAt: draftChartAt(),
   };

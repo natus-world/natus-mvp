@@ -231,7 +231,7 @@ export type ComparisonResult = z.infer<typeof comparisonResultSchema>;
  * Package 05 «Carta completa» (owner, 16 Oct 2026): Davraz's reading of each
  * point of the person's chart, one or two sentences each. The point is named
  * as `src/lib/natal-chart.ts` names it; which points must be there depends on
- * the chart, so that is checked by `checkChartPointReadings`, not here.
+ * the chart, so that is kept by `keepChartPointReadings`, not here.
  */
 export const MAX_CHART_POINT_READING_CHARS = 320;
 export const chartPointReadingsSchema = z.object({

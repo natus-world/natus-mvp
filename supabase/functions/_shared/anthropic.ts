@@ -114,6 +114,8 @@ export async function generate<T>(call: {
    * so it is retried once with the reason, like the copy lint.
    */
   lint?: (value: T) => string | null;
+  /** What of the answer is kept, before the copy lint and `lint` run over it. */
+  trim?: (value: T) => T;
 }): Promise<Generation<T>> {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) throw new ModelError('No key is configured.', 'api_error');
@@ -152,8 +154,9 @@ export async function generate<T>(call: {
         );
       }
 
-      assertCleanCopy(parsed.data, spent);
-      const ruled = call.lint?.(parsed.data);
+      const value = call.trim ? call.trim(parsed.data) : parsed.data;
+      assertCleanCopy(value, spent);
+      const ruled = call.lint?.(value);
       // Which rule, kept with the call so a failure can be read afterwards;
       // anything quoted from the answer is left out (22 Oct 2026).
       if (ruled) {
@@ -161,7 +164,7 @@ export async function generate<T>(call: {
         throw new ModelError(ruled, 'copy_violation', `lint:route:${why}`, spent);
       }
       return {
-        value: parsed.data,
+        value,
         inputTokens: response.inputTokens,
         outputTokens: response.outputTokens,
         cacheWriteTokens: response.cacheWriteTokens,

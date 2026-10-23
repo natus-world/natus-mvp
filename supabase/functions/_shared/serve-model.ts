@@ -107,6 +107,13 @@ export type ModelRoute<I, O> = {
    * lint's is. `chart-points` uses it for the points its answer must read.
    */
   lint?: (output: O, input: I) => string | null;
+  /**
+   * What of the answer is kept, before the copy lint runs over it: a route
+   * that would rather lose one part than refuse the whole answer.
+   * `chart-points` uses it to leave out, alone, a reading that breaks a rule
+   * (owner, 22 Oct 2026).
+   */
+  trim?: (output: O, input: I) => O;
   crisis?: (output: O, input: I) => { response: string; country: string | undefined } | null;
   /**
    * v1.2 F-01: the plan feature this surface spends, if any. Its quota is
@@ -250,6 +257,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
         : parsed.data;
       const gender = await callerGrammaticalGender(auth.caller, userId);
       const lint = route.lint;
+      const trim = route.trim;
       const generated = await generate({
         model,
         system: route.system,
@@ -258,6 +266,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
         maxTokens: MAX_OUTPUT_TOKENS[route.purpose],
         ...(route.effort ? { effort: route.effort } : {}),
         ...(lint ? { lint: (value: O) => lint(value, input) } : {}),
+        ...(trim ? { trim: (value: O) => trim(value, input) } : {}),
       });
 
       const rejection = await route.check?.(generated.value, input, { caller: auth.caller, userId });

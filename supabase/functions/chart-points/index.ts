@@ -3,7 +3,7 @@ import { serveModel } from '../_shared/serve-model.ts';
 import { chartPointsInputSchema } from '../_shared/lib/model-input.ts';
 import { chartPointReadingsSchema, type ChartPointReadings } from '../_shared/lib/schemas/index.ts';
 import { readStoredChart } from '../_shared/lib/comparison-payload.ts';
-import { checkChartPointReadings, readablePoints } from '../_shared/lib/chart-points.ts';
+import { keepChartPointReadings, readablePoints } from '../_shared/lib/chart-points.ts';
 import type { NatalChart } from '../_shared/lib/natal-chart.ts';
 import {
   CHART_POINTS_PROMPT_VERSION,
@@ -83,9 +83,10 @@ Deno.serve(
       return { built: stored };
     },
 
-    // Inside the model call, so a reading too many, too few or a rated
-    // placement is retried once with the reason.
-    lint: (result, input) => checkChartPointReadings(result, readablePoints(built(input).chart)),
+    // Inside the model call, before the copy lint: a reading that rates its
+    // placement or breaks a copy rule is left out alone, nothing is asked
+    // again (owner, 22 Oct 2026).
+    trim: (result, input) => keepChartPointReadings(result, readablePoints(built(input).chart)),
 
     store: async (result, input, { elevated, userId, promptVersion }) => {
       const { error } = await elevated.from('chart_point_readings').upsert({

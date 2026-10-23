@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { buildChartPointsFixture } from './chart-points';
 import { BROAD_CONTEXT, SEED_CONTEXT } from './chart-seed.testing';
 import { chartPointReadingsSchema } from '@/lib/schemas';
-import { checkChartPointReadings, readablePoints } from '@/lib/chart-points';
-import { lintChartJudgement, lintCrisisText, lintDeep } from '@/lib/copy-lint';
+import { keepChartPointReadings, readablePoints } from '@/lib/chart-points';
+import { countSentences, lintChartJudgement, lintCrisisText, lintDeep } from '@/lib/copy-lint';
 import { lintPhysicalRisk } from '@/lib/physical-risk';
 import { buildNatalChart } from '@/lib/natal-chart';
 
@@ -27,7 +27,9 @@ describe.each(CHARTS)('the demo readings of the full chart: %s', (_label, chart)
   });
 
   it('reads every point once, in one or two sentences', () => {
-    expect(checkChartPointReadings(fixture, readablePoints(chart))).toBeNull();
+    const points = readablePoints(chart);
+    expect(keepChartPointReadings(fixture, points).readings.map((r) => r.point).sort()).toEqual([...points].sort());
+    for (const { text } of fixture.readings) expect([1, 2]).toContain(countSentences(text));
   });
 
   it('passes the copy lint, rates nothing and names no house', () => {
