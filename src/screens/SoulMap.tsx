@@ -343,6 +343,14 @@ export function SoulMap() {
   const chart = profile ? chartOf(profile.draft) : null;
   // The chart was asked for and is not there: said, not hidden (16 Oct 2026).
   const chartMissing = profile !== null && !chart && shouldCalculateNatalChart(profile.draft) && !profile.draft.natal_chart;
+  // No chart because no city was given, unless the person chose only their
+  // numbers (owner, 22 Oct 2026): said, with the way to add it.
+  const cityMissing =
+    profile !== null &&
+    !chart &&
+    !chartMissing &&
+    profile.draft.birth_city.trim() === '' &&
+    profile.draft.chart_without_time !== false;
   // v1.2 M-02: the version before this one, if the map has been written again.
   const previous = listSyntheses()
     .filter((s) => s.id !== stored.id && s.created_at < stored.created_at)
@@ -365,6 +373,15 @@ export function SoulMap() {
               <p className="cuerpo">{text.chartMissing}</p>
               <Link to={`${PATHS.profile}/nacimiento`} className="p2">
                 {text.chartMissingCta}
+              </Link>
+            </div>
+          )}
+
+          {cityMissing && (
+            <div className="vid pad falta">
+              <p className="cuerpo">{text.cityMissing}</p>
+              <Link to={`${PATHS.profile}/nacimiento`} className="p2">
+                {text.cityMissingCta}
               </Link>
             </div>
           )}

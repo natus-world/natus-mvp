@@ -77,6 +77,8 @@ export const es = {
       birthCityNone:
         'No encontramos esa ciudad. Prueba con su nombre completo o con la ciudad grande más cercana.',
       birthCityOptions: 'Ciudades',
+      // Approved by the owner (22 Oct 2026): a blank city means no chart.
+      birthCityNeeded: 'Sin tu ciudad no podemos calcular tu carta astral.',
       birthCountryLabel: 'País de nacimiento',
       birthCountryPlaceholder: 'Elige un país',
       birthCountryHelper: 'Con la ciudad y el país calculamos tu carta natal.',
@@ -700,6 +702,9 @@ export const es = {
     chartMissing:
       'No pudimos calcular tu carta natal esta vez, así que este mapa se escribió con tus números y lo que contaste.',
     chartMissingCta: 'Revisar mi lugar de nacimiento',
+    // Approved by the owner (22 Oct 2026): no chart because no city was given.
+    cityMissing: 'Para calcular tu carta astral falta tu ciudad de nacimiento.',
+    cityMissingCta: 'Agregar mi ciudad',
     // Package 04: the one primary pill, which opens level 2.
     fullChart: 'Ver mi carta completa',
   },

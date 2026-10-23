@@ -20,6 +20,7 @@ export function BirthPlaceField({
   fieldClass,
   helperClass,
   onChange,
+  needed = false,
 }: {
   city: string;
   country: string;
@@ -27,6 +28,8 @@ export function BirthPlaceField({
   fieldClass: string;
   helperClass: string;
   onChange: (city: string, place: BirthPlace | null) => void;
+  /** A chart is wanted: a blank city says that without it there is none (owner, 22 Oct 2026). */
+  needed?: boolean;
 }) {
   const id = useId();
   const [options, setOptions] = useState<BirthPlace[]>([]);
@@ -91,7 +94,9 @@ export function BirthPlaceField({
         ? text.birthCityNone
         : query !== '' && ready
           ? text.birthCityPick
-          : null;
+          : query === '' && ready && needed
+            ? text.birthCityNeeded
+            : null;
 
   return (
     <div className="ciudad">
@@ -158,7 +163,7 @@ export function BirthPlaceField({
       {/* The label until there is something to say about the search. */}
       <p
         id={`${id}-helper`}
-        className={helper === text.birthCityPick ? `${helperClass} error` : helperClass}
+        className={helper === text.birthCityPick || helper === text.birthCityNeeded ? `${helperClass} error` : helperClass}
         aria-live="polite"
       >
         {helper ?? text.birthCityLabel}

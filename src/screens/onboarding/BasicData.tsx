@@ -405,6 +405,7 @@ export function BasicData({
               city={draft.birth_city}
               country={draft.birth_country}
               place={draft.birth_place ?? null}
+              needed={dateGiven && draft.chart_without_time !== false}
               fieldClass="v"
               helperClass="l"
               onChange={(birth_city, birth_place) => onChange({ birth_city, birth_place, natal_chart: null })}
