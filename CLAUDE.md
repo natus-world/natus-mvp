@@ -84,7 +84,8 @@ three parts), and the chat reads the day (chat-v2.0). The free line «Con
 Premium, Davraz te deja un tip para el día» opens the welcome offer (funnel
 place `tip`), never after a crisis alert. «Secta» is never said: «naciste de
 día / de noche» (owner, 18 Oct 2026; `lintChartJudgement` refuses it).
-**«Pregúntale a tu carta» is built (owner, 22 Oct 2026).** A pill on Carta
+**«Pregúntale a tu carta» is built (owner, 22 Oct 2026).** A pill on Carta,
+and on the full chart since 23 Oct 2026 (owner)
 (`screens/ChartChat.tsx`, `design/screens/carta-chat.css`), on the right over
 the tab bar, a circle once the person scrolls, opens a sheet (a panel under
 the header on desktop) with three questions — «¿Cómo afecta mi Luna en
@@ -630,9 +631,11 @@ people that night); a copy in memory now holds it, and each loss is reported
 once to `client_errors` («auth: session missing from storage»). The browser
 shows what the server approved and refuses only the safety rules (crisis
 digits, physical risk); a style rule it reads differently is reported. On a
-phone under 780 px tall Meditaciones' button follows the form (QA-23). Open
-with the owner: QA-26 (the pill over the trio), QA-32 (the offer on every visit to
-Meditaciones), QA-02 (the welcome waits for the session and fourteen reads).
+phone under 780 px tall Meditaciones' button follows the form (QA-23).
+Meditaciones offers Premium only when «Armar mi práctica» is touched with the
+free meditation used, never on entering (QA-32, owner, 23 Oct 2026). Open
+with the owner: QA-26 (the pill over the trio, and over the hint line of the
+full chart), QA-02 (the welcome waits for the session and fourteen reads).
 
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
