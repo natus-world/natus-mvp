@@ -1,5 +1,6 @@
 import { read, write } from './db';
 import { isSignedIn } from './account';
+import { currentSynthesis } from './soulMap';
 
 /**
  * The account is asked for right after the preview of a new map (owner,
@@ -14,8 +15,14 @@ export function requireAccount(): void {
   write('account_required', true);
 }
 
+/**
+ * Owed only while there is a map to save. A mark left in the browser with no
+ * map behind it — the account deleted, the mark written back by another tab —
+ * sent «Empezar» on «Guarda tu mapa» back to «Guarda tu mapa», round and round
+ * (owner, 22 Oct 2026).
+ */
 export function accountRequired(): boolean {
-  return read<boolean>('account_required', false) && !isSignedIn();
+  return read<boolean>('account_required', false) && !isSignedIn() && currentSynthesis() !== undefined;
 }
 
 export function clearAccountRequirement(): void {
