@@ -633,9 +633,11 @@ shows what the server approved and refuses only the safety rules (crisis
 digits, physical risk); a style rule it reads differently is reported. On a
 phone under 780 px tall Meditaciones' button follows the form (QA-23).
 Meditaciones offers Premium only when «Armar mi práctica» is touched with the
-free meditation used, never on entering (QA-32, owner, 23 Oct 2026). Open
-with the owner: QA-26 (the pill over the trio, and over the hint line of the
-full chart), QA-02 (the welcome waits for the session and fourteen reads).
+free meditation used, never on entering (QA-32, owner, 23 Oct 2026).
+«Pregúntale a tu carta» steps aside while the person scrolls down and comes
+back on the way up, at the top and at the end of the page (QA-26, owner,
+23 Oct 2026). Open with the owner: QA-02 (the welcome waits for the session
+and fourteen reads).
 
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
