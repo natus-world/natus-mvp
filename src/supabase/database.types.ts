@@ -1576,6 +1576,19 @@ export type Database = {
           empty_search: number
         }[]
       }
+      admin_by_modality: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          avg_rating: number
+          dismissed: number
+          marked: number
+          name: string
+          ratings: number
+          recommended: number
+          saved: number
+          slug: string
+        }[]
+      }
       admin_call_cost: {
         Args: { c: Database["public"]["Tables"]["claude_api_calls"]["Row"] }
         Returns: number

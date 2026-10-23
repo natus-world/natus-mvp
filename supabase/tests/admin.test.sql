@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(60);
+select plan(62);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -71,6 +71,8 @@ select throws_ok($$select * from public.admin_retention(12)$$, '42501', 'not_adm
   'A person cannot read the retention');
 select throws_ok($$select * from public.admin_app_errors(current_date - 30, current_date)$$, '42501', 'not_admin',
   'A person cannot read the app errors');
+select throws_ok($$select * from public.admin_by_modality(current_date - 30, current_date)$$, '42501', 'not_admin',
+  'Nor the therapies table');
 select throws_ok($$select public.admin_person_summary('aaaaaaaa-0000-4000-8000-0000000000a1')$$, '42501', 'not_admin',
   'Nor anybody''s summary');
 select throws_ok($$select * from public.admin_ai_spend(30)$$, '42501', 'not_admin',
@@ -129,6 +131,8 @@ select is((select count(*) from public.admin_daily_range(current_date - 9, curre
   'Any range of days reads day by day');
 select lives_ok($$select * from public.admin_app_errors(current_date - 30, current_date)$$,
   'The admin reads the app errors');
+select ok((select count(*) from public.admin_by_modality(current_date - 30, current_date)) > 0,
+  'The admin reads every therapy, with or without data');
 select is((select empty_search from public.admin_birth_city(current_date - 30, current_date)), 0::bigint,
   'A city search with nothing found is counted apart from who stayed there');
 select is((select sum(calls) from public.admin_ai_failures(current_date - 30, current_date)), 1::numeric,
