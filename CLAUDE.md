@@ -627,9 +627,11 @@ auth session is stored through `resilientStorage` (`supabase/session-storage.ts`
 iPhone browsers other than Safari dropped it from localStorage seconds after
 opening, and every request after went out with the public key only (four
 people that night); a copy in memory now holds it, and each loss is reported
-once to `client_errors` («auth: session missing from storage»). Open
-with the owner: QA-23 (the button over the durations on a short iPhone),
-QA-26 (the pill over the trio), QA-32 (the offer on every visit to
+once to `client_errors` («auth: session missing from storage»). The browser
+shows what the server approved and refuses only the safety rules (crisis
+digits, physical risk); a style rule it reads differently is reported. On a
+phone under 780 px tall Meditaciones' button follows the form (QA-23). Open
+with the owner: QA-26 (the pill over the trio), QA-32 (the offer on every visit to
 Meditaciones), QA-02 (the welcome waits for the session and fourteen reads).
 
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
