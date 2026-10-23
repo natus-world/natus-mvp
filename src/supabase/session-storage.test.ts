@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { resilientStorage, setSessionLostHandler } from './session-storage';
+import { arrivesWithNothing, resilientStorage, setSessionLostHandler } from './session-storage';
 
 /** A storage that can lose what it holds, as some iPhone browsers did (launch night). */
 function leaky() {
@@ -81,5 +81,42 @@ describe('the session survives a storage that loses it', () => {
     store.map.delete('sb');
     ev.fire('sb', null);
     expect(s.getItem('sb')).toBeNull();
+  });
+});
+
+describe('arrivesWithNothing (QA-02)', () => {
+  const store = (keys: string[]): Storage => {
+    const map = new Map(keys.map((k) => [k, '1']));
+    return {
+      get length() {
+        return map.size;
+      },
+      key: (i: number) => [...map.keys()][i] ?? null,
+      getItem: (k: string) => map.get(k) ?? null,
+      setItem: (k: string, v: string) => void map.set(k, v),
+      removeItem: (k: string) => void map.delete(k),
+      clear: () => map.clear(),
+    };
+  };
+  const plain = { search: '', hash: '' };
+
+  it('is true for a browser with nothing stored', () => {
+    expect(arrivesWithNothing(store([]), plain)).toBe(true);
+    expect(arrivesWithNothing(store(['unrelated']), plain)).toBe(true);
+  });
+
+  it('is false with a stored session or anything of Natus', () => {
+    expect(arrivesWithNothing(store(['sb-khwrauqgwopkgyvbonmp-auth-token']), plain)).toBe(false);
+    expect(arrivesWithNothing(store(['natus:anonymous_session']), plain)).toBe(false);
+  });
+
+  it('is false on the way back from Google', () => {
+    expect(arrivesWithNothing(store([]), { search: '?code=abc', hash: '' })).toBe(false);
+    expect(arrivesWithNothing(store([]), { search: '', hash: '#access_token=x' })).toBe(false);
+    expect(arrivesWithNothing(store([]), { search: '?error=access_denied', hash: '' })).toBe(false);
+  });
+
+  it('is false where storage cannot be read', () => {
+    expect(arrivesWithNothing(null, plain)).toBe(false);
   });
 });

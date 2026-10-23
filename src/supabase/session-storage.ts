@@ -102,3 +102,24 @@ export function browserStorage(): Storage | null {
     return null;
   }
 }
+
+/**
+ * Whether this browser arrives with nothing: no stored auth session, no
+ * onboarding begun, and not on the way back from Google (a `code` or a token
+ * in the address). Only such a visit may see the welcome before hydration
+ * ends (QA-02, owner, 23 Oct 2026): for it, the fourteen reads find nothing,
+ * so waiting for them showed an empty screen for nothing.
+ */
+export function arrivesWithNothing(storage: Storage | null, address: { search: string; hash: string }): boolean {
+  if (!storage) return false;
+  if (/[?&](code|error)=/.test(address.search) || /(access_token|error)=/.test(address.hash)) return false;
+  try {
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i) ?? '';
+      if (/^sb-.+-auth-token/.test(key) || key.startsWith('natus:')) return false;
+    }
+  } catch {
+    return false;
+  }
+  return true;
+}

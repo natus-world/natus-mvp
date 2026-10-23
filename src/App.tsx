@@ -45,6 +45,7 @@ import { completeLinkedSignup } from '@/store/account-link';
 
 const LEARN_EVERY_MS = 10 * 60 * 1000;
 import { isBackendConfigured, isDemoMode, requiresInvite } from '@/supabase/client.ts';
+import { arrivesWithNothing, browserStorage } from '@/supabase/session-storage.ts';
 import { Gate } from '@/screens/Gate';
 import { Legal } from '@/screens/Legal';
 import { RevealFirst } from '@/screens/Revelation';
@@ -113,6 +114,11 @@ export function App() {
   }, [pathname]);
 
   const [ready, setReady] = useState(false);
+  // Somebody arriving with nothing sees the welcome at once, while the
+  // session is made and the (empty) reads come back behind it (QA-02, owner,
+  // 23 Oct 2026). Anybody else waits, so a returning person never sees the
+  // welcome flash before their own space.
+  const [arrivedEmpty] = useState(() => arrivesWithNothing(browserStorage(), window.location));
   const [admitted, setAdmitted] = useState(false);
   const [offline, setOffline] = useState(false);
   useEffect(() => {
@@ -149,7 +155,7 @@ export function App() {
     };
   }, []);
 
-  if (!ready) {
+  if (!ready && !(arrivedEmpty && pathname === '/')) {
     return (
       <AppFrame>
         <div
