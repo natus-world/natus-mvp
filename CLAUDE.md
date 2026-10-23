@@ -240,6 +240,15 @@ first action and weekly use, pending work (`admin_pending`) and one
 person's summary for Davraz (`admin_person_summary`, logged). **Activated
 (owner, 22 Oct 2026):** in the first 7 days a practice marked, a question to
 Davraz or a journal entry (`first_value_at`).
+**The panel always keeps an admin (owner, 22 Oct 2026,
+`20261023050000_admin_safety.sql`):** the last row of `admins` cannot be
+deleted (trigger `admins_keep_one`, also through the cascade from
+`auth.users`); `delete-account` asks `is_last_admin` first and answers 409
+`last_admin`, and Perfil says why (`deleteLastAdmin`, proposed text). The
+access log keeps its rows when an admin's account goes (`admin_id` set null).
+Since 22 Oct a high crisis alert mails the admins (`notify_high_crisis`,
+needs `resend_api_key` in Vault), and the panel has «Errores» and the
+therapies table (`admin_by_modality`).
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside
