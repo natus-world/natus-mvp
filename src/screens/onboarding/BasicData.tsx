@@ -8,6 +8,7 @@ import type { OnboardingDraft } from '@/store/session';
 import { copy } from '@/i18n';
 import { hasBirthTime, hasNatalChartInput } from '@/astrology/natal-chart';
 import { isAdultOn, latestAdultBirthDate } from '@/lib/age';
+import { nameReadable } from '@/lib/numerology';
 
 const text = copy.onboarding.basicData;
 
@@ -222,7 +223,10 @@ export function BasicData({
   const today = new Date();
   const dateGiven = /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date);
   const underage = dateGiven && !isAdultOn(draft.birth_date, today);
-  const nameGiven = draft.legal_birth_name.trim().length > 1;
+  const nameTyped = draft.legal_birth_name.trim().length > 1;
+  // Initials alone have no numbers to read (owner, 22 Oct 2026).
+  const nameUnreadable = nameTyped && !nameReadable(draft.legal_birth_name);
+  const nameGiven = nameTyped && !nameUnreadable;
   const [halfTime, setHalfTime] = useState(false);
   const timeGiven = hasBirthTime(draft) || noHour;
   const dayNightGiven = !askWithoutTime || draft.birth_daynight !== undefined;
@@ -231,7 +235,9 @@ export function BasicData({
 
   // The package: «El botón queda fijo abajo; si falta algo, dice qué.»
   const missing = !nameGiven
-    ? text.missing.name
+    ? nameUnreadable
+      ? text.missing.nameFull
+      : text.missing.name
     : !dateGiven
       ? text.missing.date
       : underage
@@ -282,8 +288,8 @@ export function BasicData({
               aria-label={text.nameLabel}
               aria-describedby="legal-name-helper"
             />
-            <p id="legal-name-helper" className="l">
-              {text.nameHelper}
+            <p id="legal-name-helper" className={nameUnreadable ? 'l error' : 'l'}>
+              {nameUnreadable ? text.missing.nameFull : text.nameHelper}
             </p>
           </div>
         </div>

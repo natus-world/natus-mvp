@@ -60,6 +60,16 @@ export function normalizeName(name: string): string {
     .replace(/[^A-Z]/g, '');
 }
 
+/**
+ * Whether every number of the name can be read: it needs a vowel and a
+ * consonant. Initials alone («JM») give the soul urge 0, which is no number,
+ * and the map was refused at the server again and again (owner, 22 Oct 2026).
+ */
+export function nameReadable(name: string): boolean {
+  const letters = normalizeName(name);
+  return [...letters].some((ch) => VOWELS.has(ch)) && [...letters].some((ch) => !VOWELS.has(ch));
+}
+
 function sumLetters(letters: string, filter?: (ch: string) => boolean): number {
   let total = 0;
   for (const ch of letters) {

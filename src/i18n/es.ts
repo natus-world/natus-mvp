@@ -56,6 +56,8 @@ export const es = {
       // others are proposed (16 Oct 2026).
       missing: {
         name: 'Falta tu nombre',
+        // Approved by the owner (22 Oct 2026): initials alone cannot be read.
+        nameFull: 'Escribe tu nombre completo, como figura en tu partida.',
         date: 'Falta tu fecha de nacimiento',
         country: 'Falta el país donde vives',
         place: 'Falta elegir tu ciudad de la lista',

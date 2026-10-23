@@ -3,6 +3,7 @@ import {
   NumerologyInputError,
   computeNumerology,
   lifePath,
+  nameReadable,
   normalizeName,
   reduce,
 } from './numerology.ts';
@@ -190,5 +191,23 @@ describe('the result as a whole', () => {
     expect(() => computeNumerology({ legalBirthName: '陳', birthDate: '1990-01-01' })).toThrow(
       NumerologyInputError,
     );
+  });
+});
+
+describe('a name whose numbers can be read (owner, 22 Oct 2026)', () => {
+  it('needs a vowel and a consonant: initials alone give a 0 the server refuses', () => {
+    expect(nameReadable('JM')).toBe(false);
+    expect(nameReadable('Ia')).toBe(false);
+    expect(computeNumerology({ legalBirthName: 'JM', birthDate: '2001-07-10' }).soul_urge).toBe(0);
+    expect(nameReadable('Ana')).toBe(true);
+    expect(nameReadable('Muñoz')).toBe(true);
+    expect(nameReadable('José María Pérez')).toBe(true);
+  });
+
+  it('every readable name gives numbers the map accepts', () => {
+    for (const name of ['Al', 'Ana', 'Lu', 'Óscar', 'Ñu']) {
+      const n = computeNumerology({ legalBirthName: name, birthDate: '1990-03-02' });
+      expect([n.life_path, n.expression, n.soul_urge, n.personality, n.birthday].every((x) => x > 0)).toBe(true);
+    }
   });
 });
