@@ -579,11 +579,12 @@ function takes nothing from the browser: it reads the person's row in
 `natal_charts` under RLS, refuses `no_chart`, and refuses `current` while the
 row in `chart_point_readings` was written for that chart's `calculated_at` —
 once per chart, not a plan feature, but under the same reservation, ceiling
-(`chart_points`, 10 a month) and budget as the rest. The answer must read
-exactly the points asked for, one or two sentences each, nothing rated
-(`lib/chart-points.ts`); that check runs inside the model call through
-`serveModel`'s `lint` hook, so it is retried once with the reason, like the
-copy lint. A birth-data change gives the chart a new `calculated_at`, the
+(`chart_points`, 10 a month) and budget as the rest. Since 22 Oct 2026 (owner)
+nothing is refused or asked twice: `keepChartPointReadings` (through
+`serveModel`'s `trim` hook, before the copy lint) leaves out, alone, a reading
+that rates its placement or breaks a copy rule, and any point the chart lacks
+or read twice; sentences are not counted. Only an answer with nothing left is
+refused. A birth-data change gives the chart a new `calculated_at`, the
 readings go stale and `store/chart-readings.ts` asks again (kept in the
 browser as `chart_readings`, hidden as soon as the draft's chart changes);
 a rebuild that changes nothing now keeps `calculated_at`, so a new device does
