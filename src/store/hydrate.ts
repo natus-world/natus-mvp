@@ -58,6 +58,14 @@ export function hasRemoteIdentity(): boolean {
  * button can be pressed again. The caller touches nothing local until this
  * resolves.
  */
+/** The account is the panel's only admin, so it is not deleted. */
+export class LastAdminError extends Error {
+  constructor() {
+    super('last_admin');
+    this.name = 'LastAdminError';
+  }
+}
+
 export async function purgeRemote(): Promise<void> {
   if (!identity) return;
 
@@ -66,6 +74,9 @@ export async function purgeRemote(): Promise<void> {
     { method: 'POST' },
   );
   if (error || data?.deleted !== true) {
+    // The panel's last admin is refused with 409 (owner, 22 Oct 2026).
+    const status = (error as { context?: { status?: number } } | null)?.context?.status;
+    if (status === 409) throw new LastAdminError();
     throw new Error(`delete-account: ${error?.message ?? 'not confirmed'}`);
   }
 

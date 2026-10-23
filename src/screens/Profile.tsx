@@ -4,7 +4,7 @@ import { Screen } from '@/design/Screen';
 import { buildExport, exportFileName } from '@/lib/export';
 import { clearAll, exportAll } from '@/store/db';
 import { clearStoredBlobs } from '@/store/blobs';
-import { hasRemoteIdentity, purgeRemote } from '@/store/hydrate.ts';
+import { hasRemoteIdentity, LastAdminError, purgeRemote } from '@/store/hydrate.ts';
 import { LegalLinks } from '@/components/LegalLinks';
 import { currentUser, signOut } from '@/supabase/session.ts';
 import { activeProfile, getClient, updateActiveProfile } from '@/store/account';
@@ -86,7 +86,7 @@ export function Profile() {
   );
   const [country, setCountry] = useState<string>(() => draft?.country ?? '');
   const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<false | 'error' | 'last_admin'>(false);
   const [exported, setExported] = useState<string | null>(null);
   const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
   const [typed, setTyped] = useState('');
@@ -157,9 +157,9 @@ export function Profile() {
     // done, it reads as done, and the next load contradicts it.
     try {
       await purgeRemote();
-    } catch {
+    } catch (error) {
       setBusy(false);
-      setFailed(true);
+      setFailed(error instanceof LastAdminError ? 'last_admin' : 'error');
       return;
     }
 
@@ -567,7 +567,7 @@ export function Profile() {
             </button>
             {failed && (
               <p role="alert" className="nota error">
-                {t.deleteFailed}
+                {failed === 'last_admin' ? t.deleteLastAdmin : t.deleteFailed}
               </p>
             )}
             <button

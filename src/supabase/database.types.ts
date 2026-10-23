@@ -36,21 +36,21 @@ export type Database = {
     Tables: {
       admin_access_log: {
         Row: {
-          admin_id: string
+          admin_id: string | null
           at: string
           id: number
           subject_id: string | null
           what: string
         }
         Insert: {
-          admin_id: string
+          admin_id?: string | null
           at?: string
           id?: never
           subject_id?: string | null
           what: string
         }
         Update: {
-          admin_id?: string
+          admin_id?: string | null
           at?: string
           id?: never
           subject_id?: string | null
@@ -1862,6 +1862,7 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_internal_user: { Args: { p_user: string }; Returns: boolean }
+      is_last_admin: { Args: { p_user: string }; Returns: boolean }
       my_friends: {
         Args: never
         Returns: {

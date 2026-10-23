@@ -30,6 +30,12 @@ Deno.serve(async (request) => {
     return json(request, { error: 'misconfigured' }, 500);
   }
 
+  // The panel's last admin cannot leave it empty (owner, 22 Oct 2026). The
+  // database refuses it too; asking first lets the app say why.
+  const { data: lastAdmin, error: checkError } = await auth.elevated.rpc('is_last_admin', { p_user: auth.userId });
+  if (checkError) return json(request, { error: 'delete_failed' }, 500);
+  if (lastAdmin === true) return json(request, { error: 'last_admin' }, 409);
+
   const { error } = await auth.elevated.auth.admin.deleteUser(auth.userId);
   if (error) return json(request, { error: 'delete_failed' }, 500);
 

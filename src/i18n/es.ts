@@ -374,6 +374,9 @@ export const es = {
     deleteCancel: 'Mejor no',
     deleteFailed:
       'No pudimos borrar lo que está guardado en tu cuenta, así que tampoco borramos nada de este navegador. Todo sigue como estaba. Intenta de nuevo.',
+    // Proposed text (owner chose the behaviour, 22 Oct 2026): only the panel's last admin sees it.
+    deleteLastAdmin:
+      'Eres la única persona que administra el panel de Natus, así que no borramos tu cuenta. Antes, agrega a otra persona como administradora. Todo sigue como estaba.',
     signOut: 'Cerrar sesión',
     signOutNote: 'Tus datos quedan en tu cuenta. Al volver a entrar con el mismo acceso, está todo.',
     // Package 11 (16 Oct 2026): the profile as two glass lists, each row its

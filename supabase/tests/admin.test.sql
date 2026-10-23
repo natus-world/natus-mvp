@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(62);
+select plan(67);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -201,6 +201,20 @@ select is(
 
 select is((select amount_usd from public.tech_expenses where service = 'Prueba'), 12.50::numeric,
   'The expense is kept with its amount');
+
+-- ── the last admin stays, and so does the access log ───────────────────────
+
+delete from public.admins where user_id = 'cccccccc-0000-4000-8000-0000000000c3';
+select throws_ok($$delete from public.admins where user_id = 'aaaaaaaa-0000-4000-8000-0000000000a1'$$,
+  'P0001', 'last_admin', 'The last admin cannot be removed');
+select throws_ok($$delete from auth.users where id = 'aaaaaaaa-0000-4000-8000-0000000000a1'$$,
+  'P0001', 'last_admin', '... not even by deleting the account');
+select is(public.is_last_admin('aaaaaaaa-0000-4000-8000-0000000000a1'), true, 'delete-account can ask first');
+insert into public.admins (user_id, role) values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'admin');
+select lives_ok($$delete from auth.users where id = 'aaaaaaaa-0000-4000-8000-0000000000a1'$$,
+  'With another admin, an admin''s account can be deleted');
+select ok((select count(*) from public.admin_access_log where admin_id is null) > 0,
+  'Its access log stays, without whose it was');
 
 -- ── a mail to the team on a high alert ──────────────────────────────────────
 
