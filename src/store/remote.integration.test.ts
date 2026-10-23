@@ -11,6 +11,7 @@ import { ADAPTERS } from './remote.ts';
 import type { StoredMeditation } from './meditations.ts';
 import { emptyDraft, type AnonymousSession } from './session.ts';
 import type { Client } from './account.ts';
+import { ALL_SOUL_MAP_FIXTURES } from '@/ai/fixtures/soul-map';
 
 /**
  * The adapters, against a real Postgres.
@@ -285,6 +286,43 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
       { practice_title: 'Caminar', checked_on: '2026-10-22', rating: 5, comment: null, practice_id: id },
     ]);
     expect((await ADAPTERS.recommendation_checkins.load(client, userId))[0]?.practice_id).toBe(id);
+  });
+
+  it('the chart\'s conversation is kept beside the Chat\'s, for the same map (QA-21)', async () => {
+    const { client, userId } = await person();
+    const synthesisId = crypto.randomUUID();
+    await ADAPTERS.soul_map_synthesis.save(client, userId, [
+      {
+        id: synthesisId,
+        prompt_version: 'v',
+        synthesis: ALL_SOUL_MAP_FIXTURES[0],
+        numerology: null,
+        mode: 'server',
+        latency_ms: 1,
+        model: null,
+        trigger: 'onboarding',
+        created_at: NOW,
+        is_current: true,
+      },
+    ]);
+    const chat = { id: crypto.randomUUID(), synthesis_id: synthesisId, created_at: NOW };
+    const carta = { id: crypto.randomUUID(), synthesis_id: synthesisId, created_at: NOW, kind: 'carta' as const };
+    await ADAPTERS.conversations.save(client, userId, [chat, carta]);
+    const message = (conversationId: string) => ({
+      id: crypto.randomUUID(),
+      conversation_id: conversationId,
+      role: 'user' as const,
+      type: null,
+      text: 'Hola',
+      linked_modality_slugs: [],
+      created_at: NOW,
+      counted: false,
+    });
+    await ADAPTERS.messages.save(client, userId, [message(chat.id), message(carta.id)]);
+
+    const kinds = (await ADAPTERS.conversations.load(client, userId)).map((c: { kind?: string }) => c.kind ?? 'chat');
+    expect(kinds.sort()).toEqual(['carta', 'chat']);
+    expect(await ADAPTERS.messages.load(client, userId)).toHaveLength(2);
   });
 
   it('a person cannot make themselves premium (v1.2 P-01)', async () => {
