@@ -622,7 +622,12 @@ copy lint), never refused; «practicas», «medico», «ultimo» are no longer
 refused (they are also verbs). The birth step needs a name with a vowel and a
 consonant (`nameReadable`): initials gave a soul urge of 0 and the map was
 refused at the server. At the day's limit of maps the failure screen offers
-the map instead of «Reintentar». Pause keeps the meditation's place. Open
+the map instead of «Reintentar». Pause keeps the meditation's place. The
+auth session is stored through `resilientStorage` (`supabase/session-storage.ts`):
+iPhone browsers other than Safari dropped it from localStorage seconds after
+opening, and every request after went out with the public key only (four
+people that night); a copy in memory now holds it, and each loss is reported
+once to `client_errors` («auth: session missing from storage»). Open
 with the owner: QA-23 (the button over the durations on a short iPhone),
 QA-26 (the pill over the trio), QA-32 (the offer on every visit to
 Meditaciones), QA-02 (the welcome waits for the session and fourteen reads).
