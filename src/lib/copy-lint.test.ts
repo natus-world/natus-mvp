@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countSentences, isInvitation, lintChartJudgement, lintCopy, lintDeep } from './copy-lint.ts';
+import { countSentences, fixAccents, fixAccentsDeep, isInvitation, lintChartJudgement, lintCopy, lintDeep } from './copy-lint.ts';
 
 const rulesFor = (text: string) => lintCopy(text).map((v) => v.rule);
 
@@ -119,6 +119,35 @@ describe('shape requirements', () => {
     expect(countSentences('Una. Dos. Tres.')).toBe(3);
     expect(countSentences('¿Una? ¡Dos!')).toBe(2);
     expect(countSentences('Sin puntuación final')).toBe(1);
+  });
+});
+
+describe('missing accents are put back (owner, 22 Oct 2026)', () => {
+  it.each([
+    ['Hay mucha tension en tu relacion.', 'Hay mucha tensión en tu relación.'],
+    ['Tambien puedes probarlo despues.', 'También puedes probarlo después.'],
+    ['Diez minutos cada dia, segun lo que sientas.', 'Diez minutos cada día, según lo que sientas.'],
+    ['Es dificil y facil a la vez; ademas, todavia hay dias.', 'Es difícil y fácil a la vez; además, todavía hay días.'],
+    ['Relacion y EMOCION.', 'Relación y EMOCIÓN.'],
+    ['Las relaciones y las sesiones quedan igual.', 'Las relaciones y las sesiones quedan igual.'],
+    ['Si practicas yoga, el ultimo paso es tuyo.', 'Si practicas yoga, el ultimo paso es tuyo.'],
+  ])('%s', (text, fixed) => {
+    expect(fixAccents(text)).toBe(fixed);
+    expect(lintCopy(fixAccents(text)).map((v) => v.rule)).not.toContain('missing-accent');
+  });
+
+  it('mends prose in an answer and leaves enum values and slugs alone', () => {
+    const answer = { modality_slug: 'mindfulness-meditacion', phase: 'exploracion', summary: 'Una practica de atencion.' };
+    expect(fixAccentsDeep(answer)).toEqual({
+      modality_slug: 'mindfulness-meditacion',
+      phase: 'exploracion',
+      summary: 'Una practica de atención.',
+    });
+  });
+
+  it('no longer refuses a word that is also an unaccented verb', () => {
+    expect(lintCopy('Si practicas cada semana, lo último se nota.').map((v) => v.rule)).not.toContain('missing-accent');
+    expect(lintCopy('Me medico poco y es lo ultimo que hago.').map((v) => v.rule)).not.toContain('missing-accent');
   });
 });
 

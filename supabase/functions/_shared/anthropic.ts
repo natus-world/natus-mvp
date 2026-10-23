@@ -1,5 +1,5 @@
 import type { ZodType } from 'zod';
-import { lintCrisisText, lintDeep } from './lib/copy-lint.ts';
+import { fixAccentsDeep, lintCrisisText, lintDeep } from './lib/copy-lint.ts';
 import { lintPhysicalRisk } from './lib/physical-risk.ts';
 import { MalformedJson, parseJsonLoosely } from './lib/model-json.ts';
 import { addUsage, type Usage } from './lib/budget.ts';
@@ -154,7 +154,9 @@ export async function generate<T>(call: {
         );
       }
 
-      const value = call.trim ? call.trim(parsed.data) : parsed.data;
+      // A missing accent is put back, not refused (owner, 22 Oct 2026).
+      const mended = fixAccentsDeep(parsed.data);
+      const value = call.trim ? call.trim(mended) : mended;
       assertCleanCopy(value, spent);
       const ruled = call.lint?.(value);
       // Which rule, kept with the call so a failure can be read afterwards;

@@ -243,7 +243,7 @@ const RULES: Rule[] = [
   {
     id: 'missing-accent',
     pattern:
-      /(?<![\p{L}])(?:[a-zñ]+(?:ci|si|xi)on|tambien|despues|dificil|facil|medic[oa]s?|dias?|segun|todavia|ademas|ultim[oa]s?|practicas)(?![\p{L}])/iu,
+      /(?<![\p{L}])(?:[a-zñ]+(?:ci|si|xi)on|tambien|despues|dificil|facil|dias?|segun|todavia|ademas)(?![\p{L}])/iu,
     why: 'A word that always carries an accent arrived without it. Free text is written with full Spanish orthography; only enum values go without accents.',
   },
   {
@@ -404,4 +404,49 @@ export function lintChartJudgement(value: unknown, path = '$'): (CopyViolation &
     return Object.entries(value).flatMap(([key, item]) => lintChartJudgement(item, `${path}.${key}`));
   }
   return [];
+}
+
+/**
+ * The accent a word always carries, put back (owner, 22 Oct 2026). A model
+ * answer that wrote «relacion» or «tambien» used to be refused and asked for
+ * again — twice, and then the person saw an error instead of their Caminos.
+ * Only words that are never written without it: a word ending in -ción,
+ * -sión or -xión, and «también», «después», «difícil», «fácil», «día(s)»,
+ * «según», «todavía», «además». «Practicas», «medico» and «ultimo» are left
+ * alone, and no longer refused: each is also a verb, rightly unaccented.
+ */
+const ACCENTED: Record<string, string> = {
+  tambien: 'también',
+  despues: 'después',
+  dificil: 'difícil',
+  facil: 'fácil',
+  dia: 'día',
+  dias: 'días',
+  segun: 'según',
+  todavia: 'todavía',
+  ademas: 'además',
+};
+
+function sameCase(model: string, word: string): string {
+  if (model === model.toUpperCase() && model !== model.toLowerCase()) return word.toUpperCase();
+  if (model[0] === model[0]!.toUpperCase()) return word[0]!.toUpperCase() + word.slice(1);
+  return word;
+}
+
+export function fixAccents(text: string): string {
+  return text.replace(/(?<!\p{L})\p{L}+(?!\p{L})/gu, (word) => {
+    const lower = word.toLowerCase();
+    const fixed = ACCENTED[lower] ?? (/^[a-zñ]+[csx]ion$/.test(lower) ? `${lower.slice(0, -2)}ón` : null);
+    return fixed ? sameCase(word, fixed) : word;
+  });
+}
+
+/** Over every string of an answer that is prose (has a space): enum values and slugs stay as they are. */
+export function fixAccentsDeep<T>(value: T): T {
+  if (typeof value === 'string') return (/\s/.test(value.trim()) ? fixAccents(value) : value) as T;
+  if (Array.isArray(value)) return value.map((item) => fixAccentsDeep(item)) as T;
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, fixAccentsDeep(item)])) as T;
+  }
+  return value;
 }
