@@ -4,12 +4,10 @@ import { Screen } from '@/design/Screen';
 import { PLANET_GLYPHS } from '@/design/planet-glyphs';
 import { SIGN_GLYPHS, type GlyphSign } from '@/design/zodiac-glyphs';
 import { useTakeover } from '@/components/takeover';
-import { PATHS } from '@/components/routes';
 import { dayNightOf, hasBirthTime } from '@/astrology/natal-chart';
 import { buildNatalChart, SIGNS, type NatalChart } from '@/lib/natal-chart';
 import { activeProfile } from '@/store/account';
 import { accountRequired } from '@/store/account-required';
-import { CARE_PATH } from '@/store/care';
 import { currentSynthesis, type StoredSynthesis } from '@/store/soulMap';
 import {
   endRevelation,
@@ -95,12 +93,13 @@ export function Revelation({
   useTakeover();
   const navigate = useNavigate();
   // Read once: the way out is decided by whether the account is still owed.
+  // With the account already there, the whole map opens right here, as after
+  // saving it; Caminos and «Para cuidarte» come from Carta (owner, 22 Oct 2026).
   const [toSave] = useState(() => accountRequired());
   const goOn = useCallback(() => {
     markWelcomeOfferDue();
     onSeen();
     if (toSave) navigate('/registro');
-    else navigate(CARE_PATH, { state: { next: PATHS.paths } });
   }, [onSeen, navigate, toSave]);
   const root = useRef<HTMLDivElement>(null);
   const chart = useMemo(readChart, []);
@@ -199,7 +198,7 @@ export function Revelation({
         <div className="pie el-pie">
           {toSave && <p className="guarda">{copy.revelation.saveLine}</p>}
           <button type="button" className="p1" onClick={goOn}>
-            {toSave ? copy.revelation.save : copy.common.continue}
+            {copy.revelation.save}
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
               <path d="M3 8h10M9 4l4 4-4 4" />
             </svg>

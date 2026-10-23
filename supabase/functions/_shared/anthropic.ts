@@ -154,7 +154,12 @@ export async function generate<T>(call: {
 
       assertCleanCopy(parsed.data, spent);
       const ruled = call.lint?.(parsed.data);
-      if (ruled) throw new ModelError(ruled, 'copy_violation', 'lint:route', spent);
+      // Which rule, kept with the call so a failure can be read afterwards;
+      // anything quoted from the answer is left out (22 Oct 2026).
+      if (ruled) {
+        const why = ruled.replace(/"[^"]*"/g, '…').slice(0, 90);
+        throw new ModelError(ruled, 'copy_violation', `lint:route:${why}`, spent);
+      }
       return {
         value: parsed.data,
         inputTokens: response.inputTokens,
