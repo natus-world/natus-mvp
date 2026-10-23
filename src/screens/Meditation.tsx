@@ -80,7 +80,10 @@ export function Meditation() {
   );
   // v1.2 F-01: what the plan has left, said before it is used.
   const [quota, setQuota] = useState<Quota | null>(null);
-  const [paywallDismissed, setPaywallDismissed] = useState(false);
+  // QA-32 (owner, 23 Oct 2026): the offer opens when «Armar mi práctica» is
+  // touched with nothing left, never on entering the screen.
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const freeUsedUp = quota?.remaining === 0 && quota.tier === 'free';
   useEffect(() => {
     void fetchQuota('meditation').then(setQuota);
   }, [meditation]);
@@ -133,6 +136,10 @@ export function Meditation() {
   const generate = async () => {
     const text = intent.trim();
     if (text === '' || generating) return;
+    if (freeUsedUp) {
+      setPaywallOpen(true);
+      return;
+    }
 
     const verdict = detectCrisis({ texts: [text] });
     if (verdict.crisis) {
@@ -168,7 +175,7 @@ export function Meditation() {
       );
     } catch (err) {
       if (err instanceof AiError && err.kind === 'quota') {
-        setPaywallDismissed(false);
+        setPaywallOpen(true);
         void fetchQuota('meditation').then(setQuota);
         return;
       }
@@ -233,9 +240,9 @@ export function Meditation() {
           )}
           {!isPlaybackAvailable() && <p className="cupo">{text.noSpeech}</p>}
 
-          {quota?.remaining === 0 && quota.tier === 'free' && !paywallDismissed && (
+          {freeUsedUp && paywallOpen && (
             <div className="hoja">
-              <Paywall feature="meditation" onDismiss={() => setPaywallDismissed(true)} />
+              <Paywall feature="meditation" onDismiss={() => setPaywallOpen(false)} />
             </div>
           )}
 
@@ -254,7 +261,9 @@ export function Meditation() {
             <button
               type="button"
               className="btn p"
-              disabled={intent.trim() === '' || generating || quota?.remaining === 0}
+              disabled={
+                intent.trim() === '' || generating || (quota?.remaining === 0 && !freeUsedUp)
+              }
               onClick={() => void generate()}
             >
               {generating ? text.generating : text.generate}
