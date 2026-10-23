@@ -31,7 +31,30 @@
   box-shadow: 0 calc(var(--u) * 10) calc(var(--u) * 30) rgb(0 0 0 / 0.35);
   transition:
     max-width 0.35s var(--ease-natus),
-    padding 0.35s var(--ease-natus);
+    padding 0.35s var(--ease-natus),
+    transform 0.3s var(--ease-natus),
+    opacity 0.3s ease,
+    visibility 0s linear 0s;
+}
+
+/* Scrolling down: out of the way, back on the way up (QA-26). */
+.carta-chat .burbuja[data-away='true'] {
+  transform: translateY(calc(var(--u) * 24));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    max-width 0.35s var(--ease-natus),
+    padding 0.35s var(--ease-natus),
+    transform 0.3s var(--ease-natus),
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carta-chat .burbuja[data-away='true'] {
+    transform: none;
+  }
 }
 
 .carta-chat .burbuja svg {

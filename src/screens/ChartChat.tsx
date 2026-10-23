@@ -53,6 +53,7 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
   const profile = activeProfile();
   const [open, setOpen] = useState(false);
   const [compact, setCompact] = useState(false);
+  const [away, setAway] = useState(false);
   const conversation = chartConversationFor(stored.id);
   const [messages, setMessages] = useState<StoredMessage[]>(() => listMessages(conversation.id));
   const [draft, setDraft] = useState('');
@@ -67,10 +68,22 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
 
   // The pill says what it is at the top of Carta (and of the full chart), and keeps out of the way
   // once the person reads further down.
+  //
+  // QA-26 (owner, 23 Oct 2026): it also steps aside while the person scrolls
+  // down, so it never sits over what they are reading, and comes back as soon
+  // as they scroll up, reach the top or reach the end of the page.
   useEffect(() => {
+    let last = 0;
     const onScroll = (e: Event) => {
       const el = e.target;
-      if (el instanceof HTMLElement && el.closest('.carta, .carta-completa')) setCompact(el.scrollTop > 24);
+      if (!(el instanceof HTMLElement) || !el.closest('.carta, .carta-completa')) return;
+      const top = el.scrollTop;
+      const atEnd = top + el.clientHeight >= el.scrollHeight - 8;
+      setCompact(top > 24);
+      if (top <= 24 || atEnd) setAway(false);
+      else if (top > last + 4) setAway(true);
+      else if (top < last - 4) setAway(false);
+      last = top;
     };
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
@@ -193,6 +206,7 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
           type="button"
           className="burbuja"
           data-compact={compact ? 'true' : 'false'}
+          data-away={away ? 'true' : 'false'}
           aria-label={text.bubble}
           onClick={() => setOpen(true)}
         >
