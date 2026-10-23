@@ -613,6 +613,20 @@ is ready (`completeLinkedSignup` in the onboarding's `onDone`). Not fixed:
 «Volver a mi espacio» with a Google account that has no space returns to the
 welcome with nothing said.
 
+**Launch night (22–23 Oct 2026), from the QA agent and the data.** A
+conversation of each kind per map (`conversations` unique on
+`(user_id, synthesis_id, kind)`; the old key refused the chart's and, since
+every conversation saves in one upsert, no chat of that person was kept).
+A missing accent in a model answer is put back (`fixAccentsDeep`, before the
+copy lint), never refused; «practicas», «medico», «ultimo» are no longer
+refused (they are also verbs). The birth step needs a name with a vowel and a
+consonant (`nameReadable`): initials gave a soul urge of 0 and the map was
+refused at the server. At the day's limit of maps the failure screen offers
+the map instead of «Reintentar». Pause keeps the meditation's place. Open
+with the owner: QA-23 (the button over the durations on a short iPhone),
+QA-26 (the pill over the trio), QA-32 (the offer on every visit to
+Meditaciones), QA-02 (the welcome waits for the session and fourteen reads).
+
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
 end of the day; it needs a new PayPal plan (its `P-` id) and the webhook to
