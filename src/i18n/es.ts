@@ -40,6 +40,11 @@ export const es = {
         yyyy: 'aaaa',
         hh: 'hh',
         min: 'mm',
+        // The twelve-hour clock (owner, 22 Oct 2026).
+        ampm: 'a. m. o p. m.',
+        ampmPlaceholder: 'a. m./p. m.',
+        am: 'a. m.',
+        pm: 'p. m.',
         months: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'],
       },
       // Package 01, proposed: the example under the gender (from Perfil).
@@ -58,6 +63,8 @@ export const es = {
         // Proposed (22 Oct 2026): not knowing the hour is said, not guessed.
         time: 'Falta tu hora, o elige «No sé mi hora»',
         dayNight: 'Falta decir si naciste de día o de noche',
+        // Proposed (22 Oct 2026).
+        ampm: 'Falta elegir a. m. o p. m.',
       },
       // Proposed (22 Oct 2026, the owner asked for it explicit).
       noHour: 'No sé mi hora',
@@ -357,6 +364,8 @@ export const es = {
       confirm:
         'Al cambiar tus datos recalculamos tu carta y tus números, y escribimos de nuevo tu Mapa del Alma. El anterior queda guardado.',
       save: 'Guardar',
+      // The form's button (owner, 22 Oct 2026).
+      saveChanges: 'Guardar cambios',
       noTime: 'Sin hora',
     },
     exportKicker: 'Descargar mis datos',
