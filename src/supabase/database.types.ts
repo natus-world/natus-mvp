@@ -1510,6 +1510,18 @@ export type Database = {
     }
     Functions: {
       accept_friend_invite: { Args: { p_token: string }; Returns: string }
+      admin_ai_failures: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          calls: number
+          error_kind: string
+          last_at: string
+          outcome: string
+          people: number
+          purpose: string
+          recovered: number
+        }[]
+      }
       admin_ai_spend: {
         Args: { p_days?: number }
         Returns: {
@@ -1528,6 +1540,22 @@ export type Database = {
           day: string
           failed: number
           purpose: string
+        }[]
+      }
+      admin_app_errors: {
+        Args: { p_from: string; p_limit?: number; p_to: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          kind: string
+          message: string
+          name: string
+          path: string
+          release: string
+          stack: string
+          user_agent: string
+          user_id: string
         }[]
       }
       admin_call_cost: {

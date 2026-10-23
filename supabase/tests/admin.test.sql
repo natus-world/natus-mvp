@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(51);
+select plan(54);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -69,6 +69,8 @@ select throws_ok($$select * from public.admin_funnel(current_date - 30, current_
   'A person cannot read the funnel');
 select throws_ok($$select * from public.admin_retention(12)$$, '42501', 'not_admin',
   'A person cannot read the retention');
+select throws_ok($$select * from public.admin_app_errors(current_date - 30, current_date)$$, '42501', 'not_admin',
+  'A person cannot read the app errors');
 select throws_ok($$select public.admin_person_summary('aaaaaaaa-0000-4000-8000-0000000000a1')$$, '42501', 'not_admin',
   'Nor anybody''s summary');
 select throws_ok($$select * from public.admin_ai_spend(30)$$, '42501', 'not_admin',
@@ -125,6 +127,10 @@ select is((select count(*) from public.admin_hourly((now() at time zone 'America
   'A day reads hour by hour');
 select is((select count(*) from public.admin_daily_range(current_date - 9, current_date)), 10::bigint,
   'Any range of days reads day by day');
+select lives_ok($$select * from public.admin_app_errors(current_date - 30, current_date)$$,
+  'The admin reads the app errors');
+select is((select sum(calls) from public.admin_ai_failures(current_date - 30, current_date)), 1::numeric,
+  'A failed model answer is listed with its reason');
 select ok(public.admin_person_summary('bbbbbbbb-0000-4000-8000-0000000000b2') ? 'need',
   'The summary says what brought the person');
 -- Sonnet: 1M in at 2 + 0.1M out at 10 = 3. Unknown model: 1M in at 5 = 5.
