@@ -636,8 +636,11 @@ Meditaciones offers Premium only when «Armar mi práctica» is touched with the
 free meditation used, never on entering (QA-32, owner, 23 Oct 2026).
 «Pregúntale a tu carta» steps aside while the person scrolls down and comes
 back on the way up, at the top and at the end of the page (QA-26, owner,
-23 Oct 2026). Open with the owner: QA-02 (the welcome waits for the session
-and fourteen reads).
+23 Oct 2026). A browser arriving with nothing (no stored session, no Natus
+key, not back from Google: `arrivesWithNothing`) sees the welcome at once
+while the session and the reads run behind it (QA-02, owner, 23 Oct 2026);
+it saves about 1.5 s on a slow phone. Most of the rest is the download of the
+app itself (about 330 KB gzipped of JS and CSS), not yet looked at.
 
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
