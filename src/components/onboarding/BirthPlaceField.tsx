@@ -34,6 +34,9 @@ export function BirthPlaceField({
   const [searched, setSearched] = useState(false);
   const [active, setActive] = useState(0);
   const typed = useRef(false);
+  // A city kept from before but never picked (owner, 22 Oct 2026): touching it
+  // searches it as if typed, so the list is there without retyping it.
+  const [reopened, setReopened] = useState(0);
 
   const ready = /^[A-Z]{2}$/.test(country);
   const query = city.trim();
@@ -61,7 +64,7 @@ export function BirthPlaceField({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query, country, place, ready]);
+  }, [query, country, place, ready, reopened]);
 
   const choose = (chosen: BirthPlace) => {
     typed.current = false;
@@ -109,6 +112,12 @@ export function BirthPlaceField({
         disabled={!ready}
         value={city}
         placeholder={ready ? text.birthCityPlaceholder : text.birthCityNeedsCountry}
+        onFocus={() => {
+          if (!place && !typed.current && query.length >= MIN_QUERY_LENGTH) {
+            typed.current = true;
+            setReopened((n) => n + 1);
+          }
+        }}
         onChange={(e) => {
           typed.current = true;
           onChange(e.target.value, null);
@@ -147,7 +156,11 @@ export function BirthPlaceField({
         </ul>
       )}
       {/* The label until there is something to say about the search. */}
-      <p id={`${id}-helper`} className={helperClass} aria-live="polite">
+      <p
+        id={`${id}-helper`}
+        className={helper === text.birthCityPick ? `${helperClass} error` : helperClass}
+        aria-live="polite"
+      >
         {helper ?? text.birthCityLabel}
       </p>
     </div>

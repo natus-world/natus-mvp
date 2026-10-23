@@ -178,6 +178,7 @@ export function BirthDataEdit() {
           <BasicData
             draft={draft}
             onChange={(patch) => setDraft((d) => (d ? { ...d, ...patch } : d))}
+            nextLabel={t.saveChanges}
             onNext={() => {
               if (birthChanged(original, draft)) {
                 setStep('confirm');

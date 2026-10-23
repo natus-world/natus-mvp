@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NextButton, StepBody } from '@/components/onboarding/StepChrome';
 import { BIRTH_COUNTRIES } from '@/components/birth-countries';
 import { ELSEWHERE, LIVING_COUNTRIES } from '@/components/countries';
@@ -28,24 +28,48 @@ function joinDate(d: string, m: string, y: string): string {
   return date.getDate() === day ? `${y}-${m}-${d}` : '';
 }
 
+/** «13:40» → 1, 40, p. m.; anything else → empty parts. */
+export function clockParts(value: string): { h: string; m: string; ampm: '' | 'am' | 'pm' } {
+  const match = /^(\d{2}):(\d{2})/.exec(value);
+  if (!match) return { h: '', m: '', ampm: '' };
+  const hour = Number(match[1]);
+  return { h: String(hour % 12 === 0 ? 12 : hour % 12), m: match[2]!, ampm: hour < 12 ? 'am' : 'pm' };
+}
+
+/** 1–12, minutes and a. m./p. m. → «hh:mm» on the 24-hour clock; '' until the three are there. */
+export function joinClock(h: string, m: string, ampm: '' | 'am' | 'pm'): string {
+  if (!h || !ampm) return '';
+  const hour = (Number(h) % 12) + (ampm === 'pm' ? 12 : 0);
+  return `${pad(hour)}:${m || '00'}`;
+}
+
 /**
- * The date and the hour as day · month · year · hh:mm, each a native select
- * (17 Oct 2026). The browser's own date field could not be filled from some
- * phones: drawn as bare text, as the package asks, an empty one has nothing to
- * touch on iPhone. A select is a wheel on every phone and a list on desktop.
+ * The date and the hour as day · month · year · h:mm · a. m./p. m., each a
+ * native select (17 Oct 2026). The browser's own date field could not be
+ * filled from some phones: drawn as bare text, as the package asks, an empty
+ * one has nothing to touch on iPhone. A select is a wheel on every phone and
+ * a list on desktop. The hour on the twelve-hour clock with a. m. or p. m.
+ * (owner, 22 Oct 2026): «01» on the 24-hour clock was read as 1 p. m. Nothing
+ * is preselected, so the hour counts only once a. m. or p. m. is chosen.
  */
 function BirthDateTime({
   date,
   time,
+  cleared,
   latestYear,
   onDate,
   onTime,
+  onHalfTime,
 }: {
   date: string;
   time: string;
+  /** «No sé mi hora»: the hour is emptied from outside. */
+  cleared: boolean;
   latestYear: number;
   onDate: (value: string) => void;
   onTime: (value: string) => void;
+  /** An hour without a. m./p. m., or the other way round. */
+  onHalfTime: (half: boolean) => void;
 }) {
   const initial = dateParts(date);
   const [parts, setParts] = useState(initial);
@@ -54,7 +78,16 @@ function BirthDateTime({
     setParts(next);
     onDate(joinDate(next.d, next.m, next.y));
   };
-  const [hh, mm] = time ? time.split(':') : ['', ''];
+  const [clock, setClock] = useState(() => clockParts(time));
+  useEffect(() => {
+    if (cleared) setClock({ h: '', m: '', ampm: '' });
+  }, [cleared]);
+  const setTime = (patch: Partial<typeof clock>) => {
+    const next = { ...clock, ...patch };
+    setClock(next);
+    onHalfTime((next.h !== '') !== (next.ampm !== ''));
+    onTime(joinClock(next.h, next.m, next.ampm));
+  };
   const f = text.dateParts;
 
   return (
@@ -113,24 +146,24 @@ function BirthDateTime({
       <select
         id="birth-time"
         aria-label={f.hour}
-        className={hh ? 'v' : 'v ph'}
-        value={hh}
-        onChange={(e) => onTime(e.target.value ? `${e.target.value}:${mm || '00'}` : '')}
+        className={clock.h ? 'v' : 'v ph'}
+        value={clock.h}
+        onChange={(e) => setTime(e.target.value ? { h: e.target.value } : { h: '', m: '', ampm: '' })}
       >
         <option value="">{f.hh}</option>
-        {range(0, 23).map((n) => (
-          <option key={n} value={pad(n)}>
-            {pad(n)}
+        {range(1, 12).map((n) => (
+          <option key={n} value={String(n)}>
+            {n}
           </option>
         ))}
       </select>
       <span aria-hidden="true">:</span>
       <select
         aria-label={f.minute}
-        className={hh ? 'v' : 'v ph'}
-        value={hh ? mm : ''}
-        disabled={!hh}
-        onChange={(e) => onTime(`${hh}:${e.target.value}`)}
+        className={clock.h ? 'v' : 'v ph'}
+        value={clock.h ? clock.m || '00' : ''}
+        disabled={!clock.h}
+        onChange={(e) => setTime({ m: e.target.value })}
       >
         <option value="" disabled>
           {f.min}
@@ -140,6 +173,19 @@ function BirthDateTime({
             {pad(n)}
           </option>
         ))}
+      </select>
+      <select
+        aria-label={f.ampm}
+        className={clock.ampm ? 'v' : 'v ph'}
+        value={clock.ampm}
+        disabled={!clock.h}
+        onChange={(e) => setTime({ ampm: e.target.value as 'am' | 'pm' })}
+      >
+        <option value="" disabled>
+          {f.ampmPlaceholder}
+        </option>
+        <option value="am">{f.am}</option>
+        <option value="pm">{f.pm}</option>
       </select>
     </div>
   );
@@ -155,10 +201,13 @@ export function BasicData({
   draft,
   onChange,
   onNext,
+  nextLabel,
 }: {
   draft: OnboardingDraft;
   onChange: (patch: Partial<OnboardingDraft>) => void;
   onNext: () => void;
+  /** The button's words, when not «Continuar» (Perfil: «Guardar cambios»). */
+  nextLabel?: string;
 }) {
   // Not knowing the hour is said, with «No sé mi hora» under the date (owner,
   // 22 Oct 2026): a blank hour is no longer read as not knowing it. Then, and
@@ -174,6 +223,7 @@ export function BasicData({
   const dateGiven = /^\d{4}-\d{2}-\d{2}$/.test(draft.birth_date);
   const underage = dateGiven && !isAdultOn(draft.birth_date, today);
   const nameGiven = draft.legal_birth_name.trim().length > 1;
+  const [halfTime, setHalfTime] = useState(false);
   const timeGiven = hasBirthTime(draft) || noHour;
   const dayNightGiven = !askWithoutTime || draft.birth_daynight !== undefined;
   const timeDecided = timeGiven && dayNightGiven && (!askWithoutTime || draft.chart_without_time !== undefined);
@@ -191,7 +241,9 @@ export function BasicData({
           : placeUnpicked
             ? text.missing.place
             : !timeGiven
-              ? text.missing.time
+              ? halfTime
+                ? text.missing.ampm
+                : text.missing.time
               : !dayNightGiven
                 ? text.missing.dayNight
                 : !timeDecided
@@ -208,7 +260,11 @@ export function BasicData({
         </>
       }
       helper={text.helper}
-      action={<NextButton disabled={!canContinue} onClick={onNext} />}
+      action={
+        <NextButton disabled={!canContinue} onClick={onNext}>
+          {nextLabel}
+        </NextButton>
+      }
       missing={canContinue ? null : missing}
     >
       <div className="vid bq">
@@ -238,11 +294,16 @@ export function BasicData({
             <BirthDateTime
               date={draft.birth_date}
               time={draft.birth_time}
+              cleared={noHour}
               latestYear={Number(latestAdultBirthDate(today).slice(0, 4))}
               onDate={(value) => onChange({ birth_date: value, natal_chart: null })}
               onTime={(value) => {
                 if (value) setNoHour(false);
                 onChange({ birth_time: value, natal_chart: null });
+              }}
+              onHalfTime={(half) => {
+                setHalfTime(half);
+                if (half) setNoHour(false);
               }}
             />
             {underage ? (
@@ -263,7 +324,10 @@ export function BasicData({
                   const next = !noHour;
                   setNoHour(next);
                   // Not knowing it clears the hour; knowing it again asks for it.
-                  if (next) onChange({ birth_time: '', natal_chart: null });
+                  if (next) {
+                    setHalfTime(false);
+                    onChange({ birth_time: '', natal_chart: null });
+                  }
                 }}
               >
                 {text.noHour}
