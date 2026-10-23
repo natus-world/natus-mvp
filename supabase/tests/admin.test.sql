@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(54);
+select plan(60);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -129,6 +129,8 @@ select is((select count(*) from public.admin_daily_range(current_date - 9, curre
   'Any range of days reads day by day');
 select lives_ok($$select * from public.admin_app_errors(current_date - 30, current_date)$$,
   'The admin reads the app errors');
+select is((select empty_search from public.admin_birth_city(current_date - 30, current_date)), 0::bigint,
+  'A city search with nothing found is counted apart from who stayed there');
 select is((select sum(calls) from public.admin_ai_failures(current_date - 30, current_date)), 1::numeric,
   'A failed model answer is listed with its reason');
 select ok(public.admin_person_summary('bbbbbbbb-0000-4000-8000-0000000000b2') ? 'need',
@@ -188,12 +190,38 @@ select is(
     where n.nspname = 'public' and p.proname in
       ('admin_people', 'admin_person', 'admin_person_content', 'admin_feedback_inbox',
        'admin_feedback_thread', 'admin_whoami', 'admin_grant_premium', 'admin_revoke_premium',
-       'admin_feedback_reply', 'admin_crisis_list', 'admin_expense_save', 'admin_expense_delete')
+       'admin_feedback_reply', 'admin_crisis_list', 'admin_expense_save', 'admin_expense_delete',
+       'admin_app_errors', 'admin_person_summary')
       and p.provolatile <> 'v'),
   0::bigint, 'Every admin function that logs is volatile');
 
 select is((select amount_usd from public.tech_expenses where service = 'Prueba'), 12.50::numeric,
   'The expense is kept with its amount');
+
+-- ── a mail to the team on a high alert ──────────────────────────────────────
+
+insert into public.crisis_events (user_id, severity, category, source_surface, matched, excerpt)
+values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'high', 'ideacion', 'chat', '{"x"}', 'x');
+select is((select count(*) from public.crisis_events where severity = 'high' and admin_notified_at is not null),
+  0::bigint, 'Without the mail key the alert is kept and nothing is sent');
+
+select vault.create_secret('re_test_key', 'resend_api_key');
+insert into public.crisis_events (user_id, severity, category, source_surface, matched, excerpt)
+values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'high', 'ideacion', 'journal', '{"x"}', 'x');
+select is((select count(*) from public.crisis_events where severity = 'high' and admin_notified_at is not null),
+  1::bigint, 'With the key, a high alert sends one mail to the team');
+select ok((select count(*) from net.http_request_queue
+           where url = 'https://api.resend.com/emails'
+             and convert_from(body, 'utf8') not like '%x%excerpt%') >= 1,
+  'The mail is queued, and carries no excerpt');
+insert into public.crisis_events (user_id, severity, category, source_surface, matched, excerpt)
+values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'high', 'ideacion', 'chat', '{"x"}', 'x');
+select is((select count(*) from public.crisis_events where severity = 'high' and admin_notified_at is not null),
+  1::bigint, 'A second alert from the same person within 30 minutes sends no second mail');
+insert into public.crisis_events (user_id, severity, category, source_surface, matched, excerpt)
+values ('bbbbbbbb-0000-4000-8000-0000000000b2', 'low', 'ideacion', 'chat', '{"x"}', 'x');
+select is((select count(*) from public.crisis_events where severity = 'low' and admin_notified_at is not null),
+  0::bigint, 'A low alert sends nothing');
 
 select * from finish();
 rollback;

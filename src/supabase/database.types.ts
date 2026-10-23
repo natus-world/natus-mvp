@@ -1558,6 +1558,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_birth_city: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          did_not_continue: number
+          empty_search: number
+        }[]
+      }
       admin_call_cost: {
         Args: { c: Database["public"]["Tables"]["claude_api_calls"]["Row"] }
         Returns: number
