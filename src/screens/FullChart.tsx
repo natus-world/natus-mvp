@@ -23,6 +23,9 @@ import { activeProfile } from '@/store/account';
 import { currentSynthesis } from '@/store/soulMap';
 import { chartReadings, ensureChartReadings } from '@/store/chart-readings';
 import { PATHS } from '@/components/routes';
+import { ChartChat } from '@/screens/ChartChat';
+import { CrisisScreen } from '@/screens/CrisisScreen';
+import { markFalsePositive } from '@/store/crisis';
 import type { OnboardingDraft } from '@/store/session';
 
 /**
@@ -246,8 +249,28 @@ function ReadingLoading() {
 export function FullChart() {
   const profile = activeProfile();
   const chart = profile ? chartOf(profile.draft) : null;
+  const stored = currentSynthesis();
+  const [localCrisis, setLocalCrisis] = useState<string | null>(null);
   if (!profile || !chart) return <Navigate to={PATHS.chart} replace />;
-  return <FullChartView chart={chart} name={firstNameOf(profile.draft.legal_birth_name ?? '')} numerology={currentSynthesis()?.numerology ?? null} />;
+  if (localCrisis) {
+    return (
+      <CrisisScreen
+        country={profile.draft.country}
+        onNotMyCase={() => {
+          markFalsePositive(localCrisis);
+          setLocalCrisis(null);
+        }}
+        onBack={() => setLocalCrisis(null)}
+      />
+    );
+  }
+  return (
+    <>
+      <FullChartView chart={chart} name={firstNameOf(profile.draft.legal_birth_name ?? '')} numerology={stored?.numerology ?? null} />
+      {/* «Pregúntale a tu carta» on the full chart too (owner, 23 Oct 2026). */}
+      {stored && <ChartChat stored={stored} onCrisis={setLocalCrisis} />}
+    </>
+  );
 }
 
 function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: string; numerology: Numerology | null }) {

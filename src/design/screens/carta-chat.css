@@ -404,7 +404,8 @@
 /* On the phone the page can always be scrolled past the pill, so nothing at
    its end stays under it (QA-26). */
 @media (max-width: 1023px) {
-  .pz.carta.scroll {
+  .pz.carta.scroll,
+  .pz.carta-completa.scroll {
     padding-bottom: calc(var(--u) * 112 + var(--u) * 66);
   }
 }

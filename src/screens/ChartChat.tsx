@@ -65,12 +65,12 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
   const closeRef = useRef<HTMLButtonElement>(null);
   const bubbleRef = useRef<HTMLButtonElement>(null);
 
-  // The pill says what it is at the top of Carta, and keeps out of the way
+  // The pill says what it is at the top of Carta (and of the full chart), and keeps out of the way
   // once the person reads further down.
   useEffect(() => {
     const onScroll = (e: Event) => {
       const el = e.target;
-      if (el instanceof HTMLElement && el.closest('.carta')) setCompact(el.scrollTop > 24);
+      if (el instanceof HTMLElement && el.closest('.carta, .carta-completa')) setCompact(el.scrollTop > 24);
     };
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
