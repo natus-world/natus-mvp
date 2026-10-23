@@ -257,7 +257,34 @@ describe.skipIf(!configured)('adapters against Postgres', () => {
       { practice_title: 'Respirar', checked_on: '2026-10-15', rating: null, comment: null },
     ];
     await ADAPTERS.recommendation_checkins.save(client, userId, checkIns);
-    expect(await ADAPTERS.recommendation_checkins.load(client, userId)).toEqual(checkIns);
+    // No practice of that title saved: which practice stays unknown.
+    expect(await ADAPTERS.recommendation_checkins.load(client, userId)).toEqual(
+      checkIns.map((c) => ({ ...c, practice_id: null })),
+    );
+  });
+
+  it('a mark keeps which practice it is for, once the practice is saved (22 Oct 2026)', async () => {
+    const { client, userId } = await person();
+    const id = crypto.randomUUID();
+    await ADAPTERS.routine_practices.save(client, userId, [
+      {
+        id,
+        match_id: null,
+        title: 'Caminar',
+        body: 'Veinte minutos.',
+        invitation: '¿Caminas hoy?',
+        cadence: 'daily',
+        connects_to: { soul_map: true, modality_slug: null },
+        origin: 'ia',
+        prompt_version: null,
+        is_active: true,
+        created_at: NOW,
+      },
+    ]);
+    await ADAPTERS.recommendation_checkins.save(client, userId, [
+      { practice_title: 'Caminar', checked_on: '2026-10-22', rating: 5, comment: null, practice_id: id },
+    ]);
+    expect((await ADAPTERS.recommendation_checkins.load(client, userId))[0]?.practice_id).toBe(id);
   });
 
   it('a person cannot make themselves premium (v1.2 P-01)', async () => {

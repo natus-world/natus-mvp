@@ -1,5 +1,6 @@
 import { read, write } from './db';
 import { onlyMonthlySince } from './soulMap';
+import type { StoredPractice } from './routine';
 import type { MatchResult } from '@/lib/schemas';
 
 /**
@@ -41,8 +42,26 @@ export type CheckIn = {
   /** v1.2 R-03: how useful it was that day, 1 to 5. Absent until rated. */
   rating?: number | null;
   /** v1.2 R-03: optional, crisis-scanned before it gets here. Never sent to a model. */
-  comment?: string | null;
+  comment?: string | null;  /**
+   * Which practice it is for (owner, 22 Oct 2026), so the panel can join a
+   * rating to its therapy. Invisible: the check-in is still reconciled by
+   * title and day.
+   */
+  practice_id?: string | null;
 };
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The practice a title names, when exactly one of the person's practices
+ * carries it — the same rule that filled in the marks made before. In doubt,
+ * none.
+ */
+export function practiceIdFor(title: string): string | null {
+  const named = read<StoredPractice[]>('routine_practices', []).filter((p) => p.title === title);
+  const only = named.length === 1 ? named[0] : undefined;
+  return only && UUID.test(only.id) ? only.id : null;
+}
 
 // v1.2 R-05 (owner, 15 Oct 2026): a week, replacing US-6.2 CA3's 90 days.
 const DISMISSAL_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -155,7 +174,7 @@ export function toggleCheckIn(title: string, today: string): void {
     'recommendation_checkins',
     already
       ? existing.filter((c) => !(c.practice_title === title && c.checked_on === today))
-      : [...existing, { practice_title: title, checked_on: today }],
+      : [...existing, { practice_title: title, checked_on: today, practice_id: practiceIdFor(title) }],
   );
 }
 
@@ -177,7 +196,7 @@ export function toggleOnce(title: string, today: string): void {
     'recommendation_checkins',
     existing.some((c) => c.practice_title === title)
       ? existing.filter((c) => c.practice_title !== title)
-      : [...existing, { practice_title: title, checked_on: today }],
+      : [...existing, { practice_title: title, checked_on: today, practice_id: practiceIdFor(title) }],
   );
 }
 
@@ -199,7 +218,9 @@ export function rateCheckIn(title: string, today: string, rating: number, commen
   write(
     'recommendation_checkins',
     existing.map((c) =>
-      c.practice_title === title && c.checked_on === today ? { ...c, rating, comment: text } : c,
+      c.practice_title === title && c.checked_on === today
+        ? { ...c, rating, comment: text, practice_id: c.practice_id ?? practiceIdFor(title) }
+        : c,
     ),
   );
 }

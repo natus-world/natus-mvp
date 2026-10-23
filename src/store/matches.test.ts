@@ -4,6 +4,7 @@ import {
   clearReaction,
   isCheckedToday,
   isDoneOnce,
+  practiceIdFor,
   rateCheckIn,
   recentlyDismissedSlugs,
   saveMatch,
@@ -13,7 +14,7 @@ import {
   totalCheckIns,
 } from './matches';
 import type { MatchResult } from '@/lib/schemas';
-import { clearAll } from './db';
+import { clearAll, write } from './db';
 import { installMemoryStorage } from './memory-storage.testing.ts';
 
 beforeEach(() => {
@@ -22,6 +23,26 @@ beforeEach(() => {
 });
 
 const DAY = '2026-10-15';
+
+describe('which practice a mark is for (owner, 22 Oct 2026)', () => {
+  const practice = (id: string, title: string) => ({ id, title });
+  const A = '11111111-1111-4111-8111-111111111111';
+  const B = '22222222-2222-4222-8222-222222222222';
+
+  it('keeps the id of the one practice with that title, on marking and on rating', () => {
+    write('routine_practices', [practice(A, 'Caminar')]);
+    toggleCheckIn('Caminar', DAY);
+    expect(checkInToday('Caminar', DAY)?.practice_id).toBe(A);
+    rateCheckIn('Caminar', DAY, 4);
+    expect(checkInToday('Caminar', DAY)).toMatchObject({ rating: 4, practice_id: A });
+  });
+
+  it('leaves it empty when two practices share the title, or none has it', () => {
+    write('routine_practices', [practice(A, 'Caminar'), practice(B, 'Caminar')]);
+    expect(practiceIdFor('Caminar')).toBeNull();
+    expect(practiceIdFor('Nadar')).toBeNull();
+  });
+});
 
 describe('«Una vez» — a practice done once stays done (owner, 21 Oct 2026)', () => {
   it('is done from the day it is marked on, and the days after', () => {

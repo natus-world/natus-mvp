@@ -1203,6 +1203,7 @@ export type Database = {
           comment: string | null
           id: string
           memory_processed_at: string | null
+          practice_id: string | null
           practice_title: string
           rating: number | null
           user_id: string
@@ -1212,6 +1213,7 @@ export type Database = {
           comment?: string | null
           id?: string
           memory_processed_at?: string | null
+          practice_id?: string | null
           practice_title: string
           rating?: number | null
           user_id: string
@@ -1221,11 +1223,20 @@ export type Database = {
           comment?: string | null
           id?: string
           memory_processed_at?: string | null
+          practice_id?: string | null
           practice_title?: string
           rating?: number | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "recommendation_checkins_practice_fkey"
+            columns: ["practice_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "routine_practices"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
       }
       routine_change_proposals: {
         Row: {

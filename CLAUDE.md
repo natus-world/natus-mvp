@@ -138,6 +138,16 @@ comparison between them (C-01, C-02) are built, and so is the routine
 saying what it converses with and keeping its origin in `routine_practices`.
 Marking a practice asks how useful it was, 1 to 5, with an optional comment
 (R-03), stored on `recommendation_checkins`; the memory and the review read it.
+Since 22 Oct 2026 (owner) each check-in also keeps `practice_id`, the
+practice it is for (`20261023030000_checkin_practice.sql`), so the panel can
+join a rating to its therapy (`routine_practices.connects_modality`):
+invisible, still reconciled by title and day. The browser sets it when
+exactly one of the person's practices has that title (`practiceIdFor`); the
+key is `(practice_id, user_id)`, so it can only point at a practice of the
+same person, and a trigger leaves it empty instead of refusing the mark when
+the practice is somebody else's or not saved yet; a deleted practice leaves
+it empty. The marks before were filled in only where the title matched
+exactly one practice of that person.
 The routine is reviewed (R-04, built 16 Oct 2026): premium every week and
 earlier when a practice is rated 2 or less twice or a daily or weekly one
 goes two weeks undone, or when the memory keeps something new in «Lo que no

@@ -8,7 +8,7 @@ import type { AnonymousSession, OnboardingDraft } from './session.ts';
 import type { Client } from './account.ts';
 import type { StoredSynthesis } from './soulMap.ts';
 import type { JournalEntry } from './journal.ts';
-import type { CheckIn, StoredMatch } from './matches.ts';
+import { practiceIdFor, type CheckIn, type StoredMatch } from './matches.ts';
 import type { Conversation, StoredMessage } from './chat.ts';
 import type { StoredMeditation } from './meditations.ts';
 import type { StoredPractice } from './routine.ts';
@@ -478,6 +478,7 @@ const checkins: Adapter<CheckIn[]> = {
       checked_on: r.checked_on,
       rating: r.rating,
       comment: r.comment,
+      practice_id: r.practice_id,
     }));
   },
   async save(client, userId, value) {
@@ -494,6 +495,9 @@ const checkins: Adapter<CheckIn[]> = {
           checked_on: c.checked_on,
           rating: c.rating ?? null,
           comment: c.comment ?? null,
+          // Which practice (22 Oct 2026); the database leaves it empty when it
+          // is not this person's or not saved yet.
+          practice_id: c.practice_id ?? practiceIdFor(c.practice_title),
         })),
         { onConflict: 'user_id,practice_title,checked_on' },
       );
