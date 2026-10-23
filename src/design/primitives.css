@@ -420,6 +420,33 @@
     }
   }
 
+  /* The smallest iPhone SE (320 px): the header and the tab bar fit, the
+     bubble no longer rides on NATUS and the labels no longer touch (QA-27). */
+  @media (max-width: 359.98px) {
+    .app-header {
+      gap: 6px;
+      padding-inline: 16px;
+    }
+
+    .header-brand {
+      font-size: calc(var(--fs-brand-header) * 0.82);
+      letter-spacing: calc(var(--track-brand) * 0.7);
+    }
+
+    .help-pill {
+      gap: 5px;
+      padding-inline: 9px;
+    }
+
+    .nav-bar {
+      padding: 0 2px;
+    }
+
+    .nav-tab {
+      font-size: calc(var(--fs-label-11) * 0.84);
+    }
+  }
+
   .suggest-button::after {
     content: '';
     position: absolute;

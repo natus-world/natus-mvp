@@ -58,7 +58,9 @@
 
 .carta-chat .velo-c {
   position: fixed;
-  z-index: 46;
+  /* Over the save notice (z-index 50) while open, so its close is never
+     covered (QA-24); the notice is there again once the sheet closes. */
+  z-index: 51;
   left: 0;
   right: 0;
   bottom: 0;
@@ -69,7 +71,7 @@
 
 .carta-chat .hoja-c {
   position: fixed;
-  z-index: 47;
+  z-index: 52;
   left: 0;
   right: 0;
   bottom: 0;
@@ -396,5 +398,13 @@
   .carta-chat .escribiendo i {
     animation: none;
     opacity: 0.6;
+  }
+}
+
+/* On the phone the page can always be scrolled past the pill, so nothing at
+   its end stays under it (QA-26). */
+@media (max-width: 1023px) {
+  .pz.carta.scroll {
+    padding-bottom: calc(var(--u) * 112 + var(--u) * 66);
   }
 }

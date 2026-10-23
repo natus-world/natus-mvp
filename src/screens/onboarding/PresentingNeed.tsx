@@ -3,6 +3,8 @@ import { OptionItem } from '@/components/onboarding/OptionItem';
 import { presentingNeedsFile, PRESENTING_NEEDS } from '@/lib/catalog';
 import type { OnboardingDraft } from '@/store/session';
 import { copy } from '@/i18n';
+import { useRef } from 'react';
+import { useAutoGrow } from '@/components/useAutoGrow';
 
 /**
  * PDR 1.1, the non-negotiable one: "¿Qué te estás preguntando últimamente?",
@@ -22,6 +24,8 @@ export function PresentingNeed({
   onChange: (patch: Partial<OnboardingDraft>) => void;
   onNext: () => void;
 }) {
+  const needRef = useRef<HTMLTextAreaElement>(null);
+  useAutoGrow(needRef, draft.presenting_need_text);
   const toggle = (slug: string) => {
     const selected = draft.presenting_need_slugs.includes(slug);
     onChange({
@@ -43,6 +47,7 @@ export function PresentingNeed({
       action={<NextButton disabled={!canContinue} onClick={onNext} />}
     >
       <textarea
+        ref={needRef}
         id="presenting-need"
         aria-label={presentingNeedsFile.prompt_es}
         rows={3}

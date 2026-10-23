@@ -282,6 +282,8 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
   const [voice, setVoice] = useState(() => getPreferences().voice_volume);
   const [bed, setBed] = useState(() => getPreferences().bed_volume);
   const playerRef = useRef<MeditationPlayer | null>(null);
+  // Where the voice was when paused: playing again goes on from there (QA-31).
+  const segmentRef = useRef(0);
 
   const bedTrack = useMemo(
     () => BED_TRACKS.find((track) => track.id === meditation.script.bed_track_id),
@@ -305,16 +307,25 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
 
   const start = () => {
     playerRef.current?.stop();
+    // After the end it starts over; after a pause, from the sentence it was in.
+    const from = state === 'finished' ? 0 : segmentRef.current;
     const player = createPlayer({
       ssml: meditation.script.script_ssml,
+      from,
       bed: bedTrack,
       voiceVolume: voice,
       bedVolume: bed,
       events: {
-        onSegment: (index) => setElapsed(starts[index] ?? 0),
+        onSegment: (index) => {
+          segmentRef.current = index;
+          setElapsed(starts[index] ?? 0);
+        },
         onState: (next) => {
           setState(next);
-          if (next !== 'playing') setElapsed(next === 'finished' ? totalMs : 0);
+          if (next === 'finished') {
+            segmentRef.current = 0;
+            setElapsed(totalMs);
+          }
         },
       },
     });

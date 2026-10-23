@@ -17,6 +17,8 @@ import { parseSsml, type SsmlSegment } from '@/lib/ssml';
 
 export type SynthesisRequest = {
   ssml: string;
+  /** The segment to begin at: a paused practice goes on from where it was. */
+  from?: number;
   /** Read at the start of every segment, so moving the slider mid-practice
    *  takes effect on the next sentence rather than at the end. */
   volume: () => number;
@@ -101,7 +103,7 @@ export const webSpeechProvider: SpeechProvider = {
     // Chrome keeps a queue across pages. Anything left over would speak on top
     // of this one.
     synth.cancel();
-    step(0);
+    step(Math.max(0, Math.min(request.from ?? 0, segments.length)));
 
     return {
       stop: () => {

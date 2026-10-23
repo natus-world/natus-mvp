@@ -252,6 +252,22 @@
   text-shadow: 0 1px 14px rgb(0 0 0 / 0.35);
 }
 
+/* The moon's photo is light: the title, the track and the length sat on it
+   with no veil and barely read on the iPhone (QA-30). A veil from the top,
+   down to where the moon begins, keeps the moon itself clear. */
+.meditaciones.escuchar::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto;
+  height: 52%;
+  pointer-events: none;
+  background: linear-gradient(rgb(12 14 12 / 0.62), rgb(12 14 12 / 0.38) 55%, rgb(12 14 12 / 0));
+}
+
+.meditaciones.escuchar .sc {
+  position: relative;
+}
+
 .meditaciones.escuchar .sc {
   padding-bottom: var(--bottom-inset);
 }

@@ -8,7 +8,8 @@ import {
   shouldCalculateNatalChart,
   NatalChartError,
 } from '@/astrology/natal-chart';
-import { saveSynthesis } from '@/store/soulMap';
+import { currentSynthesis, saveSynthesis } from '@/store/soulMap';
+import { Link } from 'react-router-dom';
 import { attachSoulMap } from '@/store/session';
 import { markRevelationPending } from '@/store/revelation';
 import { attachSoulMapToClient, updateActiveProfile } from '@/store/account';
@@ -169,6 +170,11 @@ export function Generating({
  * their own failure state; this is what they show for it.
  */
 export function GeneratingFailed({ message, onRetry }: { message: string; onRetry: () => void }) {
+  // At the day's limit a retry cannot work: somebody who restarted the steps
+  // was tapping «Reintentar» every few seconds for ten minutes (QA-22, launch
+  // night). Their map is offered instead, when there is one.
+  const atLimit = message === text.spendLimit;
+  const map = atLimit ? currentSynthesis() : undefined;
   return (
     <Screen photo="hojaGotas" veil={0.14} glassAlpha={0.3}>
       <div className="pz generando">
@@ -178,11 +184,19 @@ export function GeneratingFailed({ message, onRetry }: { message: string; onRetr
             {message}
           </p>
         </div>
-        <div className="abajo">
-          <button type="button" className="btn p" onClick={onRetry}>
-            {text.retry}
-          </button>
-        </div>
+        {!atLimit ? (
+          <div className="abajo">
+            <button type="button" className="btn p" onClick={onRetry}>
+              {text.retry}
+            </button>
+          </div>
+        ) : map ? (
+          <div className="abajo">
+            <Link to="/carta" className="btn p">
+              {copy.signup.required.backToMap}
+            </Link>
+          </div>
+        ) : null}
       </div>
     </Screen>
   );

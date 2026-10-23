@@ -38,6 +38,8 @@ export function isPlaybackAvailable(): boolean {
 
 export function createPlayer(input: {
   ssml: string;
+  /** The segment to begin at (a pause goes on from where it was, QA-31). */
+  from?: number;
   bed: BedTrack | undefined;
   voiceVolume: number;
   bedVolume: number;
@@ -81,7 +83,7 @@ export function createPlayer(input: {
 
       events.onState?.('playing');
       speech = webSpeechProvider.synthesize(
-        { ssml: input.ssml, volume: () => voiceVolume },
+        { ssml: input.ssml, from: input.from ?? 0, volume: () => voiceVolume },
         {
           ...(events.onSegment ? { onSegment: events.onSegment } : {}),
           onDone: () => {

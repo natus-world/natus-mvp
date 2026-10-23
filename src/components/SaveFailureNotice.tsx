@@ -15,6 +15,9 @@ import { setWriteFailureHandler, type WriteFailure } from '@/store/hydrate.ts';
  * next change to the same namespace sends the whole value again, so retrying
  * by hand would duplicate work the store does anyway. What is missing is not a
  * mechanism, it is the person knowing.
+ *
+ * «Entendido» is 44 px tall: at 17 it was the only way out from under the
+ * notice when it covered the close of «Pregúntale a tu carta» (QA-24).
  */
 export function SaveFailureNotice({ offline = false }: { offline?: boolean }) {
   const [failure, setFailure] = useState<WriteFailure | null>(null);
@@ -35,7 +38,7 @@ export function SaveFailureNotice({ offline = false }: { offline?: boolean }) {
         </p>
         <button
           type="button"
-          className="mt-1.5 text-[length:var(--fs-label-10_5)] tracking-wide text-crema/60 uppercase underline"
+          className="mt-0.5 inline-flex min-h-11 items-center text-[length:var(--fs-label-10_5)] tracking-wide text-crema/60 uppercase underline"
           onClick={() => setOfflineSeen(true)}
         >
           {copy.saveFailure.ok}
@@ -56,7 +59,7 @@ export function SaveFailureNotice({ offline = false }: { offline?: boolean }) {
       </p>
       <button
         type="button"
-        className="mt-1.5 text-[length:var(--fs-label-10_5)] tracking-wide text-crema/60 uppercase underline"
+        className="mt-0.5 inline-flex min-h-11 items-center text-[length:var(--fs-label-10_5)] tracking-wide text-crema/60 uppercase underline"
         onClick={() => setFailure(null)}
       >
         {copy.saveFailure.ok}
