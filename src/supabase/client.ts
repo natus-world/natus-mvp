@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types.ts';
+import { browserStorage, resilientStorage } from './session-storage.ts';
 
 /**
  * The one Supabase client.
@@ -58,6 +59,10 @@ function create(): TypedClient | null {
       // screens and closed the laptop has not withdrawn consent to be
       // remembered; PDR 5.1 gives the anonymous record seven days.
       persistSession: true,
+      // localStorage with a copy in memory: some iPhone browsers lost the
+      // session from storage seconds after opening (launch night,
+      // session-storage.ts).
+      storage: resilientStorage(browserStorage()),
       autoRefreshToken: true,
       // PKCE keeps the tokens out of the URL fragment. The code lands as a
       // query parameter and is exchanged against a verifier held in this

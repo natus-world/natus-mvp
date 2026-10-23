@@ -1,4 +1,5 @@
 import { supabase } from './client.ts';
+import { setSessionLostHandler } from './session-storage.ts';
 
 export type ErrorKind = 'render' | 'error' | 'rejection';
 
@@ -31,6 +32,10 @@ export function reportError(kind: ErrorKind, error: unknown): void {
 }
 
 export function installErrorReporting(): void {
+  // Launch night: how often a browser drops the session from storage.
+  setSessionLostHandler(() =>
+    reportError('error', new Error(`auth: session missing from storage (${navigator.userAgent.slice(0, 120)})`)),
+  );
   window.addEventListener('error', (event) => reportError('error', event.error ?? event.message));
   window.addEventListener('unhandledrejection', (event) => reportError('rejection', event.reason));
 }
