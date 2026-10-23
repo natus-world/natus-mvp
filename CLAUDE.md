@@ -594,6 +594,23 @@ readings are in «Descargar mis datos» and go with the account.
 and minutes are native selects (`BirthDateTime` in `BasicData.tsx`): the
 browser's own date field, drawn as bare text as the package asks, could not
 be filled from some phones. A day that does not exist leaves the date unset.
+The hour is 1–12 with a. m./p. m. (owner, 22 Oct 2026; «01» was read as
+1 p. m.), nothing preselected, stored on the 24-hour clock (`clockParts`,
+`joinClock`). A city kept but never picked opens its list on touch (it
+used to need retyping, and blocked saving with the reason off screen); in
+Perfil the button reads «Guardar cambios». A blank city with a date says
+«Sin tu ciudad no podemos calcular tu carta astral.», and Carta, for a chart
+missing for want of a city, «Agregar mi ciudad» (owner, 22 Oct 2026: two
+people that night gave the hour and no city, and saw only their numbers).
+Open: «Pregúntale a tu carta» still shows when there is no chart.
+
+**A deleted account no longer loops (22 Oct 2026).** The «account owed» mark
+is owed only while there is a map (`accountRequired`): left behind by a
+deleted account, it sent «Empezar» on «Guarda tu mapa» back to itself. A
+Google sign-in with no space behind it has the new map saved as soon as it
+is ready (`completeLinkedSignup` in the onboarding's `onDone`). Not fixed:
+«Volver a mi espacio» with a Google account that has no space returns to the
+welcome with nothing said.
 
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
