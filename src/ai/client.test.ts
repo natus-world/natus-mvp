@@ -140,6 +140,12 @@ describe('runAi on the server path', () => {
     ).rejects.toMatchObject({ kind: 'copy_violation' });
   });
 
+  it('shows a server answer the browser reads a style rule on differently (23 Oct 2026)', async () => {
+    // Voseo stands for any style rule: the server approved the answer, so it is shown.
+    const value = await run(async () => ({ data: { result: { text: 'Hoy tenés un rato para ti.' } }, error: null }));
+    expect(value).toMatchObject({ value: { text: 'Hoy tenés un rato para ti.' }, mode: 'server' });
+  });
+
   it('reads an aborted request as a timeout, and asks for one', async () => {
     let options: unknown;
     const abort = Object.assign(new Error('fetch failed'), {

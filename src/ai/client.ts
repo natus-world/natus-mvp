@@ -193,7 +193,17 @@ async function runOnEdge<T>(call: AiCall<T>, started: number): Promise<AiResult<
   }
 
   const parsed = call.schema.parse(data?.['result']);
-  assertCleanCopy(parsed);
+  // The server held this answer to the same rules before sending it. The
+  // browser still refuses what touches safety — a phone number in a crisis
+  // text, a practice with physical risk — but a style rule it reads
+  // differently (a tab opened before a release, when the rules had changed)
+  // no longer throws away an answer already written and paid for: it is
+  // shown, and the difference reported (owner, 23 Oct 2026).
+  assertSafeCopy(parsed);
+  const differs = lintDeep(parsed)[0];
+  if (differs) {
+    reportError('error', new Error(`copy rule read differently in the browser: ${edge.fn} · ${differs.rule} at ${differs.path}`));
+  }
   return {
     value: parsed,
     mode: 'server',
@@ -235,6 +245,17 @@ async function errorCode(context: unknown): Promise<string | null> {
 
 function numberOrNull(value: unknown): number | null {
   return typeof value === 'number' ? value : null;
+}
+
+/** What the browser never shows, whoever approved it: invented numbers in a crisis text, unguarded physical risk. */
+function assertSafeCopy(value: unknown): void {
+  const violations = [...lintCrisisText(value), ...lintPhysicalRisk(value)];
+  if (violations.length === 0) return;
+  const first = violations[0];
+  throw new AiError(
+    `Copy rule "${first?.rule}" broken at ${first?.path}: "${first?.match}" — ${first?.why}`,
+    'copy_violation',
+  );
 }
 
 function assertCleanCopy(value: unknown): void {
