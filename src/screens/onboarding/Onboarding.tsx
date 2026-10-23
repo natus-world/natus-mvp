@@ -1,6 +1,7 @@
 import { googleSignInEnabled } from '@/supabase/client.ts';
 import { isSignedIn } from '@/store/account';
 import { requireAccount } from '@/store/account-required';
+import { completeLinkedSignup } from '@/store/account-link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { track } from '@/store/funnel';
 import { hasBirthTime } from '@/astrology/natal-chart';
@@ -130,9 +131,15 @@ export function Onboarding() {
   // The preview of the map comes first, the account after it (owner, 20–21
   // Oct 2026): the requirement is set now, so that leaving the preview, or
   // closing the app on it, lands on «Guarda tu mapa».
+  //
+  // Somebody already in with Google but with no space behind it — back with
+  // a Google account whose space was deleted (owner, 22 Oct 2026) — has the
+  // map saved at once, as when coming back from Google with one.
   const onDone = useCallback(() => {
-    if (googleOn && !isSignedIn()) requireAccount();
-    navigate('/carta');
+    void (async () => {
+      if (!isSignedIn() && !(await completeLinkedSignup()) && googleOn) requireAccount();
+      navigate('/carta');
+    })();
   }, [navigate, googleOn]);
 
   const numerologyPreview = useMemo(() => {
