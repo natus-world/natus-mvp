@@ -438,6 +438,105 @@
   color: var(--t2);
 }
 
+/* «La carta» with both wheels (mockup las-dos-cartas, 23 Oct 2026): on the
+   phone one over the other, the list of aspects under it and the reading of
+   the one chosen. */
+.comparar .la-carta {
+  display: grid;
+  gap: calc(var(--u) * 12);
+  margin-top: calc(var(--u) * 14);
+  padding: calc(var(--u) * 16) calc(var(--u) * 12);
+}
+
+.comparar .la-carta .k {
+  color: var(--t2);
+  text-shadow: none;
+}
+
+.comparar .la-carta .rueda2 {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: var(--font-sans);
+}
+
+.comparar .fila-a {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 27) minmax(0, 1fr);
+  gap: calc(var(--u) * 10);
+  align-items: center;
+  width: 100%;
+  padding: calc(var(--u) * 11) calc(var(--u) * 8);
+  border: 0;
+  border-top: 1px solid rgb(236 226 208 / 0.1);
+  border-radius: calc(var(--u) * 8);
+  background: none;
+  color: var(--t1);
+  text-align: left;
+  font: 400 calc(var(--u) * 14) / 1.35 var(--font-sans);
+  cursor: pointer;
+}
+
+.comparar .fila-a:first-child {
+  border-top: 0;
+}
+
+.comparar .fila-a[aria-pressed='true'] {
+  background: rgb(236 226 208 / 0.1);
+}
+
+.comparar .fila-a .trazo {
+  display: block;
+  height: 0;
+  width: calc(var(--u) * 24);
+  border-top: 1.5px solid var(--t1);
+}
+
+.comparar .fila-a .trazo.trab {
+  border-top-style: dashed;
+}
+
+.comparar .fila-a small {
+  display: block;
+  margin-top: calc(var(--u) * 3);
+  font: 500 calc(var(--u) * 9.75) / 1.3 var(--font-sans);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--t3);
+}
+
+.comparar .fila-a .et {
+  display: none;
+}
+
+.comparar .la-carta .lectura {
+  font: italic 300 calc(var(--u) * 16) / 1.5 var(--font-serif);
+  color: var(--t1);
+  padding: calc(var(--u) * 4) calc(var(--u) * 8) 0;
+}
+
+.comparar .la-carta .lectura small {
+  display: block;
+  margin-top: calc(var(--u) * 6);
+  font: 300 calc(var(--u) * 13) / 1.5 var(--font-sans);
+  font-style: normal;
+  color: var(--t2);
+}
+
+.comparar .la-carta .ir-areas {
+  justify-self: start;
+  height: calc(var(--u) * 44);
+  padding: 0 calc(var(--u) * 18);
+  background: rgb(13 18 24 / 0.4);
+  border-color: rgb(236 226 208 / 0.45);
+}
+
+.comparar .la-carta .ir-areas svg {
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+}
+
 /* The model's reading of the aspect: kept from before the package. */
 .comparar .asp .r {
   font: 300 calc(var(--u) * 14) / 1.5 var(--font-sans);
@@ -775,6 +874,66 @@
 
   .comparar .cruce .t {
     font-size: calc(var(--d) * 46);
+  }
+
+  .comparar .la-carta {
+    gap: calc(var(--d) * 16);
+    margin-top: calc(var(--d) * 16);
+    padding: calc(var(--d) * 22) calc(var(--d) * 22);
+  }
+
+  .comparar .la-carta .nombres {
+    display: flex;
+    justify-content: space-around;
+    font: 500 calc(var(--d) * 11.5) / 1 var(--font-sans);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgb(236 226 208 / 0.75);
+  }
+
+  .comparar .fila-a {
+    grid-template-columns: calc(var(--d) * 44) minmax(0, 1fr) auto;
+    gap: calc(var(--d) * 14);
+    padding: calc(var(--d) * 12) calc(var(--d) * 10);
+    border-radius: calc(var(--d) * 8);
+    font-size: calc(var(--d) * 16);
+  }
+
+  .comparar .fila-a:hover {
+    background: rgb(236 226 208 / 0.05);
+  }
+
+  .comparar .fila-a .trazo {
+    width: calc(var(--d) * 40);
+  }
+
+  .comparar .fila-a small {
+    display: none;
+  }
+
+  .comparar .fila-a .et {
+    display: block;
+    font: 500 calc(var(--d) * 10.5) / 1.2 var(--font-sans);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--t3);
+    white-space: nowrap;
+  }
+
+  .comparar .la-carta .lectura {
+    font-size: calc(var(--d) * 17);
+    padding: calc(var(--d) * 4) calc(var(--d) * 10) 0;
+  }
+
+  .comparar .la-carta .lectura small {
+    margin-top: calc(var(--d) * 6);
+    font-size: calc(var(--d) * 14);
+  }
+
+  .comparar .la-carta .ir-areas {
+    height: calc(var(--d) * 44);
+    padding: 0 calc(var(--d) * 18);
+    font-size: calc(var(--d) * 15);
   }
 
   .comparar .hilos {

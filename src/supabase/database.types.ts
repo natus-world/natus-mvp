@@ -1846,6 +1846,7 @@ export type Database = {
       feedback_mark_read: { Args: never; Returns: undefined }
       first_name_of: { Args: { p_user: string }; Returns: string }
       first_value_at: { Args: { p_user: string }; Returns: string }
+      friend_charts: { Args: { p_friendship: string }; Returns: Json }
       funnel_dedupe_key: {
         Args: { p_detail: string; p_step: string }
         Returns: string

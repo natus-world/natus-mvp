@@ -10,10 +10,11 @@ import { Paywall } from '@/components/Paywall';
 import { activeProfile } from '@/store/account';
 import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
 import type { ComparisonResult } from '@/lib/schemas';
-import { latestComparison } from '@/store/comparison';
+import { friendCharts, latestComparison } from '@/store/comparison';
 import { listFriends } from '@/store/friends';
 import { ComparisonGate } from './Gate';
-import { Arrow, AspectGlyph, BodyGlyph, firstNameOf, GlyphAt, initialOf, useWide } from './pieces';
+import { Arrow, firstNameOf, initialOf, useWide } from './pieces';
+import { TheChart, type Charts } from './TheChart';
 
 const text = copy.comparison.result;
 const KIND_LABEL = text.kind;
@@ -24,7 +25,7 @@ type State =
   | { kind: 'none'; friend: string }
   | { kind: 'generating'; friend: string }
   | { kind: 'failed'; friend: string; message?: string }
-  | { kind: 'ready'; friend: string; result: ComparisonResult; askedByMe: boolean };
+  | { kind: 'ready'; friend: string; result: ComparisonResult; askedByMe: boolean; charts: Charts };
 
 type Aspect = ComparisonResult['astro_dialogue']['aspects'][number];
 
@@ -57,10 +58,10 @@ export function Result() {
         setState({ kind: 'not-friends' });
         return;
       }
-      const stored = await latestComparison(friendshipId);
+      const [stored, charts] = await Promise.all([latestComparison(friendshipId), friendCharts(friendshipId).catch(() => null)]);
       setState(
         stored
-          ? { kind: 'ready', friend: friend.firstName, result: stored.result, askedByMe: stored.askedByMe }
+          ? { kind: 'ready', friend: friend.firstName, result: stored.result, askedByMe: stored.askedByMe, charts }
           : { kind: 'none', friend: friend.firstName },
       );
     } catch {
@@ -77,8 +78,9 @@ export function Result() {
     setState({ kind: 'generating', friend });
     try {
       const outcome = await compareWithFriend(friendshipId);
+      const charts = await friendCharts(friendshipId).catch(() => null);
       // The function writes the one who asked as `a`.
-      setState({ kind: 'ready', friend, result: outcome.value, askedByMe: true });
+      setState({ kind: 'ready', friend, result: outcome.value, askedByMe: true, charts });
       void fetchQuota('comparison').then(setQuota);
     } catch (err) {
       if (err instanceof AiError && err.kind === 'quota') {
@@ -184,7 +186,16 @@ export function Result() {
   return (
     <ComparisonGate>
       <Screen photo="orilla" veil={0.3} glassAlpha={0.77}>
-        <Crossed result={state.result} friendshipId={friendshipId} aName={aName} bName={bName} />
+        <Crossed
+          result={state.result}
+          friendshipId={friendshipId}
+          aName={aName}
+          bName={bName}
+          me={me}
+          friend={state.friend}
+          charts={state.charts}
+          askedByMe={state.askedByMe}
+        />
       </Screen>
     </ComparisonGate>
   );
@@ -192,7 +203,7 @@ export function Result() {
 
 /* ── Crossing: the serpent, and on desktop the two circles closing in ──── */
 
-function Crossing({ friend, me }: { friend: string | null; me: string }) {
+export function Crossing({ friend, me }: { friend: string | null; me: string }) {
   return (
     <ComparisonGate>
       <Screen photo="ola" veil={0.18} glassAlpha={0.48}>
@@ -256,8 +267,30 @@ function Headline({ children }: { children: string }) {
 
 type Sides = { aName: string; bName: string };
 
-function Crossed({ result, friendshipId, ...sides }: { result: ComparisonResult; friendshipId: string } & Sides) {
+function Crossed({
+  result,
+  friendshipId,
+  me,
+  friend,
+  charts,
+  askedByMe,
+  ...sides
+}: { result: ComparisonResult; friendshipId: string; me: string; friend: string; charts: Charts; askedByMe: boolean } & Sides) {
   const wide = useWide();
+  const chart = (
+    <TheChart
+      aspects={result.astro_dialogue.aspects}
+      summary={result.astro_dialogue.summary}
+      charts={charts}
+      askedByMe={askedByMe}
+      aName={sides.aName}
+      bName={sides.bName}
+      me={me}
+      friend={friend}
+      friendshipId={friendshipId}
+      stacked={!wide}
+    />
+  );
   const parts: [string, readonly string[]][] = [
     [text.loBueno, result.lo_bueno],
     [text.tenerEnCuenta, result.tener_en_cuenta],
@@ -292,27 +325,7 @@ function Crossed({ result, friendshipId, ...sides }: { result: ComparisonResult;
             <Part key={title} title={title} lines={lines} />
           ))}
           <Numbers dialogue={result.numerology_dialogue} {...sides} />
-          <section className="vid bloque-c" aria-label={text.chart}>
-            <h2 className="k">{text.chart}</h2>
-            {result.astro_dialogue.summary && <p className="sum">{result.astro_dialogue.summary}</p>}
-            {/*
-             * Every aspect here was computed by sign from the two stored charts
-             * and checked against that list server-side before this rendered.
-             * The bodies and the aspect are the calculation; whether it flows
-             * or asks for work, and the reading, are the model's (A-02).
-             */}
-            {aspects.map((aspect) => (
-              <article key={`${aspect.a_body}-${aspect.type}-${aspect.b_body}`} className="asp">
-                <p className="g">
-                  <BodyGlyph body={aspect.a_body} /> <b>{text.bodyOf(bodyName(aspect.a_body), sides.aName)}</b>{' '}
-                  <AspectGlyph type={aspect.type} /> <b>{aspectName(aspect.type)}</b> <BodyGlyph body={aspect.b_body} />{' '}
-                  <b>{text.bodyOf(bodyName(aspect.b_body), sides.bName)}</b>
-                </p>
-                {aspect.flow && <p className="f">{aspect.flow === 'fluye' ? text.aspectFlows : text.aspectWork}</p>}
-                <p className="r">{aspect.reading}</p>
-              </article>
-            ))}
-          </section>
+          {chart}
           {end}
         </div>
       </div>
@@ -325,7 +338,7 @@ function Crossed({ result, friendshipId, ...sides }: { result: ComparisonResult;
         <p className="k">{text.kicker}</p>
         <Headline>{result.headline}</Headline>
         <Balance aspects={aspects} />
-        <Threads dialogue={result.astro_dialogue} {...sides} />
+        {chart}
       </div>
       <div className="col-c">
         <Hand parts={parts} />
@@ -334,15 +347,6 @@ function Crossed({ result, friendshipId, ...sides }: { result: ComparisonResult;
       </div>
     </div>
   );
-}
-
-/** Spanish names for what the ephemeris returns in English; unknown ones as they came. */
-function bodyName(body: string): string {
-  return copy.astro.bodies[body] ?? body.replace(/_/g, ' ');
-}
-
-function aspectName(type: string): string {
-  return copy.astro.aspects[type.toLowerCase()] ?? type;
 }
 
 function Part({ title, lines }: { title: string; lines: readonly string[] }) {
@@ -458,7 +462,7 @@ function Hand({ parts }: { parts: [string, readonly string[]][] }) {
   );
 }
 
-/* ── Desktop: the two charts joined by their aspects ──────────────────── */
+/* ── The balance ──────────────────────────────────────────────────────── */
 
 const FLOW = new Set(['trine', 'sextile']);
 const FRICTION = new Set(['square', 'opposition']);
@@ -469,84 +473,6 @@ function flows(a: Aspect): boolean {
 
 function works(a: Aspect): boolean {
   return a.flow ? a.flow === 'pide_trabajo' : FRICTION.has(a.type.toLowerCase());
-}
-
-/** Gold is only for the thread between a Sun and a Moon (brand rule). */
-function isLights(a: Aspect): boolean {
-  const pair = new Set([a.a_body, a.b_body]);
-  return pair.has('Sun') && pair.has('Moon') && a.a_body !== a.b_body;
-}
-
-function threadClass(a: Aspect): string {
-  return isLights(a) ? 'oro' : works(a) ? 'rayada' : '';
-}
-
-function Threads({ dialogue, aName, bName }: { dialogue: ComparisonResult['astro_dialogue'] } & Sides) {
-  const { aspects } = dialogue;
-  // A thread touched stays lit; one under the pointer lights while it is there.
-  const [chosen, setChosen] = useState(-1);
-  const [hover, setHover] = useState(-1);
-  const lit = hover >= 0 ? hover : chosen;
-  const step = aspects.length > 1 ? Math.min(67, 196 / (aspects.length - 1)) : 0;
-  const yOf = (i: number) => 184 + (i - (aspects.length - 1) / 2) * step;
-
-  return (
-    <section className={lit >= 0 ? 'vid hilos foco' : 'vid hilos'} aria-label={text.chart}>
-      <h2 className="k">{text.chart}</h2>
-      {aspects.length > 0 && (
-        <svg viewBox="0 0 480 310" role="img" aria-label={text.chartsLinked}>
-          <circle className="aro" cx="140" cy="168" r="118" />
-          <circle className="aro-in" cx="140" cy="168" r="80" />
-          <circle className="aro" cx="340" cy="168" r="118" />
-          <circle className="aro-in" cx="340" cy="168" r="80" />
-          {aspects.map((aspect, i) => {
-            const y = yOf(i) - 2;
-            const dx = Math.sqrt(118 * 118 - (y - 168) ** 2);
-            const x1 = 140 - dx + 10;
-            const x2 = 340 + dx - 10;
-            const kind = threadClass(aspect);
-            return (
-              <g key={`${aspect.a_body}-${aspect.type}-${aspect.b_body}`} className={lit === i ? `h on ${kind}` : `h ${kind}`}>
-                <line className="ln" x1={x1} y1={y} x2={x2} y2={y} />
-                <circle className="gc" cx={x1} cy={y} r="13" />
-                <GlyphAt body={aspect.a_body} x={x1} y={y} size={15} />
-                <circle className="gc" cx={x2} cy={y} r="13" />
-                <GlyphAt body={aspect.b_body} x={x2} y={y} size={15} />
-              </g>
-            );
-          })}
-          <text className="nom" x="140" y="34" textAnchor="middle">
-            {aName.toUpperCase()}
-          </text>
-          <text className="nom" x="340" y="34" textAnchor="middle">
-            {bName.toUpperCase()}
-          </text>
-        </svg>
-      )}
-      {aspects.map((aspect, i) => (
-        <button
-          key={`${aspect.a_body}-${aspect.type}-${aspect.b_body}`}
-          type="button"
-          className={chosen === i ? 'a-fila on' : 'a-fila'}
-          aria-pressed={chosen === i}
-          onClick={() => setChosen(chosen === i ? -1 : i)}
-          onMouseEnter={() => setHover(i)}
-          onMouseLeave={() => setHover(-1)}
-          onFocus={() => setHover(i)}
-          onBlur={() => setHover(-1)}
-        >
-          <span className={`mu ${threadClass(aspect)}`} aria-hidden="true" />
-          <span className="tx">
-            <BodyGlyph body={aspect.a_body} /> {text.bodyOf(bodyName(aspect.a_body), aName)} · {aspectName(aspect.type)} ·{' '}
-            <BodyGlyph body={aspect.b_body} /> {text.bodyOf(bodyName(aspect.b_body), bName)}
-          </span>
-          {aspect.flow && <em>{aspect.flow === 'fluye' ? text.aspectFlows : text.aspectWork}</em>}
-          {chosen === i && <span className="r">{aspect.reading}</span>}
-        </button>
-      ))}
-      {dialogue.summary && <p className="sum">{dialogue.summary}</p>}
-    </section>
-  );
 }
 
 /**

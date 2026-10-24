@@ -11,6 +11,7 @@ import {
   type ComparisonSource,
 } from '../_shared/lib/comparison-payload.ts';
 import { computeNumerology } from '../_shared/lib/numerology.ts';
+import { areasProblem } from '../_shared/lib/comparison-areas.ts';
 import { lintChartJudgement } from '../_shared/lib/copy-lint.ts';
 import type { NatalChart } from '../_shared/lib/natal-chart.ts';
 import { callerIsClinicallyVulnerable } from '../_shared/clinical.ts';
@@ -146,6 +147,9 @@ Deno.serve(
     // metadata: it names a count, never a placement.
     meta: (input) => ({ aspects_computed: built(input).payload.aspects.length }),
     promptVersion: COMPARISON_PROMPT_VERSION,
+    // Twelve readings and their questions on top of the four parts: the
+    // longest contract, given room beyond the shared 90 seconds (23 Oct 2026).
+    timeoutMs: 150_000,
     input: comparisonRequestSchema,
     output: comparisonResultSchema,
     system: COMPARISON_SYSTEM_PROMPT,
@@ -161,6 +165,13 @@ Deno.serve(
       }
       return null;
     },
+
+    /**
+     * «Las dos cartas» (owner, 23 Oct 2026): a reading per computed area in
+     * its order and a label for exactly the crosses that take one. A miss is
+     * asked again once with the reason, like a copy rule.
+     */
+    lint: (result, input) => areasProblem(result, built(input).payload.areas),
 
     enrich: async (input, { caller, userId, elevated }) => ({
       friendship_id: input.friendship_id,

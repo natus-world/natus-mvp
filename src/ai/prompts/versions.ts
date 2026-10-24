@@ -2,7 +2,7 @@ export const CHAT_PROMPT_VERSION = 'chat-v2.2';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
-export const COMPARISON_PROMPT_VERSION = 'comparison-v2.3';
+export const COMPARISON_PROMPT_VERSION = 'comparison-v2.4';
 export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.8';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
@@ -10,6 +10,12 @@ export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.2';
 export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'comparison-v2.4',
+    date: '2026-10-23',
+    change:
+      '«Las dos cartas» (owner, 23 Oct 2026, mockup las-dos-cartas; the prompt change approved by him the same day): the comparison also receives the twelve areas of life, crossed by sign in src/lib/comparison-areas.ts (which planets of each, the aspect or none, and with the hour which planet falls in the houses the area looks at), and writes for each area a reading of 2 to 4 sentences and a question to talk over; and labels every trine, sextile and square the areas cross as flows naturally, flows if cultivated or asks for more work, in line with the flow of the same aspect in the list. Sexuality in an adult, non-explicit tone, without assuming what bond the two have. Every rule before stands.',
+  },
   {
     version: 'soul-map-v2.8',
     date: '2026-10-22',

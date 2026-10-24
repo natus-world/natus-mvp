@@ -1,5 +1,6 @@
 import type { Numerology } from './schemas/index.ts';
 import { NATAL_CHART_VERSION, aspectsBetween, type CrossAspect, type NatalChart } from './natal-chart.ts';
+import { areasBetween, type Area } from './comparison-areas.ts';
 
 /**
  * What is allowed to leave the browser when two charts are compared.
@@ -61,6 +62,12 @@ export type ComparisonPayload = {
    * placements to read out, which is rule 5 broken from the outside.
    */
   aspects: CrossAspect[];
+  /**
+   * «Las dos cartas» (owner, 23 Oct 2026): the twelve areas, crossed by sign
+   * from the two charts with A as the one who asked. Computed here like the
+   * aspects, never accepted from a caller.
+   */
+  areas: Area[];
 };
 
 /** Every field of a source that may cross into a payload. Nothing else does. */
@@ -93,6 +100,7 @@ export function buildComparisonPayload(input: {
     a: subject(input.a, input.scope),
     b: subject(input.b, input.scope),
     aspects: [],
+    areas: [],
   };
 }
 
@@ -132,10 +140,14 @@ export function readStoredChart(value: unknown): NatalChart | null {
   return chart.version === NATAL_CHART_VERSION && Array.isArray(chart.points) ? (chart as NatalChart) : null;
 }
 
-/** v1.2 A-02: the payload with the aspects between the two charts, by sign. */
+/** v1.2 A-02: the payload with the aspects and the areas between the two charts, by sign. */
 export function withCrossAspects(payload: ComparisonPayload): ComparisonPayload {
   if (!payload.a.chart || !payload.b.chart) return payload;
-  return { ...payload, aspects: aspectsBetween(payload.a.chart.points, payload.b.chart.points) };
+  return {
+    ...payload,
+    aspects: aspectsBetween(payload.a.chart.points, payload.b.chart.points),
+    areas: areasBetween(payload.a.chart, payload.b.chart),
+  };
 }
 
 /** The allow-list, exported so a test can assert it rather than restate it. */

@@ -83,6 +83,7 @@ function builders(gender: GrammaticalGender, text: string): [string, string][] {
           a: { display_name: text, numerology: null, soul_map_themes: [text], chart: null },
           b: { display_name: text, numerology: null, soul_map_themes: [text], chart: null },
           aspects: [],
+          areas: [],
         },
         { a: gender, b: 'neutro' },
       ),

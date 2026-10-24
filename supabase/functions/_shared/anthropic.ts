@@ -116,6 +116,8 @@ export async function generate<T>(call: {
   lint?: (value: T) => string | null;
   /** What of the answer is kept, before the copy lint and `lint` run over it. */
   trim?: (value: T) => T;
+  /** Overrides the shared ceiling for a longer contract. */
+  timeoutMs?: number;
 }): Promise<Generation<T>> {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) throw new ModelError('No key is configured.', 'api_error');
@@ -125,7 +127,15 @@ export async function generate<T>(call: {
   let user = call.user;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const response = await post(call.model, call.system, user, call.effort ?? 'medium', call.maxTokens, apiKey);
+      const response = await post(
+        call.model,
+        call.system,
+        user,
+        call.effort ?? 'medium',
+        call.maxTokens,
+        apiKey,
+        call.timeoutMs ?? TIMEOUT_MS,
+      );
       const json = readJson(response.text);
 
       // Parsed separately from the JSON read so the two failures stop being
@@ -227,6 +237,7 @@ async function post(
   effort: string,
   maxTokens: number,
   apiKey: string,
+  timeoutMs: number,
 ): Promise<{
   text: string;
   inputTokens: number | null;
@@ -235,7 +246,7 @@ async function post(
   cacheReadTokens: number | null;
 }> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(ENDPOINT, {
@@ -304,7 +315,7 @@ async function post(
     };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new ModelError('The model took longer than 45 seconds.', 'timeout');
+      throw new ModelError(`The model took longer than ${Math.round(timeoutMs / 1000)} seconds.`, 'timeout');
     }
     throw error;
   } finally {

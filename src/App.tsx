@@ -23,6 +23,7 @@ import { Meditation } from '@/screens/Meditation';
 import { Library } from '@/screens/Library';
 import { ComparisonHome } from '@/screens/comparison/ComparisonHome';
 import { Result } from '@/screens/comparison/Result';
+import { BothCharts } from '@/screens/comparison/BothCharts';
 import { showsNav, showsProfile, subScreenOf } from '@/components/navigation';
 import { BackIcon } from '@/design/brand-icons';
 import { BackChevron } from '@/design/chart-marks';
@@ -311,6 +312,7 @@ export function App() {
             <Route path={PATHS.library} element={<Library />} />
             <Route path={PATHS.comparison} element={<ComparisonHome />} />
             <Route path="/comparacion/:friendshipId" element={<Result />} />
+            <Route path="/comparacion/:friendshipId/cartas" element={<BothCharts />} />
             <Route path="/amigos/:token" element={<FriendInvite />} />
             <Route path="/privacidad" element={<Legal doc="privacy" />} />
             <Route path="/terminos" element={<Legal doc="terms" />} />

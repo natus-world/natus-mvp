@@ -205,7 +205,9 @@ export const MAX_OUTPUT_TOKENS: Record<Purpose, number> = {
   // thinking tokens count against the same ceiling, so 4000 left the answer
   // cut off mid-object. Too low does not save money: it spends the whole call
   // and returns nothing parseable.
-  comparison: 8000,
+  // 16000 since «Las dos cartas» (23 Oct 2026): twelve area readings, their
+  // questions and a label per cross on top of the contract above.
+  comparison: 16000,
   routine: 4000,
   memory: 3000,
   routine_review: 4000,

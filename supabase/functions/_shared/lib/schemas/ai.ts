@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AREA_KEYS, READ_LABELS } from '../comparison-areas.ts';
 
 /**
  * Output contracts for every model call, transcribed from the PDR.
@@ -224,6 +225,36 @@ export const comparisonResultSchema = z.object({
   que_trabajar: z.array(z.string().min(1)).min(2).max(4),
   disfrutar_juntos: z.array(z.string().min(1)).min(2).max(4),
   disclaimer: z.string().min(1),
+  /**
+   * «Las dos cartas» (owner, 23 Oct 2026): one reading and one question to
+   * talk over for each area that was computed, in its order. Optional only so
+   * comparisons made before it still read; the screen offers to update them,
+   * and the function refuses a new one without them.
+   */
+  areas: z
+    .array(
+      z.object({
+        key: z.enum(AREA_KEYS),
+        reading: z.string().min(1),
+        question: z.string().min(1),
+      }),
+    )
+    .optional(),
+  /**
+   * The label of every trine, sextile and square the areas cross, decided by
+   * the model (owner, 22–23 Oct 2026): flows naturally, flows if they
+   * cultivate it, asks for more work. Keyed by the two bodies, the asker's
+   * first. Never a grade.
+   */
+  cross_labels: z
+    .array(
+      z.object({
+        a_body: z.string().min(1),
+        b_body: z.string().min(1),
+        label: z.enum(READ_LABELS),
+      }),
+    )
+    .optional(),
 });
 export type ComparisonResult = z.infer<typeof comparisonResultSchema>;
 

@@ -1,5 +1,7 @@
 import { supabase } from '@/supabase/client.ts';
 import { comparisonResultSchema, type ComparisonResult } from '@/lib/schemas';
+import { readStoredChart } from '@/lib/comparison-payload';
+import type { NatalChart } from '@/lib/natal-chart';
 
 /**
  * Comparisons between friends (v1.2 C-01), read from `chart_comparisons`.
@@ -50,4 +52,21 @@ export async function latestComparison(friendshipId: string): Promise<StoredComp
     createdAt: data.created_at,
     askedByMe: data.user_id === session.session?.user.id,
   };
+}
+
+/**
+ * «Las dos cartas» (owner, 23 Oct 2026): the reader's chart and the friend's,
+ * as stored, read only while the two are friends. Null when the friendship
+ * is not accepted; a side is null when that person has no chart this code
+ * can read. Asked every time, like the comparison, never kept.
+ */
+export async function friendCharts(
+  friendshipId: string,
+): Promise<{ mine: NatalChart | null; theirs: NatalChart | null } | null> {
+  if (!supabase) throw new ComparisonsUnavailable('There is no backend configured.');
+  const { data, error } = await supabase.rpc('friend_charts', { p_friendship: friendshipId });
+  if (error) throw new ComparisonsUnavailable(error.message);
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+  const row = data as Record<string, unknown>;
+  return { mine: readStoredChart(row['mine']), theirs: readStoredChart(row['theirs']) };
 }

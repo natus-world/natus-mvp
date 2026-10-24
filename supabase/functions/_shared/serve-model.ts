@@ -107,6 +107,8 @@ export type ModelRoute<I, O> = {
    * lint's is. `chart-points` uses it for the points its answer must read.
    */
   lint?: (output: O, input: I) => string | null;
+  /** How long the model may take, when the shared ceiling is too short for the contract. */
+  timeoutMs?: number;
   /**
    * What of the answer is kept, before the copy lint runs over it: a route
    * that would rather lose one part than refuse the whole answer.
@@ -265,6 +267,7 @@ export function serveModel<I, O>(route: ModelRoute<I, O>): (request: Request) =>
         schema: route.output,
         maxTokens: MAX_OUTPUT_TOKENS[route.purpose],
         ...(route.effort ? { effort: route.effort } : {}),
+        ...(route.timeoutMs ? { timeoutMs: route.timeoutMs } : {}),
         ...(lint ? { lint: (value: O) => lint(value, input) } : {}),
         ...(trim ? { trim: (value: O) => trim(value, input) } : {}),
       });

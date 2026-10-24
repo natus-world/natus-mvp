@@ -1,5 +1,6 @@
 import { useEffect, useState, type SVGProps } from 'react';
 import { PLANET_GLYPHS, type GlyphPlanet } from '@/design/planet-glyphs';
+import { SIGN_GLYPHS, type GlyphSign } from '@/design/zodiac-glyphs';
 import { copy } from '@/i18n';
 
 /**
@@ -115,5 +116,16 @@ export function GlyphAt({ body, x, y, size }: { body: string; x: number; y: numb
       fillRule="evenodd"
       transform={`translate(${(x - (advance * s) / 2).toFixed(2)} ${(y + 355 * s).toFixed(2)}) scale(${s} ${-s})`}
     />
+  );
+}
+
+/** A sign's glyph inline with text, one em tall (las dos cartas, 23 Oct 2026). */
+export function SignGlyph({ sign }: { sign: string }) {
+  if (!(sign in SIGN_GLYPHS)) return null;
+  const { advance, d } = SIGN_GLYPHS[sign as GlyphSign];
+  return (
+    <svg className="gli" viewBox={`0 -200 ${advance} 1000`} aria-hidden="true">
+      <path d={d} transform="translate(0 800) scale(1 -1)" fill="currentColor" />
+    </svg>
   );
 }

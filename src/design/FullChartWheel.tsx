@@ -2,6 +2,7 @@ import type { KeyboardEvent } from 'react';
 import { Glyph } from '@/design/ChartWheel';
 import { RETROGRADE_GLYPH } from '@/design/planet-glyphs';
 import { SIGN_GLYPHS, type GlyphSign } from '@/design/zodiac-glyphs';
+import { spreadApart } from '@/design/spread';
 
 /**
  * The wheel of the full chart (package 05, figure approved 15 Oct 2026):
@@ -134,24 +135,10 @@ export function FullChartWheel({
 
   // Glyphs that fall too close are spread apart; the mark keeps the real degree.
   const MIN = R ? (simple ? 14 : 12.5) : 11;
-  const order = points.map((p) => ({ id: p.id, d: p.longitude })).sort((a, b) => a.d - b.d);
-  for (let it = 0; it < 80; it++) {
-    let moved = false;
-    for (let k = 0; k < order.length; k++) {
-      const a = order[k]!;
-      const b = order[(k + 1) % order.length]!;
-      if (a === b) break;
-      const gap = (b.d - a.d + 360) % 360;
-      if (gap < MIN) {
-        const m = (MIN - gap) / 2 + 0.01;
-        a.d -= m;
-        b.d += m;
-        moved = true;
-      }
-    }
-    if (!moved) break;
-  }
-  const shown = new Map(order.map((o) => [o.id, o.d]));
+  const shown = spreadApart(
+    points.map((p) => ({ id: p.id, d: p.longitude })),
+    MIN,
+  );
 
   const ticks: [number, number, number][] = [];
   for (let g = 0; g < 360; g++) {
