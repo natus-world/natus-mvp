@@ -288,7 +288,7 @@ function Crossed({
       me={me}
       friend={friend}
       friendshipId={friendshipId}
-      stacked={!wide}
+      wide={wide}
     />
   );
   const parts: [string, readonly string[]][] = [

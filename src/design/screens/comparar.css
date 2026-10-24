@@ -290,6 +290,10 @@
   padding: calc(var(--u) * 18);
 }
 
+.comparar .bloque-c .cuerpo + .cuerpo {
+  margin-top: calc(var(--u) * 10);
+}
+
 .comparar .bloque-c .k {
   color: var(--t2);
   text-shadow: none;
@@ -880,15 +884,6 @@
     gap: calc(var(--d) * 16);
     margin-top: calc(var(--d) * 16);
     padding: calc(var(--d) * 22) calc(var(--d) * 22);
-  }
-
-  .comparar .la-carta .nombres {
-    display: flex;
-    justify-content: space-around;
-    font: 500 calc(var(--d) * 11.5) / 1 var(--font-sans);
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: rgb(236 226 208 / 0.75);
   }
 
   .comparar .fila-a {

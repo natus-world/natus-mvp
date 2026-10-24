@@ -4,6 +4,7 @@ import {
   AREAS,
   areaBalance,
   areasProblem,
+  keepAreas,
   areasBetween,
   crossLabel,
   crossesToLabel,
@@ -191,5 +192,30 @@ describe('areasProblem', () => {
 
   it('accepts empty lists when there were no charts to cross', () => {
     expect(areasProblem({ areas: [], cross_labels: [], astro_dialogue: { aspects: [] } }, [])).toBeNull();
+  });
+});
+
+describe('keepAreas', () => {
+  const areas = areasBetween(FRANCISCA, TOMAS);
+  const labels = crossesToLabel(areas).map((x) => ({ a_body: x.a_body, b_body: x.b_body, label: 'fluye' }));
+  const base = { astro_dialogue: { aspects: [] } };
+
+  it('puts the areas back in order, drops the ones not sent and the labels not asked for or twice', () => {
+    const kept = keepAreas(
+      {
+        ...base,
+        areas: [...areas.map((a) => ({ key: a.key })).reverse(), { key: 'inventada' }],
+        cross_labels: [...labels, labels[0]!, { a_body: 'Pluto', b_body: 'Sun', label: 'fluye' }],
+      },
+      areas,
+    );
+    expect(kept.areas.map((a) => a.key)).toEqual(areas.map((a) => a.key));
+    expect(kept.cross_labels).toEqual(labels);
+    expect(areasProblem(kept, areas)).toBeNull();
+  });
+
+  it('leaves what is missing for areasProblem to ask again', () => {
+    const kept = keepAreas({ ...base, areas: [], cross_labels: [] }, areas);
+    expect(areasProblem(kept, areas)).toMatch(/"areas" must be/);
   });
 });

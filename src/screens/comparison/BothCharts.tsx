@@ -442,7 +442,7 @@ function AllPlanets({ mine, theirs, me, friend }: { mine: NatalChart; theirs: Na
           <tr key={body}>
             {cell(mine, body, true)}
             <td className="centro">
-              {body === 'Ascendant' ? <span className="ac">AC</span> : <BodyGlyph body={body} />}
+              {body === 'Ascendant' ? <span className="ac">{text.acShort}</span> : <BodyGlyph body={body} />}
               <span>{bodyName(body)}</span>
             </td>
             {cell(theirs, body, false)}

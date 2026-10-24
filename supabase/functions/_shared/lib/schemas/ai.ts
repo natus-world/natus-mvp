@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { AREA_KEYS, READ_LABELS } from '../comparison-areas.ts';
 
 /**
  * Output contracts for every model call, transcribed from the PDR.
@@ -181,6 +180,25 @@ export const meditationScriptSchema = z.object({
   bed_track_id: z.string().min(1),
 });
 export type MeditationScript = z.infer<typeof meditationScriptSchema>;
+
+/** «Las dos cartas» (owner, 23 Oct 2026): the twelve areas of life, in his order. */
+export const AREA_KEYS = [
+  'quienes_son',
+  'lo_que_se_dan',
+  'lo_que_sienten',
+  'como_se_hablan',
+  'lo_que_disfrutan',
+  'atraccion',
+  'sexualidad',
+  'desacuerdo',
+  'conviven',
+  'trabajan',
+  'sostiene',
+  'como_se_ven',
+] as const;
+
+/** What Davraz decides for a trine, a sextile or a square. */
+export const READ_LABELS = ['fluye', 'cultiva', 'trabajo'] as const;
 
 /** PDR 8.4. Note what is missing and cannot be added: there is no verdict
  *  field, no compatibility score, and the shape ends on questions. */

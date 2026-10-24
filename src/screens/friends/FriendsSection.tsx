@@ -159,6 +159,12 @@ export function FriendsSection({ onCount }: { onCount?: (n: number) => void }) {
           <InviteButtons link={link} primary="p1i" secondary="p2i" />
           <p className="nota enlace">{link}</p>
           <p className="nota">{t.body}</p>
+          <p className="nota">
+            {t.chartsShared}{' '}
+            <Link to="/privacidad">
+              <u>{t.privacy}</u>
+            </Link>
+          </p>
           <button type="button" disabled={busy} onClick={() => void renew()} className="enl">
             {t.renew}
           </button>

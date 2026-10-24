@@ -11,7 +11,7 @@ import {
   type ComparisonSource,
 } from '../_shared/lib/comparison-payload.ts';
 import { computeNumerology } from '../_shared/lib/numerology.ts';
-import { areasProblem } from '../_shared/lib/comparison-areas.ts';
+import { areasProblem, keepAreas } from '../_shared/lib/comparison-areas.ts';
 import { lintChartJudgement } from '../_shared/lib/copy-lint.ts';
 import type { NatalChart } from '../_shared/lib/natal-chart.ts';
 import { callerIsClinicallyVulnerable } from '../_shared/clinical.ts';
@@ -171,6 +171,7 @@ Deno.serve(
      * its order and a label for exactly the crosses that take one. A miss is
      * asked again once with the reason, like a copy rule.
      */
+    trim: (result, input) => keepAreas(result, built(input).payload.areas),
     lint: (result, input) => areasProblem(result, built(input).payload.areas),
 
     enrich: async (input, { caller, userId, elevated }) => ({

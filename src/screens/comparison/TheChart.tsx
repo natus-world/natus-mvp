@@ -7,7 +7,6 @@ import type { ComparisonResult } from '@/lib/schemas';
 import { Arrow, BodyGlyph } from './pieces';
 
 const text = copy.comparison.result;
-const PREVIEW_B = false;
 type Aspect = ComparisonResult['astro_dialogue']['aspects'][number];
 
 /** The two charts of a comparison, the reader's first. Null when one cannot be read. */
@@ -61,7 +60,7 @@ export function TheChart({
   me,
   friend,
   friendshipId,
-  stacked,
+  wide,
 }: {
   aspects: readonly Aspect[];
   summary: string;
@@ -72,7 +71,7 @@ export function TheChart({
   me: string;
   friend: string;
   friendshipId: string;
-  stacked: boolean;
+  wide: boolean;
 }) {
   const [chosen, setChosen] = useState(0);
   const aspect = aspects[chosen];
@@ -87,17 +86,13 @@ export function TheChart({
       <h2 className="k">{text.chart}</h2>
       {both && (
         <>
-          {!stacked && !PREVIEW_B && (
-            <div className="nombres" aria-hidden="true">
-              <span>{me}</span>
-              <span>{friend}</span>
-            </div>
-          )}
           <TwoWheels
             left={wheelChart(both.mine, me)}
             right={wheelChart(both.theirs, friend)}
-            stacked={stacked || PREVIEW_B}
-            degrees={!stacked}
+            // One over the other on desktop too (owner, 23 Oct 2026): side by
+            // side they did not fit the cross's column; there with each degree.
+            stacked
+            degrees={wide}
             leftLabel={text.wheelYou(me)}
             rightLabel={friend.toUpperCase()}
             label={text.wheelsLabel(friend)}

@@ -76,7 +76,7 @@ Todo eso está calculado: no lo cambias ni agregas nada.
 Para cada área escribes:
 - "reading": de 2 a 4 oraciones, en simple, con algo concreto del día a
   día. Se apoya en los cruces del área y los nombra con el nombre de cada
-  persona ("la Venus de Ana en Tauro y el Marte de Tomás en Tauro"). Si llega
+  persona ("la Venus de Ana en Tauro y el Marte de Luis en Tauro"). Si llega
   una casa, puedes nombrarla con lo que significa. Lo que fluye se dice como lo que fluye naturalmente; lo que
   pide trabajo, con cómo pueden trabajarlo. Si el cruce principal es "sin
   aspecto", dices cómo lo vive cada uno a su manera y que se conocen
@@ -214,10 +214,10 @@ function describeAreas(areas: readonly Area[], aName: string, bName: string): st
   if (areas.length === 0) {
     return 'ÁREAS\nNinguna: no hay dos cartas para cruzar. Devuelves "areas" y "cross_labels" vacías.';
   }
-  const who = { a: `A (${personText(aName)})`, b: `B (${personText(bName)})` };
+  const who = { a: 'A', b: 'B' };
   const point = (side: 'a' | 'b', p: AreaPoint) =>
     `${p.body} de ${who[side]} en ${p.sign}${p.house !== null && p.body !== 'Ascendant' ? `, su casa ${p.house}` : ''}`;
-  const lines = ['ÁREAS, EN ESTE ORDEN'];
+  const lines = ['ÁREAS, EN ESTE ORDEN', `A es ${personText(aName)} y B es ${personText(bName)}.`];
   for (const area of areas) {
     lines.push('', `key: ${area.key} · ${AREA_FOCUS[area.key]}`);
     for (const c of area.crosses) {

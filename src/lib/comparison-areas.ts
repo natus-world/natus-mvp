@@ -1,4 +1,7 @@
 import { SIGNS, wholeSignHouse, type ChartAspect, type MainPoint, type NatalChart, type Sign } from './natal-chart.ts';
+import { AREA_KEYS, READ_LABELS } from './schemas/ai.ts';
+
+export { AREA_KEYS, READ_LABELS };
 
 /**
  * «Las dos cartas» (owner, 23 Oct 2026; mockup `las-dos-cartas`): two charts
@@ -26,24 +29,8 @@ import { SIGNS, wholeSignHouse, type ChartAspect, type MainPoint, type NatalChar
 
 export type Side = 'a' | 'b';
 
-export const AREA_KEYS = [
-  'quienes_son',
-  'lo_que_se_dan',
-  'lo_que_sienten',
-  'como_se_hablan',
-  'lo_que_disfrutan',
-  'atraccion',
-  'sexualidad',
-  'desacuerdo',
-  'conviven',
-  'trabajan',
-  'sostiene',
-  'como_se_ven',
-] as const;
 export type AreaKey = (typeof AREA_KEYS)[number];
 
-/** What Davraz decides for a trine, a sextile or a square. */
-export const READ_LABELS = ['fluye', 'cultiva', 'trabajo'] as const;
 export type ReadLabel = (typeof READ_LABELS)[number];
 /** Every label a cross can carry. */
 export type CrossLabel = ReadLabel | 'opuestos' | 'funden' | 'sin';
@@ -273,4 +260,24 @@ export function areasProblem(result: Written, areas: readonly Area[]): string | 
     }
   }
   return null;
+}
+
+/**
+ * What of a new answer is kept before `areasProblem` looks at it: the area
+ * readings in the computed order, without any area that was not sent, and one
+ * label per cross that takes one, the first given. What is missing is left to
+ * `areasProblem`, which asks again.
+ */
+export function keepAreas<T extends Written>(result: T, areas: readonly Area[]): T {
+  const byKey = new Map((result.areas ?? []).map((a) => [a.key, a]));
+  const ordered = areas.map((a) => byKey.get(a.key)).filter((a): a is NonNullable<typeof a> => a !== undefined);
+  const wanted = new Set(crossesToLabel(areas).map((x) => crossKey(x.a_body, x.b_body)));
+  const seen = new Set<string>();
+  const labels = (result.cross_labels ?? []).filter((x) => {
+    const key = crossKey(x.a_body, x.b_body);
+    if (!wanted.has(key) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return { ...result, areas: ordered, cross_labels: labels };
 }

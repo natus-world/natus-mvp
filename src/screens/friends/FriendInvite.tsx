@@ -92,6 +92,12 @@ export function FriendInvite() {
                 </h1>
                 <div className="vid bloque-c">
                   <p className="cuerpo">{t.body}</p>
+                  <p className="cuerpo">
+                    {t.chartsShared}{' '}
+                    <Link to="/privacidad">
+                      <u>{copy.friends.privacy}</u>
+                    </Link>
+                  </p>
                 </div>
 
                 {hasAccount ? (

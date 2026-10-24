@@ -567,6 +567,9 @@ export const es = {
   friends: {
     kicker: 'Amigos',
     body: 'Comparte tu link con quien quieras comparar tu carta. Si acepta, los dos pueden comparar sus cartas: solo astrología y numerología. Nadie ve lo que escribe el otro.',
+    // Approved by the owner (23 Oct 2026, «Las dos cartas»): friends see each other's whole chart.
+    chartsShared: 'Si acepta, cada uno ve la carta completa del otro, con sus casas y su Ascendente, que dejan ver a qué hora nació.',
+    privacy: 'Privacidad',
     copy: 'Copiar mi link',
     copied: 'Link copiado',
     share: 'Compartir',
@@ -596,6 +599,7 @@ export const es = {
       titleLead: (name: string) => (name ? `${name} te invitó a ` : 'Te invitaron a '),
       titleEmphasis: 'Natus',
       body: 'Si aceptas, van a poder comparar sus cartas: solo astrología y numerología. Ninguno ve lo que el otro escribe.',
+      chartsShared: 'Si aceptas, cada uno ve la carta completa del otro, con sus casas y su Ascendente, que dejan ver a qué hora nació.',
       accept: 'Aceptar',
       later: 'Ahora no',
       accepted: (name: string) => (name ? `Listo: ${name} y tú ya son amigos en Natus.` : 'Listo: ya son amigos en Natus.'),
@@ -1504,7 +1508,7 @@ export const es = {
             'Datos de nacimiento: tu nombre, fecha, hora (si la sabes), ciudad y país de nacimiento, y el país donde vives. Con ellos calculamos tu carta natal y tus números.',
             'Lo que nos cuentas: lo que estás buscando, cómo quieres que te hablemos, tus respuestas a las preguntas sobre tu salud emocional, lo que escribes o dictas en tu bitácora, tus conversaciones con Davraz, tus valoraciones y comentarios sobre las prácticas, y lo que pides a las meditaciones.',
             'Lo que Natus sabe de ti: si tienes Premium y das tu consentimiento, Natus guarda una memoria con lo que aprende de tus conversaciones, tu bitácora y tus prácticas. Puedes verla, corregirla y borrarla desde tu perfil.',
-            'Amistades: si invitas a alguien o aceptas una invitación, guardamos la amistad y las comparaciones entre sus cartas.',
+            'Amistades: si invitas a alguien o aceptas una invitación, guardamos la amistad y las comparaciones entre sus cartas. Mientras sean amigos, cada uno ve la carta natal completa del otro, con sus casas y su Ascendente, que dejan ver la hora de nacimiento; si la amistad termina, deja de verse.',
             'Tus sugerencias: lo que nos escribes en «Sugerencias», las respuestas del equipo y en qué pantalla estabas cuando escribiste.',
             'Tu cuenta: el correo y el identificador de tu cuenta de Google.',
             'Datos técnicos: registros de uso de la aplicación (qué paso se dio y cuándo, nunca el contenido), registros del costo de cada respuesta generada y, cuando algo que escribes indica una posible crisis, un registro de ese aviso con un extracto del texto.',
@@ -1861,6 +1865,7 @@ export const es = {
         como_se_ven: 'Cómo se ven juntos',
       } as Record<string, string>,
       withHour: 'con hora',
+      acShort: 'AC',
       labels: {
         fluye: 'Fluye naturalmente',
         cultiva: 'Fluye si lo cultivan',

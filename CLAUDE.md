@@ -642,6 +642,30 @@ while the session and the reads run behind it (QA-02, owner, 23 Oct 2026);
 it saves about 1.5 s on a slow phone. Most of the rest is the download of the
 app itself (about 330 KB gzipped of JS and CSS), not yet looked at.
 
+**«Las dos cartas» (owner, 23 Oct 2026; mockup `las-dos-cartas.zip`, the
+cerebro keeps it).** «La carta» of the cross is now both charts whole
+(`design/TwoWheels.tsx`, the mockup's wheel), one over the other on the phone
+and on desktop too (option B, owner: side by side did not fit the cross's
+column), with the list of aspects as before; the one chosen rings its two
+points, joins them with a thread (dashed when it asks for work) and reads
+sign, degree, house and «su X cae en tu casa N». «Ver las dos cartas por
+áreas» opens `/comparacion/:id/cartas` (`screens/comparison/BothCharts.tsx`,
+`design/screens/dos-cartas.css`): twelve areas in the owner's order
+(`lib/comparison-areas.ts`, crossed by sign with the reader as A), each with
+one label of six — Davraz's `fluye`/`cultiva`/`trabajo` for a trine, sextile
+or square, fixed for an opposition, a conjunction and signs in aversion — and
+the cross's bar; an area shows both sides, Davraz's reading, «Lo que lee esta
+área», a question and «Ver de dónde sale»; a second tab sets every planet side
+by side. Sexuality is in every comparison (owner, to review later); «Cómo se
+ven juntos» only when both have the hour. comparison-v2.4 writes the areas
+and labels (`keepAreas` tidies, `areasProblem` asks again once); 16,000
+tokens and 150 s for it. Friends see each other's whole chart, hour included
+(owner: being friends is enough), through `friend_charts()` only while the
+friendship is accepted; the invitation, its acceptance and the privacy policy
+say so (texts approved). A comparison made before the areas offers
+«Actualizar», which uses the plan. Open: the prompt has not yet run against
+the model (no key in the local stack).
+
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
 end of the day; it needs a new PayPal plan (its `P-` id) and the webhook to
