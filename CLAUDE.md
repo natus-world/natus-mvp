@@ -251,6 +251,20 @@ Since 22 Oct a high crisis alert mails the admins (`notify_high_crisis`,
 needs `resend_api_key` in Vault), and the panel has «Errores» and the
 therapies table (`admin_by_modality`).
 
+**The panel ordered by four questions (owner, 23 Oct 2026, published the
+same night).** natus-admin now opens on the Pulso, then ¿Llegan? ¿Les sirve?
+¿Vuelven? ¿Pagan?, in the app's look (approved mockup, the cerebro keeps it);
+the main number is people active per week (owner). The functions are
+`20261024010000_admin_panel_v2.sql`: growth accounting by week, retention
+curves, the free plan used up, every Premium with its cost (AI, a share of
+the fixed costs, total), invitations and friendships. A friendship that ended
+shows in the panel that it existed, never its comparisons' text (owner).
+Owed to the app, after the other work in flight (owner): screens viewed, the
+tap on «Empezar mes gratis», the return from PayPal, the invite link opened,
+a comparison opened by the other friend, the chat about a comparison, and the
+invite link marking its origin (today estimated by dates,
+`admin_arrived_by_invite`).
+
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside
 the user app. Google sign-in, then `public.admins` decides (rows written by
