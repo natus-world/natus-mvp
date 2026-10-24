@@ -269,6 +269,13 @@ read by the friend who did not ask (`comparison_reads`, `mark_comparison_read`)
 and each chat turn about a comparison (`messages.friendship_id`, emptied by a
 trigger when the friendship is not the writer's). The panel shows that chat
 for a friendship even after it ended; never the comparison's text.
+Each person's full chart is in the panel too (owner, 24 Oct 2026,
+`admin_person_chart`, logged): the birth data it was cast from, every point
+and Davraz's reading of each, to set beside the chat. An independent check
+that night (astronomy-engine against the stored birth data) matched 67 of 69
+charts to the hundredth of a degree; the two that did not hold another
+person's birth data on `clients` (two accounts on one phone, 23 Oct) — open,
+not yet traced in the app.
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside
