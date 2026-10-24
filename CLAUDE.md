@@ -259,11 +259,16 @@ the main number is people active per week (owner). The functions are
 curves, the free plan used up, every Premium with its cost (AI, a share of
 the fixed costs, total), invitations and friendships. A friendship that ended
 shows in the panel that it existed, never its comparisons' text (owner).
-Owed to the app, after the other work in flight (owner): screens viewed, the
-tap on «Empezar mes gratis», the return from PayPal, the invite link opened,
-a comparison opened by the other friend, the chat about a comparison, and the
-invite link marking its origin (today estimated by dates,
-`admin_arrived_by_invite`).
+What the panel needed from the app is recorded since 24 Oct 2026
+(`20261024030000_funnel_owed_to_the_panel.sql`): `screen_viewed` with the
+tab's key (`screenKey`, once a person and day; the panel counts accounts
+only), `trial_tapped` and `trial_approved` with the paywall's place,
+`invite_opened`, the invite link as origin (`source = 'invitacion'`, older
+arrivals still estimated by dates in `admin_arrived_by_invite`), a comparison
+read by the friend who did not ask (`comparison_reads`, `mark_comparison_read`)
+and each chat turn about a comparison (`messages.friendship_id`, emptied by a
+trigger when the friendship is not the writer's). The panel shows that chat
+for a friendship even after it ended; never the comparison's text.
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside

@@ -6,6 +6,7 @@ import { copy } from '@/i18n';
 import { getClient } from '@/store/account';
 import { hasRemoteIdentity } from '@/store/hydrate.ts';
 import { currentSynthesis } from '@/store/soulMap';
+import { track } from '@/store/funnel';
 import {
   acceptInvite,
   clearPendingInvite,
@@ -33,6 +34,11 @@ export function FriendInvite() {
 
   const hasAccount = getClient() !== null && hasRemoteIdentity();
   const hasMap = currentSynthesis() !== undefined;
+
+  // The link was opened: one step a day for the admin panel (owner, 23 Oct 2026).
+  useEffect(() => {
+    track('invite_opened');
+  }, []);
 
   useEffect(() => {
     let live = true;

@@ -552,6 +552,7 @@ const messages: Adapter<StoredMessage[]> = {
       linked_modality_slugs: r.linked_modality_slugs,
       created_at: ms(r.created_at),
       counted: r.counted,
+      friendship_id: r.friendship_id ?? null,
     }));
   },
   save: (client, userId, value) =>
@@ -569,6 +570,7 @@ const messages: Adapter<StoredMessage[]> = {
         linked_modality_slugs: m.linked_modality_slugs,
         created_at: iso(m.created_at),
         counted: m.counted,
+        friendship_id: m.friendship_id ?? null,
       })),
     ),
 };

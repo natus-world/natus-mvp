@@ -58,6 +58,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_suggestions: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          section: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          section: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          section?: string
+        }
+        Relationships: []
+      }
       admins: {
         Row: {
           added_at: string
@@ -431,6 +455,32 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      comparison_reads: {
+        Row: {
+          comparison_id: string
+          first_read_at: string
+          user_id: string
+        }
+        Insert: {
+          comparison_id: string
+          first_read_at?: string
+          user_id: string
+        }
+        Update: {
+          comparison_id?: string
+          first_read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comparison_reads_comparison_id_fkey"
+            columns: ["comparison_id"]
+            isOneToOne: false
+            referencedRelation: "chart_comparisons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -910,6 +960,7 @@ export type Database = {
           conversation_id: string
           counted: boolean
           created_at: string
+          friendship_id: string | null
           id: string
           linked_modality_slugs: string[]
           role: string
@@ -921,6 +972,7 @@ export type Database = {
           conversation_id: string
           counted?: boolean
           created_at?: string
+          friendship_id?: string | null
           id?: string
           linked_modality_slugs?: string[]
           role: string
@@ -932,6 +984,7 @@ export type Database = {
           conversation_id?: string
           counted?: boolean
           created_at?: string
+          friendship_id?: string | null
           id?: string
           linked_modality_slugs?: string[]
           role?: string
@@ -945,6 +998,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_friendship_id_fkey"
+            columns: ["friendship_id"]
+            isOneToOne: false
+            referencedRelation: "friendships"
             referencedColumns: ["id"]
           },
         ]
@@ -1521,6 +1581,15 @@ export type Database = {
     }
     Functions: {
       accept_friend_invite: { Args: { p_token: string }; Returns: string }
+      admin_account_at: { Args: { p_user: string }; Returns: string }
+      admin_activity_heatmap: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          actions: number
+          dow: number
+          hour: number
+        }[]
+      }
       admin_ai_failures: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -1569,6 +1638,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_arrived_by_invite: {
+        Args: { p_friendship: string }
+        Returns: boolean
+      }
       admin_birth_city: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -1592,6 +1665,15 @@ export type Database = {
       admin_call_cost: {
         Args: { c: Database["public"]["Tables"]["claude_api_calls"]["Row"] }
         Returns: number
+      }
+      admin_cohort_curve: {
+        Args: { p_weeks?: number }
+        Returns: {
+          accounts: number
+          active: number
+          cohort: string
+          week_n: number
+        }[]
       }
       admin_crisis_counts: {
         Args: { p_days?: number }
@@ -1709,6 +1791,35 @@ export type Database = {
           people: number
         }[]
       }
+      admin_fixed_monthly: { Args: never; Returns: number }
+      admin_free_usage: {
+        Args: never
+        Returns: {
+          did_not_return: number
+          feature: string
+          free_people: number
+          kept_using: number
+          started_trial: number
+          used_all: number
+        }[]
+      }
+      admin_friends: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          accepted: number
+          accounts: number
+          active_friendships: number
+          befriended: number
+          compared: number
+          comparisons: number
+          ended: number
+          new_by_invite: number
+          opened_invite: number
+          shared: number
+          talked: number
+        }[]
+      }
+      admin_friendship: { Args: { p_id: string }; Returns: Json }
       admin_funnel: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -1735,6 +1846,16 @@ export type Database = {
         Args: { p_email: string; p_months?: number }
         Returns: string
       }
+      admin_growth: {
+        Args: { p_weeks?: number }
+        Returns: {
+          kept: number
+          lost: number
+          new_people: number
+          returned: number
+          week_start: string
+        }[]
+      }
       admin_hourly: {
         Args: { p_day: string }
         Returns: {
@@ -1742,6 +1863,20 @@ export type Database = {
           hour: number
           map_seen: number
           started: number
+        }[]
+      }
+      admin_last_steps: {
+        Args: { p_week: string }
+        Returns: {
+          people: number
+          step: string
+        }[]
+      }
+      admin_open_days: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          bucket: string
+          people: number
         }[]
       }
       admin_overview: {
@@ -1780,13 +1915,77 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_people_list: {
+        Args: { p_limit?: number; p_query?: string }
+        Returns: {
+          activated: boolean
+          chat_left: number
+          comparison_left: number
+          country: string
+          device: string
+          email: string
+          invited: number
+          joined_at: string
+          last_opened: string
+          meditation_left: number
+          name: string
+          plan: string
+          source: string
+          user_id: string
+        }[]
+      }
       admin_person: { Args: { p_user: string }; Returns: Json }
       admin_person_content: {
         Args: { p_kind: string; p_limit?: number; p_user: string }
         Returns: Json
       }
+      admin_person_friends: {
+        Args: { p_user: string }
+        Returns: {
+          comparisons: number
+          ended_at: string
+          ended_by_them: boolean
+          friend_arrived_by_invite: boolean
+          friend_id: string
+          friend_name: string
+          friendship_id: string
+          invited_by_them: boolean
+          since: string
+          status: string
+        }[]
+      }
+      admin_person_quota: {
+        Args: { p_user: string }
+        Returns: {
+          feature: string
+          remaining: number
+          used: number
+        }[]
+      }
       admin_person_summary: { Args: { p_user: string }; Returns: Json }
       admin_plan: { Args: { p_user: string }; Returns: string }
+      admin_premium_list: {
+        Args: never
+        Returns: {
+          ai_month: number
+          email: string
+          fixed_share: number
+          granted_by_name: string
+          kind: string
+          name: string
+          paid_month: number
+          since: string
+          until: string
+          user_id: string
+        }[]
+      }
+      admin_ratings: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          n: number
+          rating: number
+        }[]
+      }
       admin_require: {
         Args: { p_log?: boolean; p_subject?: string; p_what: string }
         Returns: undefined
@@ -1805,12 +2004,48 @@ export type Database = {
         }[]
       }
       admin_revoke_premium: { Args: { p_user: string }; Returns: undefined }
+      admin_screens: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          people: number
+          screen: string
+        }[]
+      }
       admin_step_times: {
         Args: { p_from: string; p_steps: string[]; p_to: string }
         Returns: {
           median_seconds: number
           people: number
           step: string
+        }[]
+      }
+      admin_suggestion_add: {
+        Args: { p_body: string; p_section: string }
+        Returns: string
+      }
+      admin_suggestion_delete: { Args: { p_id: string }; Returns: undefined }
+      admin_suggestions_list: {
+        Args: never
+        Returns: {
+          author_id: string
+          author_name: string
+          body: string
+          created_at: string
+          id: string
+          mine: boolean
+          section: string
+        }[]
+      }
+      admin_top_inviters: {
+        Args: { p_from: string; p_limit?: number; p_to: string }
+        Returns: {
+          accepted: number
+          comparisons: number
+          last_at: string
+          name: string
+          new_people: number
+          shared: number
+          user_id: string
         }[]
       }
       admin_weekly_use: {
@@ -1864,6 +2099,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_internal_user: { Args: { p_user: string }; Returns: boolean }
       is_last_admin: { Args: { p_user: string }; Returns: boolean }
+      mark_comparison_read: {
+        Args: { p_comparison: string }
+        Returns: undefined
+      }
       my_friends: {
         Args: never
         Returns: {

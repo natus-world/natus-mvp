@@ -193,7 +193,7 @@ export function ChatPaywall({ quota, onDismiss }: { quota: Quota | null; onDismi
             <div className="bts">
               {trying ? (
                 <div className="pago">
-                  <PayPalSubscribe />
+                  <PayPalSubscribe place="chat" />
                 </div>
               ) : (
                 <button type="button" className="bt-c" onClick={() => setTrying(true)}>
@@ -334,7 +334,9 @@ export function Chat() {
       return;
     }
 
-    const user = appendUserMessage(conversation.id, question);
+    // A turn about a comparison keeps which friendship, for the admin panel.
+    const about = aboutFriend ? aboutId : null;
+    const user = appendUserMessage(conversation.id, question, Date.now(), about);
     setMessages(listMessages(conversation.id));
     setDraft('');
     setThinking(true);
@@ -357,7 +359,7 @@ export function Chat() {
           .filter((m) => m.id !== user.id)
           .map((m) => ({ role: m.role, text: m.text })),
       });
-      appendAssistantMessage(conversation.id, result.value);
+      appendAssistantMessage(conversation.id, result.value, Date.now(), about);
       setMessages(listMessages(conversation.id));
       void fetchQuota('chat').then(setQuota);
     } catch (err) {

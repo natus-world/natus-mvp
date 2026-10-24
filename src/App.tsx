@@ -37,7 +37,7 @@ import { useCrisisShown, useTakeoverShown } from '@/components/takeover';
 import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
 import { SuggestionsButton, SuggestionsSheet, useTeamUnread } from '@/screens/Suggestions';
 import { hydrate } from '@/store/hydrate.ts';
-import { rememberFirstTouch, track } from '@/store/funnel';
+import { rememberFirstTouch, screenKey, track } from '@/store/funnel';
 import { ensureWholeSignChart } from '@/store/chart';
 import { activeProfile } from '@/store/account';
 import { learnFromPending } from '@/store/memory';
@@ -122,6 +122,13 @@ export function App() {
   const [arrivedEmpty] = useState(() => arrivesWithNothing(browserStorage(), window.location));
   const [admitted, setAdmitted] = useState(false);
   const [offline, setOffline] = useState(false);
+  // Which screens are opened, once a day each, for the admin panel (owner,
+  // 23 Oct 2026). Only for somebody the backend admitted; never content.
+  useEffect(() => {
+    if (!admitted) return;
+    const key = screenKey(pathname);
+    if (key) track('screen_viewed', key);
+  }, [pathname, admitted]);
   useEffect(() => {
     let live = true;
     rememberFirstTouch();

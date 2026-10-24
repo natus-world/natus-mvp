@@ -144,7 +144,7 @@ export function Paywall({
             <div className="bts">
               {trying ? (
                 <div className="pago">
-                  <PayPalSubscribe />
+                  <PayPalSubscribe place={place ?? feature} />
                 </div>
               ) : (
                 <button type="button" className="bt-c" onClick={() => setTrying(true)}>

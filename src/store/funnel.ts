@@ -25,14 +25,60 @@ export type BrowserStep =
   | 'paywall_seen'
   | 'app_opened'
   | 'friend_invited'
-  | 'birth_city_not_found';
+  | 'birth_city_not_found'
+  // Owed to the admin panel (owner, 23 Oct 2026).
+  | 'screen_viewed'
+  | 'trial_tapped'
+  | 'trial_approved'
+  | 'invite_opened';
 
 export type PaywallPlace = 'chat' | 'meditation' | 'comparison' | 'profile' | 'welcome' | 'tip';
 
 /** Whether the hour was given on the birth step (owner, 22 Oct 2026). */
 export type BirthDetail = 'con-hora' | 'sin-hora' | 'solo-numeros';
 
-type Detail = PaywallPlace | BirthDetail;
+/**
+ * The screens whose opening the panel counts, once a day each: the app's own
+ * pages and nothing a vulnerable person alone reaches (no crisis screen).
+ */
+export type ScreenKey =
+  | 'hoy'
+  | 'carta'
+  | 'carta-completa'
+  | 'caminos'
+  | 'recorrido'
+  | 'bitacora'
+  | 'chat'
+  | 'perfil'
+  | 'meditaciones'
+  | 'biblioteca'
+  | 'comparacion'
+  | 'comparacion-resultado'
+  | 'comparacion-cartas';
+
+/** The screen a path shows, or null for one the panel does not count. */
+export function screenKey(pathname: string): ScreenKey | null {
+  const path = pathname.replace(/\/+$/, '') || '/';
+  const exact: Record<string, ScreenKey> = {
+    '/hoy': 'hoy',
+    '/carta': 'carta',
+    '/carta/completa': 'carta-completa',
+    '/caminos': 'caminos',
+    '/recorrido': 'recorrido',
+    '/bitacora': 'bitacora',
+    '/chat': 'chat',
+    '/perfil': 'perfil',
+    '/meditaciones': 'meditaciones',
+    '/biblioteca': 'biblioteca',
+    '/comparacion': 'comparacion',
+  };
+  for (const [suffix, key] of Object.entries(exact)) if (path.endsWith(suffix)) return key;
+  if (/\/comparacion\/[^/]+\/cartas$/.test(path)) return 'comparacion-cartas';
+  if (/\/comparacion\/[^/]+$/.test(path)) return 'comparacion-resultado';
+  return null;
+}
+
+type Detail = PaywallPlace | BirthDetail | ScreenKey;
 
 type FirstTouch = { source: string | null; campaign: string | null };
 
@@ -111,11 +157,15 @@ export function rememberFirstTouch(
   search: string = globalThis.location?.search ?? '',
   ua: string = globalThis.navigator?.userAgent ?? '',
   referrer: string = globalThis.document?.referrer ?? '',
+  pathname: string = globalThis.location?.pathname ?? '',
 ): void {
   if (read<FirstTouch | null>('first_touch', null)) return;
   const params = new URLSearchParams(search);
   const campaign = tag(params.get('utm_campaign'));
-  const source = tag(params.get('utm_source')) ?? (campaign ? null : guessSource(ua, referrer));
+  // A friend's invitation link is an origin of its own (owner, 23 Oct 2026):
+  // the panel then knows for certain who arrived through one.
+  const invited = /\/amigos\/[^/]+\/?$/.test(pathname) ? 'invitacion' : null;
+  const source = tag(params.get('utm_source')) ?? (campaign ? null : invited ?? guessSource(ua, referrer));
   write('first_touch', { source, campaign });
 }
 

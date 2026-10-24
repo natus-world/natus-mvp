@@ -10,7 +10,7 @@ import { Paywall } from '@/components/Paywall';
 import { activeProfile } from '@/store/account';
 import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
 import type { ComparisonResult } from '@/lib/schemas';
-import { friendCharts, latestComparison } from '@/store/comparison';
+import { friendCharts, latestComparison, markComparisonRead } from '@/store/comparison';
 import { listFriends } from '@/store/friends';
 import { ComparisonGate } from './Gate';
 import { Arrow, firstNameOf, initialOf, useWide } from './pieces';
@@ -59,6 +59,7 @@ export function Result() {
         return;
       }
       const [stored, charts] = await Promise.all([latestComparison(friendshipId), friendCharts(friendshipId).catch(() => null)]);
+      if (stored && !stored.askedByMe) markComparisonRead(stored.id);
       setState(
         stored
           ? { kind: 'ready', friend: friend.firstName, result: stored.result, askedByMe: stored.askedByMe, charts }

@@ -471,7 +471,7 @@ export function Profile() {
                       </ul>
                       {paying ? (
                         <div className="pago">
-                          <PayPalSubscribe />
+                          <PayPalSubscribe place="profile" />
                         </div>
                       ) : (
                         <button type="button" className="p1i" onClick={() => setPaying(true)}>

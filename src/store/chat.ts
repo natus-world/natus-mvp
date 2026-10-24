@@ -32,6 +32,8 @@ export type StoredMessage = {
   created_at: number;
   /** Whether this answer spent one of the free questions. */
   counted: boolean;
+  /** The friendship whose comparison this turn talked over (owner, 23 Oct 2026). */
+  friendship_id?: string | null;
 };
 
 export type Conversation = {
@@ -109,6 +111,7 @@ export function appendUserMessage(
   conversationId: string,
   text: string,
   now = Date.now(),
+  friendshipId: string | null = null,
 ): StoredMessage {
   return append({
     id: newId('message'),
@@ -119,6 +122,7 @@ export function appendUserMessage(
     linked_modality_slugs: [],
     created_at: now,
     counted: false,
+    friendship_id: friendshipId,
   });
 }
 
@@ -126,6 +130,7 @@ export function appendAssistantMessage(
   conversationId: string,
   response: ChatResponse,
   now = Date.now(),
+  friendshipId: string | null = null,
 ): StoredMessage {
   return append({
     id: newId('message'),
@@ -137,6 +142,7 @@ export function appendAssistantMessage(
     created_at: now,
     // A containment turn is not a product feature being consumed.
     counted: isChargeable(response.type),
+    friendship_id: friendshipId,
   });
 }
 

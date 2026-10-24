@@ -55,6 +55,19 @@ export async function latestComparison(friendshipId: string): Promise<StoredComp
 }
 
 /**
+ * The friend who did not ask for a comparison has read it: kept once, for the
+ * admin panel (owner, 23 Oct 2026). The server records it only for that
+ * friend and only while the two are friends. Fire and forget.
+ */
+export function markComparisonRead(comparisonId: string): void {
+  if (!supabase) return;
+  void supabase.rpc('mark_comparison_read', { p_comparison: comparisonId }).then(
+    () => undefined,
+    () => undefined,
+  );
+}
+
+/**
  * «Las dos cartas» (owner, 23 Oct 2026): the reader's chart and the friend's,
  * as stored, read only while the two are friends. Null when the friendship
  * is not accepted; a side is null when that person has no chart this code

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { copy } from '@/i18n';
 import { currentSession } from '@/supabase/session';
 import { PAYPAL_PLAN_ID } from '@/lib/paypal';
+import { track, type PaywallPlace } from '@/store/funnel';
 
 const text = copy.paywall;
 
@@ -68,7 +69,12 @@ function loadSdk(): Promise<PayPalNamespace> {
 
 type State = 'loading' | 'ready' | 'unavailable' | 'approved';
 
-export function PayPalSubscribe() {
+/**
+ * `place` is where Premium was offered, for the admin panel: the touch that
+ * opens PayPal's window and the approved return are recorded with it (owner,
+ * 23 Oct 2026). The server's notification still decides who is premium.
+ */
+export function PayPalSubscribe({ place }: { place?: PaywallPlace } = {}) {
   const container = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<State>('loading');
 
@@ -88,9 +94,12 @@ export function PayPalSubscribe() {
         if (cancelled || !container.current) return;
         buttons = paypal.Buttons({
           style: { shape: 'pill', color: 'white', layout: 'vertical', label: 'subscribe', height: 44 },
-          createSubscription: (_data, actions) =>
-            actions.subscription.create({ plan_id: PLAN_ID, custom_id: session.user.id }),
+          createSubscription: (_data, actions) => {
+            track('trial_tapped', place);
+            return actions.subscription.create({ plan_id: PLAN_ID, custom_id: session.user.id });
+          },
           onApprove: () => {
+            track('trial_approved', place);
             if (!cancelled) setState('approved');
           },
           onError: () => {

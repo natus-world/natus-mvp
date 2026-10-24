@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { browserKind, deviceKind, guessSource, rememberFirstTouch, tag } from './funnel';
+import { browserKind, deviceKind, guessSource, rememberFirstTouch, screenKey, tag } from './funnel';
 import { clearAll, read } from './db';
 import { installMemoryStorage } from './memory-storage.testing.ts';
 
@@ -31,10 +31,37 @@ describe('where this browser first came from', () => {
     expect(read('first_touch', null)).toEqual({ source: 'instagram', campaign: null });
   });
 
+  it('takes a friend\'s invitation link as the origin, unless the link says another', () => {
+    rememberFirstTouch('', 'Mozilla/5.0 (iPhone) Instagram 400.0', '', '/amigos/abc123');
+    expect(read('first_touch', null)).toEqual({ source: 'invitacion', campaign: null });
+  });
+
+  it('keeps the campaign of an invitation link that carries one', () => {
+    rememberFirstTouch('?utm_source=whatsapp', 'Mozilla/5.0 (Macintosh)', '', '/amigos/abc123');
+    expect(read('first_touch', null)).toEqual({ source: 'whatsapp', campaign: null });
+  });
+
   it('keeps an empty first touch, so the way back from Google is never an origin', () => {
     rememberFirstTouch('', 'Mozilla/5.0 (Macintosh)', '');
     rememberFirstTouch('', 'Mozilla/5.0 (Macintosh)', 'https://accounts.google.com/');
     expect(read('first_touch', null)).toEqual({ source: null, campaign: null });
+  });
+});
+
+describe('which screen a path shows', () => {
+  it('names the app\'s own screens from a closed list', () => {
+    expect(screenKey('/carta')).toBe('carta');
+    expect(screenKey('/carta/completa')).toBe('carta-completa');
+    expect(screenKey('/comparacion/5f1c2a/cartas')).toBe('comparacion-cartas');
+    expect(screenKey('/comparacion/5f1c2a')).toBe('comparacion-resultado');
+    expect(screenKey('/comparacion')).toBe('comparacion');
+    expect(screenKey('/bitacora/')).toBe('bitacora');
+  });
+
+  it('counts nothing else: the welcome, the onboarding, the care questions, the legal pages', () => {
+    for (const path of ['/', '/onboarding', '/cuidarte', '/registro', '/privacidad', '/amigos/abc', '/bitacora/nueva']) {
+      expect(screenKey(path)).toBeNull();
+    }
   });
 });
 
