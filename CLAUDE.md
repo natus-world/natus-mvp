@@ -702,6 +702,17 @@ say so (texts approved). A comparison made before the areas offers
 «Actualizar», which uses the plan. Open: the prompt has not yet run against
 the model (no key in the local stack).
 
+**Astrology still to review with the owner (23 Oct 2026, he asked to note it).**
+Lilith is in no stored chart (0 of 93): `natal-chart` does not ask Astrologer
+for it (its `active_points` option), though the full chart and the reading
+rules already handle it; open whether to recalculate the charts that exist
+(new readings per point) or only new ones. Proposed and not decided: the Lots
+of Fortune and Spirit (with the hour), terms and decans, the Moon's phase at
+birth (the ephemeris sends it, unused); later the solar return, the slow
+planets' transits, zodiacal releasing, naming the lord of the year (he chose
+not to) and a composite chart for the comparison. Left out on purpose:
+asteroids, Placidus, aspects by orb.
+
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
 end of the day; it needs a new PayPal plan (its `P-` id) and the webhook to
