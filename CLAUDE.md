@@ -321,6 +321,12 @@ Scanned for crisis in the browser like the journal, kept either way with
 answers, and the answer appears in the person's sheet. In «Descargar mis
 datos». Texts are proposals the owner approved.
 
+**Capacity and how to grow (24 Oct 2026, proposals, nothing decided):**
+the limits of every service, the signs to watch, the steps at 100,000,
+200,000 and a million people a month, and moving the site off GitHub Pages
+are in the cerebro, `natus-cerebro/areas/infraestructura-y-escala.md`. The
+first limit a peak day reaches is Anthropic's tokens per minute.
+
 What is left outside the code, in rough order of weight:
 
 - Chile's *4141 (Minsal's suicide prevention line, free, 24 h) was added
