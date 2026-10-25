@@ -571,6 +571,19 @@ from a wrong place have not been recalculated — the owner's call. Carta
 now says when the chart was asked for and could not be calculated, with a
 link to the birth data. The texts of the field and of that notice are
 proposals; the privacy policy names Open-Meteo.
+**The search forgives how people type (25 Oct 2026, owner).** 80 of 113
+people since 22 Oct saw «No encontramos esa ciudad», nearly all while typing
+the state after the city. `findPlaces` (lib/places.ts) now searches in steps
+(`searchSteps`): with a comma the city alone, the rest (abbreviations too:
+«NL», «Jal», «Edomex») putting that region first; without one, the last
+words dropped, at most two. The geocoder is asked for 100 results, not 10;
+GeoNames' own names for big cities are aliased and shown as people say them
+(Querétaro, Durango, Tuxtla Gutiérrez, Coatzacoalcos, Ciudad Obregón…), and
+«No encontramos» waits 1.2 s after an empty answer, so
+`birth_city_not_found` counts from that day only a real miss. It is a
+patch: GeoNames stays behind it, and a better geocoder is being weighed with
+the owner. Wrong places already picked («Uruapan, Baja California»,
+«Bogotá, San Andrés y Providencia») are untouched, the owner's call.
 
 **Davraz reads the whole person (chat-v1.7, owner, 16 Oct 2026).** The chat
 function reads, as the person (`_shared/person.ts`): the chart stored in

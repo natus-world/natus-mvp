@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { bestPlace, geocodingUrl, parseBirthPlace, placeLabel, rankPlaces, searchTermFor } from './places.ts';
+import {
+  bestPlace,
+  findPlaces,
+  geocodingUrl,
+  parseBirthPlace,
+  placeLabel,
+  rankPlaces,
+  regionMatches,
+  searchSteps,
+  searchTermFor,
+  type GeocoderResult,
+} from './places.ts';
+import RECORDED from './places.answers.test-data.json';
 
 // Open-Meteo's answers, recorded on 16 Oct 2026 for the names that were going
-// wrong (count=10, language=es, filtered by country).
+// wrong (count=10, language=es, filtered by country; the app asks for 100 since 25 Oct 2026).
 const ANSWERS = {
   "mx_leon": [
     {
@@ -601,5 +613,88 @@ describe('geocodingUrl', () => {
     expect(url.origin).toBe('https://customer-geocoding-api.open-meteo.com');
     expect(url.searchParams.get('apikey')).toBe('k123');
     expect(url.searchParams.get('name')).toBe('Santiago');
+  });
+});
+
+// Open-Meteo's answers recorded on 25 Oct 2026 (count=100, language=es),
+// for what people were typing when the field said it found nothing.
+const recorded = RECORDED as Record<string, GeocoderResult[]>;
+const asked: string[] = [];
+const ask = async (country: string, term: string) => {
+  asked.push(term);
+  return recorded[`${country}|${term}`] ?? [];
+};
+const find = (query: string, country = 'MX') => findPlaces(query, country, (term) => ask(country, term));
+const first = async (query: string, country = 'MX') => {
+  const [place] = await find(query, country);
+  return place ? `${place.name}, ${place.region}` : null;
+};
+
+describe('the city and its state, as people type them (25 Oct 2026)', () => {
+  it('finds the city when the state follows it, with or without a comma, whole or halfway', async () => {
+    expect(await first('Guadalajara Jalisco')).toBe('Guadalajara, Estado de Jalisco');
+    expect(await first('Guadalajara, Ja')).toBe('Guadalajara, Estado de Jalisco');
+    expect(await first('Monterrey NL')).toBe('Monterrey, Estado de Nuevo León');
+    expect(await first('Mérida, Yuca')).toBe('Mérida, Estado de Yucatán');
+  });
+
+  it('puts the region typed first, ahead of a larger place elsewhere', async () => {
+    const places = await find('Bogota, Bolivar', 'CO');
+    expect(places[0]?.region).toBe('Departamento de Bolívar');
+    expect(regionMatches('Estado de Michoacán de Ocampo', 'mich', 'MX')).toBe(true);
+    expect(regionMatches('Estado de Baja California', 'mich', 'MX')).toBe(false);
+    expect(regionMatches('Estado de México', 'edomex', 'MX')).toBe(true);
+  });
+
+  it('drops at most two words, and never below three letters', () => {
+    expect(searchSteps('Santa Cruz de la Sierra', 'BO').map((s) => s.terms[0])).toEqual([
+      'Santa Cruz de la Sierra',
+      'Santa Cruz de la',
+      'Santa Cruz de',
+    ]);
+    expect(searchSteps('Lo Prado', 'CL').map((s) => s.terms[0])).toEqual(['Lo Prado']);
+    expect(searchSteps(', Jalisco', 'MX')).toEqual([]);
+  });
+
+  it('does not search again when the whole name already finds the place', async () => {
+    asked.length = 0;
+    await find('Monterrey');
+    expect(asked).toEqual(['Monterrey']);
+  });
+});
+
+describe('the big cities GeoNames names its own way (25 Oct 2026)', () => {
+  it('finds them by the name people use, and shows that name', async () => {
+    expect(await first('Querétaro')).toBe('Santiago de Querétaro, Estado de Querétaro de Arteaga');
+    expect(await first('Tuxtla Gutiérrez')).toBe('Tuxtla Gutiérrez, Estado de Chiapas');
+    expect(await first('Coatzacoalcos')).toBe('Coatzacoalcos, Estado de Veracruz-Llave');
+    expect(await first('Ciudad Obregón')).toBe('Ciudad Obregón, Estado de Sonora');
+    expect(await first('Iztapalapa')).toBe('Iztapalapa, Ciudad de México');
+  });
+
+  it('shows both Matamoros, the city in Tamaulipas first', async () => {
+    const places = await find('Matamoros');
+    expect(places[0]).toMatchObject({ name: 'Heroica Matamoros', region: 'Estado de Tamaulipas' });
+    expect(places.some((p) => p.region === 'Estado de Coahuila de Zaragoza')).toBe(true);
+  });
+
+  it('renames Puerto Mexico only in Veracruz', () => {
+    const places = rankPlaces(recorded['MX|Puerto Mexico']!, 10);
+    expect(places.filter((p) => p.name === 'Coatzacoalcos').map((p) => p.region)).toEqual([
+      'Estado de Veracruz-Llave',
+    ]);
+  });
+
+  it('keeps the real Uruapan, in Michoacán, first', async () => {
+    expect(await first('Uruapan')).toBe('Uruapan, Estado de Michoacán de Ocampo');
+  });
+
+  it('casts an old draft for the renamed place by what was typed', () => {
+    const place = bestPlace(recorded['MX|Tuxtla Gtz']!, 'Tuxtla Gutiérrez', 'MX');
+    expect(place?.name).toBe('Tuxtla Gutiérrez');
+  });
+
+  it('asks the geocoder for a hundred results', () => {
+    expect(geocodingUrl('León', 'MX').searchParams.get('count')).toBe('100');
   });
 });

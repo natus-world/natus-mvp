@@ -1,6 +1,6 @@
 import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
-import { MIN_QUERY_LENGTH, geocodingUrl, normalizePlaceName, type GeocoderResult } from '../_shared/lib/places.ts';
+import { GEOCODER_COUNT, MIN_QUERY_LENGTH, geocodingUrl, normalizePlaceName, type GeocoderResult } from '../_shared/lib/places.ts';
 
 /**
  * The birth-place search, through the server (owner, 18 Oct 2026).
@@ -36,7 +36,7 @@ function remember(key: string, results: GeocoderResult[], source: Source): void 
 /** Only what the app reads, so nothing else crosses. */
 function trim(results: unknown): GeocoderResult[] {
   if (!Array.isArray(results)) return [];
-  return results.slice(0, 10).map((r: Record<string, unknown>) => ({
+  return results.slice(0, GEOCODER_COUNT).map((r: Record<string, unknown>) => ({
     name: r.name,
     admin1: r.admin1,
     country_code: r.country_code,

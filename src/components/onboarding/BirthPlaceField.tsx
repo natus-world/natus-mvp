@@ -6,6 +6,12 @@ import { track } from '@/store/funnel';
 
 const text = copy.onboarding.basicData;
 const WAIT_MS = 300;
+/**
+ * How long an empty answer waits before the field says it found nothing
+ * (25 Oct 2026): mid-word — «Mérida, Yuca» — 80 of 113 people saw «No
+ * encontramos esa ciudad» while still typing. A keystroke meanwhile cancels it.
+ */
+const NONE_WAIT_MS = 1200;
 
 /**
  * The birth city, picked from suggestions inside the country of birth
@@ -54,17 +60,23 @@ export function BirthPlaceField({
     }
     const controller = new AbortController();
     setSearching(true);
+    let none: ReturnType<typeof setTimeout> | undefined;
     const timer = setTimeout(() => {
       void searchPlaces(query, country, controller.signal).then((found) => {
         if (controller.signal.aborted) return;
         setOptions(found);
         setActive(0);
-        setSearching(false);
-        setSearched(true);
+        const done = () => {
+          setSearching(false);
+          setSearched(true);
+        };
+        if (found.length > 0) done();
+        else none = setTimeout(done, NONE_WAIT_MS);
       });
     }, WAIT_MS);
     return () => {
       clearTimeout(timer);
+      clearTimeout(none);
       controller.abort();
     };
   }, [query, country, place, ready, reopened]);

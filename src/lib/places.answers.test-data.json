@@ -1,0 +1,1750 @@
+{
+ "MX|Santiago de Querétaro": [
+  {
+   "name": "Santiago de Querétaro",
+   "admin1": "Estado de Querétaro de Arteaga",
+   "country_code": "MX",
+   "latitude": 20.58806,
+   "longitude": -100.38806,
+   "timezone": "America/Mexico_City",
+   "population": 1594212,
+   "feature_code": "PPLA"
+  }
+ ],
+ "MX|Guadalajara Jalisco": [],
+ "MX|Guadalajara": [
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Jalisco",
+   "country_code": "MX",
+   "latitude": 20.67738,
+   "longitude": -103.34749,
+   "timezone": "America/Mexico_City",
+   "population": 1385629,
+   "feature_code": "PPLA"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Campeche",
+   "country_code": "MX",
+   "latitude": 18.39328,
+   "longitude": -90.99143,
+   "timezone": "America/Merida",
+   "population": 80,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.42298,
+   "longitude": -107.99853,
+   "timezone": "America/Chihuahua",
+   "population": 36,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.59964,
+   "longitude": -108.28604,
+   "timezone": "America/Chihuahua",
+   "population": 13,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.32556,
+   "longitude": -93.3525,
+   "timezone": "America/Mexico_City",
+   "population": 7,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.76825,
+   "longitude": -107.5227,
+   "timezone": "America/Chihuahua",
+   "population": 7,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.60784,
+   "longitude": -106.95381,
+   "timezone": "America/Chihuahua",
+   "population": 5,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 28.75601,
+   "longitude": -111.77398,
+   "timezone": "America/Hermosillo",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 24.33212,
+   "longitude": -104.32364,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.10297,
+   "longitude": -108.14931,
+   "timezone": "America/Chihuahua",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Baja California Sur",
+   "country_code": "MX",
+   "latitude": 23.31901,
+   "longitude": -109.78401,
+   "timezone": "America/Mazatlan",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 29.7625,
+   "longitude": -111.05501,
+   "timezone": "America/Hermosillo",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.78803,
+   "longitude": -92.761,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.38756,
+   "longitude": -93.53057,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Baja California Sur",
+   "country_code": "MX",
+   "latitude": 25.01706,
+   "longitude": -111.81446,
+   "timezone": "America/Mazatlan",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.1137,
+   "longitude": -107.97832,
+   "timezone": "America/Chihuahua",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 31.72125,
+   "longitude": -106.51513,
+   "timezone": "America/Ciudad_Juarez",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Guadalajara Lote 2-A",
+   "admin1": "Estado de Baja California Sur",
+   "country_code": "MX",
+   "latitude": 25.05754,
+   "longitude": -111.83694,
+   "timezone": "America/Mazatlan",
+   "population": 7,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Guadalajara Oriente",
+   "admin1": "Estado de Jalisco",
+   "country_code": "MX",
+   "latitude": 20.70176,
+   "longitude": -103.29808,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Aeropuerto Internacional de Guadalajara",
+   "admin1": "Estado de Jalisco",
+   "country_code": "MX",
+   "latitude": 20.5218,
+   "longitude": -103.31117,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "AIRP"
+  }
+ ],
+ "MX|Monterrey NL": [],
+ "MX|Monterrey": [
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.68435,
+   "longitude": -100.31721,
+   "timezone": "America/Monterrey",
+   "population": 1135512,
+   "feature_code": "PPLA"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.06191,
+   "longitude": -93.36928,
+   "timezone": "America/Mexico_City",
+   "population": 1086,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 25.49185,
+   "longitude": -103.62637,
+   "timezone": "America/Monterrey",
+   "population": 751,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.91975,
+   "longitude": -93.24161,
+   "timezone": "America/Mexico_City",
+   "population": 578,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 18.74028,
+   "longitude": -97.14639,
+   "timezone": "America/Mexico_City",
+   "population": 541,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.71444,
+   "longitude": -92.89139,
+   "timezone": "America/Mexico_City",
+   "population": 503,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Guanajuato",
+   "country_code": "MX",
+   "latitude": 20.84583,
+   "longitude": -101.74639,
+   "timezone": "America/Mexico_City",
+   "population": 399,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 20.64895,
+   "longitude": -98.15669,
+   "timezone": "America/Mexico_City",
+   "population": 343,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 22.31582,
+   "longitude": -98.30906,
+   "timezone": "America/Mexico_City",
+   "population": 149,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.85444,
+   "longitude": -93.75722,
+   "timezone": "America/Mexico_City",
+   "population": 100,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.53444,
+   "longitude": -93.47611,
+   "timezone": "America/Mexico_City",
+   "population": 31,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.39473,
+   "longitude": -92.69642,
+   "timezone": "America/Mexico_City",
+   "population": 30,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.90972,
+   "longitude": -91.80611,
+   "timezone": "America/Mexico_City",
+   "population": 24,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.32889,
+   "longitude": -93.16139,
+   "timezone": "America/Mexico_City",
+   "population": 23,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.40833,
+   "longitude": -92.88611,
+   "timezone": "America/Mexico_City",
+   "population": 18,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.54222,
+   "longitude": -93.94806,
+   "timezone": "America/Mexico_City",
+   "population": 18,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 17.26083,
+   "longitude": -94.57,
+   "timezone": "America/Mexico_City",
+   "population": 17,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.94139,
+   "longitude": -93.48306,
+   "timezone": "America/Mexico_City",
+   "population": 12,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.75861,
+   "longitude": -93.30528,
+   "timezone": "America/Mexico_City",
+   "population": 9,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.01944,
+   "longitude": -93.04222,
+   "timezone": "America/Mexico_City",
+   "population": 8,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Guanajuato",
+   "country_code": "MX",
+   "latitude": 21.01472,
+   "longitude": -100.79333,
+   "timezone": "America/Mexico_City",
+   "population": 7,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 28.82944,
+   "longitude": -111.63944,
+   "timezone": "America/Hermosillo",
+   "population": 7,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.91583,
+   "longitude": -92.40639,
+   "timezone": "America/Mexico_City",
+   "population": 5,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.83306,
+   "longitude": -92.9425,
+   "timezone": "America/Mexico_City",
+   "population": 5,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 20.5254,
+   "longitude": -97.33817,
+   "timezone": "America/Mexico_City",
+   "population": 4,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Coahuila de Zaragoza",
+   "country_code": "MX",
+   "latitude": 25.41361,
+   "longitude": -103.1745,
+   "timezone": "America/Monterrey",
+   "population": 4,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.635,
+   "longitude": -91.86861,
+   "timezone": "America/Mexico_City",
+   "population": 4,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Tamaulipas",
+   "country_code": "MX",
+   "latitude": 26.03333,
+   "longitude": -98.08333,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Campeche",
+   "country_code": "MX",
+   "latitude": 18.39851,
+   "longitude": -91.11807,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Tabasco",
+   "country_code": "MX",
+   "latitude": 17.88333,
+   "longitude": -93.58333,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Tabasco",
+   "country_code": "MX",
+   "latitude": 18.17535,
+   "longitude": -93.2845,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Campeche",
+   "country_code": "MX",
+   "latitude": 18.0372,
+   "longitude": -91.97444,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Sinaloa",
+   "country_code": "MX",
+   "latitude": 25.66667,
+   "longitude": -107.53333,
+   "timezone": "America/Mazatlan",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Sinaloa",
+   "country_code": "MX",
+   "latitude": 25.66667,
+   "longitude": -107.45,
+   "timezone": "America/Mazatlan",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 28.88505,
+   "longitude": -111.35426,
+   "timezone": "America/Hermosillo",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Baja California",
+   "country_code": "MX",
+   "latitude": 32.54806,
+   "longitude": -115.07056,
+   "timezone": "America/Tijuana",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 29.70667,
+   "longitude": -110.79444,
+   "timezone": "America/Hermosillo",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Campeche",
+   "country_code": "MX",
+   "latitude": 18.00855,
+   "longitude": -91.17805,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Puebla",
+   "country_code": "MX",
+   "latitude": 20.1811,
+   "longitude": -97.80183,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.31084,
+   "longitude": -92.86604,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.24351,
+   "longitude": -92.49929,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.21255,
+   "longitude": -92.40858,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.25235,
+   "longitude": -93.46476,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.64283,
+   "longitude": -107.18548,
+   "timezone": "America/Chihuahua",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.60859,
+   "longitude": -92.45863,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.53401,
+   "longitude": -91.6404,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 18.24562,
+   "longitude": -95.21461,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.25494,
+   "longitude": -92.46413,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.60137,
+   "longitude": -93.5336,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.62712,
+   "longitude": -100.03896,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.88386,
+   "longitude": -99.95916,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Baja California",
+   "country_code": "MX",
+   "latitude": 32.49106,
+   "longitude": -117.02309,
+   "timezone": "America/Tijuana",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Guerrero",
+   "country_code": "MX",
+   "latitude": 17.20101,
+   "longitude": -100.54218,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "MT"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.51194,
+   "longitude": -91.9941,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.7735,
+   "longitude": -100.16838,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 31.7245,
+   "longitude": -106.48926,
+   "timezone": "America/Ciudad_Juarez",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Coahuila de Zaragoza",
+   "country_code": "MX",
+   "latitude": 25.76568,
+   "longitude": -102.9824,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Monterrey",
+   "admin1": "Estado de Coahuila de Zaragoza",
+   "country_code": "MX",
+   "latitude": 25.34316,
+   "longitude": -102.80148,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Monterreyito",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.16369,
+   "longitude": -99.33277,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey Uno",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.15278,
+   "longitude": -92.94528,
+   "timezone": "America/Mexico_City",
+   "population": 49,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterreycito",
+   "admin1": "Estado de Tamaulipas",
+   "country_code": "MX",
+   "latitude": 24.21944,
+   "longitude": -99.44194,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey (San Pedro)",
+   "admin1": "Estado de Guanajuato",
+   "country_code": "MX",
+   "latitude": 20.87389,
+   "longitude": -101.435,
+   "timezone": "America/Mexico_City",
+   "population": 5,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey 2da. Sección",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.25667,
+   "longitude": -92.46778,
+   "timezone": "America/Mexico_City",
+   "population": 279,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey las Mercedes",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.73444,
+   "longitude": -92.63056,
+   "timezone": "America/Mexico_City",
+   "population": 31,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey (Buenavista Poyospac)",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.07972,
+   "longitude": -93.38611,
+   "timezone": "America/Mexico_City",
+   "population": 96,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Monterrey Private",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.73333,
+   "longitude": -100.3,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "AIRF"
+  }
+ ],
+ "MX|Mérida": [
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Yucatán",
+   "country_code": "MX",
+   "latitude": 20.967,
+   "longitude": -89.62318,
+   "timezone": "America/Merida",
+   "population": 1201000,
+   "feature_code": "PPLA"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.5675,
+   "longitude": -93.81722,
+   "timezone": "America/Mexico_City",
+   "population": 1412,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.94694,
+   "longitude": -92.95,
+   "timezone": "America/Mexico_City",
+   "population": 5,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.13028,
+   "longitude": -93.46778,
+   "timezone": "America/Mexico_City",
+   "population": 4,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Tamaulipas",
+   "country_code": "MX",
+   "latitude": 24.54258,
+   "longitude": -98.90999,
+   "timezone": "America/Monterrey",
+   "population": 3,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Campeche",
+   "country_code": "MX",
+   "latitude": 18.15,
+   "longitude": -90.85,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.11111,
+   "longitude": -93.33088,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.39583,
+   "longitude": -93.44358,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 27.62417,
+   "longitude": -110.4229,
+   "timezone": "America/Hermosillo",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Mérida Dos",
+   "admin1": "Estado de Zacatecas",
+   "country_code": "MX",
+   "latitude": 24.15833,
+   "longitude": -102.89694,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida Tres",
+   "admin1": "Estado de Zacatecas",
+   "country_code": "MX",
+   "latitude": 24.16478,
+   "longitude": -102.89751,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida Cuatro",
+   "admin1": "Estado de Zacatecas",
+   "country_code": "MX",
+   "latitude": 24.16889,
+   "longitude": -102.89111,
+   "timezone": "America/Mexico_City",
+   "population": 27,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida el Palmar",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.26694,
+   "longitude": -91.66972,
+   "timezone": "America/Mexico_City",
+   "population": 8,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Mérida y Guarumo",
+   "admin1": "Estado de Tabasco",
+   "country_code": "MX",
+   "latitude": 17.82201,
+   "longitude": -92.7959,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  }
+ ],
+ "MX|Uruapan": [
+  {
+   "name": "Uruapan",
+   "admin1": "Estado de Michoacán de Ocampo",
+   "country_code": "MX",
+   "latitude": 19.41677,
+   "longitude": -102.05842,
+   "timezone": "America/Mexico_City",
+   "population": 299523,
+   "feature_code": "PPLA2"
+  },
+  {
+   "name": "Uruapan",
+   "admin1": "Estado de Baja California",
+   "country_code": "MX",
+   "latitude": 31.62307,
+   "longitude": -116.43981,
+   "timezone": "America/Tijuana",
+   "population": 521,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Uruapan",
+   "admin1": "Estado de Puebla",
+   "country_code": "MX",
+   "latitude": 20.10691,
+   "longitude": -97.42043,
+   "timezone": "America/Mexico_City",
+   "population": 204,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "URUAPAN",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 25.96006,
+   "longitude": -103.47781,
+   "timezone": "America/Monterrey",
+   "population": 1,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Uruapan",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 28.79617,
+   "longitude": -111.65871,
+   "timezone": "America/Hermosillo",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Uruapan",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 15.94502,
+   "longitude": -93.36,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  }
+ ],
+ "MX|Puerto Mexico": [
+  {
+   "name": "Puerto Mexico",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 18.14905,
+   "longitude": -94.4447,
+   "timezone": "America/Mexico_City",
+   "population": 310698,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Puerto México",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.17897,
+   "longitude": -100.71131,
+   "timezone": "America/Monterrey",
+   "population": 770,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Puerto México",
+   "admin1": "Estado de Hidalgo",
+   "country_code": "MX",
+   "latitude": 20.09747,
+   "longitude": -98.99951,
+   "timezone": "America/Mexico_City",
+   "population": 671,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Puerto México",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 22.96587,
+   "longitude": -104.23635,
+   "timezone": "America/Monterrey",
+   "population": 20,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Puerto México",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.54694,
+   "longitude": -92.8125,
+   "timezone": "America/Mexico_City",
+   "population": 9,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Puerto México",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 23.01706,
+   "longitude": -104.26474,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PASS"
+  },
+  {
+   "name": "Puerto México",
+   "admin1": "Estado de Oaxaca",
+   "country_code": "MX",
+   "latitude": 16.17227,
+   "longitude": -95.19358,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  }
+ ],
+ "MX|Tuxtla Gtz": [
+  {
+   "name": "Tuxtla Gtz",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.75357,
+   "longitude": -93.11578,
+   "timezone": "America/Merida",
+   "population": 604147,
+   "feature_code": "PPLA"
+  }
+ ],
+ "MX|Matamoros": [
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Coahuila de Zaragoza",
+   "country_code": "MX",
+   "latitude": 25.52699,
+   "longitude": -103.2285,
+   "timezone": "America/Monterrey",
+   "population": 52233,
+   "feature_code": "PPLA2"
+  },
+  {
+   "name": "Izúcar",
+   "admin1": "Estado de Puebla",
+   "country_code": "MX",
+   "latitude": 18.60157,
+   "longitude": -98.46152,
+   "timezone": "America/Mexico_City",
+   "population": 42936,
+   "feature_code": "PPLA2"
+  },
+  {
+   "name": "Mariano Matamoros",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 26.7621,
+   "longitude": -105.5853,
+   "timezone": "America/Chihuahua",
+   "population": 2615,
+   "feature_code": "PPLA2"
+  },
+  {
+   "name": "Coalcomán de Vázquez Pallares",
+   "admin1": "Estado de Michoacán de Ocampo",
+   "country_code": "MX",
+   "latitude": 18.7775,
+   "longitude": -103.16,
+   "timezone": "America/Mexico_City",
+   "population": 18156,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Vicente Guerrero",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.67999,
+   "longitude": -93.26132,
+   "timezone": "America/Mexico_City",
+   "population": 2009,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Campeche",
+   "country_code": "MX",
+   "latitude": 18.58511,
+   "longitude": -90.6465,
+   "timezone": "America/Merida",
+   "population": 1453,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Zacatecas",
+   "country_code": "MX",
+   "latitude": 24.86414,
+   "longitude": -101.99445,
+   "timezone": "America/Mexico_City",
+   "population": 340,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Guerrero",
+   "country_code": "MX",
+   "latitude": 18.45056,
+   "longitude": -101.84139,
+   "timezone": "America/Mexico_City",
+   "population": 291,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 19.83417,
+   "longitude": -96.72611,
+   "timezone": "America/Mexico_City",
+   "population": 14,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.24089,
+   "longitude": -100.56863,
+   "timezone": "America/Monterrey",
+   "population": 5,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Chihuahua",
+   "country_code": "MX",
+   "latitude": 27.34332,
+   "longitude": -106.30126,
+   "timezone": "America/Chihuahua",
+   "population": 2,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 21.56831,
+   "longitude": -98.41774,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Ejido Matamoros",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.39165,
+   "longitude": -93.09779,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Tabasco",
+   "country_code": "MX",
+   "latitude": 17.58144,
+   "longitude": -92.88774,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 18.96542,
+   "longitude": -96.43144,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Aguascalientes",
+   "country_code": "MX",
+   "latitude": 21.78847,
+   "longitude": -102.07086,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.24289,
+   "longitude": -100.57016,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 25.46338,
+   "longitude": -105.4338,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Zacatecas",
+   "country_code": "MX",
+   "latitude": 24.13967,
+   "longitude": -102.8861,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "General Matamoros",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 25.51667,
+   "longitude": -105.38333,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Aguascalientes",
+   "country_code": "MX",
+   "latitude": 21.78333,
+   "longitude": -102.075,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Tamaulipas",
+   "country_code": "MX",
+   "latitude": 26.51031,
+   "longitude": -99.11815,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Durango",
+   "country_code": "MX",
+   "latitude": 26.55343,
+   "longitude": -104.07986,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Michoacán de Ocampo",
+   "country_code": "MX",
+   "latitude": 19.1168,
+   "longitude": -102.37765,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 21.82703,
+   "longitude": -98.29342,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Yucatán",
+   "country_code": "MX",
+   "latitude": 21.05562,
+   "longitude": -89.5322,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.54377,
+   "longitude": -93.12523,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.54819,
+   "longitude": -93.146,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.43432,
+   "longitude": -93.36008,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Tlaxcala",
+   "country_code": "MX",
+   "latitude": 19.30157,
+   "longitude": -97.95198,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Baja California",
+   "country_code": "MX",
+   "latitude": 32.51821,
+   "longitude": -116.85904,
+   "timezone": "America/Tijuana",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Mariano Matamoros",
+   "admin1": "Estado de Tamaulipas",
+   "country_code": "MX",
+   "latitude": 22.7604,
+   "longitude": -98.99716,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 17.88463,
+   "longitude": -94.96533,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de San Luis Potosí",
+   "country_code": "MX",
+   "latitude": 22.19285,
+   "longitude": -100.97012,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de San Luis Potosí",
+   "country_code": "MX",
+   "latitude": 22.16664,
+   "longitude": -100.98498,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Michoacán de Ocampo",
+   "country_code": "MX",
+   "latitude": 19.70002,
+   "longitude": -100.54754,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Michoacán de Ocampo",
+   "country_code": "MX",
+   "latitude": 19.69874,
+   "longitude": -101.16531,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Nuevo León",
+   "country_code": "MX",
+   "latitude": 25.19292,
+   "longitude": -99.83063,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros",
+   "admin1": "Estado de Tamaulipas",
+   "country_code": "MX",
+   "latitude": 22.92728,
+   "longitude": -98.07806,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Matamoros Dos",
+   "admin1": "Estado de Coahuila de Zaragoza",
+   "country_code": "MX",
+   "latitude": 25.53304,
+   "longitude": -103.15585,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros (Cuilco)",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 16.43444,
+   "longitude": -93.36,
+   "timezone": "America/Mexico_City",
+   "population": 12,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros los Hoyos",
+   "admin1": "Estado de Jalisco",
+   "country_code": "MX",
+   "latitude": 21.83528,
+   "longitude": -102.02278,
+   "timezone": "America/Mexico_City",
+   "population": 608,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros Primera Sección",
+   "admin1": "Estado de Chiapas",
+   "country_code": "MX",
+   "latitude": 17.54471,
+   "longitude": -93.12562,
+   "timezone": "America/Mexico_City",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Matamoros Ampliación",
+   "admin1": "Estado de Coahuila de Zaragoza",
+   "country_code": "MX",
+   "latitude": 25.54194,
+   "longitude": -103.2381,
+   "timezone": "America/Monterrey",
+   "population": null,
+   "feature_code": "PPLX"
+  }
+ ],
+ "MX|Heroica Matamoros": [
+  {
+   "name": "Heroica Matamoros",
+   "admin1": "Estado de Tamaulipas",
+   "country_code": "MX",
+   "latitude": 25.87972,
+   "longitude": -97.50417,
+   "timezone": "America/Matamoros",
+   "population": 510739,
+   "feature_code": "PPL"
+  }
+ ],
+ "MX|Cd Obregon": [
+  {
+   "name": "Cd Obregon",
+   "admin1": "Estado de Sonora",
+   "country_code": "MX",
+   "latitude": 27.48642,
+   "longitude": -109.94079,
+   "timezone": "America/Hermosillo",
+   "population": 329404,
+   "feature_code": "PPLA2"
+  }
+ ],
+ "MX|Iztapalapa": [
+  {
+   "name": "Delegación Iztapalapa",
+   "admin1": "Ciudad de México",
+   "country_code": "MX",
+   "latitude": 19.35529,
+   "longitude": -99.06224,
+   "timezone": "America/Mexico_City",
+   "population": 1835486,
+   "feature_code": "PPL"
+  }
+ ],
+ "CO|Bogota": [
+  {
+   "name": "Bogotá",
+   "admin1": "Bogotá D.C.",
+   "country_code": "CO",
+   "latitude": 4.60971,
+   "longitude": -74.08175,
+   "timezone": "America/Bogota",
+   "population": 7674366,
+   "feature_code": "PPLC"
+  },
+  {
+   "name": "Bogotá",
+   "admin1": "San Andrés y Providencia",
+   "country_code": "CO",
+   "latitude": 13.33333,
+   "longitude": -81.35,
+   "timezone": "America/Bogota",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Bogotá",
+   "admin1": "Departamento de Bolívar",
+   "country_code": "CO",
+   "latitude": 10.4,
+   "longitude": -75.28333,
+   "timezone": "America/Bogota",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Bogotá",
+   "admin1": "Huila",
+   "country_code": "CO",
+   "latitude": 3.03,
+   "longitude": -75.16667,
+   "timezone": "America/Bogota",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Bogotá",
+   "admin1": "Norte de Santander",
+   "country_code": "CO",
+   "latitude": 7.87603,
+   "longitude": -72.48652,
+   "timezone": "America/Bogota",
+   "population": null,
+   "feature_code": "PPLX"
+  },
+  {
+   "name": "Bogotacito",
+   "admin1": "Santander",
+   "country_code": "CO",
+   "latitude": 6.00959,
+   "longitude": -73.22155,
+   "timezone": "America/Bogota",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Bogotá Cachivero",
+   "admin1": "Departamento del Vaupés",
+   "country_code": "CO",
+   "latitude": 0.86141,
+   "longitude": -70.04974,
+   "timezone": "America/Bogota",
+   "population": null,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Aeropuerto El Dorado",
+   "admin1": "Bogotá D.C.",
+   "country_code": "CO",
+   "latitude": 4.70159,
+   "longitude": -74.14695,
+   "timezone": "America/Bogota",
+   "population": null,
+   "feature_code": "AIRP"
+  }
+ ],
+ "MX|Coatzacoalcos": [
+  {
+   "name": "Puerto Mexico",
+   "admin1": "Estado de Veracruz-Llave",
+   "country_code": "MX",
+   "latitude": 18.14905,
+   "longitude": -94.4447,
+   "timezone": "America/Mexico_City",
+   "population": 310698,
+   "feature_code": "PPL"
+  },
+  {
+   "name": "Coatzacoalcos",
+   "admin1": "Estado de Campeche",
+   "country_code": "MX",
+   "latitude": 19.83263,
+   "longitude": -90.51288,
+   "timezone": "America/Merida",
+   "population": null,
+   "feature_code": "PPLX"
+  }
+ ]
+}
