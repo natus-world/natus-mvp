@@ -276,6 +276,16 @@ that night (astronomy-engine against the stored birth data) matched 67 of 69
 charts to the hundredth of a degree; the two that did not hold another
 person's birth data on `clients` (two accounts on one phone, 23 Oct) — open,
 not yet traced in the app.
+**Segments (owner, 24 Oct 2026, approved mockup «Panel Natus · segmentos»;
+`20261025010000_admin_segments.sql`):** a filter on top by country (where
+they live or were born), age band and how they asked to be addressed (the
+app does not ask for sex), kept per admin in `admin_segments`, a page «Quiénes
+son» (`admin_who`) and a map. Every panel number already left people out
+through `is_internal_user`; it now also leaves out, for the admin looking,
+everybody outside their segment (`is_team_or_qa` keeps the old meaning). It is
+called only inside `admin_*` functions, so `auth.uid()` is always that admin;
+do not call it from the app. A person without an account is placed by their
+latest anonymous session.
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside
