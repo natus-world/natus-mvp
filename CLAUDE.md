@@ -286,6 +286,11 @@ everybody outside their segment (`is_team_or_qa` keeps the old meaning). It is
 called only inside `admin_*` functions, so `auth.uid()` is always that admin;
 do not call it from the app. A person without an account is placed by their
 latest anonymous session.
+«Macro datos» (owner, 25 Oct 2026, `20261026010000_admin_macro.sql`): one
+screen with the main numbers for the period in one table — accounts, active,
+new, «les sirvió», returned, free months, paying and monthly income (paying ×
+US$ 10), gifted, AI spend and its cost per active person — inside the
+segment; the panel asks it for the period before too, to show the change.
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside
