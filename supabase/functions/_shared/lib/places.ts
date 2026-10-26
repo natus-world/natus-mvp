@@ -262,6 +262,7 @@ function shownName(name: string, region: string, country: string): string {
   if (fix && (!fix.region || normalizePlaceName(region).includes(fix.region))) return fix.name;
   return name
     .replace(/^Cd\.? (?=\S)/, 'Ciudad ')
+    .replace(/^Pto\.? (?=\S)/, 'Puerto ')
     .replace(/^Delegación (?=\S)/, '')
     .replace(/^Municipio de (?=\S)/, '');
 }

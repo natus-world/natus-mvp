@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { copy } from '@/i18n';
-import { MIN_QUERY_LENGTH, placeLabel, type BirthPlace } from '@/lib/places';
+import { MIN_QUERY_LENGTH, normalizePlaceName, placeLabel, type BirthPlace } from '@/lib/places';
 import { searchPlaces } from '@/astrology/places';
 import { track } from '@/store/funnel';
 
@@ -12,6 +12,8 @@ const WAIT_MS = 300;
  * encontramos esa ciudad» while still typing. A keystroke meanwhile cancels it.
  */
 const NONE_WAIT_MS = 1200;
+/** How long a blur waits for a tap on the list to land before it picks by itself. */
+const BLUR_WAIT_MS = 250;
 
 /**
  * The birth city, picked from suggestions inside the country of birth
@@ -38,6 +40,7 @@ export function BirthPlaceField({
   needed?: boolean;
 }) {
   const id = useId();
+  const input = useRef<HTMLInputElement>(null);
   const [options, setOptions] = useState<BirthPlace[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -81,16 +84,46 @@ export function BirthPlaceField({
     };
   }, [query, country, place, ready, reopened]);
 
+  const chosenAt = useRef(0);
   const choose = (chosen: BirthPlace) => {
     typed.current = false;
+    chosenAt.current = Date.now();
     setOptions([]);
+    setSearched(false);
     onChange(chosen.name, chosen);
   };
 
+  // Leaving the field with the city written as the first suggestion names it
+  // picks that one (owner, 26 Oct 2026): «Mexicali» typed, «Mexicali» first
+  // on the list, and the person left believing it was set. A tap on another
+  // suggestion lands first and wins.
+  const latest = useRef({ options, place, query });
+  latest.current = { options, place, query };
+  const pickOnLeave = () => {
+    const leftAt = Date.now();
+    window.setTimeout(() => {
+      const { options: shown, place: picked, query: written } = latest.current;
+      if (picked || chosenAt.current >= leftAt) return;
+      const first = shown[0];
+      if (first && normalizePlaceName(first.name) === normalizePlaceName(written)) choose(first);
+    }, BLUR_WAIT_MS);
+  };
+
+  // On the phone the list opened under the fold, behind «Continuar» and the
+  // keyboard (owner, 26 Oct 2026): when it opens, the field rises to the top.
+  const listOpen = options.length > 0;
+  useEffect(() => {
+    if (!listOpen || !input.current) return;
+    if (!window.matchMedia('(max-width: 1023px)').matches) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    input.current.scrollIntoView({ block: 'start', behavior: still ? 'auto' : 'smooth' });
+  }, [listOpen]);
+
   // A typed city that found nothing, once per field (owner, 22 Oct 2026):
-  // that it happened, never what was typed.
+  // that it happened, never what was typed. Not a city just picked: until
+  // 26 Oct 2026 the pick itself counted, for a moment, as finding nothing.
   const toldNone = useRef(false);
-  const none = searched && !searching && options.length === 0;
+  const none = searched && !searching && options.length === 0 && !place;
   useEffect(() => {
     if (none && !toldNone.current) {
       toldNone.current = true;
@@ -116,6 +149,7 @@ export function BirthPlaceField({
         {text.birthCityLabel}
       </label>
       <input
+        ref={input}
         id={`${id}-city`}
         role="combobox"
         aria-expanded={options.length > 0}
@@ -139,6 +173,7 @@ export function BirthPlaceField({
           typed.current = true;
           onChange(e.target.value, null);
         }}
+        onBlur={pickOnLeave}
         onKeyDown={(e) => {
           if (options.length === 0) return;
           if (e.key === 'ArrowDown') {
@@ -156,6 +191,15 @@ export function BirthPlaceField({
           }
         }}
       />
+      {/* The label until there is something to say about the search; right under
+          what was typed, so it is not hidden below the list (26 Oct 2026). */}
+      <p
+        id={`${id}-helper`}
+        className={helper === text.birthCityPick || helper === text.birthCityNeeded ? `${helperClass} error` : helperClass}
+        aria-live="polite"
+      >
+        {helper ?? text.birthCityLabel}
+      </p>
       {options.length > 0 && (
         <ul id={`${id}-options`} role="listbox" aria-label={text.birthCityOptions} className="sug">
           {options.map((option, index) => (
@@ -172,14 +216,6 @@ export function BirthPlaceField({
           ))}
         </ul>
       )}
-      {/* The label until there is something to say about the search. */}
-      <p
-        id={`${id}-helper`}
-        className={helper === text.birthCityPick || helper === text.birthCityNeeded ? `${helperClass} error` : helperClass}
-        aria-live="polite"
-      >
-        {helper ?? text.birthCityLabel}
-      </p>
     </div>
   );
 }

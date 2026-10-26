@@ -589,6 +589,15 @@ GeoNames' own names for big cities are aliased and shown as people say them
 patch: GeoNames stays behind it, and a better geocoder is being weighed with
 the owner. Wrong places already picked («Uruapan, Baja California»,
 «Bogotá, San Andrés y Providencia») are untouched, the owner's call.
+**The field itself (owner, 26 Oct 2026).** A person wrote «solo me deja
+ponerla, pero no queda establecida»: on the phone the list opened behind
+«Continuar» and the keyboard, and «Elige tu ciudad de la lista.» sat below
+it. Now the field rises to the top when the list opens (below 1024px),
+the notice sits under what was typed, and leaving the field with the
+first suggestion's name typed exactly picks it (a tap on another one, within
+250 ms, wins). `birth_city_not_found` was counting picks too — the pick
+read for a moment as finding nothing — so before 26 Oct 2026 it is not a
+measure of misses (18 of 22 on 25 Oct); since then it is.
 
 **Davraz reads the whole person (chat-v1.7, owner, 16 Oct 2026).** The chat
 function reads, as the person (`_shared/person.ts`): the chart stored in

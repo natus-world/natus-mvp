@@ -678,6 +678,13 @@ describe('the big cities GeoNames names its own way (25 Oct 2026)', () => {
     expect(places.some((p) => p.region === 'Estado de Coahuila de Zaragoza')).toBe(true);
   });
 
+  it('writes «Pto» out as Puerto', () => {
+    const [place] = rankPlaces([
+      { name: 'Pto Vallarta', admin1: 'Estado de Jalisco', country_code: 'MX', latitude: 20.62, longitude: -105.23, timezone: 'America/Mexico_City', population: 203342, feature_code: 'PPL' },
+    ]);
+    expect(place?.name).toBe('Puerto Vallarta');
+  });
+
   it('renames Puerto Mexico only in Veracruz', () => {
     const places = rankPlaces(recorded['MX|Puerto Mexico']!, 10);
     expect(places.filter((p) => p.name === 'Coatzacoalcos').map((p) => p.region)).toEqual([
