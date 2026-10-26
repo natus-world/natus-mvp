@@ -598,6 +598,12 @@ first suggestion's name typed exactly picks it (a tap on another one, within
 250 ms, wins). `birth_city_not_found` was counting picks too — the pick
 read for a moment as finding nothing — so before 26 Oct 2026 it is not a
 measure of misses (18 of 22 on 25 Oct); since then it is.
+On 26 Oct 2026 (owner) the 11 people whose stored place lay far from the one
+they likely meant (Bogotá in San Andrés y Providencia, Uruapan in Baja
+California, Tulum in Yucatán, Colonia México in Chihuahua…) got a message
+from the team in «Sugerir» (`feedback_messages`, author `team`, the owner as
+`admin_id`), with an apology and the way to correct it in Perfil; nothing
+was recalculated for them.
 
 **Davraz reads the whole person (chat-v1.7, owner, 16 Oct 2026).** The chat
 function reads, as the person (`_shared/person.ts`): the chart stored in
