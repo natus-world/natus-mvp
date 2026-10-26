@@ -586,8 +586,13 @@ GeoNames' own names for big cities are aliased and shown as people say them
 (Querétaro, Durango, Tuxtla Gutiérrez, Coatzacoalcos, Ciudad Obregón…), and
 «No encontramos» waits 1.2 s after an empty answer, so
 `birth_city_not_found` counts from that day only a real miss. It is a
-patch: GeoNames stays behind it, and a better geocoder is being weighed with
-the owner. Wrong places already picked («Uruapan, Baja California»,
+patch: GeoNames stays behind it. A better geocoder is «por ver» (owner,
+26 Oct 2026): Photon (OpenStreetMap) placed the intended city first in 38 of
+38 test cases against Open-Meteo's 32, with Open-Meteo kept as fallback;
+Geoapify (same data, with a guarantee) later, tested first; Google is out
+(its terms keep coordinates 30 days). It would need a timezone from
+coordinates (`@photostructure/tz-lookup`) and the owner's ok on «©
+OpenStreetMap» under the list and a line in the privacy policy. Wrong places already picked («Uruapan, Baja California»,
 «Bogotá, San Andrés y Providencia») are untouched, the owner's call.
 **The field itself (owner, 26 Oct 2026).** A person wrote «solo me deja
 ponerla, pero no queda establecida»: on the phone the list opened behind
