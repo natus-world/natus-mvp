@@ -753,6 +753,8 @@ built yet: the work and its open questions are in the cerebro's
 notice (`components/HousesNotice.tsx`, `copy.housesNotice`, text approved by
 the owner: «Muy pronto…») tells whoever has houses, once per browser
 (`natus.houses-notice-seen`); take it out, or change it, when Placidus ships.
+The same text went as a team message in «Sugerir» to the 151 people with
+houses (owner, 27 Oct 2026, from the owner's admin id).
 
 **Astrology still to review with the owner (23 Oct 2026, he asked to note it).**
 Lilith is in no stored chart (0 of 93): `natal-chart` does not ask Astrologer
