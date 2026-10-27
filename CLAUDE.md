@@ -746,6 +746,14 @@ say so (texts approved). A comparison made before the areas offers
 «Actualizar», which uses the plan. Open: the prompt has not yet run against
 the model (no key in the local stack).
 
+**Houses move to Placidus, with whole sign kept as an option (owner, 27 Oct
+2026, after people complained their houses differ from other apps).** Not
+built yet: the work and its open questions are in the cerebro's
+`traspasos/2026-10-27-pdr-usuario-casas-placidus.md`. Meanwhile a one-time
+notice (`components/HousesNotice.tsx`, `copy.housesNotice`, text approved by
+the owner: «Muy pronto…») tells whoever has houses, once per browser
+(`natus.houses-notice-seen`); take it out, or change it, when Placidus ships.
+
 **Astrology still to review with the owner (23 Oct 2026, he asked to note it).**
 Lilith is in no stored chart (0 of 93): `natal-chart` does not ask Astrologer
 for it (its `active_points` option), though the full chart and the reading
