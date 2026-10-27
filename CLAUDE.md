@@ -291,6 +291,18 @@ screen with the main numbers for the period in one table — accounts, active,
 new, «les sirvió», returned, free months, paying and monthly income (paying ×
 US$ 10), gifted, AI spend and its cost per active person — inside the
 segment; the panel asks it for the period before too, to show the change.
+«Sugerencias» in two tabs (owner, 27 Oct 2026,
+`20261027220000_admin_feedback_broadcasts.sql`): «Conversaciones», only
+threads with something besides a message to many, inside the segment, each
+team message with when the person opened it (`read_at`); and «Mensajes a
+todos»: each message to many (`feedback_broadcasts`, tied to its rows by
+`feedback_messages.broadcast_id`) with how many it reached, saw it and
+answered, who, and a new one sent from the panel to the accounts in the
+admin's segment, after a preview and a confirm of the number
+(`admin_broadcast_send` refuses if the audience changed). The person gets
+it as any answer: a dot on «Sugerir», the message signed «Equipo Natus»;
+nothing outside the app. The two sent by hand (26 Oct, 11 people, one text
+each; 27 Oct, the houses, 151) were gathered as messages to many.
 
 **The admin panel is built (owner, 18 Oct 2026)** in its own repository,
 `natus-world/natus-admin`, published at `admin.natus.world` — never inside

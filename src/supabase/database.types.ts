@@ -58,6 +58,24 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_segments: {
+        Row: {
+          admin_id: string
+          segment: Json
+          updated_at: string
+        }
+        Insert: {
+          admin_id: string
+          segment?: Json
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string
+          segment?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_suggestions: {
         Row: {
           author_id: string | null
@@ -628,11 +646,39 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback_broadcasts: {
+        Row: {
+          admin_id: string | null
+          body: string
+          created_at: string
+          id: string
+          personalized: boolean
+          segment: Json
+        }
+        Insert: {
+          admin_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          personalized?: boolean
+          segment?: Json
+        }
+        Update: {
+          admin_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          personalized?: boolean
+          segment?: Json
+        }
+        Relationships: []
+      }
       feedback_messages: {
         Row: {
           admin_id: string | null
           author: string
           body: string
+          broadcast_id: string | null
           created_at: string
           crisis_flagged: boolean
           id: string
@@ -644,6 +690,7 @@ export type Database = {
           admin_id?: string | null
           author: string
           body: string
+          broadcast_id?: string | null
           created_at?: string
           crisis_flagged?: boolean
           id?: string
@@ -655,6 +702,7 @@ export type Database = {
           admin_id?: string | null
           author?: string
           body?: string
+          broadcast_id?: string | null
           created_at?: string
           crisis_flagged?: boolean
           id?: string
@@ -662,7 +710,15 @@ export type Database = {
           screen?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "feedback_messages_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_broadcasts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       friend_invites: {
         Row: {
@@ -1649,6 +1705,35 @@ export type Database = {
           empty_search: number
         }[]
       }
+      admin_broadcast_audience: { Args: never; Returns: number }
+      admin_broadcast_recipients: {
+        Args: { p_id: string }
+        Returns: {
+          answered: boolean
+          email: string
+          name: string
+          read_at: string
+          user_id: string
+        }[]
+      }
+      admin_broadcast_send: {
+        Args: { p_body: string; p_expected: number }
+        Returns: number
+      }
+      admin_broadcasts: {
+        Args: never
+        Returns: {
+          answered: number
+          author_name: string
+          body: string
+          created_at: string
+          id: string
+          personalized: boolean
+          recipients: number
+          seen: number
+          segment: Json
+        }[]
+      }
       admin_by_modality: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -1713,6 +1798,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_current_segment: { Args: never; Returns: Json }
       admin_daily: {
         Args: { p_days?: number }
         Returns: {
@@ -1778,9 +1864,11 @@ export type Database = {
         Returns: {
           author: string
           body: string
+          broadcast: boolean
           created_at: string
           crisis_flagged: boolean
           id: string
+          read_at: string
           screen: string
         }[]
       }
@@ -1865,11 +1953,31 @@ export type Database = {
           started: number
         }[]
       }
+      admin_in_segment: {
+        Args: { p_segment: Json; p_user: string }
+        Returns: boolean
+      }
       admin_last_steps: {
         Args: { p_week: string }
         Returns: {
           people: number
           step: string
+        }[]
+      }
+      admin_macro: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          accounts_before: number
+          accounts_new: number
+          accounts_total: number
+          activated_new: number
+          active: number
+          ai_spend: number
+          gifted_now: number
+          paying_now: number
+          returned: number
+          trial_now: number
+          trials: number
         }[]
       }
       admin_open_days: {
@@ -1935,6 +2043,7 @@ export type Database = {
         }[]
       }
       admin_person: { Args: { p_user: string }; Returns: Json }
+      admin_person_chart: { Args: { p_user: string }; Returns: Json }
       admin_person_content: {
         Args: { p_kind: string; p_limit?: number; p_user: string }
         Returns: Json
@@ -2011,6 +2120,15 @@ export type Database = {
           screen: string
         }[]
       }
+      admin_segment_count: {
+        Args: never
+        Returns: {
+          in_segment: number
+          total: number
+        }[]
+      }
+      admin_segment_get: { Args: never; Returns: Json }
+      admin_segment_set: { Args: { p_segment: Json }; Returns: Json }
       admin_step_times: {
         Args: { p_from: string; p_steps: string[]; p_to: string }
         Returns: {
@@ -2048,6 +2166,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_traits: {
+        Args: { p_user: string }
+        Returns: {
+          age_band: string
+          birth_country: string
+          country: string
+          gender: string
+        }[]
+      }
       admin_weekly_use: {
         Args: { p_weeks?: number }
         Returns: {
@@ -2058,6 +2185,17 @@ export type Database = {
           meditations: number
           practices: number
           week_start: string
+        }[]
+      }
+      admin_who: {
+        Args: { p_all?: boolean }
+        Returns: {
+          accounts: number
+          activated: number
+          active_7d: number
+          dimension: string
+          trial: number
+          value: string
         }[]
       }
       admin_whoami: {
@@ -2099,6 +2237,7 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_internal_user: { Args: { p_user: string }; Returns: boolean }
       is_last_admin: { Args: { p_user: string }; Returns: boolean }
+      is_team_or_qa: { Args: { p_user: string }; Returns: boolean }
       mark_comparison_read: {
         Args: { p_comparison: string }
         Returns: undefined
