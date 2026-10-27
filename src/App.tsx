@@ -36,6 +36,7 @@ import { copy } from '@/i18n';
 import { useCrisisShown, useTakeoverShown } from '@/components/takeover';
 import { HelpNowButton, HelpNowPanel } from '@/components/HelpNow';
 import { SuggestionsButton, SuggestionsSheet, useTeamUnread } from '@/screens/Suggestions';
+import { HousesNotice } from '@/components/HousesNotice';
 import { hydrate } from '@/store/hydrate.ts';
 import { rememberFirstTouch, screenKey, track } from '@/store/funnel';
 import { ensureWholeSignChart } from '@/store/chart';
@@ -338,6 +339,8 @@ export function App() {
       )}
       {suggestOpen && <SuggestionsSheet onClose={closeSuggest} />}
       {helpOpen && <HelpNowPanel onClose={closeHelp} />}
+      {/* Once, inside the app, never over the crisis screen (owner, 27 Oct 2026). */}
+      {!crisisShown && !helpOpen && !suggestOpen && showsNav(pathname, takeoverShown) && <HousesNotice />}
     </AppFrame>
   );
 }

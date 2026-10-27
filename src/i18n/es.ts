@@ -1648,6 +1648,13 @@ export const es = {
       ],
     },
   },
+  // The notice that the houses are changing (owner, 27 Oct 2026, «Muy pronto»).
+  housesNotice: {
+    title: 'Estamos cambiando tus casas',
+    body: 'Muchas personas nos pidieron ver sus casas como en otras apps. Muy pronto tu carta usará el sistema Placidus, y podrás seguir viéndolas por signo entero si lo prefieres.',
+    unchanged: 'Tus signos, tu Ascendente y tus números no cambian.',
+    ok: 'Entendido',
+  },
   notFound: {
     title: 'Esta página no existe.',
     body: 'Puede que el enlace esté mal escrito o sea de una versión anterior.',

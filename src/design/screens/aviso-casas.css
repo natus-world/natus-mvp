@@ -1,0 +1,68 @@
+/*
+ * The notice that the houses are changing (owner, 27 Oct 2026): the same
+ * sheet as Perfil's confirmations — at the foot on the phone, centred on
+ * desktop — over a dark veil.
+ */
+
+.aviso-casas .velo-a {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgb(0 0 0 / 0.55);
+}
+
+.aviso-casas .hoja-a {
+  position: fixed;
+  left: calc(var(--u) * 12);
+  right: calc(var(--u) * 12);
+  bottom: calc(var(--u) * 12 + env(safe-area-inset-bottom, 0px));
+  z-index: 71;
+  border-radius: calc(var(--u) * 20);
+  padding: calc(var(--u) * 26) calc(var(--u) * 22) calc(var(--u) * 20);
+  background: #17191a;
+  border: 1px solid rgb(236 226 208 / 0.18);
+  display: grid;
+  gap: calc(var(--u) * 12);
+}
+
+.aviso-casas .t {
+  margin: 0;
+  font: 300 calc(var(--u) * 28) / 1.1 var(--font-serif);
+  color: #f5efe6;
+}
+
+.aviso-casas .nota {
+  font: 400 calc(var(--u) * 13) / 1.5 var(--font-sans);
+  color: rgb(236 226 208 / 0.78);
+}
+
+.aviso-casas .nota.fuerte {
+  font-size: calc(var(--u) * 15);
+  color: rgb(245 239 230 / 0.88);
+}
+
+.aviso-casas .p1a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: calc(var(--u) * 52);
+  margin-top: calc(var(--u) * 6);
+  border: 0;
+  border-radius: calc(var(--u) * 8);
+  background: #ece2d0;
+  color: #0b120e;
+  font: 500 calc(var(--u) * 16) / 1 var(--font-sans);
+  cursor: pointer;
+}
+
+@media (min-width: 1024px) {
+  .aviso-casas .hoja-a {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    width: calc(var(--d) * 440);
+    transform: translate(-50%, -50%);
+  }
+}
