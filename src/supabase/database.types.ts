@@ -1843,13 +1843,15 @@ export type Database = {
         }
       }
       admin_feedback_inbox: {
-        Args: { p_limit?: number }
+        Args: { p_all?: boolean; p_limit?: number }
         Returns: {
           crisis: boolean
           email: string
           last_at: string
           last_author: string
           last_body: string
+          last_broadcast: boolean
+          last_seen_at: string
           name: string
           unread: number
           user_id: string

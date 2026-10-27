@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(14);
+select plan(15);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -43,6 +43,8 @@ select is((select recipients from public.admin_broadcasts()), 2::bigint, 'One me
 select is((select seen from public.admin_broadcasts()), 0::bigint, '... nobody opened it yet');
 select is((select count(*) from public.admin_feedback_inbox()), 1::bigint,
   'The conversations keep only Ana, who wrote; Beto has only the message to many');
+select is((select count(*) from public.admin_feedback_inbox(100, true)), 2::bigint,
+  '... and «todos» brings Beto back');
 
 -- Beto opens it in the app and answers.
 select pg_temp.act_as('bbbbbbbb-0000-4000-8000-0000000000b2');
