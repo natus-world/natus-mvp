@@ -15,6 +15,7 @@ import {
   crossKey,
   crossLabel,
   type Area,
+  type AreaKey,
   type AreaCross,
   type AreaPoint,
   type CrossLabel,
@@ -24,6 +25,7 @@ import type { NatalChart } from '@/lib/natal-chart';
 import type { ComparisonResult } from '@/lib/schemas';
 import { ComparisonGate } from './Gate';
 import { Crossing } from './Result';
+import { ComparisonChat } from './ComparisonChat';
 import { bodyName, placeOf, signName } from './TheChart';
 import { BodyGlyph, Chevron, firstNameOf, SignGlyph, useWide } from './pieces';
 
@@ -62,6 +64,7 @@ type State =
 export function BothCharts() {
   const { friendshipId = '' } = useParams();
   const [state, setState] = useState<State>({ kind: 'loading' });
+  const [lookingAt, setLookingAt] = useState<AreaKey | null>(null);
   const me = firstNameOf(activeProfile()?.draft.legal_birth_name);
 
   const load = useCallback(async () => {
@@ -112,6 +115,7 @@ export function BothCharts() {
                 friendshipId={friendshipId}
                 onGenerate={() => setState({ kind: 'generating', friend: state.friend })}
                 onDone={() => void load()}
+                onArea={setLookingAt}
               />
             ) : (
               <div className="vid aviso-d">
@@ -127,6 +131,9 @@ export function BothCharts() {
           </div>
         </div>
       </Screen>
+      {state.kind === 'ready' && (
+        <ComparisonChat friendshipId={friendshipId} friend={state.friend} area={lookingAt} />
+      )}
     </ComparisonGate>
   );
 }
@@ -137,12 +144,14 @@ function Areas({
   friendshipId,
   onGenerate,
   onDone,
+  onArea,
 }: {
   state: Ready;
   me: string;
   friendshipId: string;
   onGenerate: () => void;
   onDone: () => void;
+  onArea: (area: AreaKey | null) => void;
 }) {
   const wide = useWide();
   const [view, setView] = useState<'areas' | 'todos'>('areas');
@@ -155,6 +164,10 @@ function Areas({
   const areas = areasBetween(state.mine, state.theirs).filter((a) => written.has(a.key));
   const [open, setOpen] = useState<string | null>(wide ? (areas[0]?.key ?? null) : null);
   const older = !result.areas;
+  // The area on screen, told to «Pregúntale a las dos cartas».
+  const looking = !older && view === 'areas' ? (areas.find((a) => a.key === open) ?? null) : null;
+  const shown = looking?.key ?? null;
+  useEffect(() => onArea(shown), [shown, onArea]);
 
   const title = (
     <>

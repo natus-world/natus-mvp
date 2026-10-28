@@ -4,6 +4,7 @@ import {
   appendAssistantMessage,
   appendUserMessage,
   chartConversationFor,
+  comparisonConversationFor,
   conversationFor,
   dropMessage,
   hasQuestionsLeft,
@@ -50,6 +51,27 @@ describe('«Pregúntale a tu carta» (owner, 22 Oct 2026)', () => {
     ask(carta.id, 'off_chart', T0 + 3);
     expect(usedQuestions()).toBe(1);
     expect(remainingQuestions()).toBe(FREE_QUESTIONS - 1);
+  });
+});
+
+describe('«Pregúntale a las dos cartas» (owner, 27 Oct 2026)', () => {
+  it('keeps one conversation per friendship, apart from the Chat\'s and the chart\'s', () => {
+    const chat = conversationFor('synthesis-1', T0);
+    const carta = chartConversationFor('synthesis-1', T0 + 1);
+    const tomas = comparisonConversationFor('synthesis-1', 'friendship-tomas', T0 + 2);
+    const ana = comparisonConversationFor('synthesis-1', 'friendship-ana', T0 + 3);
+    expect(new Set([chat.id, carta.id, tomas.id, ana.id]).size).toBe(4);
+    expect(tomas.kind).toBe('comparacion');
+    expect(tomas.friendship_id).toBe('friendship-tomas');
+    expect(comparisonConversationFor('synthesis-1', 'friendship-tomas', T0 + 4).id).toBe(tomas.id);
+    expect(conversationFor('synthesis-1', T0 + 5).id).toBe(chat.id);
+  });
+
+  it('spends the same questions as the Chat, and a question off the comparison spends none', () => {
+    const tomas = comparisonConversationFor('synthesis-1', 'friendship-tomas', T0);
+    ask(tomas.id, 'reflection', T0 + 1);
+    ask(tomas.id, 'off_chart', T0 + 3);
+    expect(usedQuestions()).toBe(1);
   });
 });
 

@@ -97,6 +97,20 @@ memory; the chat function in focus `carta` adds `CHART_CHAT_BLOCK`
 (chat-v2.1, text approved by the owner); the same chat quota, and a question
 off the chart gets one line and «Conversar en el Chat», typed `off_chart` and
 not charged. The panel shows its messages mixed with the Chat's.
+**«Pregúntale a las dos cartas» (owner, 27 Oct 2026, option B).** The same
+sheet over a comparison (`screens/comparison/ComparisonChat.tsx`, `ChartChat`
+with a `topic`) and over «Las dos cartas» by areas, where Davraz is told the
+area on screen (`comparisonArea`, by key). One conversation per map and
+friendship (`conversations.kind = 'comparacion'`, `friendship_id`, labelled
+only when the friendship is the writer's; `20261028010000_comparison_chat.sql`),
+its messages carry `friendship_id` so the panel sees them; the chat function
+in focus `comparacion` adds `COMPARISON_CHAT_BLOCK` (chat-v2.3) and reads the
+comparison as the Chat does — only while accepted, never for somebody
+clinically vulnerable, held to `lintChartJudgement`. Same quota; a question
+off the comparison is `off_chart`, free. The three questions were approved by
+the owner; the pill, greeting and line are proposals he approved on the
+mockup. «Conversar sobre esto con Davraz» under the result was removed
+(option A); the Chat's `?comparacion=` still reads old links.
 The memory (M-01) is built (16 Oct 2026). «Lo que Natus sabe de ti» in the
 profile shows it, asks for consent and lets the person correct, delete and
 add; its texts are not in the guide and were approved by the owner on

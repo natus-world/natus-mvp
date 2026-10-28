@@ -1,4 +1,4 @@
-export const CHAT_PROMPT_VERSION = 'chat-v2.2';
+export const CHAT_PROMPT_VERSION = 'chat-v2.3';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
 export const MATCH_PROMPT_VERSION = 'match-v1.5';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
@@ -10,6 +10,12 @@ export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.2';
 export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.1';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'chat-v2.3',
+    date: '2026-10-28',
+    change:
+      '«Pregúntale a las dos cartas» (owner, 27 Oct 2026): COMPARISON_CHAT_BLOCK for the sheet over a comparison, the comparison described with its areas, and the area the person is looking at.',
+  },
   {
     version: 'comparison-v2.4',
     date: '2026-10-23',

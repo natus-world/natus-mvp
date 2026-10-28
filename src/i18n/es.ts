@@ -1147,6 +1147,21 @@ export const es = {
     toChat: 'Conversar en el Chat',
     close: 'Cerrar',
   },
+  /**
+   * The same sheet over a comparison and its areas (owner, 27 Oct 2026: the
+   * three questions approved; the pill, greeting and line are proposals).
+   */
+  comparisonChat: {
+    bubble: 'Pregúntale a las dos cartas',
+    greetingLead: 'Pregúntame lo que quieras de ',
+    greetingEmphasis: (name: string) => `tu comparación con ${name}`,
+    sub: 'Lo que fluye, lo que pide más trabajo y cómo cuidarlo, explicado con calma.',
+    questions: (name: string) => [
+      `¿Qué fluye naturalmente entre ${name} y yo?`,
+      '¿Dónde nos pide más trabajo y cómo lo trabajamos?',
+      '¿Qué puedo hacer yo desde mi lado?',
+    ],
+  },
   chat: {
     kicker: 'Chat',
     name: 'Davraz de Fala',
@@ -1823,7 +1838,6 @@ export const es = {
       queTrabajar: 'Qué trabajar',
       disfrutarJuntos: 'Qué disfrutar en conjunto',
       disclaimer: 'Esto es un espejo para conversar, no un veredicto sobre la relación.',
-      talkOver: 'Conversar sobre esto con Davraz',
       // «La carta» with both wheels (mockup las-dos-cartas, approved 23 Oct 2026).
       wheelsLabel: (other: string) => `Tu carta y la de ${other}, lado a lado`,
       wheelYou: (name: string) => `${name.toUpperCase()} · TÚ`,

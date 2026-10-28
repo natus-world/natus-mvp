@@ -46,7 +46,12 @@ export type Conversation = {
    * `carta`: the conversation of «Pregúntale a tu carta», the bubble on Carta
    * (owner, 22 Oct 2026). Kept apart from the Chat's; absent means the Chat.
    */
-  kind?: 'chat' | 'carta';
+  kind?: ConversationKind;
+  /**
+   * `comparacion`: «Pregúntale a las dos cartas» (owner, 27 Oct 2026), one
+   * conversation for each friendship, over the comparison and its areas.
+   */
+  friendship_id?: string;
 };
 
 /**
@@ -74,7 +79,9 @@ export function listMessages(conversationId: string): StoredMessage[] {
   return listAllMessages().filter((m) => m.conversation_id === conversationId);
 }
 
-const kindOf = (c: Conversation): 'chat' | 'carta' => c.kind ?? 'chat';
+export type ConversationKind = 'chat' | 'carta' | 'comparacion';
+
+const kindOf = (c: Conversation): ConversationKind => c.kind ?? 'chat';
 
 /** The Chat's conversation about this map. */
 export function conversationFor(synthesisId: string, now = Date.now()): Conversation {
@@ -86,8 +93,15 @@ export function chartConversationFor(synthesisId: string, now = Date.now()): Con
   return conversationOf('carta', synthesisId, now);
 }
 
-function conversationOf(kind: 'chat' | 'carta', synthesisId: string, now: number): Conversation {
-  const mine = listConversations().filter((c) => kindOf(c) === kind);
+/** The conversation of «Pregúntale a las dos cartas» with this friend (owner, 27 Oct 2026). */
+export function comparisonConversationFor(synthesisId: string, friendshipId: string, now = Date.now()): Conversation {
+  return conversationOf('comparacion', synthesisId, now, friendshipId);
+}
+
+function conversationOf(kind: ConversationKind, synthesisId: string, now: number, friendshipId?: string): Conversation {
+  const mine = listConversations().filter(
+    (c) => kindOf(c) === kind && (kind !== 'comparacion' || c.friendship_id === friendshipId),
+  );
   const existing = mine.find((c) => c.synthesis_id === synthesisId);
   if (existing) return existing;
   // v1.2 M-02: the monthly rewrite of the map continues the same conversation;
@@ -101,7 +115,8 @@ function conversationOf(kind: 'chat' | 'carta', synthesisId: string, now: number
     id: newId('conversation'),
     synthesis_id: synthesisId,
     created_at: now,
-    ...(kind === 'carta' ? { kind } : {}),
+    ...(kind !== 'chat' ? { kind } : {}),
+    ...(kind === 'comparacion' && friendshipId ? { friendship_id: friendshipId } : {}),
   };
   write('conversations', [...listConversations(), conversation]);
   return conversation;

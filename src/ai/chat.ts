@@ -1,6 +1,7 @@
 import { runAi, type AiResult } from './client';
 import type { ChatTurn } from './prompts/chat';
 import { buildChatFixture } from './fixtures/chat';
+import type { AreaKey } from '@/lib/comparison-areas';
 import { chatResponseSchema, type ChatResponse, type Numerology, type SoulMapSynthesis } from '@/lib/schemas';
 
 /** How much of the conversation goes back in. Enough to stay coherent, little
@@ -20,7 +21,9 @@ export type ChatAsk = {
   /** A comparison with a friend to talk over; the server reads it, if they are still friends. */
   comparisonFriendshipId?: string | null;
   /** «Pregúntale a tu carta», the bubble on Carta: about the chart only (owner, 22 Oct 2026). */
-  focus?: 'chat' | 'carta';
+  focus?: 'chat' | 'carta' | 'comparacion';
+  /** «Pregúntale a las dos cartas»: the area on screen, if any (owner, 27 Oct 2026). */
+  comparisonArea?: AreaKey | null;
 };
 
 export async function askChat(input: ChatAsk): Promise<AiResult<ChatResponse>> {
@@ -43,6 +46,7 @@ export async function askChat(input: ChatAsk): Promise<AiResult<ChatResponse>> {
         history: [...history],
         comparisonFriendshipId: input.comparisonFriendshipId ?? null,
         focus: input.focus ?? 'chat',
+        comparisonArea: input.comparisonArea ?? null,
       },
     },
     fixture: () =>

@@ -523,7 +523,8 @@ const conversations: Adapter<Conversation[]> = {
       id: r.id,
       synthesis_id: r.synthesis_id,
       created_at: ms(r.created_at),
-      ...(r.kind === 'carta' ? { kind: 'carta' as const } : {}),
+      ...(r.kind === 'carta' || r.kind === 'comparacion' ? { kind: r.kind } : {}),
+      ...(r.friendship_id ? { friendship_id: r.friendship_id } : {}),
     }));
   },
   save: (client, userId, value) =>
@@ -537,6 +538,7 @@ const conversations: Adapter<Conversation[]> = {
         synthesis_id: c.synthesis_id,
         created_at: iso(c.created_at),
         kind: c.kind ?? 'chat',
+        friendship_id: c.friendship_id ?? null,
       })),
     ),
 };

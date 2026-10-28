@@ -1,5 +1,6 @@
 import { JSON_DISCIPLINE, PHYSICAL_RISK_RULES, TONE_RULES, addressLine, personText } from './shared.ts';
 import type { ComparisonResult, Numerology, SoulMapSynthesis } from '@/lib/schemas/index.ts';
+import type { AreaKey } from '@/lib/comparison-areas.ts';
 import type { GrammaticalGender } from '@/lib/model-input.ts';
 import type { NatalChart } from '@/lib/natal-chart.ts';
 import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
@@ -157,6 +158,40 @@ números: entonces message_text es esa sola frase que invita al Chat. Nunca
 
 export const CHART_CHAT_SYSTEM_PROMPT = `${CHAT_SYSTEM_PROMPT}\n\n${CHART_CHAT_BLOCK}`;
 
+/**
+ * «Pregúntale a las dos cartas» (owner, 27 Oct 2026, chat-v2.3): the same
+ * sheet over a comparison with a friend and its areas. The same Davraz and
+ * the same rules, with this block after them; the comparison's own rule that
+ * nothing between two people is rated holds through `lintChartJudgement`.
+ */
+export const COMPARISON_CHAT_BLOCK = `
+ESTA CONVERSACIÓN: LA COMPARACIÓN CON UNA AMISTAD
+Esta conversación se abre desde la comparación de su carta con la de una
+amistad, en una ventanita para entenderla. Responde solo sobre esa
+comparación: lo que fluye naturalmente entre las dos cartas, lo que pide más
+trabajo y cómo se puede cuidar. Si te llega el área que está mirando,
+responde sobre esa área. Nombra siempre la posición concreta de la que
+hablas.
+Habla de lo que la persona puede hacer desde su lado. No hables por la otra
+persona ni supongas lo que siente.
+Nada entre las dos es bueno, malo ni más o menos compatible: lo que fluye es
+lo que fluye naturalmente, y lo que cuesta es lo que pide más trabajo, con
+cómo trabajarlo.
+Si pregunta por otra cosa (su trabajo, cómo se siente hoy, otra relación),
+no lo trabajes aquí: dile en una frase, con calma, que eso se conversa mejor
+en el Chat. Si no te llega la comparación, dile en una frase, con calma, que
+aquí no puedes leerla y que puede conversarlo en el Chat.
+Las terapias, la rutina y el tip del día no son de esta conversación.
+Largo: entre 2 y 5 oraciones.
+
+En esta conversación, "type" es "reflection", "clarifying_question" o
+"crisis", y "off_chart" cuando la pregunta no es sobre esta comparación o no
+te llegó: entonces message_text es esa sola frase que invita al Chat. Nunca
+"recommendation"; linked_modality_slugs va siempre vacío.
+`.trim();
+
+export const COMPARISON_CHAT_SYSTEM_PROMPT = `${CHAT_SYSTEM_PROMPT}\n\n${COMPARISON_CHAT_BLOCK}`;
+
 export type ChatTurn = { role: 'user' | 'assistant'; text: string };
 
 export function buildChatUserMessage(input: {
@@ -174,6 +209,8 @@ export function buildChatUserMessage(input: {
   memory?: readonly { category: string; content: string }[] | null;
   /** A comparison with a friend, read by the function while they are friends. */
   comparison?: ComparisonResult | null;
+  /** The area of «Las dos cartas» the person is looking at (owner, 27 Oct 2026). */
+  comparisonArea?: AreaKey | null;
   /**
    * What the function reads of the person itself (owner, 16 Oct 2026): the
    * chart as calculated, where and when they were born, what they told at
@@ -242,7 +279,9 @@ export function buildChatUserMessage(input: {
             : input.memory.map((item) => `${item.category}: ${personText(item.content)}`).join('\n'),
         ]
       : []),
-    ...(input.comparison ? ['', 'LA COMPARACIÓN QUE QUIERE CONVERSAR', describeComparison(input.comparison)] : []),
+    ...(input.comparison
+      ? ['', 'LA COMPARACIÓN QUE QUIERE CONVERSAR', describeComparison(input.comparison, input.comparisonArea ?? null)]
+      : []),
     '',
     'CONVERSACIÓN HASTA AQUÍ',
     input.history.length === 0
@@ -264,7 +303,27 @@ function correspondences(chart: NatalChart | null, lifePath: number | null): str
   return lines.length ? ['', 'CORRESPONDENCIAS (tabla de Natus)', ...lines] : [];
 }
 
-function describeComparison(c: ComparisonResult): string {
+/**
+ * The areas of «Las dos cartas» by the names the screen gives them (copy in
+ * es.ts, which does not cross into _shared), so Davraz calls an area what the
+ * person is reading.
+ */
+const AREA_NAMES: Record<AreaKey, string> = {
+  quienes_son: 'Quiénes son',
+  lo_que_se_dan: 'Lo que se dan',
+  lo_que_sienten: 'Lo que sienten',
+  como_se_hablan: 'Cómo se hablan',
+  lo_que_disfrutan: 'Lo que disfrutan juntos',
+  atraccion: 'Atracción y química',
+  sexualidad: 'Sexualidad y deseo',
+  desacuerdo: 'Cuando no están de acuerdo',
+  conviven: 'Cómo conviven',
+  trabajan: 'Cómo trabajan juntos',
+  sostiene: 'Lo que los sostiene',
+  como_se_ven: 'Cómo se ven juntos',
+};
+
+function describeComparison(c: ComparisonResult, looking: AreaKey | null): string {
   const part = (title: string, items: readonly string[]) => [title, ...items.map((i) => `- ${i}`)].join('\n');
   const aspects = c.astro_dialogue.aspects
     .map((a) => `- ${a.a_body} ${a.type} ${a.b_body}${a.flow ? ` (${a.flow === 'fluye' ? 'fluye naturalmente' : 'pide más trabajo'})` : ''}: ${a.reading}`)
@@ -277,6 +336,16 @@ function describeComparison(c: ComparisonResult): string {
     part('Qué disfrutar juntos', c.disfrutar_juntos),
     `Números: ${c.numerology_dialogue.summary}`,
     ...(c.astro_dialogue.available ? [`Cartas: ${c.astro_dialogue.summary}`, aspects] : []),
+    ...(c.areas?.length
+      ? ['Por áreas:', ...c.areas.map((a) => `- ${AREA_NAMES[a.key]}: ${a.reading}`)]
+      : []),
+    ...(looking
+      ? [
+          '',
+          `EL ÁREA QUE ESTÁ MIRANDO: ${AREA_NAMES[looking]}`,
+          c.areas?.find((a) => a.key === looking)?.reading ?? '(sin lectura de esta área)',
+        ]
+      : []),
   ]
     .filter(Boolean)
     .join('\n');

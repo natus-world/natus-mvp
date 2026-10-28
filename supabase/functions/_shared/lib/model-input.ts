@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { numerologySchema, soulMapSynthesisSchema } from './schemas/index.ts';
+import { AREA_KEYS, numerologySchema, soulMapSynthesisSchema } from './schemas/index.ts';
 import { filterStrategySchema } from './matching.ts';
 import { modalityBySlug } from './catalog.ts';
 import { MAIN_POINTS, SIGNS } from './natal-chart.ts';
@@ -100,7 +100,12 @@ export const chatContextSchema = z.object({
    * «Pregúntale a tu carta» (owner, 22 Oct 2026): the bubble on Carta asks
    * about the chart only. The Chat is `chat`.
    */
-  focus: z.enum(['chat', 'carta']).default('chat'),
+  focus: z.enum(['chat', 'carta', 'comparacion']).default('chat'),
+  /**
+   * «Pregúntale a las dos cartas» (owner, 27 Oct 2026): the area of «Las dos
+   * cartas» the person is looking at, when there is one.
+   */
+  comparisonArea: z.enum(AREA_KEYS).nullable().default(null),
 });
 export type ChatContext = z.infer<typeof chatContextSchema>;
 

@@ -10,12 +10,14 @@ import { askChat } from '@/ai/chat';
 import { AiError } from '@/ai/client';
 import { activeProfile } from '@/store/account';
 import type { StoredSynthesis } from '@/store/soulMap';
+import type { AreaKey } from '@/lib/comparison-areas';
 import { hadCrisisWithin30Days, markFalsePositive, recordCrisisEvent } from '@/store/crisis';
 import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
 import {
   appendAssistantMessage,
   appendUserMessage,
   chartConversationFor,
+  comparisonConversationFor,
   dropMessage,
   listMessages,
   remainingQuestions,
@@ -49,12 +51,44 @@ function signOf(planet: 'Moon' | 'Mars'): string | null {
  * the model. A high signal hands over to Carta's crisis screen; a low one
  * answers with the help lines in the sheet. Neither is charged.
  */
-export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCrisis: (id: string) => void }) {
+/** What the sheet is about: the person's chart (the default) or a comparison with a friend. */
+export type ChatTopic = {
+  bubble: string;
+  greetingLead: string;
+  greetingEmphasis: string;
+  sub: string;
+  questions: readonly string[];
+  /** The scrolling page the pill watches. */
+  scrollsIn: string;
+  /** Over a comparison: the friendship, and the area on screen if any. */
+  comparison?: { friendshipId: string; area: AreaKey | null };
+};
+
+export function ChartChat({
+  stored,
+  onCrisis,
+  topic,
+}: {
+  stored: StoredSynthesis;
+  onCrisis: (id: string) => void;
+  topic?: ChatTopic;
+}) {
+  const about: ChatTopic = topic ?? {
+    bubble: text.bubble,
+    greetingLead: text.greetingLead,
+    greetingEmphasis: text.greetingEmphasis,
+    sub: text.sub,
+    questions: text.questions(signOf('Moon'), signOf('Mars')),
+    scrollsIn: '.carta, .carta-completa',
+  };
+  const scrollsIn = about.scrollsIn;
   const profile = activeProfile();
   const [open, setOpen] = useState(false);
   const [compact, setCompact] = useState(false);
   const [away, setAway] = useState(false);
-  const conversation = chartConversationFor(stored.id);
+  const over = about.comparison ?? null;
+  const friendshipId = over?.friendshipId ?? null;
+  const conversation = over ? comparisonConversationFor(stored.id, over.friendshipId) : chartConversationFor(stored.id);
   const [messages, setMessages] = useState<StoredMessage[]>(() => listMessages(conversation.id));
   const [draft, setDraft] = useState('');
   const [thinking, setThinking] = useState(false);
@@ -76,7 +110,7 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
     let last = 0;
     const onScroll = (e: Event) => {
       const el = e.target;
-      if (!(el instanceof HTMLElement) || !el.closest('.carta, .carta-completa')) return;
+      if (!(el instanceof HTMLElement) || !el.closest(scrollsIn)) return;
       const top = el.scrollTop;
       const atEnd = top + el.clientHeight >= el.scrollHeight - 8;
       setCompact(top > 24);
@@ -87,7 +121,7 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
     };
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
-  }, []);
+  }, [scrollsIn]);
 
   useEffect(() => {
     if (!open) return;
@@ -125,8 +159,8 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
     const verdict = detectCrisis({ texts: [question] });
     if (verdict.crisis) {
       const event = recordCrisisEvent(verdict, 'chat');
-      appendUserMessage(conversation.id, question);
-      appendAssistantMessage(conversation.id, crisisAnswer(verdict.severity === 'high' ? 'high' : 'low'));
+      appendUserMessage(conversation.id, question, Date.now(), friendshipId);
+      appendAssistantMessage(conversation.id, crisisAnswer(verdict.severity === 'high' ? 'high' : 'low'), Date.now(), friendshipId);
       setMessages(listMessages(conversation.id));
       setDraft('');
       if (verdict.severity === 'high') onCrisis(event.id);
@@ -142,7 +176,7 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
       return;
     }
 
-    const user = appendUserMessage(conversation.id, question);
+    const user = appendUserMessage(conversation.id, question, Date.now(), friendshipId);
     setMessages(listMessages(conversation.id));
     setDraft('');
     setThinking(true);
@@ -160,18 +194,25 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
         }),
         recommendedSlugs: [],
         country: profile.draft.country,
-        focus: 'carta',
+        focus: over ? 'comparacion' : 'carta',
+        comparisonFriendshipId: friendshipId,
+        comparisonArea: over?.area ?? null,
         history: listMessages(conversation.id)
           .filter((m) => m.id !== user.id)
           .map((m) => ({ role: m.role, text: m.text })),
       });
-      appendAssistantMessage(conversation.id, { ...result.value, linked_modality_slugs: [] });
+      appendAssistantMessage(conversation.id, { ...result.value, linked_modality_slugs: [] }, Date.now(), friendshipId);
       setMessages(listMessages(conversation.id));
       void fetchQuota('chat').then(setQuota);
     } catch (err) {
       if (err instanceof AiError && err.kind === 'crisis' && err.crisis) {
         const event = recordCrisisEvent({ ...err.crisis, layer: 'deterministic', matched: [], excerpt: '' }, 'chat');
-        appendAssistantMessage(conversation.id, crisisAnswer(err.crisis.severity === 'high' ? 'high' : 'low'));
+        appendAssistantMessage(
+          conversation.id,
+          crisisAnswer(err.crisis.severity === 'high' ? 'high' : 'low'),
+          Date.now(),
+          friendshipId,
+        );
         setMessages(listMessages(conversation.id));
         if (err.crisis.severity === 'high') onCrisis(event.id);
         else setLowSignal(event.id);
@@ -207,18 +248,18 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
           className="burbuja"
           data-compact={compact ? 'true' : 'false'}
           data-away={away ? 'true' : 'false'}
-          aria-label={text.bubble}
+          aria-label={about.bubble}
           onClick={() => setOpen(true)}
         >
           <ChatTabIcon />
-          <span className="rotulo">{text.bubble}</span>
+          <span className="rotulo">{about.bubble}</span>
         </button>
       )}
 
       {open && (
         <>
           <div className="velo-c" aria-hidden="true" onClick={close} />
-          <section className="hoja-c" role="dialog" aria-modal="true" aria-label={text.bubble}>
+          <section className="hoja-c" role="dialog" aria-modal="true" aria-label={about.bubble}>
             <div className="asa" aria-hidden="true" />
             <div className="cab">
               <span className="quien">
@@ -235,13 +276,13 @@ export function ChartChat({ stored, onCrisis }: { stored: StoredSynthesis; onCri
               {messages.length === 0 && (
                 <>
                   <p className="saludo">
-                    {text.greetingLead}
-                    <em>{text.greetingEmphasis}</em>
+                    {about.greetingLead}
+                    <em>{about.greetingEmphasis}</em>
                   </p>
-                  <p className="sub">{text.sub}</p>
+                  <p className="sub">{about.sub}</p>
                   <p className="k">{text.startLabel}</p>
                   <div className="qs">
-                    {text.questions(signOf('Moon'), signOf('Mars')).map((q) => (
+                    {about.questions.map((q) => (
                       <button key={q} type="button" className="q" onClick={() => void send(q)}>
                         <span>{q}</span>
                         <span className="chev" aria-hidden="true">

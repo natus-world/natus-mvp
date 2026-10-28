@@ -503,6 +503,7 @@ export type Database = {
       conversations: {
         Row: {
           created_at: string
+          friendship_id: string | null
           id: string
           kind: string
           memory_processed_at: string | null
@@ -511,6 +512,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          friendship_id?: string | null
           id?: string
           kind?: string
           memory_processed_at?: string | null
@@ -519,6 +521,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          friendship_id?: string | null
           id?: string
           kind?: string
           memory_processed_at?: string | null
@@ -526,6 +529,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conversations_friendship_id_fkey"
+            columns: ["friendship_id"]
+            isOneToOne: false
+            referencedRelation: "friendships"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conversations_synthesis_id_fkey"
             columns: ["synthesis_id"]

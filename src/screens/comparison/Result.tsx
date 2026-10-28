@@ -15,6 +15,7 @@ import { listFriends } from '@/store/friends';
 import { ComparisonGate } from './Gate';
 import { Arrow, firstNameOf, initialOf, useWide } from './pieces';
 import { TheChart, type Charts } from './TheChart';
+import { ComparisonChat } from './ComparisonChat';
 
 const text = copy.comparison.result;
 const KIND_LABEL = text.kind;
@@ -198,6 +199,7 @@ export function Result() {
           askedByMe={state.askedByMe}
         />
       </Screen>
+      <ComparisonChat friendshipId={friendshipId} friend={state.friend} />
     </ComparisonGate>
   );
 }
@@ -302,10 +304,8 @@ function Crossed({
   const end = (
     <>
       <p className="disc">{text.disclaimer}</p>
+      {/* «Conversar sobre esto con Davraz» left for «Pregúntale a las dos cartas» (owner, 27 Oct 2026). */}
       <div className="acciones">
-        <Link to={`${PATHS.chat}?comparacion=${encodeURIComponent(friendshipId)}`} className="btn s">
-          {text.talkOver}
-        </Link>
         <p className="link">
           <Link to={PATHS.comparison}>
             <u>{text.back}</u>
