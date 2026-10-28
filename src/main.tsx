@@ -4,9 +4,11 @@ import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { App } from '@/App';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { installErrorReporting } from '@/supabase/report-error';
+import { installStuckSignals } from '@/supabase/stuck-signals';
 import '@/styles/index.css';
 
 installErrorReporting();
+installStuckSignals();
 
 /**
  * The private design preview (16 Oct 2026) is a demo build served as a single

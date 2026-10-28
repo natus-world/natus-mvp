@@ -1,17 +1,22 @@
 import { supabase } from './client.ts';
 import { setSessionLostHandler } from './session-storage.ts';
 
-export type ErrorKind = 'render' | 'error' | 'rejection';
+export type ErrorKind = 'render' | 'error' | 'rejection' | 'atasco';
 
 const MAX_PER_PAGE = 5;
-let sent = 0;
+const sent: Record<'fallo' | 'atasco', number> = { fallo: 0, atasco: 0 };
 
 export function reportError(kind: ErrorKind, error: unknown): void {
-  if (!supabase || sent >= MAX_PER_PAGE) return;
-  sent += 1;
+  // The signs of being stuck have their own allowance, so they never use up
+  // the one for real errors.
+  const bucket = kind === 'atasco' ? 'atasco' : 'fallo';
+  if (!supabase || sent[bucket] >= MAX_PER_PAGE) return;
+  sent[bucket] += 1;
 
   const client = supabase;
-  const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  // A sign of being stuck reads as itself, without «Error:» in front.
+  const message =
+    error instanceof Error ? (kind === 'atasco' ? error.message : `${error.name}: ${error.message}`) : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
 
   void client.auth

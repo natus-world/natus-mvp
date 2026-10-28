@@ -338,6 +338,18 @@ Scanned for crisis in the browser like the journal, kept either way with
 answers, and the answer appears in the person's sheet. In «Descargar mis
 datos». Texts are proposals the owner approved.
 
+**Signs of being stuck (owner, 27 Oct 2026: «si no nos lo dicen no lo
+sabemos»).** `supabase/stuck-signals.ts`: four taps on the same thing within
+2.5 s, or a tap on a switched-off button, go to `client_errors` as kind
+`atasco` («Atasco: tocó «Guardar cambios» apagado»), once per page and
+thing, with only the screen and the button's own label (40 characters at
+most; anything else by its tag) — the panel's «Errores» lists them. A daily
+scheduled task, «Revisión diaria de Natus» (8:35 Chile, read-only, cloud),
+reads errors, AI failures, function 5xx, the funnel and city misses, and
+pushes to the owner only when something is off. The screen reviewer
+(`scripts/revisor/`) and Carta's left column on short desktops wait on
+branch `nico/revisor`.
+
 **Capacity and how to grow (24 Oct 2026, proposals, nothing decided):**
 the limits of every service, the signs to watch, the steps at 100,000,
 200,000 and a million people a month, and moving the site off GitHub Pages
