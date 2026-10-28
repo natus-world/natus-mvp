@@ -338,6 +338,28 @@ Scanned for crisis in the browser like the journal, kept either way with
 answers, and the answer appears in the person's sheet. In «Descargar mis
 datos». Texts are proposals the owner approved.
 
+**Finding what nobody reports (owner, 27 Oct 2026: «si no nos lo dicen no lo
+sabemos»).** Three layers. (1) The reviewer, `scripts/revisor/` (`pnpm
+revisar`, in `verify` on every push and step 7 of the local full check):
+the demo build, every screen at 360×640, 390×844 and 1440×800, four example
+people (newcomer, with the hour, without, without city and date), plus flows
+that open the city list and the sheets; it fails on a control a person cannot
+scroll to (only `overflow: auto/scroll` counts — the robot also moves
+`overflow: hidden`, and so first missed the bug of that day), one left
+covered after trying top, middle and bottom, a page wider than the screen or
+a console error; deliberate exceptions go in `permitidos.json`. Proven on
+the two bugs of 27 Oct (the birth form in Perfil did not scroll; Carta's
+left column hid «Ver mi carta completa» at 800 px tall on desktop, found by
+the reviewer itself). (2) A scheduled task, «Revisión diaria de Natus»
+(every day 8:35 Chile, read-only, cloud): errors, AI failures, function 5xx,
+the funnel against the week before, city misses, unanswered suggestions and
+the site up; it pushes to the owner only when something is off. (3) Signs of
+being stuck (`supabase/stuck-signals.ts`): four taps on the same thing within
+2.5 s, or a tap on a switched-off button, go to `client_errors` as kind
+`atasco` («Atasco: tocó «Guardar cambios» apagado»), once per page and
+thing, with only the screen and the button's own label (40 characters at
+most; anything else by its tag) — the panel's «Errores» lists them.
+
 **Capacity and how to grow (24 Oct 2026, proposals, nothing decided):**
 the limits of every service, the signs to watch, the steps at 100,000,
 200,000 and a million people a month, and moving the site off GitHub Pages

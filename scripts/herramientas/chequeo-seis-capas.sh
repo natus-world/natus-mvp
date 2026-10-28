@@ -34,6 +34,8 @@ printf 'VITE_SUPABASE_URL=http://127.0.0.1:54321\nVITE_SUPABASE_ANON_KEY=%s\n' "
 pnpm verify:chat >"$LOGS/6a.log" 2>&1 && grep -E "passed" "$LOGS/6a.log" || { tail -15 "$LOGS/6a.log"; fail=1; }
 pnpm verify:models >"$LOGS/6b.log" 2>&1 && grep -E "passed" "$LOGS/6b.log" || { tail -15 "$LOGS/6b.log"; fail=1; }
 rm -f .env.local
+step "7 revisor: every screen, three sizes"
+CHROMIUM=${CHROMIUM:-/opt/pw-browsers/chromium-1194/chrome-linux/chrome} PUERTO=4179 SALIDA="$LOGS/revisor" sh scripts/revisor/revisar.sh >"$LOGS/7.log" 2>&1 && head -1 "$LOGS/7.log" || { tail -25 "$LOGS/7.log"; fail=1; }
 step "git status (nothing unexpected)"
 git status --short
 [ $fail = 0 ] && echo "\nTODO OK" || echo "\nFALLÓ ALGO (logs en $LOGS)"

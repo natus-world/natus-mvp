@@ -2,7 +2,8 @@ import { json, preflight } from '../_shared/cors.ts';
 import { authenticate, Unauthorized } from '../_shared/auth.ts';
 
 const PER_USER_PER_HOUR = 20;
-const KINDS = new Set(['render', 'error', 'rejection']);
+// `atasco`: a sign that something does not work (27 Oct 2026, stuck-signals.ts).
+const KINDS = new Set(['render', 'error', 'rejection', 'atasco']);
 
 function text(value: unknown, max: number): string | null {
   return typeof value === 'string' && value.trim() !== '' ? value.slice(0, max) : null;

@@ -18,3 +18,5 @@ coverage/
 
 # Playwright MCP scratch output
 .playwright-mcp/
+dist-revisor/
+revisor-salida/

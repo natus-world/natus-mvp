@@ -269,14 +269,28 @@
     overflow: visible;
   }
 
+  /* Scrolls on its own when the window is short (27 Oct 2026): at 800 px
+     tall «Ver mi carta completa» fell under the edge with no way down. */
   .carta .col1 {
     position: absolute;
     left: 0;
     top: 0;
+    bottom: 0;
     width: min(calc(var(--d) * 580), calc(100% - var(--d) * 500 - 24px));
     display: flex;
     flex-direction: column;
     gap: calc(var(--d) * 16);
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding-bottom: calc(var(--d) * 32);
+  }
+
+  .carta .col1 > * {
+    flex: none;
+  }
+
+  .carta .col1::-webkit-scrollbar {
+    display: none;
   }
 
   .carta .col1 .t {
