@@ -242,6 +242,8 @@ Deno.serve(async (request) => {
     });
     const cost = work.reduce((sum, w) => sum + w.cost, 0);
     if ((await spentThisMonth(elevated)) + cost > Number(settings.monthly_cap_usd)) {
+      // The team hears it once a month (owner, 29 Oct 2026).
+      await elevated.rpc('notify_voice_cap', { p_cap: Number(settings.monthly_cap_usd) });
       return json(request, { error: 'voice_cap' }, 429);
     }
 

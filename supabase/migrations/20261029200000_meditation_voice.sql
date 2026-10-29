@@ -80,7 +80,74 @@ create table public.voice_settings (
 alter table public.voice_settings enable row level security;
 grant select on public.voice_settings to service_role;
 insert into public.voice_settings (monthly_cap_usd, model, voice_mujer, voice_hombre, language_code)
-values (10, 'gemini-3.1-flash-tts-preview', 'Sulafat', 'Charon', 'es-US');
+values (20, 'gemini-3.1-flash-tts-preview', 'Sulafat', 'Charon', 'es-US');
+
+-- ── the team hears when the ceiling is reached (owner, 29 Oct 2026) ────────
+-- Once a month, by mail to the admins, through Resend as the crisis alert
+-- does (`resend_api_key` in Vault). Called by the voice function the first
+-- time it refuses for the ceiling.
+create table public.voice_cap_notices (
+  month       date primary key,
+  notified_at timestamptz not null default now()
+);
+alter table public.voice_cap_notices enable row level security;
+grant select, insert on public.voice_cap_notices to service_role;
+
+create function public.notify_voice_cap(p_cap numeric)
+returns void
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $$
+declare
+  api_key text;
+  recipients text[];
+  this_month date := (date_trunc('month', now() at time zone 'utc'))::date;
+begin
+  insert into public.voice_cap_notices (month) values (this_month) on conflict do nothing;
+  if not found then
+    return;
+  end if;
+  begin
+    select s.decrypted_secret into api_key
+    from vault.decrypted_secrets s where s.name = 'resend_api_key' limit 1;
+    if api_key is null or api_key = '' then
+      return;
+    end if;
+    select array_agg(distinct u.email) into recipients
+    from public.admins a join auth.users u on u.id = a.user_id
+    where u.email is not null;
+    if recipients is null then
+      return;
+    end if;
+    perform net.http_post(
+      url := 'https://api.resend.com/emails',
+      headers := jsonb_build_object('Authorization', 'Bearer ' || api_key, 'Content-Type', 'application/json'),
+      body := jsonb_build_object(
+        'from', 'Natus <alertas@mail.natus.world>',
+        'to', to_jsonb(recipients),
+        'subject', format('Natus: la voz de las meditaciones llegó a US$ %s este mes', p_cap),
+        'text', format(
+          E'La voz de Google para las meditaciones llegó al tope de US$ %s de este mes.
+
+'
+          'Desde ahora y hasta fin de mes, las meditaciones nuevas se escuchan con la voz del celular. '
+          'Las que ya se grabaron siguen con la voz de Google.
+
+'
+          'Para subir el tope, pídeselo a Claude (es un número en voice_settings).',
+          p_cap
+        )
+      )
+    );
+  exception when others then
+    return;
+  end;
+end
+$$;
+revoke all on function public.notify_voice_cap(numeric) from public, anon, authenticated;
+grant execute on function public.notify_voice_cap(numeric) to service_role;
 
 -- ── the meditation remembers its script ─────────────────────────────────────
 alter table public.meditations add column voice_script_id uuid

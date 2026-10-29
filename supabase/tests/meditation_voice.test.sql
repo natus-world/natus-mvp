@@ -8,7 +8,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(9);
+select plan(11);
 
 create or replace function pg_temp.act_as(uid uuid) returns void as $$
 begin
@@ -29,7 +29,9 @@ insert into public.meditation_voice_audio (script_id, voice, passage, user_id, m
 values ('cccccccc-0000-4000-8000-0000000000c1', 'mujer', 0, 'bbbbbbbb-0000-4000-8000-0000000000b1',
         'gemini-3.1-flash-tts-preview', 'Sulafat', 'x/0.mp3', 19, 0.0012);
 
-select is((select monthly_cap_usd from public.voice_settings), 10.00::numeric(10,2), 'The ceiling starts at ten dollars');
+select is((select monthly_cap_usd from public.voice_settings), 20.00::numeric(10,2), 'The ceiling starts at twenty dollars');
+select lives_ok($$ select public.notify_voice_cap(20); select public.notify_voice_cap(20) $$, 'Reaching the ceiling tells the team (no mail key here: nothing sent)');
+select is((select count(*) from public.voice_cap_notices), 1::bigint, '... once a month, however many times it is reached');
 select is(public.voice_spent_this_month(), 0.0012::numeric, 'This month''s spend is what was recorded');
 
 select pg_temp.act_as('bbbbbbbb-0000-4000-8000-0000000000b1');
