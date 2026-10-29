@@ -19,6 +19,7 @@ import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
 import { Paywall } from '@/components/Paywall';
 import { getPreferences, setMeditationVoice, setVolumes, type MeditationVoice } from '@/store/preferences';
 import { voiceSource } from '@/audio/voice-source';
+import { hearsBinaural, saveEpilepsy } from '@/store/care';
 import { meditationById, saveMeditation, type StoredMeditation } from '@/store/meditations';
 
 /**
@@ -76,6 +77,8 @@ export function Meditation() {
   const [intent, setIntent] = useState('');
   const [minutes, setMinutes] = useState(10);
   const [guide, setGuide] = useState<MeditationVoice>(() => getPreferences().meditation_voice);
+  // Asked before the first meditation (owner, 29 Oct 2026): the music is binaural.
+  const [epilepsy, setEpilepsy] = useState<boolean | undefined>(() => profile?.draft.clinical_basics.epilepsy);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
@@ -237,6 +240,34 @@ export function Meditation() {
             ))}
           </div>
 
+          {/* The music is binaural; asked once, changeable here (owner, 29 Oct 2026). */}
+          <p className="lbl" id="epilepsy-label">
+            {text.epilepsyLabel}
+          </p>
+          <div className="chips" role="radiogroup" aria-labelledby="epilepsy-label" aria-describedby="epilepsy-helper">
+            {text.epilepsyOptions.map(([value, label]) => {
+              const has = value === 'si';
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={epilepsy === has}
+                  onClick={() => {
+                    setEpilepsy(has);
+                    saveEpilepsy(has);
+                  }}
+                  className={epilepsy === has ? 'dur on' : 'dur'}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="nota" id="epilepsy-helper">
+            {text.epilepsyHelper}
+          </p>
+
           {/* The meditation's voice (owner, 29 Oct 2026). */}
           <p className="lbl" id="voice-label">
             {text.voiceLabel}
@@ -289,7 +320,7 @@ export function Meditation() {
               type="button"
               className="btn p"
               disabled={
-                intent.trim() === '' || generating || (quota?.remaining === 0 && !freeUsedUp)
+                intent.trim() === '' || generating || epilepsy === undefined || (quota?.remaining === 0 && !freeUsedUp)
               }
               onClick={() => void generate()}
             >
@@ -364,6 +395,7 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
       ssml: meditation.script.script_ssml,
       from,
       bed: bedTrack,
+      binaural: hearsBinaural(activeProfile()?.draft.clinical_basics),
       voice: source,
       voiceVolume: voice,
       bedVolume: bed,

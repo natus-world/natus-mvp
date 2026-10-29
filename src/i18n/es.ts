@@ -1302,6 +1302,15 @@ export const es = {
       ['hombre', 'Voz de hombre'],
     ] as const,
     preparingVoice: 'Preparando la voz…',
+    // The epilepsy question (owner, 29 Oct 2026: two answers, and say the
+    // music is binaural). The wording is a proposal on that.
+    epilepsyLabel: '¿Tienes epilepsia o has tenido convulsiones?',
+    epilepsyHelper:
+      'Nuestras músicas son binaurales: llevan un tono un poco distinto en cada oído, y no se recomiendan con epilepsia. Si la tienes, te damos una versión igual en los dos.',
+    epilepsyOptions: [
+      ['no', 'No'],
+      ['si', 'Sí'],
+    ] as const,
     noSpeech: 'Este navegador no tiene síntesis de voz, así que podrás leer el guion, pero no escucharlo.',
     spendLimit: 'Por hoy llegamos al límite de prácticas. Lo que escribiste sigue aquí: inténtalo más tarde.',
     crisis:

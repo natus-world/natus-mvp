@@ -43,6 +43,8 @@ export function createPlayer(input: {
   /** The segment to begin at (a pause goes on from where it was, QA-31). */
   from?: number;
   bed: BedTrack | undefined;
+  /** The binaural version of the bed, for whoever said they have no epilepsy. */
+  binaural?: boolean;
   /** Google's recordings (owner, 29 Oct 2026); absent, the phone's voice reads. */
   voice?: VoiceSource | null;
   voiceVolume: number;
@@ -75,7 +77,7 @@ export function createPlayer(input: {
       if (input.bed && input.bed.id !== 'silencio') {
         try {
           ctx = new AudioContext();
-          bed = createBed(ctx, input.bed, ctx.destination);
+          bed = createBed(ctx, input.bed, ctx.destination, input.binaural === true);
           bed.start();
           bed.setVolume(bedVolume);
         } catch {

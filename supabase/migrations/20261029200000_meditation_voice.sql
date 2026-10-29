@@ -174,3 +174,11 @@ alter table public.claude_api_calls
 insert into public.model_prices (model, input, output, cache_write, cache_read)
 values ('gemini-3.1-flash-tts-preview', 1, 20, 0, 0)
 on conflict (model) do nothing;
+
+-- ── epilepsy, before the first meditation (owner, 29 Oct 2026) ──────────────
+-- The recorded music is binaural; binaural beats are not advised with
+-- epilepsy. Asked once; only an explicit «No» hears the binaural version,
+-- everybody else a mono one, the same in both ears. A clinical answer like
+-- the others: never in a model payload.
+alter table public.clients add column clinical_epilepsy boolean;
+alter table public.anonymous_sessions add column clinical_epilepsy boolean;

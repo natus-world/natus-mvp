@@ -253,11 +253,23 @@ describe('sound beds', () => {
     }
   });
 
-  it('plays recorded tracks in mono, so nothing differs between the ears', () => {
-    // The recorded tracks (29 Oct 2026) are downmixed to one channel when
-    // they enter the repository: a stereo file could carry a binaural beat.
+  it('plays recorded tracks in mono unless the binaural version was chosen', () => {
+    // The recorded tracks (29 Oct 2026) are binaural in the original. What
+    // everybody hears is a mono downmix; the binaural file is a separate path
+    // the player reaches only through an explicit «No» to epilepsy.
     for (const track of BED_TRACKS) {
-      if (track.file) expect(track.file.path).toMatch(/\.mono\.mp3$/);
+      if (!track.file) continue;
+      expect(track.file.path).toMatch(/\.mono\.mp3$/);
+      if (track.file.binaural_path) expect(track.file.binaural_path).toMatch(/\.binaural\.mp3$/);
+    }
+  });
+
+  it('ships every recorded file it names', async () => {
+    const { existsSync } = await import('node:fs');
+    for (const track of BED_TRACKS) {
+      for (const path of [track.file?.path, track.file?.binaural_path]) {
+        if (path) expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
+      }
     }
   });
 });

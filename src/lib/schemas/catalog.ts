@@ -124,7 +124,10 @@ export const bedTrackSchema = z.object({
    */
   file: z
     .object({
+      /** The same in both ears: what everybody hears unless they said no epilepsy. */
       path: z.string().min(1),
+      /** The original, binaural: only for whoever answered «No» to epilepsy. */
+      binaural_path: z.string().min(1).nullable(),
       license: z.string().min(1),
       source: z.url(),
     })

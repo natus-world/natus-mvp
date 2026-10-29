@@ -136,8 +136,17 @@ function fileBed(ctx: AudioContext, url: string, destination: AudioNode): Bed {
   };
 }
 
-export function createBed(ctx: AudioContext, track: BedTrack, destination: AudioNode): Bed {
-  if (track.file) return fileBed(ctx, `${import.meta.env.BASE_URL}${track.file.path}`, destination);
+export function createBed(
+  ctx: AudioContext,
+  track: BedTrack,
+  destination: AudioNode,
+  /** Only an explicit «No» to epilepsy (owner, 29 Oct 2026). */
+  binaural = false,
+): Bed {
+  if (track.file) {
+    const path = binaural && track.file.binaural_path ? track.file.binaural_path : track.file.path;
+    return fileBed(ctx, `${import.meta.env.BASE_URL}${path}`, destination);
+  }
   const synthesis = track.synthesis ?? { voices: [], noise: null, lfo: null };
   const output = ctx.createGain();
   output.gain.value = 0;

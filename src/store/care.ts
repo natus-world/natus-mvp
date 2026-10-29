@@ -72,3 +72,18 @@ export function completeCare(basics: ClinicalBasics, now = Date.now()): CareOutc
   if (verdict.crisis) recordCrisisEvent(verdict, 'onboarding', now);
   return { next: 'continue', alerted: verdict.crisis };
 }
+
+/**
+ * The epilepsy answer, asked before the first meditation (owner, 29 Oct
+ * 2026): the music is binaural, which is not advised with epilepsy.
+ */
+export function saveEpilepsy(has: boolean, now = Date.now()): void {
+  const profile = activeProfile(now);
+  if (!profile) return;
+  updateActiveProfile({ clinical_basics: { ...profile.draft.clinical_basics, epilepsy: has } }, now);
+}
+
+/** Only an explicit «No» hears the binaural music; unanswered hears mono. */
+export function hearsBinaural(basics: ClinicalBasics | undefined): boolean {
+  return basics?.epilepsy === false;
+}

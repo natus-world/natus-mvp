@@ -131,6 +131,7 @@ export type Database = {
           birth_time: string | null
           claimed_at: string | null
           clinical_additional_notes: string | null
+          clinical_epilepsy: boolean | null
           clinical_ideation_6m: string | null
           clinical_in_treatment: boolean | null
           clinical_prefer_not_to_say: string[]
@@ -159,6 +160,7 @@ export type Database = {
           birth_time?: string | null
           claimed_at?: string | null
           clinical_additional_notes?: string | null
+          clinical_epilepsy?: boolean | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]
@@ -187,6 +189,7 @@ export type Database = {
           birth_time?: string | null
           claimed_at?: string | null
           clinical_additional_notes?: string | null
+          clinical_epilepsy?: boolean | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]
@@ -400,6 +403,7 @@ export type Database = {
           birth_time: string | null
           claimed_session_id: string | null
           clinical_additional_notes: string | null
+          clinical_epilepsy: boolean | null
           clinical_ideation_6m: string | null
           clinical_in_treatment: boolean | null
           clinical_prefer_not_to_say: string[]
@@ -427,6 +431,7 @@ export type Database = {
           birth_time?: string | null
           claimed_session_id?: string | null
           clinical_additional_notes?: string | null
+          clinical_epilepsy?: boolean | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]
@@ -454,6 +459,7 @@ export type Database = {
           birth_time?: string | null
           claimed_session_id?: string | null
           clinical_additional_notes?: string | null
+          clinical_epilepsy?: boolean | null
           clinical_ideation_6m?: string | null
           clinical_in_treatment?: boolean | null
           clinical_prefer_not_to_say?: string[]
@@ -889,7 +895,8 @@ export type Database = {
           cost_usd: number
           created_at: string
           model: string
-          paths: Json
+          passage: number
+          path: string
           script_id: string
           user_id: string
           voice: string
@@ -900,7 +907,8 @@ export type Database = {
           cost_usd: number
           created_at?: string
           model: string
-          paths: Json
+          passage: number
+          path: string
           script_id: string
           user_id: string
           voice: string
@@ -911,7 +919,8 @@ export type Database = {
           cost_usd?: number
           created_at?: string
           model?: string
-          paths?: Json
+          passage?: number
+          path?: string
           script_id?: string
           user_id?: string
           voice?: string
@@ -1713,6 +1722,21 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_cap_notices: {
+        Row: {
+          month: string
+          notified_at: string
+        }
+        Insert: {
+          month: string
+          notified_at?: string
+        }
+        Update: {
+          month?: string
+          notified_at?: string
+        }
+        Relationships: []
+      }
       voice_settings: {
         Row: {
           id: boolean
@@ -2364,6 +2388,7 @@ export type Database = {
       }
       my_invite_token: { Args: never; Returns: string }
       my_quota: { Args: { p_feature: string }; Returns: Json }
+      notify_voice_cap: { Args: { p_cap: number }; Returns: undefined }
       plan_tier: { Args: { p_user: string }; Returns: string }
       quota_parts: {
         Args: { p_feature: string; p_now?: string; p_user: string }
@@ -2428,6 +2453,7 @@ export type Database = {
           output_tokens: number
         }[]
       }
+      voice_spent_this_month: { Args: never; Returns: number }
     }
     Enums: {
       friendship_status: "pending" | "accepted" | "declined" | "removed"

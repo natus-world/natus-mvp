@@ -1,8 +1,78 @@
 {
-  "$comment": "Sound beds for meditations. These are SYNTHESIS DESCRIPTORS, not file paths: the demo builds each bed in the browser with OscillatorNode and filtered noise rather than shipping audio. That removes the licensing question entirely (PDR 5.7 makes bed_tracks.license mandatory) and keeps the repository small. When a real audio library replaces this, the shape stays: name, frequency_hz, and a selection hint the model can reason over.",
-  "version": "bed-tracks-v1",
-  "$safety": "None of these are binaural beats. Binaural beats present two different frequencies, one per ear, and are contraindicated in epilepsy - using them would require adding a question to the clinical onboarding screen, which is out of scope. Every bed here is a single tone, or a chord of tones, played identically to both ears, plus filtered noise.",
+  "$comment": "Sound beds for meditations. Since 29 Oct 2026 (owner) the active ones are recorded tracks from Pixabay, binaural in the original: `file.path` is a mono downmix (the same in both ears) that everybody hears, and `file.binaural_path` the original, played only to whoever answered «No» to the epilepsy question. The synthesised descriptors stay, inactive, so meditations made before still play their bed.",
+  "version": "bed-tracks-v2",
+  "$safety": "Binaural beats are not advised with epilepsy. The binaural file is reached only through an explicit «No» to clinical_basics.epilepsy; unanswered or «Sí» hears the mono file. The synthesised beds were never binaural.",
   "tracks": [
+    {
+      "id": "calma-profunda",
+      "name": "Calma profunda",
+      "frequency_hz": null,
+      "suits": "Intenciones de calma, soltar la tensión, bajar el ritmo.",
+      "file": {
+        "path": "audio/beds/zen-ambient-for-deep-calm.mono.mp3",
+        "binaural_path": "audio/beds/zen-ambient-for-deep-calm.binaural.mp3",
+        "license": "Pixabay Content License (pixabay.com/service/license-summary), autor AmbiNet; uso dentro de la app permitido, sin atribución obligatoria; prohibido distribuirla suelta.",
+        "source": "https://pixabay.com/music/meditationspiritual-zen-ambient-for-deep-calm-315406/"
+      },
+      "synthesis": null,
+      "is_active": true
+    },
+    {
+      "id": "ecos-suaves",
+      "name": "Ecos suaves",
+      "frequency_hz": null,
+      "suits": "Intenciones de atención al cuerpo, presencia, escucha interior.",
+      "file": {
+        "path": "audio/beds/soft-echoes-for-meditation.mono.mp3",
+        "binaural_path": "audio/beds/soft-echoes-for-meditation.binaural.mp3",
+        "license": "Pixabay Content License (pixabay.com/service/license-summary), autor AmbiNet; uso dentro de la app permitido, sin atribución obligatoria; prohibido distribuirla suelta.",
+        "source": "https://pixabay.com/music/meditationspiritual-soft-echoes-for-meditation-315382/"
+      },
+      "synthesis": null,
+      "is_active": true
+    },
+    {
+      "id": "olas-en-silencio",
+      "name": "Olas en silencio",
+      "frequency_hz": null,
+      "suits": "Intenciones de descanso profundo, cansancio, dejar ir.",
+      "file": {
+        "path": "audio/beds/silent-waves-for-deep-relaxation.mono.mp3",
+        "binaural_path": "audio/beds/silent-waves-for-deep-relaxation.binaural.mp3",
+        "license": "Pixabay Content License (pixabay.com/service/license-summary), autor AmbiNet; uso dentro de la app permitido, sin atribución obligatoria; prohibido distribuirla suelta.",
+        "source": "https://pixabay.com/music/meditationspiritual-silent-waves-for-deep-relaxation-315369/"
+      },
+      "synthesis": null,
+      "is_active": true
+    },
+    {
+      "id": "antes-de-dormir",
+      "name": "Antes de dormir",
+      "frequency_hz": null,
+      "suits": "Intenciones de cierre del día, sueño, aflojar la mente.",
+      "file": {
+        "path": "audio/beds/gentle-ambient-for-deep-sleep.mono.mp3",
+        "binaural_path": "audio/beds/gentle-ambient-for-deep-sleep.binaural.mp3",
+        "license": "Pixabay Content License (pixabay.com/service/license-summary), autor AmbiNet; uso dentro de la app permitido, sin atribución obligatoria; prohibido distribuirla suelta.",
+        "source": "https://pixabay.com/music/meditationspiritual-gentle-ambient-for-deep-sleep-315296/"
+      },
+      "synthesis": null,
+      "is_active": true
+    },
+    {
+      "id": "tonos-armonicos",
+      "name": "Tonos armónicos",
+      "frequency_hz": null,
+      "suits": "Intenciones de equilibrio, ansiedad, volver al centro.",
+      "file": {
+        "path": "audio/beds/harmonic-tones-for-relaxation.mono.mp3",
+        "binaural_path": "audio/beds/harmonic-tones-for-relaxation.binaural.mp3",
+        "license": "Pixabay Content License (pixabay.com/service/license-summary), autor AmbiNet; uso dentro de la app permitido, sin atribución obligatoria; prohibido distribuirla suelta.",
+        "source": "https://pixabay.com/music/meditationspiritual-harmonic-tones-for-relaxation-315301/"
+      },
+      "synthesis": null,
+      "is_active": true
+    },
     {
       "id": "cuencos-432",
       "name": "Cuencos 432 Hz",
@@ -10,14 +80,30 @@
       "suits": "Intenciones de calma, cierre del día, soltar.",
       "synthesis": {
         "voices": [
-          { "type": "sine", "hz": 432, "gain": 0.16 },
-          { "type": "sine", "hz": 648, "gain": 0.05 },
-          { "type": "sine", "hz": 864, "gain": 0.03 }
+          {
+            "type": "sine",
+            "hz": 432,
+            "gain": 0.16
+          },
+          {
+            "type": "sine",
+            "hz": 648,
+            "gain": 0.05
+          },
+          {
+            "type": "sine",
+            "hz": 864,
+            "gain": 0.03
+          }
         ],
         "noise": null,
-        "lfo": { "hz": 0.08, "depth": 0.35 }
+        "lfo": {
+          "hz": 0.08,
+          "depth": 0.35
+        }
       },
-      "is_active": true
+      "is_active": false,
+      "file": null
     },
     {
       "id": "drone-528",
@@ -26,13 +112,25 @@
       "suits": "Intenciones de apertura, autoestima, reparación.",
       "synthesis": {
         "voices": [
-          { "type": "sine", "hz": 528, "gain": 0.14 },
-          { "type": "triangle", "hz": 264, "gain": 0.06 }
+          {
+            "type": "sine",
+            "hz": 528,
+            "gain": 0.14
+          },
+          {
+            "type": "triangle",
+            "hz": 264,
+            "gain": 0.06
+          }
         ],
         "noise": null,
-        "lfo": { "hz": 0.11, "depth": 0.3 }
+        "lfo": {
+          "hz": 0.11,
+          "depth": 0.3
+        }
       },
-      "is_active": true
+      "is_active": false,
+      "file": null
     },
     {
       "id": "drone-grave",
@@ -41,13 +139,29 @@
       "suits": "Intenciones de arraigo y regulación cuando hay mucha activación.",
       "synthesis": {
         "voices": [
-          { "type": "sine", "hz": 96, "gain": 0.2 },
-          { "type": "sine", "hz": 144, "gain": 0.07 }
+          {
+            "type": "sine",
+            "hz": 96,
+            "gain": 0.2
+          },
+          {
+            "type": "sine",
+            "hz": 144,
+            "gain": 0.07
+          }
         ],
-        "noise": { "type": "brown", "gain": 0.05, "lowpass_hz": 400 },
-        "lfo": { "hz": 0.06, "depth": 0.25 }
+        "noise": {
+          "type": "brown",
+          "gain": 0.05,
+          "lowpass_hz": 400
+        },
+        "lfo": {
+          "hz": 0.06,
+          "depth": 0.25
+        }
       },
-      "is_active": true
+      "is_active": false,
+      "file": null
     },
     {
       "id": "lluvia",
@@ -56,18 +170,31 @@
       "suits": "Intenciones de sueño y descanso, o cuando el tono puro molesta.",
       "synthesis": {
         "voices": [],
-        "noise": { "type": "pink", "gain": 0.14, "lowpass_hz": 1800 },
-        "lfo": { "hz": 0.2, "depth": 0.2 }
+        "noise": {
+          "type": "pink",
+          "gain": 0.14,
+          "lowpass_hz": 1800
+        },
+        "lfo": {
+          "hz": 0.2,
+          "depth": 0.2
+        }
       },
-      "is_active": true
+      "is_active": false,
+      "file": null
     },
     {
       "id": "silencio",
       "name": "Solo voz",
       "frequency_hz": null,
       "suits": "Cuando la persona prefiere la guía sin fondo. Siempre disponible.",
-      "synthesis": { "voices": [], "noise": null, "lfo": null },
-      "is_active": true
+      "synthesis": {
+        "voices": [],
+        "noise": null,
+        "lfo": null
+      },
+      "is_active": true,
+      "file": null
     }
   ]
 }

@@ -40,6 +40,12 @@ export type ClinicalBasics = {
    * no model payload carries `clinical_basics` at all.
    */
   additional_notes?: string;
+  /**
+   * Asked before the first meditation (owner, 29 Oct 2026): the music is
+   * binaural, and binaural beats are not advised with epilepsy. Only an
+   * explicit `false` hears the binaural version; unanswered hears it in mono.
+   */
+  epilepsy?: boolean;
 };
 
 export type CrisisDetection = {
