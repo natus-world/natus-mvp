@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { NextButton, StepBody } from '@/components/onboarding/StepChrome';
 import { BIRTH_COUNTRIES } from '@/components/birth-countries';
-import { ELSEWHERE, LIVING_COUNTRIES } from '@/components/countries';
 import { BirthPlaceField } from '@/components/onboarding/BirthPlaceField';
-import { BirthIcon, GlobeIcon, PinIcon, YouIcon } from '@/components/onboarding/icons';
+import { BirthIcon, GlobeIcon, YouIcon } from '@/components/onboarding/icons';
+import { guessedHomeCountry } from '@/components/help-country';
 import type { OnboardingDraft } from '@/store/session';
 import { copy } from '@/i18n';
 import { hasBirthTime, hasNatalChartInput } from '@/astrology/natal-chart';
@@ -231,7 +231,15 @@ export function BasicData({
   const timeGiven = hasBirthTime(draft) || noHour;
   const dayNightGiven = !askWithoutTime || draft.birth_daynight !== undefined;
   const timeDecided = timeGiven && dayNightGiven && (!askWithoutTime || draft.chart_without_time !== undefined);
-  const canContinue = !placeUnpicked && !underage && draft.country !== '' && nameGiven && dateGiven && timeDecided;
+  const canContinue = !placeUnpicked && !underage && nameGiven && dateGiven && timeDecided;
+
+  // «País donde vives» is no longer asked here (owner, 29 Oct 2026): set from
+  // the phone, else the country of birth, and changed in Perfil.
+  useEffect(() => {
+    if (draft.country !== '') return;
+    const guess = guessedHomeCountry(draft.birth_country);
+    if (guess) onChange({ country: guess });
+  }, [draft.country, draft.birth_country, onChange]);
 
   // The package: «El botón queda fijo abajo; si falta algo, dice qué.»
   const missing = !nameGiven
@@ -242,9 +250,7 @@ export function BasicData({
       ? text.missing.date
       : underage
         ? null
-        : draft.country === ''
-          ? text.missing.country
-          : placeUnpicked
+        : placeUnpicked
             ? text.missing.place
             : !timeGiven
               ? halfTime
@@ -416,42 +422,6 @@ export function BasicData({
               helperClass="l"
               onChange={(birth_city, birth_place) => onChange({ birth_city, birth_place, natal_chart: null })}
             />
-          </div>
-        </div>
-
-        <div className="campo">
-          <PinIcon />
-          <div>
-            <select
-              id="country"
-              className={draft.country ? 'v' : 'v ph'}
-              value={draft.country}
-              onChange={(e) => onChange({ country: e.target.value })}
-              aria-label={text.countryLabel}
-              aria-describedby="country-helper"
-            >
-              <option value="" disabled>
-                {text.countryLabel}
-              </option>
-              {/* Every country (owner, 16 Oct 2026): the five with help lines
-                  first, then the rest of the world. */}
-              {LIVING_COUNTRIES.first.map(([code, name]) => (
-                <option key={code} value={code}>
-                  {`${text.livesIn}${name}`}
-                </option>
-              ))}
-              <optgroup label={text.otherCountries}>
-                {LIVING_COUNTRIES.rest.map(([code, name]) => (
-                  <option key={code} value={code}>
-                    {`${text.livesIn}${name}`}
-                  </option>
-                ))}
-              </optgroup>
-              {draft.country === ELSEWHERE && <option value={ELSEWHERE}>{text.livesElsewhere}</option>}
-            </select>
-            <p id="country-helper" className="l">
-              {text.countryHelper}
-            </p>
           </div>
         </div>
 

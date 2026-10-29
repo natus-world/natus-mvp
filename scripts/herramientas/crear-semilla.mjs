@@ -32,7 +32,7 @@ await p.selectOption('#birth-country', 'CL');
 await p.getByRole('combobox', { name: /Ciudad/ }).fill('Santiago');
 await p.waitForTimeout(1200);
 await p.locator('[role=listbox] li, [role=option]').first().click();
-await p.selectOption('#country', 'CL');
+// «País donde vives» left the step (29 Oct 2026): set from the phone, else the birth country.
 // without the hour the step asks whether to calculate the chart anyway: the first option (yes)
 if (sinHora) await p.locator('[aria-labelledby="without-time-label"] [role=radio]').first().click();
 await p.getByRole('button', { name: /Continuar/ }).click();

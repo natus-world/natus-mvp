@@ -49,9 +49,6 @@ export const es = {
       },
       // Package 01, proposed: the example under the gender (from Perfil).
       genderExample: 'Por ejemplo: «Hoy podrías sentir más calma».',
-      // «País donde vives» read as the package draws it: «Vivo en Chile».
-      livesIn: 'Vivo en ',
-      livesElsewhere: 'Vivo en otro país',
       // Under the button, what is still missing. `date` is the package's; the
       // others are proposed (16 Oct 2026).
       missing: {
@@ -59,7 +56,6 @@ export const es = {
         // Approved by the owner (22 Oct 2026): initials alone cannot be read.
         nameFull: 'Escribe tu nombre completo, como figura en tu partida.',
         date: 'Falta tu fecha de nacimiento',
-        country: 'Falta el país donde vives',
         place: 'Falta elegir tu ciudad de la lista',
         withoutTime: 'Falta decidir si calculamos tu carta sin la hora',
         // Proposed (22 Oct 2026): not knowing the hour is said, not guessed.
@@ -84,11 +80,8 @@ export const es = {
       birthCountryLabel: 'País de nacimiento',
       birthCountryPlaceholder: 'Elige un país',
       birthCountryHelper: 'Con la ciudad y el país calculamos tu carta natal.',
-      countryLabel: 'País donde vives',
-      countryPlaceholder: 'Elige un país',
       // Owner, 16 Oct 2026: only adults; proposed text.
       underage: 'Natus es para personas mayores de 18 años.',
-      countryHelper: 'Define qué líneas de ayuda ves',
       elsewhere: 'Otro país',
       otherCountries: 'Otros países',
       countries: [

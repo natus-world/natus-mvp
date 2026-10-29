@@ -800,8 +800,10 @@ subscription is active since 18 Oct 2026.
 **Adults only, the home country chosen, a second try (owner, 16 Oct 2026).**
 The birth step refuses a date that is not 18 years past (`lib/age.ts`), so
 also any date to come, with «Natus es para personas mayores de 18 años»
-(proposed). «País donde vives» starts empty and must be chosen: it decides
-the help lines. Deleting the accounts and sessions made before by people
+(proposed). «País donde vives» is no longer asked at the birth step (owner,
+29 Oct 2026: «Define qué líneas de ayuda ves» did not read): it is set from
+the phone's time zone, else the country of birth (`guessedHomeCountry`), and
+Perfil still changes it. Deleting the accounts and sessions made before by people
 under 18 is off the list until its legal implications are reviewed (owner,
 20 Oct 2026). Five anonymous test users made on 16 Oct 2026 (owner: all
 tests): 136f25bc-0f04-48ca-bb45-e970bb34e7e1,
