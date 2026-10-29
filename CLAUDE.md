@@ -350,6 +350,30 @@ pushes to the owner only when something is off. The screen reviewer
 (`scripts/revisor/`) and Carta's left column on short desktops wait on
 branch `nico/revisor`.
 
+**The meditation's voice and music (owner, 29 Oct 2026).** Google's Gemini
+3.1 Flash TTS (preview) reads the script: «Voz de mujer» (Sulafat) or «Voz
+de hombre» (Charon), chosen under «Quién te guía» and kept in
+`preferences.meditation_voice`; the model, the voices, the language and the
+monthly ceiling (US$20) are a row in `voice_settings`, changed without a
+deploy. The meditation function keeps the passages in
+`meditation_voice_scripts` (`stored_id` → `meditations.voice_script_id`), so
+the `meditation-voice` function reads aloud only what the server wrote; it
+records a range of passages at a time (the first three, then the rest while
+the practice plays) into the private bucket `meditation-voice`, once per
+passage and voice (`meditation_voice_audio`), with the style instruction
+`prompts/meditation-voice.ts` (meditation-voice-v1.0). Its cost is
+estimated from the characters (`lib/voice.ts`), logged as purpose `voice`,
+and summed by `voice_spent_this_month`; past the ceiling it answers
+`voice_cap`, mails the admins once that month (`notify_voice_cap`) and the
+phone's voice reads, as it does any passage whose recording does not come.
+Google is reached with `GOOGLE_TTS_SERVICE_ACCOUNT` if set, else
+`GOOGLE_TTS_API_KEY` (set by the owner, 29 Oct 2026; whether a key is enough
+for the Gemini voices is checked on the first live call). Free has 5 and 10
+minutes, Premium also 20, held by the meditation function's `refuse`. The
+beds become recorded tracks from Pixabay (licence in `bed-tracks.json`),
+downmixed to mono so nothing differs between the ears, and looped with an
+8-second crossfade (`audio/bed.ts`) so the music never stops.
+
 **Capacity and how to grow (24 Oct 2026, proposals, nothing decided):**
 the limits of every service, the signs to watch, the steps at 100,000,
 200,000 and a million people a month, and moving the site off GitHub Pages
