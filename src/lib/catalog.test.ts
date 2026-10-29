@@ -237,7 +237,7 @@ describe('crisis resources', () => {
 
 describe('sound beds', () => {
   it('offers a voice-only option so the bed is never mandatory', () => {
-    const silent = BED_TRACKS.find((t) => t.synthesis.voices.length === 0 && !t.synthesis.noise);
+    const silent = BED_TRACKS.find((t) => !t.file && t.synthesis !== null && t.synthesis.voices.length === 0 && !t.synthesis.noise);
     expect(silent).toBeDefined();
   });
 
@@ -246,10 +246,18 @@ describe('sound beds', () => {
     // extra clinical question. Every bed must be identical in both ears; this
     // asserts the data cannot express a per-ear split.
     for (const track of BED_TRACKS) {
-      for (const voice of track.synthesis.voices) {
+      for (const voice of track.synthesis?.voices ?? []) {
         expect(voice).not.toHaveProperty('pan');
         expect(voice).not.toHaveProperty('ear');
       }
+    }
+  });
+
+  it('plays recorded tracks in mono, so nothing differs between the ears', () => {
+    // The recorded tracks (29 Oct 2026) are downmixed to one channel when
+    // they enter the repository: a stereo file could carry a binaural beat.
+    for (const track of BED_TRACKS) {
+      if (track.file) expect(track.file.path).toMatch(/\.mono\.mp3$/);
     }
   });
 });

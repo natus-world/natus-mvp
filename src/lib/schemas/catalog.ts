@@ -118,6 +118,18 @@ export const bedTrackSchema = z.object({
   name: z.string().min(1),
   frequency_hz: z.number().positive().nullable(),
   suits: z.string().min(1),
+  /**
+   * A recorded track (owner, 29 Oct 2026), looped with a crossfade so it never
+   * stops however long the practice runs. PDR 5.7: the licence is mandatory.
+   */
+  file: z
+    .object({
+      path: z.string().min(1),
+      license: z.string().min(1),
+      source: z.url(),
+    })
+    .nullable()
+    .default(null),
   synthesis: z.object({
     voices: z.array(oscillatorVoiceSchema),
     noise: z
@@ -133,7 +145,7 @@ export const bedTrackSchema = z.object({
         depth: z.number().min(0).max(1),
       })
       .nullable(),
-  }),
+  }).nullable(),
   is_active: z.boolean(),
 });
 export type BedTrack = z.infer<typeof bedTrackSchema>;
