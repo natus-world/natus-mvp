@@ -3,6 +3,10 @@ import { meditationInputSchema } from '../_shared/lib/model-input.ts';
 import { meditationScriptSchema } from '../_shared/lib/schemas/index.ts';
 import { BED_TRACKS } from '../_shared/lib/catalog.ts';
 import { voicePassages } from '../_shared/lib/voice.ts';
+import { planQuota } from '../_shared/quota.ts';
+
+/** Longer than this is Premium's (owner, 29 Oct 2026). */
+const FREE_MAX_MINUTES = 10;
 import {
   MEDITATION_PROMPT_VERSION,
   MEDITATION_SYSTEM_PROMPT,
@@ -34,6 +38,13 @@ Deno.serve(
     system: MEDITATION_SYSTEM_PROMPT,
     user: (input, { gender }) => buildMeditationUserMessage({ ...input, beds: ACTIVE_BEDS, gender }),
     prose: (input) => input.intent,
+    // The twenty-minute practice is Premium's (owner, 29 Oct 2026): the
+    // screen offers free only five and ten, and the server holds it.
+    refuse: async (input, { elevated, userId }) => {
+      if (input.minutes <= FREE_MAX_MINUTES) return null;
+      const quota = await planQuota(elevated, userId, 'meditation');
+      return quota.tier === 'premium' ? null : { reason: 'premium_length', safety: false };
+    },
     // The meditation's voice (owner, 29 Oct 2026): the passages to speak are
     // kept where the browser cannot write them, so the voice function reads
     // aloud only what this function wrote. Its id travels back as `stored_id`.

@@ -1295,7 +1295,7 @@ export const es = {
     placeholder: 'Escribe lo que se te venga…',
     lengthLabel: 'Cuánto tiempo',
     minutes: (n: number) => `${n} min`,
-    // The meditation's voice (29 Oct 2026); proposals for the owner.
+    // The meditation's voice (29 Oct 2026); approved by the owner the same day.
     voiceLabel: 'Quién te guía',
     voiceOptions: [
       ['mujer', 'Voz de mujer'],

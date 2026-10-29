@@ -35,6 +35,8 @@ import { meditationById, saveMeditation, type StoredMeditation } from '@/store/m
  */
 
 const LENGTHS = [5, 10, 20];
+/** Twenty minutes is Premium's (owner, 29 Oct 2026); the server holds it too. */
+const FREE_LENGTHS = [5, 10];
 const text = copy.meditation;
 
 /** The package's arrow (`I.fl`), play and pause glyphs. */
@@ -222,7 +224,7 @@ export function Meditation() {
             {text.lengthLabel}
           </p>
           <div className="chips" role="group" aria-labelledby="length-label">
-            {LENGTHS.map((length) => (
+            {(quota?.tier === 'premium' ? LENGTHS : FREE_LENGTHS).map((length) => (
               <button
                 key={length}
                 type="button"
