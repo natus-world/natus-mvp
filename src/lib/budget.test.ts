@@ -163,6 +163,7 @@ describe('per-person limits', () => {
       'routine',
       'routine_review',
       'soul_map',
+      'voice',
     ]);
   });
 

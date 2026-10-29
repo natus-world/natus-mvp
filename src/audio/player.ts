@@ -1,5 +1,7 @@
 import { createBed, type Bed } from './bed';
 import { webSpeechProvider, type SpeechHandle } from './tts';
+import { recordedVoiceProvider } from './recorded-voice';
+import type { VoiceSource } from './voice-source';
 import { estimateDurationMs, parseSsml, type SsmlSegment } from '@/lib/ssml';
 import type { BedTrack } from '@/lib/schemas';
 
@@ -41,6 +43,8 @@ export function createPlayer(input: {
   /** The segment to begin at (a pause goes on from where it was, QA-31). */
   from?: number;
   bed: BedTrack | undefined;
+  /** Google's recordings (owner, 29 Oct 2026); absent, the phone's voice reads. */
+  voice?: VoiceSource | null;
   voiceVolume: number;
   bedVolume: number;
   events?: PlayerEvents;
@@ -82,7 +86,8 @@ export function createPlayer(input: {
       }
 
       events.onState?.('playing');
-      speech = webSpeechProvider.synthesize(
+      const provider = input.voice ? recordedVoiceProvider(input.voice) : webSpeechProvider;
+      speech = provider.synthesize(
         { ssml: input.ssml, from: input.from ?? 0, volume: () => voiceVolume },
         {
           ...(events.onSegment ? { onSegment: events.onSegment } : {}),

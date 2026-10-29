@@ -31,11 +31,14 @@ export type Purpose =
   | 'memory'
   | 'routine_review'
   | 'chart_points'
-  | 'daily_tip';
+  | 'daily_tip'
+  /** The meditation's voice, read by Google (owner, 29 Oct 2026). */
+  | 'voice';
 
 export const OPUS = 'claude-opus-5-5';
 export const SONNET = 'claude-sonnet-5-5';
 export type Model = typeof OPUS | typeof SONNET;
+export const GEMINI_VOICE = 'gemini-3.1-flash-tts-preview';
 
 export function modelFor(purpose: Purpose, trigger?: SynthesisTrigger): Model {
   if (purpose !== 'soul_map') return SONNET;
@@ -59,6 +62,8 @@ export const PRICE_PER_MTOK: Record<string, Prices> = {
   [OPUS]: { input: 4, output: 20, cacheWrite: 5, cacheRead: 0.2 },
   [SONNET]: { input: 2, output: 10, cacheWrite: 2.5, cacheRead: 0.2 },
   'claude-opus-5': { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 },
+  // Google's Gemini voice for the meditations: text in, audio out (owner, 29 Oct 2026).
+  [GEMINI_VOICE]: { input: 1, output: 20, cacheWrite: 0, cacheRead: 0 },
 };
 
 export const UNKNOWN_MODEL_PRICES: Prices = { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
@@ -162,6 +167,10 @@ export const PURPOSE_LIMITS: Record<Exclude<Purpose, 'chat'>, PurposeLimit> = {
   // day (a chart rewritten that day asks once more). Forty is a month and a
   // margin.
   daily_tip: { calls: 40, windowHours: 720 },
+  // The meditation's voice (owner, 29 Oct 2026): at most one recording per
+  // meditation and voice, so twice the meditations. Its money is bounded by
+  // `voice_settings.monthly_cap_usd`, not by tokens asked of a model.
+  voice: { calls: 80, windowHours: 720 },
 };
 
 /**
@@ -199,6 +208,9 @@ export const MAX_OUTPUT_TOKENS: Record<Purpose, number> = {
   match: 4000,
   chat: 3000,
   meditation: 6000,
+  // Not a model that writes: Google reads a script aloud, and the ceiling on
+  // its money is `voice_settings.monthly_cap_usd`.
+  voice: 0,
   // Raised from 4000 after the first synastry came back as truncated JSON.
   // The contract is the longest one — a headline, a pair per number, a
   // reading per aspect, flow, friction, questions and a disclaimer — and

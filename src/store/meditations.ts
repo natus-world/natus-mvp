@@ -25,6 +25,12 @@ export type StoredMeditation = {
   prompt_version: string;
   mode: AiRunMode;
   created_at: number;
+  /**
+   * The passages the meditation function kept for Google's voice (owner,
+   * 29 Oct 2026). Absent for meditations made before, and in the demo: those
+   * are read by the phone's own voice.
+   */
+  voice_script_id?: string | null;
 };
 
 function newId(): string {
@@ -46,6 +52,7 @@ export function saveMeditation(input: {
   script: MeditationScript;
   promptVersion: string;
   mode: AiRunMode;
+  voiceScriptId?: string | null;
   now?: number;
 }): StoredMeditation {
   const record: StoredMeditation = {
@@ -57,6 +64,7 @@ export function saveMeditation(input: {
     prompt_version: input.promptVersion,
     mode: input.mode,
     created_at: input.now ?? Date.now(),
+    voice_script_id: input.voiceScriptId ?? null,
   };
   write('meditations', [...listMeditations(), record]);
   return record;

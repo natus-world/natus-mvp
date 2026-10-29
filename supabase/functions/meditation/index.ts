@@ -2,6 +2,7 @@ import { serveModel } from '../_shared/serve-model.ts';
 import { meditationInputSchema } from '../_shared/lib/model-input.ts';
 import { meditationScriptSchema } from '../_shared/lib/schemas/index.ts';
 import { BED_TRACKS } from '../_shared/lib/catalog.ts';
+import { voicePassages } from '../_shared/lib/voice.ts';
 import {
   MEDITATION_PROMPT_VERSION,
   MEDITATION_SYSTEM_PROMPT,
@@ -33,5 +34,19 @@ Deno.serve(
     system: MEDITATION_SYSTEM_PROMPT,
     user: (input, { gender }) => buildMeditationUserMessage({ ...input, beds: ACTIVE_BEDS, gender }),
     prose: (input) => input.intent,
+    // The meditation's voice (owner, 29 Oct 2026): the passages to speak are
+    // kept where the browser cannot write them, so the voice function reads
+    // aloud only what this function wrote. Its id travels back as `stored_id`.
+    store: async (output, _input, { elevated, userId }) => {
+      const passages = voicePassages(output.script_ssml);
+      const characters = passages.reduce((sum, p) => sum + p.text.length, 0);
+      if (characters === 0) return null;
+      const { data, error } = await elevated
+        .from('meditation_voice_scripts')
+        .insert({ user_id: userId, passages, characters })
+        .select('id')
+        .single();
+      return error || !data ? null : (data.id as string);
+    },
   }),
 );

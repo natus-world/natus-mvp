@@ -883,6 +883,74 @@ export type Database = {
           },
         ]
       }
+      meditation_voice_audio: {
+        Row: {
+          characters: number
+          cost_usd: number
+          created_at: string
+          model: string
+          paths: Json
+          script_id: string
+          user_id: string
+          voice: string
+          voice_name: string
+        }
+        Insert: {
+          characters: number
+          cost_usd: number
+          created_at?: string
+          model: string
+          paths: Json
+          script_id: string
+          user_id: string
+          voice: string
+          voice_name: string
+        }
+        Update: {
+          characters?: number
+          cost_usd?: number
+          created_at?: string
+          model?: string
+          paths?: Json
+          script_id?: string
+          user_id?: string
+          voice?: string
+          voice_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meditation_voice_audio_script_id_fkey"
+            columns: ["script_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_voice_scripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meditation_voice_scripts: {
+        Row: {
+          characters: number
+          created_at: string
+          id: string
+          passages: Json
+          user_id: string
+        }
+        Insert: {
+          characters: number
+          created_at?: string
+          id?: string
+          passages: Json
+          user_id: string
+        }
+        Update: {
+          characters?: number
+          created_at?: string
+          id?: string
+          passages?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       meditations: {
         Row: {
           audio_url: string | null
@@ -895,6 +963,7 @@ export type Database = {
           requested_minutes: number
           script: Json
           user_id: string
+          voice_script_id: string | null
         }
         Insert: {
           audio_url?: string | null
@@ -907,6 +976,7 @@ export type Database = {
           requested_minutes: number
           script: Json
           user_id: string
+          voice_script_id?: string | null
         }
         Update: {
           audio_url?: string | null
@@ -919,8 +989,17 @@ export type Database = {
           requested_minutes?: number
           script?: Json
           user_id?: string
+          voice_script_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "meditations_voice_script_id_fkey"
+            columns: ["voice_script_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_voice_scripts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       memory_item_sources: {
         Row: {
@@ -1293,6 +1372,7 @@ export type Database = {
         Row: {
           bed_volume: number
           locale: string
+          meditation_voice: string
           memory_consent_at: string | null
           user_id: string
           voice_volume: number
@@ -1300,6 +1380,7 @@ export type Database = {
         Insert: {
           bed_volume?: number
           locale?: string
+          meditation_voice?: string
           memory_consent_at?: string | null
           user_id: string
           voice_volume?: number
@@ -1307,6 +1388,7 @@ export type Database = {
         Update: {
           bed_volume?: number
           locale?: string
+          meditation_voice?: string
           memory_consent_at?: string | null
           user_id?: string
           voice_volume?: number
@@ -1628,6 +1710,33 @@ export type Database = {
           name_en?: string
           name_es?: string
           slug?: string
+        }
+        Relationships: []
+      }
+      voice_settings: {
+        Row: {
+          id: boolean
+          language_code: string
+          model: string
+          monthly_cap_usd: number
+          voice_hombre: string
+          voice_mujer: string
+        }
+        Insert: {
+          id?: boolean
+          language_code: string
+          model: string
+          monthly_cap_usd: number
+          voice_hombre: string
+          voice_mujer: string
+        }
+        Update: {
+          id?: boolean
+          language_code?: string
+          model?: string
+          monthly_cap_usd?: number
+          voice_hombre?: string
+          voice_mujer?: string
         }
         Relationships: []
       }

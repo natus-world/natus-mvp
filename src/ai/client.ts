@@ -47,6 +47,8 @@ export type AiResult<T> = {
   inputTokens: number | null;
   outputTokens: number | null;
   model: string | null;
+  /** What the function kept where the browser cannot write it (`stored_id`). */
+  storedId?: string | null;
 };
 
 export type AiErrorKind =
@@ -211,6 +213,7 @@ async function runOnEdge<T>(call: AiCall<T>, started: number): Promise<AiResult<
     inputTokens: numberOrNull(data?.['input_tokens']),
     outputTokens: numberOrNull(data?.['output_tokens']),
     model: typeof data?.['model'] === 'string' ? data['model'] : null,
+    storedId: typeof data?.['stored_id'] === 'string' ? data['stored_id'] : null,
   };
 }
 

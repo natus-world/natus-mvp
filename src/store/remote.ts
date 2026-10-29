@@ -240,6 +240,7 @@ const preferences: Adapter<Preferences> = {
       voice_volume: data?.voice_volume ?? 1,
       bed_volume: data?.bed_volume ?? 0.45,
       memory_consent_at: data?.memory_consent_at ?? null,
+      meditation_voice: data?.meditation_voice === 'hombre' ? 'hombre' : 'mujer',
     };
   },
   async save(client, userId, value) {
@@ -586,6 +587,7 @@ const meditations: Adapter<StoredMeditation[]> = {
       prompt_version: r.prompt_version,
       mode: enumerated<StoredMeditation['mode']>(r.mode),
       created_at: ms(r.created_at),
+      voice_script_id: r.voice_script_id ?? null,
     }));
   },
   save: (client, userId, value) =>
@@ -603,6 +605,7 @@ const meditations: Adapter<StoredMeditation[]> = {
         prompt_version: m.prompt_version,
         mode: m.mode,
         created_at: iso(m.created_at),
+        voice_script_id: m.voice_script_id ?? null,
       })),
     ),
 };

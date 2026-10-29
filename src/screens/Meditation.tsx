@@ -17,7 +17,8 @@ import { currentSynthesis } from '@/store/soulMap';
 import { markFalsePositive, recordCrisisEvent } from '@/store/crisis';
 import { fetchQuota, renewalDate, type Quota } from '@/store/quota';
 import { Paywall } from '@/components/Paywall';
-import { getPreferences, setVolumes } from '@/store/preferences';
+import { getPreferences, setMeditationVoice, setVolumes, type MeditationVoice } from '@/store/preferences';
+import { voiceSource } from '@/audio/voice-source';
 import { meditationById, saveMeditation, type StoredMeditation } from '@/store/meditations';
 
 /**
@@ -72,6 +73,7 @@ export function Meditation() {
 
   const [intent, setIntent] = useState('');
   const [minutes, setMinutes] = useState(10);
+  const [guide, setGuide] = useState<MeditationVoice>(() => getPreferences().meditation_voice);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [crisisEventId, setCrisisEventId] = useState<string | null>(null);
@@ -171,6 +173,7 @@ export function Meditation() {
           script: result.value,
           promptVersion: MEDITATION_PROMPT_VERSION,
           mode: result.mode,
+          voiceScriptId: result.storedId ?? null,
         }),
       );
     } catch (err) {
@@ -228,6 +231,28 @@ export function Meditation() {
                 className={minutes === length ? 'dur on' : 'dur'}
               >
                 {text.minutes(length)}
+              </button>
+            ))}
+          </div>
+
+          {/* The meditation's voice (owner, 29 Oct 2026). */}
+          <p className="lbl" id="voice-label">
+            {text.voiceLabel}
+          </p>
+          <div className="chips" role="radiogroup" aria-labelledby="voice-label">
+            {text.voiceOptions.map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={guide === value}
+                onClick={() => {
+                  setGuide(value);
+                  setMeditationVoice(value);
+                }}
+                className={guide === value ? 'dur on' : 'dur'}
+              >
+                {label}
               </button>
             ))}
           </div>
@@ -291,6 +316,21 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
   const [voice, setVoice] = useState(() => getPreferences().voice_volume);
   const [bed, setBed] = useState(() => getPreferences().bed_volume);
   const playerRef = useRef<MeditationPlayer | null>(null);
+  // Google's voice, asked for as the screen opens so the first passages are
+  // ready by the time «Empezar» is touched (owner, 29 Oct 2026).
+  const source = useMemo(
+    () =>
+      meditation.voice_script_id ? voiceSource(meditation.voice_script_id, getPreferences().meditation_voice) : null,
+    [meditation.voice_script_id],
+  );
+  const [voiceReady, setVoiceReady] = useState(source === null);
+  useEffect(() => {
+    let live = true;
+    void source?.ready.then(() => live && setVoiceReady(true));
+    return () => {
+      live = false;
+    };
+  }, [source]);
   // Where the voice was when paused: playing again goes on from there (QA-31).
   const segmentRef = useRef(0);
 
@@ -322,6 +362,7 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
       ssml: meditation.script.script_ssml,
       from,
       bed: bedTrack,
+      voice: source,
       voiceVolume: voice,
       bedVolume: bed,
       events: {
@@ -390,6 +431,11 @@ function Player({ meditation, onLeave }: { meditation: StoredMeditation; onLeave
                 {state === 'playing' ? <PauseGlyph /> : <PlayGlyph />}
               </button>
             </div>
+            {!voiceReady && state === 'idle' && (
+              <p className="cupo" role="status">
+                {text.preparingVoice}
+              </p>
+            )}
             <VolumeSlider
               id="voice-volume"
               label={text.voice}

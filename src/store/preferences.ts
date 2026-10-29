@@ -16,6 +16,9 @@ import { read, write } from './db';
 
 export type Locale = 'es' | 'en';
 
+/** The meditation's voice (owner, 29 Oct 2026): a woman's or a man's. */
+export type MeditationVoice = 'mujer' | 'hombre';
+
 export type Preferences = {
   locale: Locale;
   voice_volume: number;
@@ -26,9 +29,16 @@ export type Preferences = {
    * memory without deleting it.
    */
   memory_consent_at: string | null;
+  meditation_voice: MeditationVoice;
 };
 
-const DEFAULT: Preferences = { locale: 'es', voice_volume: 1, bed_volume: 0.45, memory_consent_at: null };
+const DEFAULT: Preferences = {
+  locale: 'es',
+  voice_volume: 1,
+  bed_volume: 0.45,
+  memory_consent_at: null,
+  meditation_voice: 'mujer',
+};
 
 function clampVolume(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value)
@@ -43,7 +53,12 @@ export function getPreferences(): Preferences {
     voice_volume: clampVolume(stored.voice_volume, DEFAULT.voice_volume),
     bed_volume: clampVolume(stored.bed_volume, DEFAULT.bed_volume),
     memory_consent_at: typeof stored.memory_consent_at === 'string' ? stored.memory_consent_at : null,
+    meditation_voice: stored.meditation_voice === 'hombre' ? 'hombre' : 'mujer',
   };
+}
+
+export function setMeditationVoice(voice: MeditationVoice): Preferences {
+  return patch({ meditation_voice: voice });
 }
 
 export function setMemoryConsent(given: boolean, now = new Date()): Preferences {

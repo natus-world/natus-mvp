@@ -8,8 +8,14 @@ export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
 export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.2';
 export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.1';
+export const MEDITATION_VOICE_PROMPT_VERSION = 'meditation-voice-v1.0';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'meditation-voice-v1.0',
+    date: '2026-10-29',
+    change: 'The style instruction Gemini TTS reads each passage of a meditation with (owner, 29 Oct 2026).',
+  },
   {
     version: 'comparison-v2.4',
     date: '2026-10-23',

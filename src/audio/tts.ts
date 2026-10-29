@@ -115,3 +115,34 @@ export const webSpeechProvider: SpeechProvider = {
     };
   },
 };
+
+/**
+ * One sentence with the phone's own voice, for a passage whose recording did
+ * not come (owner, 29 Oct 2026). Returns how to silence it.
+ */
+export function speakOnce(text: string, rate: number, volume: number, onEnd: () => void): () => void {
+  const synth = speechApi();
+  if (!synth) {
+    onEnd();
+    return () => {};
+  }
+  const voice = preferredVoice(synth.getVoices());
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = rate;
+  utterance.volume = volume;
+  utterance.lang = voice?.lang ?? 'es-AR';
+  if (voice) utterance.voice = voice;
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    onEnd();
+  };
+  utterance.onend = finish;
+  utterance.onerror = finish;
+  synth.speak(utterance);
+  return () => {
+    done = true;
+    synth.cancel();
+  };
+}
