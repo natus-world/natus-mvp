@@ -814,11 +814,12 @@ cae en tu casa N». The comparison's areas and «Ver de dónde sale» are
 always Placidus; today's Moon too, while the lord of the year counts by
 whole sign. The panel shows the system and the person's choice. **The mean
 Lilith** is asked of the provider (`active_points`; cast without the list if
-refused): in the full chart and its readings, in the chat only when asked,
-never in the Soul Map, the comparison or today's sky, and without aspects.
+refused): in the full chart and its readings, in the Soul Map (owner,
+30 Oct 2026), in the chat only when asked; never in the comparison or
+today's sky, and without aspects.
 The houses notice now says it is done («Tus casas ya están en Placidus»),
-once, to whoever was here before the change. Texts of the selector and the
-notice are proposals until the owner approves them. Charts that exist get
+once, to whoever was here before the change. Every text was approved by the
+owner on 30 Oct 2026. Charts that exist get
 Lilith only by asking the provider again (166 on 29 Oct): part 3 of the
 handover, run with the owner's ok.
 

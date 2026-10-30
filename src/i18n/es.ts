@@ -785,7 +785,7 @@ export const es = {
     groups: { pl: 'Planetas', pu: 'Puntos', ej: 'Ejes' },
     noAspects: 'No hay aspectos de este tipo en tu carta.',
     housesHead: 'Casas por signo entero · cada una mide 30°',
-    // Placidus beside whole sign (owner, 28–30 Oct 2026; option A of the mockup «Casas en Placidus»). Proposals until approved.
+    // Placidus beside whole sign (owner, 28–30 Oct 2026; option A of the mockup «Casas en Placidus»). Approved by the owner, 30 Oct 2026.
     housesHeadPlacidus: 'Casas en Placidus · cada una mide distinto',
     houseViewsLabel: 'Sistema de casas',
     houseViews: { placidus: 'Placidus', whole_sign: 'Signo entero' },
@@ -1670,7 +1670,7 @@ export const es = {
   },
   // The notice that the houses are changing (owner, 27 Oct 2026, «Muy pronto»).
   housesNotice: {
-    // «Ya está» (owner, 28 Oct 2026: replace «Muy pronto…» when Placidus ships). Proposal until approved.
+    // «Ya está» (owner, 28 Oct 2026: replace «Muy pronto…» when Placidus ships). Approved by the owner, 30 Oct 2026.
     title: 'Tus casas ya están en Placidus',
     body: 'Ahora tu carta usa el sistema Placidus, como la mayoría de las apps. Si prefieres ver tus casas por signo entero, puedes cambiarlo en «Tu carta completa».',
     unchanged: 'Tus signos, tu Ascendente y tus números no cambian.',

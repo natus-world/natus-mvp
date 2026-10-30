@@ -15,7 +15,7 @@ export const PROMPT_HISTORY: readonly { version: string; date: string; change: s
     version: 'soul-map-v2.9',
     date: '2026-10-30',
     change:
-      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The Soul Map names a house by its area of life, never its number (HOUSE_NUMBER_RULE), and receives no Lilith (owner, 28 Oct 2026).',
+      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The Soul Map names a house by its area of life, never its number (HOUSE_NUMBER_RULE), and receives the mean Lilith (owner, 30 Oct 2026).',
   },
   {
     version: 'comparison-v2.5',
@@ -33,7 +33,7 @@ export const PROMPT_HISTORY: readonly { version: string; date: string; change: s
     version: 'chat-v2.3',
     date: '2026-10-30',
     change:
-      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The chat may say the house number. It receives the mean Lilith and names it only when the person asks about it (owner, 28 Oct 2026; the line is a proposal for his approval).',
+      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The chat may say the house number. It receives the mean Lilith and names it only when the person asks about it (owner, 28 Oct 2026; line approved by him on 30 Oct).',
   },
   {
     version: 'chart-points-v1.3',

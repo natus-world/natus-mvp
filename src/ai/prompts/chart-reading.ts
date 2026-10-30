@@ -75,7 +75,7 @@ const ASPECT_ES: Record<ChartAspect['type'], string> = {
  */
 export function describeChart(chart: NatalChart, options: { lilith?: boolean } = {}): string {
   const lines: string[] = [];
-  // Lilith only where the owner put it (28 Oct 2026): the full chart and the chat.
+  // Lilith only where the owner put it (28–30 Oct 2026): the full chart, the chat and the Soul Map.
   const shown = (name: string) => options.lilith !== false || !LILITH.has(name);
   if (chart.has_birth_time && chart.ascendant) {
     lines.push(`Ascendente: ${chart.ascendant.sign} ${chart.ascendant.degree}°`);

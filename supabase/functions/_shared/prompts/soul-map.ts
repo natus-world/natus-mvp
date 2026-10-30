@@ -137,13 +137,14 @@ export function buildSoulMapUserMessage(input: {
   // plainly that it is missing, and told not to invent positions — the same
   // instruction that keeps the comparison prompt honest.
   // v1.2 A-02: the chart arrives read the Hellenistic way, calculated here,
-  // not as the provider's text. No Lilith in the Soul Map (owner, 28 Oct 2026).
+  // not as the provider's text. Lilith too (owner, 30 Oct 2026: «que aparezca
+  // igualmente», it is asked about).
   const chart = readChart(draft);
   blocks.push(
     chart
       ? [
           'CARTA NATAL (ya calculada; trátala como datos simbólicos dados, no como prueba)',
-          describeChart(chart, { lilith: false }),
+          describeChart(chart),
         ].join('\n')
       : [
           'CARTA NATAL',
