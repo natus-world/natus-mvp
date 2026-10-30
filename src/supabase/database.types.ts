@@ -213,31 +213,34 @@ export type Database = {
       }
       bed_tracks: {
         Row: {
+          file: Json | null
           frequency_hz: number | null
           id: string
           is_active: boolean
           license: string | null
           name: string
           suits: string
-          synthesis: Json
+          synthesis: Json | null
         }
         Insert: {
+          file?: Json | null
           frequency_hz?: number | null
           id: string
           is_active?: boolean
           license?: string | null
           name: string
           suits: string
-          synthesis: Json
+          synthesis?: Json | null
         }
         Update: {
+          file?: Json | null
           frequency_hz?: number | null
           id?: string
           is_active?: boolean
           license?: string | null
           name?: string
           suits?: string
-          synthesis?: Json
+          synthesis?: Json | null
         }
         Relationships: []
       }

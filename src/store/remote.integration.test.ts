@@ -621,7 +621,7 @@ describe.skipIf(!configured)('reference data matches data/*.json', () => {
   });
 
   it('bed tracks', () => {
-    const columns = ['id', 'name', 'frequency_hz', 'suits', 'synthesis', 'is_active'];
+    const columns = ['id', 'name', 'frequency_hz', 'suits', 'synthesis', 'file', 'is_active'];
     const seed = [...bedTrackSeed.tracks].sort(byKey('id'));
     expect(tableAsJson('bed_tracks', columns, 'id')).toEqual(pick(seed, columns));
   });
