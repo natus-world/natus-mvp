@@ -795,8 +795,8 @@ say so (texts approved). A comparison made before the areas offers
 the model (no key in the local stack).
 
 **Houses in Placidus, whole sign one touch away (owner, 27–30 Oct 2026,
-after people found their houses differ from other apps; branch
-`casas-placidus`, not yet on `main`).** `buildNatalChart` reads the
+after people found their houses differ from other apps; published 30 Oct
+2026, 02:00, with the panel's side).** `buildNatalChart` reads the
 provider's Placidus cusps (`<house name="First_House" cusp="13.92"
 sign="Leo"/>`, degree within the sign) and places each point between them;
 every point also keeps `whole_sign_house`. Whole sign instead near a pole
