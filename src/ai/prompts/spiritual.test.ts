@@ -15,13 +15,15 @@ function point(name: string, sign: Sign): ChartPoint {
     element: ELEMENT[CORRESPONDENCES[sign].element]!,
     modality: 'cardinal',
     house: null,
+    whole_sign_house: null,
     dignity: null,
   };
 }
 
 const CHART: NatalChart = {
-  version: 'whole-sign-v2',
+  version: 'placidus-v1',
   house_system: 'whole_sign',
+  cusps: null,
   has_birth_time: true,
   points: [
     point('Sun', 'Gemini'),

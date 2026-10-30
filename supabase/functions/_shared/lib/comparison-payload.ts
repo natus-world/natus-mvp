@@ -112,6 +112,7 @@ function copyChart(chart: NatalChart): NatalChart {
   return {
     version: chart.version,
     house_system: chart.house_system,
+    cusps: chart.cusps ? [...chart.cusps] : null,
     has_birth_time: chart.has_birth_time,
     points: chart.points.map((p) => ({
       name: p.name,
@@ -122,6 +123,7 @@ function copyChart(chart: NatalChart): NatalChart {
       element: p.element,
       modality: p.modality,
       house: p.house,
+      whole_sign_house: p.whole_sign_house ?? null,
       dignity: p.dignity,
     })),
     ascendant: chart.ascendant ? { sign: chart.ascendant.sign, degree: chart.ascendant.degree } : null,

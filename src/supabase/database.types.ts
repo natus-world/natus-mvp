@@ -1383,6 +1383,7 @@ export type Database = {
       preferences: {
         Row: {
           bed_volume: number
+          house_view: string
           locale: string
           meditation_voice: string
           memory_consent_at: string | null
@@ -1391,6 +1392,7 @@ export type Database = {
         }
         Insert: {
           bed_volume?: number
+          house_view?: string
           locale?: string
           meditation_voice?: string
           memory_consent_at?: string | null
@@ -1399,6 +1401,7 @@ export type Database = {
         }
         Update: {
           bed_volume?: number
+          house_view?: string
           locale?: string
           meditation_voice?: string
           memory_consent_at?: string | null

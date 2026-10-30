@@ -10,7 +10,10 @@ import { AspectIcon, CloseMark, ElementTriangle, GlyphMark, type AspectKind } fr
 import { AirIcon, EarthIcon, FireIcon, WaterIcon } from '@/design/brand-icons';
 import { copy } from '@/i18n';
 import {
+  birthLatitude,
   buildNatalChart,
+  placidusHouse,
+  POLAR_LATITUDE,
   SIGNS,
   TRADITIONAL,
   wholeSignHouse,
@@ -20,6 +23,7 @@ import {
 } from '@/lib/natal-chart';
 import type { Numerology } from '@/lib/schemas';
 import { activeProfile } from '@/store/account';
+import { getPreferences, setHouseView, type HouseView } from '@/store/preferences';
 import { currentSynthesis } from '@/store/soulMap';
 import { chartReadings, ensureChartReadings } from '@/store/chart-readings';
 import { PATHS } from '@/components/routes';
@@ -34,9 +38,11 @@ import type { OnboardingDraft } from '@/store/session';
  * wheel opens its card right below it; touching a row of the lists lights its
  * point and brings the wheel back into view.
  *
- * Read the Hellenistic way, as `src/lib/natal-chart.ts` calculates it:
- * houses by whole sign, aspects by sign with no orb, the seven visible
- * planets' dignities, the sect. Without the hour of birth there is no
+ * Read as `src/lib/natal-chart.ts` calculates it: houses in Placidus, with
+ * whole sign one touch away (owner, 28–30 Oct 2026: the selector under
+ * «Simple · Completa», kept in the account), aspects by sign with no orb,
+ * the seven visible planets' dignities, the sect. The selector moves the
+ * wheel's houses, the lists, the card and the ruler; Davraz reads Placidus. Without the hour of birth there is no
  * Ascendant, no axis, no house, no sect and no ruler, and it says so.
  *
  * Davraz's reading of each point comes from `store/chart-readings`. Nothing
@@ -111,7 +117,7 @@ function chartOf(draft: OnboardingDraft): NatalChart | null {
 }
 
 /** A point the ephemeris did not send but the chart implies: the South Node, the Descendant, the Imum Coeli. */
-function mirrored(of: ChartPoint, name: string, ascendant: Sign | null, keepsMotion: boolean): ChartPoint {
+function mirrored(of: ChartPoint, name: string, ascendant: Sign | null, keepsMotion: boolean, cusps: number[] | null): ChartPoint {
   const longitude = (of.longitude + 180) % 360;
   const index = Math.floor(longitude / 30);
   const sign = SIGNS[index]!;
@@ -123,7 +129,8 @@ function mirrored(of: ChartPoint, name: string, ascendant: Sign | null, keepsMot
     retrograde: keepsMotion ? of.retrograde : false,
     element: ELEMENTS[index % 4]!,
     modality: MODALITIES[index % 3]!,
-    house: ascendant ? wholeSignHouse(sign, ascendant) : null,
+    house: ascendant ? (cusps ? placidusHouse(longitude, cusps) : wholeSignHouse(sign, ascendant)) : null,
+    whole_sign_house: ascendant ? wholeSignHouse(sign, ascendant) : null,
     dignity: null,
   };
 }
@@ -136,13 +143,14 @@ function pointsOf(chart: NatalChart): FPoint[] {
     if (hit) found.set(entry.key, hit);
   }
   const asc = chart.ascendant?.sign ?? null;
+  const cusps = chart.cusps ?? null;
   const north = found.get('North_Node');
-  if (north && !found.has('South_Node')) found.set('South_Node', mirrored(north, north.name.replace('North', 'South'), asc, true));
+  if (north && !found.has('South_Node')) found.set('South_Node', mirrored(north, north.name.replace('North', 'South'), asc, true, cusps));
   if (asc) {
     const a = found.get('Ascendant');
     const m = found.get('Medium_Coeli');
-    if (a && !found.has('Descendant')) found.set('Descendant', mirrored(a, 'Descendant', asc, false));
-    if (m && !found.has('Imum_Coeli')) found.set('Imum_Coeli', mirrored(m, 'Imum_Coeli', asc, false));
+    if (a && !found.has('Descendant')) found.set('Descendant', mirrored(a, 'Descendant', asc, false, cusps));
+    if (m && !found.has('Imum_Coeli')) found.set('Imum_Coeli', mirrored(m, 'Imum_Coeli', asc, false, cusps));
   } else {
     for (const key of ['Ascendant', 'Descendant', 'Medium_Coeli', 'Imum_Coeli']) found.delete(key);
   }
@@ -266,14 +274,30 @@ export function FullChart() {
   }
   return (
     <>
-      <FullChartView chart={chart} name={firstNameOf(profile.draft.legal_birth_name ?? '')} numerology={stored?.numerology ?? null} />
+      <FullChartView
+        chart={chart}
+        polar={Math.abs(birthLatitude(profile.draft.natal_chart?.context ?? '') ?? 0) >= POLAR_LATITUDE}
+        name={firstNameOf(profile.draft.legal_birth_name ?? '')}
+        numerology={stored?.numerology ?? null}
+      />
       {/* «Pregúntale a tu carta» on the full chart too (owner, 23 Oct 2026). */}
       {stored && <ChartChat stored={stored} onCrisis={setLocalCrisis} />}
     </>
   );
 }
 
-function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: string; numerology: Numerology | null }) {
+function FullChartView({
+  chart,
+  polar,
+  name,
+  numerology,
+}: {
+  chart: NatalChart;
+  /** Born so near a pole that Placidus cannot be drawn: whole sign, and it says why. */
+  polar: boolean;
+  name: string;
+  numerology: Numerology | null;
+}) {
   const desk = useDesk();
   const withTime = chart.ascendant !== null;
   const points = pointsOf(chart);
@@ -281,6 +305,17 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
   const byId = new Map(points.map((p) => [p.id, p]));
   const ruler = chart.ascendant_ruler ? points.find((p) => p.key === chart.ascendant_ruler!.planet) : undefined;
   const ascendantPoint = points.find((p) => p.key === 'Ascendant');
+
+  // Placidus or whole sign, as the person chose; a chart that could only be
+  // read by whole sign (born near a pole) has no choice to make.
+  const cusps = withTime && chart.house_system === 'placidus' ? (chart.cusps ?? null) : null;
+  const [houseView, setHouseViewState] = useState<HouseView>(() => getPreferences().house_view);
+  const chooseHouses = (view: HouseView) => {
+    setHouseViewState(view);
+    setHouseView(view);
+  };
+  const placidus = cusps !== null && houseView === 'placidus';
+  const houseOf = (p: ChartPoint): number | null => (placidus || cusps === null ? p.house : (p.whole_sign_house ?? null));
 
   const [mode, setMode] = useState<Mode>(() =>
     typeof window !== 'undefined' && window.matchMedia?.(DESK).matches ? 'completa' : 'simple',
@@ -404,7 +439,7 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
               {text.rulerWhere(
                 signName(chart.ascendant_ruler.sign),
                 ruler.point.dignity ? text.rulerDignity[ruler.point.dignity] : null,
-                chart.ascendant_ruler.house,
+                houseOf(ruler.point),
               )}
             </small>
           </div>
@@ -423,6 +458,19 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
           {text.modes[m]}
         </button>
       ))}
+    </div>
+  );
+
+  const houseChoice = cusps && (
+    <div className="sistema">
+      <div className="segm" role="group" aria-label={text.houseViewsLabel}>
+        {(['placidus', 'whole_sign'] as const).map((v) => (
+          <button key={v} type="button" className={houseView === v ? 'on' : undefined} aria-pressed={houseView === v} onClick={() => chooseHouses(v)}>
+            {text.houseViews[v]}
+          </button>
+        ))}
+      </div>
+      {!placidus && <p className="lee-davraz">{text.davrazReadsPlacidus}</p>}
     </div>
   );
 
@@ -454,6 +502,7 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
         large={!desk}
         simple={simple}
         ascendant={ascendantPoint ? ascendantPoint.point.longitude : null}
+        cusps={placidus ? cusps : null}
         points={drawnPoints.map(wheelPoint)}
         axes={wheelAxes}
         aspects={wheelAspects}
@@ -512,7 +561,7 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
             <h2 className="fn">{sp.name}</h2>
             <p className="fs">
               {signName(s.sign)} {degreeOf(s)}
-              {s.house !== null && ` · ${text.house(s.house)}`}
+              {houseOf(s) !== null && ` · ${text.house(houseOf(s)!)}`}
             </p>
           </div>
           {close_}
@@ -693,7 +742,7 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
                         <p className="ft">{p.name}</p>
                         <p className="fd">
                           {signName(p.point.sign)} {degreeOf(p.point)}
-                          {p.point.house !== null && ` · ${text.houseInList(p.point.house)}`}
+                          {houseOf(p.point) !== null && ` · ${text.houseInList(houseOf(p.point)!)}`}
                           {p.point.retrograde && (
                             <>
                               {' · '}
@@ -762,10 +811,12 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
       {part === 'casas' &&
         (withTime && chart.ascendant ? (
           <section className="vid">
-            <h2 className="sub">{text.housesHead}</h2>
+            <h2 className="sub">{placidus ? text.housesHeadPlacidus : text.housesHead}</h2>
+            {(cusps || polar) && <p className="nota-casas">{cusps ? text.houseViewsWhy : text.housesPolar}</p>}
             {text.houses.map((theme, i) => {
-              const sign = SIGNS[(SIGNS.indexOf(chart.ascendant!.sign) + i) % 12]!;
-              const inside = points.filter((p) => p.group !== 'ej' && p.point.sign === sign);
+              const cusp = placidus ? cusps![i]! : null;
+              const sign = cusp !== null ? SIGNS[Math.floor(cusp / 30)]! : SIGNS[(SIGNS.indexOf(chart.ascendant!.sign) + i) % 12]!;
+              const inside = points.filter((p) => p.group !== 'ej' && houseOf(p.point) === i + 1);
               return (
                 <div key={theme} className="cf">
                   <b>{i + 1}</b>
@@ -774,7 +825,7 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
                   </span>
                   <div>
                     <p className="ft">{theme}</p>
-                    <p className="fd">{signName(sign)}</p>
+                    <p className="fd">{cusp !== null ? text.cuspFrom(signName(sign), Math.floor(cusp % 30)) : signName(sign)}</p>
                   </div>
                   <span className="gl2" aria-label={inside.map((p) => p.name).join(', ')} role={inside.length ? 'img' : undefined}>
                     {inside.map((p) => (
@@ -827,7 +878,10 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
         <div className="pz carta-completa">
           <div className="col1">
             {title}
-            <div className="modo">{modes}</div>
+            <div className="modo">
+              {modes}
+              {houseChoice}
+            </div>
             {wheel}
           </div>
           <div className="col2" ref={col2Ref}>
@@ -842,6 +896,7 @@ function FullChartView({ chart, name, numerology }: { chart: NatalChart; name: s
           {title}
           {summary}
           {modes}
+          {houseChoice}
           {mode === 'completa' && filters}
           {wheel}
           {fichaSlot}

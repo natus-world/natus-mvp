@@ -16,6 +16,13 @@ import { read, write } from './db';
 
 export type Locale = 'es' | 'en';
 
+/**
+ * How the full chart shows the houses (owner, 28–30 Oct 2026): Placidus, as
+ * most apps do, or by whole sign. Only the screen follows it; Davraz reads
+ * Placidus. Kept in the account, so another device shows the same.
+ */
+export type HouseView = 'placidus' | 'whole_sign';
+
 /** The meditation's voice (owner, 29 Oct 2026): a woman's or a man's. */
 export type MeditationVoice = 'mujer' | 'hombre';
 
@@ -30,6 +37,7 @@ export type Preferences = {
    */
   memory_consent_at: string | null;
   meditation_voice: MeditationVoice;
+  house_view: HouseView;
 };
 
 const DEFAULT: Preferences = {
@@ -38,6 +46,7 @@ const DEFAULT: Preferences = {
   bed_volume: 0.45,
   memory_consent_at: null,
   meditation_voice: 'mujer',
+  house_view: 'placidus',
 };
 
 function clampVolume(value: unknown, fallback: number): number {
@@ -54,7 +63,12 @@ export function getPreferences(): Preferences {
     bed_volume: clampVolume(stored.bed_volume, DEFAULT.bed_volume),
     memory_consent_at: typeof stored.memory_consent_at === 'string' ? stored.memory_consent_at : null,
     meditation_voice: stored.meditation_voice === 'hombre' ? 'hombre' : 'mujer',
+    house_view: stored.house_view === 'whole_sign' ? 'whole_sign' : 'placidus',
   };
+}
+
+export function setHouseView(view: HouseView): Preferences {
+  return patch({ house_view: view });
 }
 
 export function setMeditationVoice(voice: MeditationVoice): Preferences {

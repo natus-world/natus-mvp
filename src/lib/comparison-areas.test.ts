@@ -24,11 +24,13 @@ function chart(signs: Partial<Record<string, Sign>>, ascendant: Sign | null): Na
     element: 'fire' as const,
     modality: 'cardinal' as const,
     house: ascendant ? wholeSignHouse(sign!, ascendant) : null,
+    whole_sign_house: ascendant ? wholeSignHouse(sign!, ascendant) : null,
     dignity: null,
   }));
   return {
     version: NATAL_CHART_VERSION,
     house_system: 'whole_sign',
+    cusps: null,
     has_birth_time: ascendant !== null,
     points,
     ascendant: ascendant ? { sign: ascendant, degree: 12 } : null,

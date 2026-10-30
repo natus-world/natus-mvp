@@ -244,6 +244,7 @@ const preferences: Adapter<Preferences> = {
       bed_volume: data?.bed_volume ?? 0.45,
       memory_consent_at: data?.memory_consent_at ?? null,
       meditation_voice: data?.meditation_voice === 'hombre' ? 'hombre' : 'mujer',
+      house_view: data?.house_view === 'whole_sign' ? 'whole_sign' : 'placidus',
     };
   },
   async save(client, userId, value) {

@@ -5,8 +5,12 @@
  * Placidus. Everything the product needs is derived here, deterministically,
  * from the positions in that text:
  *
- * - houses by whole sign: house 1 is the whole sign of the Ascendant, house 2
- *   the next sign, every house 30°;
+ * - houses in Placidus (owner, 27–28 Oct 2026, after people found their houses
+ *   did not match other apps): the provider's own cusps, read from its text;
+ *   every point also keeps its house by whole sign — house 1 the whole sign of
+ *   the Ascendant, every house 30° — which the full chart can show instead.
+ *   Davraz always reads Placidus. Born so near a pole that Placidus cannot be
+ *   drawn, or with no cusps to read, the chart falls back to whole sign;
  * - the seven visible planets' traditional rulerships and the ruler of the
  *   Ascendant;
  * - essential dignities: domicile, exaltation, exile, fall;
@@ -86,8 +90,10 @@ export type ChartPoint = {
   retrograde: boolean;
   element: (typeof ELEMENT)[number];
   modality: (typeof MODALITY)[number];
-  /** Whole-sign house, 1 to 12. Null without the hour of birth. */
+  /** House in the chart's `house_system`, 1 to 12. Null without the hour of birth. */
   house: number | null;
+  /** House by whole sign, 1 to 12, for the full chart's selector. Null without the hour of birth. */
+  whole_sign_house: number | null;
   /** The seven visible planets only. Null for everything else, and when none applies. */
   dignity: Dignity | null;
 };
@@ -112,11 +118,16 @@ export type ChartAspect = {
   separation: number;
 };
 
-export const NATAL_CHART_VERSION = 'whole-sign-v2';
+export const NATAL_CHART_VERSION = 'placidus-v1';
+
+/** Placidus unless it cannot be drawn (a birth near a pole) or the text has no cusps. */
+export type HouseSystem = 'placidus' | 'whole_sign';
 
 export type NatalChart = {
   version: typeof NATAL_CHART_VERSION;
-  house_system: 'whole_sign';
+  house_system: HouseSystem;
+  /** The twelve Placidus cusps as ecliptic longitudes, house 1 first. Null by whole sign or without the hour. */
+  cusps: number[] | null;
   has_birth_time: boolean;
   points: ChartPoint[];
   /** Null without the hour of birth. */
@@ -131,6 +142,8 @@ export type NatalChart = {
 
 /** The Descendant and the Imum Coeli only mirror the Ascendant and the Midheaven. */
 const MIRRORS = new Set(['Descendant', 'Imum_Coeli']);
+/** Lilith is read by its sign and house only (owner, 28 Oct 2026): no aspect. */
+const NO_ASPECTS = new Set(['Mean_Lilith', 'True_Lilith', 'Lilith']);
 /** Pairs that are always in the same relation, so saying it says nothing. */
 const FIXED_PAIRS = new Set([
   'True_North_Lunar_Node|True_South_Lunar_Node',
@@ -140,7 +153,7 @@ const FIXED_PAIRS = new Set([
 ]);
 
 export function aspectsBySign(points: readonly ChartPoint[]): ChartAspect[] {
-  const usable = points.filter((p) => !MIRRORS.has(p.name));
+  const usable = points.filter((p) => !MIRRORS.has(p.name) && !NO_ASPECTS.has(p.name));
   const aspects: ChartAspect[] = [];
   for (let i = 0; i < usable.length; i++) {
     for (let j = i + 1; j < usable.length; j++) {
@@ -218,6 +231,50 @@ export function wholeSignHouse(sign: Sign, ascendantSign: Sign): number {
   return ((signIndex(sign) - signIndex(ascendantSign) + 12) % 12) + 1;
 }
 
+const arc = (from: number, to: number) => (((to - from) % 360) + 360) % 360;
+
+/** The house a longitude falls in, between the cusps (house 1 first): a point on a cusp opens that house. */
+export function placidusHouse(longitude: number, cusps: readonly number[]): number {
+  for (let i = 0; i < 12; i++) {
+    if (arc(cusps[i]!, longitude) < arc(cusps[i]!, cusps[(i + 1) % 12]!)) return i + 1;
+  }
+  return 1;
+}
+
+const HOUSE_NAMES = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth', 'Eleventh', 'Twelfth'];
+
+/**
+ * Within the polar circles the Placidus cusps cannot be drawn for every hour;
+ * the ephemeris then quietly draws another system. Whole sign is said instead.
+ */
+export const POLAR_LATITUDE = 66;
+
+/**
+ * The provider's Placidus cusps, `<house name="First_House" cusp="13.92"
+ * sign="Leo" />` — `cusp` is the degree within the sign — as longitudes, house
+ * 1 first. Null when any of the twelve is missing or unreadable.
+ */
+export function readCusps(context: string): number[] | null {
+  const cusps: (number | null)[] = Array.from({ length: 12 }, () => null);
+  for (const match of context.matchAll(/<house\b[^>]*\/>/g)) {
+    const tag = match[0];
+    const name = attribute(tag, 'name')?.replace(/[_ ]House$/, '');
+    const index = name ? HOUSE_NAMES.indexOf(name) : -1;
+    const sign = attribute(tag, 'sign') ?? '';
+    const degree = Number(attribute(tag, 'cusp'));
+    if (index < 0 || signIndex(sign) < 0 || !Number.isFinite(degree) || degree < 0 || degree >= 30) continue;
+    cusps[index] = Math.round((signIndex(sign) * 30 + degree) * 100) / 100;
+  }
+  return cusps.every((c) => c !== null) ? (cusps as number[]) : null;
+}
+
+/** The birth latitude the provider wrote, or null. */
+export function birthLatitude(context: string): number | null {
+  const tag = /<birth_data\b[^>]*\/?>/.exec(context)?.[0];
+  const lat = tag ? Number(attribute(tag, 'lat')) : NaN;
+  return Number.isFinite(lat) ? lat : null;
+}
+
 type RawPoint = { name: string; sign: string; position: number; abs_pos: number; motion: string };
 
 function attribute(tag: string, name: string): string | null {
@@ -268,6 +325,16 @@ export function buildNatalChart(context: string, hasBirthTime: boolean, dayNight
   const asc = hasBirthTime ? raw.find((p) => p.name === 'Ascendant') : undefined;
   const ascSign = asc ? (asc.sign as Sign) : null;
 
+  // Placidus when its cusps are there, the first on the Ascendant, and the
+  // birth was not so near a pole that they cannot be drawn.
+  const read = asc ? readCusps(context) : null;
+  const latitude = birthLatitude(context);
+  const cusps =
+    read && asc && Math.min(arc(read[0]!, asc.abs_pos), arc(asc.abs_pos, read[0]!)) < 0.5 &&
+    (latitude === null || Math.abs(latitude) < POLAR_LATITUDE)
+      ? read
+      : null;
+
   const points: ChartPoint[] = raw
     // Without the hour the angles are inventions of the noon that stood in for it.
     .filter((p) => ascSign !== null || !AXES.has(p.name))
@@ -284,7 +351,8 @@ export function buildNatalChart(context: string, hasBirthTime: boolean, dayNight
         retrograde: p.motion === 'retrograde',
         element: ELEMENT[index % 4]!,
         modality: MODALITY[index % 3]!,
-        house: ascSign ? wholeSignHouse(sign, ascSign) : null,
+        house: ascSign ? (cusps ? placidusHouse(p.abs_pos, cusps) : wholeSignHouse(sign, ascSign)) : null,
+        whole_sign_house: ascSign ? wholeSignHouse(sign, ascSign) : null,
         dignity: dignityOf(p.name, sign),
       };
     });
@@ -313,7 +381,8 @@ export function buildNatalChart(context: string, hasBirthTime: boolean, dayNight
 
   return {
     version: NATAL_CHART_VERSION,
-    house_system: 'whole_sign',
+    house_system: cusps ? 'placidus' : 'whole_sign',
+    cusps,
     has_birth_time: ascSign !== null,
     points,
     ascendant: asc && ascSign ? { sign: ascSign, degree: Math.round(asc.position * 100) / 100 } : null,

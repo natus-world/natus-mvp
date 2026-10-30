@@ -80,6 +80,12 @@ type Props = {
   simple: boolean;
   /** Null without the hour of birth: no axes, no houses, Aries on the left. */
   ascendant: number | null;
+  /**
+   * The Placidus cusps, house 1 first, as longitudes: each is marked across the
+   * houses' ring and each number sits in the middle of its house. Null: houses
+   * by whole sign, one per sign, as the package draws them.
+   */
+  cusps?: number[] | null;
   points: WheelPoint[];
   axes: WheelAxis[];
   aspects: WheelAspect[];
@@ -104,6 +110,7 @@ export function FullChartWheel({
   large: R,
   simple,
   ascendant,
+  cusps = null,
   points,
   axes,
   aspects,
@@ -169,8 +176,13 @@ export function FullChartWheel({
           );
         })}
         {withTime &&
+          cusps?.map((c, h) => <line key={`c${h}`} {...line(P(138, c), P(164, c))} stroke={ink(0.32)} strokeWidth={0.6} />)}
+        {withTime &&
           Array.from({ length: 12 }, (_, h) => {
-            const [x, y] = P(151, (firstHouseSign + h) * 30 + 15);
+            const middle = cusps
+              ? cusps[h]! + ((((cusps[(h + 1) % 12]! - cusps[h]!) % 360) + 360) % 360) / 2
+              : (firstHouseSign + h) * 30 + 15;
+            const [x, y] = P(151, middle);
             return (
               <text
                 key={h}

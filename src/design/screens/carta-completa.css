@@ -716,3 +716,51 @@
     font-size: calc(var(--d) * 15);
   }
 }
+
+/* ── The house system: Placidus · Signo entero (owner, 28–30 Oct 2026) ── */
+
+.carta-completa .sistema {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 8);
+}
+
+.carta-completa :is(.lee-davraz, .nota-casas) {
+  font: 300 calc(var(--u) * 13) / 1.45 var(--font-sans);
+  color: var(--t2);
+}
+
+.carta-completa .lee-davraz {
+  text-align: center;
+}
+
+.carta-completa .nota-casas {
+  padding: calc(var(--u) * 4) calc(var(--u) * 16) calc(var(--u) * 10);
+}
+
+@media (min-width: 1024px) {
+  /* Side by side, each a little narrower than the package's 300, so the
+     wheel does not move down; the note hangs under the selector. */
+  .carta-completa .modo {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
+
+  .carta-completa .modo .segm,
+  .carta-completa .modo .sistema {
+    width: calc(var(--d) * 288);
+  }
+
+  .carta-completa .modo .sistema {
+    position: relative;
+  }
+
+  .carta-completa .modo .lee-davraz {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: calc(var(--d) * 6);
+    font-size: calc(var(--d) * 12);
+  }
+}

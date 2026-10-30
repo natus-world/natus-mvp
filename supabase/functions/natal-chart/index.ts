@@ -11,6 +11,17 @@ const HOST = 'astrologer.p.rapidapi.com';
 const TIMEOUT_MS = 20_000;
 const CALLS_PER_DAY = 5;
 
+/**
+ * What the provider is asked for: its default points — the ten planets, the
+ * true Nodes, Chiron and the four angles — plus the mean Lilith (owner, 28 Oct
+ * 2026), which it leaves out unless named. Placidus is asked for by name.
+ */
+const ACTIVE_POINTS = [
+  'Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto',
+  'True_North_Lunar_Node', 'True_South_Lunar_Node', 'Chiron', 'Mean_Lilith',
+  'Ascendant', 'Medium_Coeli', 'Descendant', 'Imum_Coeli',
+];
+
 /** Day or night, when the person said it; anything else is not knowing. */
 function dayNightOf(value: unknown): DayNight | null {
   return value === 'dia' || value === 'noche' ? value : null;
@@ -28,12 +39,13 @@ function canonical(value: unknown): string {
 }
 
 /**
- * The chart read by whole sign (v1.2 A-01, A-02), kept in `natal_charts`.
+ * The calculated chart (A-02; houses in Placidus since 30 Oct 2026, whole sign
+ * near a pole), kept in `natal_charts`.
  * Derived from the provider's text with no further call, so a stored chart
  * can be rebuilt for free. A failure here never fails the request: the text
  * the Soul Map reads is already in hand.
  */
-async function keepWholeSignChart(
+async function keepChart(
   elevated: SupabaseClient,
   userId: string,
   context: string,
@@ -50,6 +62,7 @@ async function keepWholeSignChart(
     const { error } = await elevated.from('natal_charts').upsert({
       user_id: userId,
       has_birth_time: chart.has_birth_time,
+      house_system: chart.house_system,
       chart,
       calculated_at: new Date().toISOString(),
     });
@@ -62,7 +75,7 @@ async function keepWholeSignChart(
 }
 
 /**
- * Rebuild the whole-sign chart from what is already stored (A-01: "regenerar
+ * Rebuild the chart from what is already stored (A-01: "regenerar
  * las cartas ya guardadas"). Read as the person, under RLS — the account
  * first, then the anonymous session, as activeProfile does — and no call to
  * the provider: the positions are in the stored text.
@@ -77,7 +90,7 @@ async function rebuild(caller: SupabaseClient, elevated: SupabaseClient, userId:
     const stored = isRecord(data) && isRecord(data.natal_chart) ? data.natal_chart : null;
     if (stored && typeof stored.context === 'string' && stored.context.trim() !== '') {
       const timeKnown = data?.birth_time != null;
-      return keepWholeSignChart(elevated, userId, stored.context, timeKnown, timeKnown ? null : dayNightOf(data?.birth_daynight));
+      return keepChart(elevated, userId, stored.context, timeKnown, timeKnown ? null : dayNightOf(data?.birth_daynight));
     }
   }
   return false;
@@ -141,18 +154,28 @@ Deno.serve(async (request) => {
         : await resolveLocation(subject.city, subject.nation, controller.signal);
     if (!location) return json(request, { error: 'birth_place_not_found' }, 422);
 
-    const response = await fetch(ENDPOINT, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-RapidAPI-Key': rapidApiKey,
-        'X-RapidAPI-Host': HOST,
-      },
-      body: JSON.stringify({
-        subject: { ...subject, ...location },
-      }),
-    });
+    const ask = (withPoints: boolean) =>
+      fetch(ENDPOINT, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RapidAPI-Key': rapidApiKey,
+          'X-RapidAPI-Host': HOST,
+        },
+        body: JSON.stringify({
+          subject: { ...subject, ...location, houses_system_identifier: 'P' },
+          ...(withPoints ? { active_points: ACTIVE_POINTS } : {}),
+        }),
+      });
+
+    let response = await ask(true);
+    // A provider that refuses the list of points still casts the chart without
+    // Lilith, rather than casting none.
+    if (response.status === 400 || response.status === 422) {
+      console.error('astrologer_points_refused', response.status);
+      response = await ask(false);
+    }
 
     const payload: unknown = await response.json().catch(() => null);
     if (!response.ok || !isRecord(payload) || payload.status !== 'OK') {
@@ -170,7 +193,7 @@ Deno.serve(async (request) => {
     // houses. Removed here, before the chart is stored anywhere.
     const context = timeKnown ? raw : withoutBirthTime(raw);
     // Without the hour, day or night as the person said it (owner, 22 Oct 2026).
-    await keepWholeSignChart(elevated, userId, context, timeKnown, timeKnown ? null : dayNightOf(isRecord(body) ? body.day_night : null));
+    await keepChart(elevated, userId, context, timeKnown, timeKnown ? null : dayNightOf(isRecord(body) ? body.day_night : null));
 
     return json(request, { status: 'OK', api_version: 'v6', context, time_known: timeKnown });
   } catch (error) {
