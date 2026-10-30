@@ -794,26 +794,41 @@ say so (texts approved). A comparison made before the areas offers
 «Actualizar», which uses the plan. Open: the prompt has not yet run against
 the model (no key in the local stack).
 
-**Houses move to Placidus, with whole sign kept as an option (owner, 27 Oct
-2026, after people complained their houses differ from other apps).** Not
-built yet: the work and its open questions are in the cerebro's
-`traspasos/2026-10-27-pdr-usuario-casas-placidus.md`. Meanwhile a one-time
-notice (`components/HousesNotice.tsx`, `copy.housesNotice`, text approved by
-the owner: «Muy pronto…») tells whoever has houses, once per browser
-(`natus.houses-notice-seen`); take it out, or change it, when Placidus ships.
-The same text went as a team message in «Sugerir» to the 151 people with
-houses (owner, 27 Oct 2026, from the owner's admin id).
+**Houses in Placidus, whole sign one touch away (owner, 27–30 Oct 2026,
+after people found their houses differ from other apps; branch
+`casas-placidus`, not yet on `main`).** `buildNatalChart` reads the
+provider's Placidus cusps (`<house name="First_House" cusp="13.92"
+sign="Leo"/>`, degree within the sign) and places each point between them;
+every point also keeps `whole_sign_house`. Whole sign instead near a pole
+(|lat| >= 66, `POLAR_LATITUDE`) or without twelve cusps with the first on the
+Ascendant; `natal_charts.house_system` says which. NATAL_CHART_VERSION
+`placidus-v1` rebuilds stored charts once. **Davraz always reads Placidus**
+(owner, 28 Oct): the Soul Map, the comparison and the why of a therapy name a
+house by its area of life, never its number (`HOUSE_NUMBER_RULE`, text
+approved); the chat, the tip and the readings per point may say the number.
+The full chart has «Placidus · Signo entero» under «Simple · Completa»
+(option A of the mockup «Casas en Placidus», owner 30 Oct), kept in
+`preferences.house_view`; only the screen follows it — the wheel, the
+lists, the card, the ruler, and in the comparison the two wheels and «su X
+cae en tu casa N». The comparison's areas and «Ver de dónde sale» are
+always Placidus; today's Moon too, while the lord of the year counts by
+whole sign. The panel shows the system and the person's choice. **The mean
+Lilith** is asked of the provider (`active_points`; cast without the list if
+refused): in the full chart and its readings, in the chat only when asked,
+never in the Soul Map, the comparison or today's sky, and without aspects.
+The houses notice now says it is done («Tus casas ya están en Placidus»),
+once, to whoever was here before the change. Texts of the selector and the
+notice are proposals until the owner approves them. Charts that exist get
+Lilith only by asking the provider again (166 on 29 Oct): part 3 of the
+handover, run with the owner's ok.
 
 **Astrology still to review with the owner (23 Oct 2026, he asked to note it).**
-Lilith is in no stored chart (0 of 93): `natal-chart` does not ask Astrologer
-for it (its `active_points` option), though the full chart and the reading
-rules already handle it; open whether to recalculate the charts that exist
-(new readings per point) or only new ones. Proposed and not decided: the Lots
+Lilith: see the houses above (owner, 28 Oct 2026). Proposed and not decided: the Lots
 of Fortune and Spirit (with the hour), terms and decans, the Moon's phase at
 birth (the ephemeris sends it, unused); later the solar return, the slow
 planets' transits, zodiacal releasing, naming the lord of the year (he chose
 not to) and a composite chart for the comparison. Left out on purpose:
-asteroids, Placidus, aspects by orb.
+asteroids, aspects by orb.
 
 **Pending the owner's word (17–18 Oct 2026):** the public price may go to
 US$ 20 with anybody already paying kept at US$ 10 — on hold, decided at the
