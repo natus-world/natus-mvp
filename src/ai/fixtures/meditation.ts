@@ -128,7 +128,7 @@ const CORES: Core[] = [
   {
     key: 'calma',
     title: 'Bajar el ritmo',
-    bed: 'cuencos-432',
+    bed: 'calma-profunda',
     moves: [
       {
         say: 'Trae a la mente eso que vienes sosteniendo. No para resolverlo ahora: solamente para saber dónde está mientras respiras.',
@@ -147,7 +147,7 @@ const CORES: Core[] = [
   {
     key: 'dormir',
     title: 'Antes de dormir',
-    bed: 'lluvia',
+    bed: 'antes-de-dormir',
     moves: [
       {
         say: 'El día ya pasó. Lo que quedó sin hacer va a seguir estando mañana, y mañana vas a tener más con qué mirarlo.',
@@ -166,7 +166,7 @@ const CORES: Core[] = [
   {
     key: 'enojo',
     title: 'Algo que quedó caliente',
-    bed: 'drone-grave',
+    bed: 'olas-en-silencio',
     moves: [
       {
         say: 'Trae la escena que te dejó así. Sin discutirla otra vez por dentro: solamente mírala a distancia, como quien mira una foto.',
@@ -185,7 +185,7 @@ const CORES: Core[] = [
   {
     key: 'claridad',
     title: 'Antes de decidir',
-    bed: 'drone-528',
+    bed: 'tonos-armonicos',
     moves: [
       {
         say: 'Nombra en silencio la decisión que tienes delante. Una frase corta alcanza.',
@@ -204,7 +204,7 @@ const CORES: Core[] = [
   {
     key: 'presencia',
     title: 'Volver aquí',
-    bed: 'drone-528',
+    bed: 'ecos-suaves',
     moves: [
       {
         say: 'Trae la intención con la que empezaste esto. La frase con la que la escribiste, tal cual la escribiste.',
