@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { copy } from '@/i18n';
-import { hasBirthTime } from '@/astrology/natal-chart';
 import { activeProfile, getClient } from '@/store/account';
 import { getSession } from '@/store/session';
 import { browserStorage } from '@/supabase/session-storage';
@@ -28,11 +27,12 @@ function markSeen(): void {
 /** When the houses moved to Placidus. Whoever arrives after never saw them by whole sign. */
 const PLACIDUS_SINCE = Date.parse('2026-10-31T03:00:00Z');
 
-/** Somebody whose chart has houses: it was cast and they gave the hour. */
-function hasHouses(): boolean {
-  const draft = activeProfile()?.draft;
-  if (!draft) return false;
-  return draft.natal_chart?.parse_status === 'parsed' && hasBirthTime(draft);
+/**
+ * Everybody who was here before the change sees it, with or without the hour
+ * (owner, 30 Oct 2026: without houses, it may move them to give it).
+ */
+function hasProfile(): boolean {
+  return activeProfile() !== null;
 }
 
 /** Somebody who was here before the change, so had seen their houses by whole sign. */
@@ -44,11 +44,11 @@ function cameBefore(): boolean {
 /**
  * The houses are in Placidus, with whole sign still available (owner, 27–30
  * Oct 2026, after people asked for it). Told once, on entering the app, to
- * whoever already has houses; somebody new has not seen any yet. Kept in the
+ * whoever was here before the change; somebody new has not seen any yet. Kept in the
  * browser: on another device it may be told once more.
  */
 export function HousesNotice() {
-  const [open, setOpen] = useState(() => !seen() && hasHouses() && cameBefore());
+  const [open, setOpen] = useState(() => !seen() && hasProfile() && cameBefore());
   if (!open) return null;
   const close = () => {
     markSeen();
