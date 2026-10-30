@@ -101,6 +101,17 @@ describe('areasBetween', () => {
     expect(without.overlays.every((o) => o.inHouseOf === 'b')).toBe(true);
   });
 
+  it('reads the houses in the host chart\'s Placidus when it has them (owner, 30 Oct 2026)', () => {
+    // Equal houses from Francisca's Ascendant: the 8th opens at 12° Taurus, so Mars at 10° Taurus is in her 7th.
+    const asc = SIGNS.indexOf(FRANCISCA.ascendant!.sign) * 30 + FRANCISCA.ascendant!.degree;
+    const cusps = Array.from({ length: 12 }, (_, i) => (asc + i * 30) % 360);
+    const host: NatalChart = { ...FRANCISCA, house_system: 'placidus', cusps };
+    const sex = areasBetween(host, TOMAS).find((a) => a.key === 'sexualidad')!;
+    expect(sex.overlays.some((o) => o.of === 'b' && o.body === 'Mars')).toBe(false);
+    const work = areasBetween(host, TOMAS).flatMap((a) => a.overlays).filter((o) => o.of === 'b' && o.body === 'Mars');
+    expect(work.every((o) => o.house !== 8)).toBe(true);
+  });
+
   it('leaves out «Cómo se ven juntos» unless both have the hour', () => {
     const noHour = chart({ Sun: 'Gemini', Moon: 'Pisces' }, null);
     expect(areasBetween(noHour, TOMAS).some((a) => a.key === 'como_se_ven')).toBe(false);

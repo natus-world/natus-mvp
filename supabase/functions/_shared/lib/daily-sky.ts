@@ -25,6 +25,7 @@
 
 import {
   ChartParseError,
+  placidusHouse,
   readPoints,
   rulerOf,
   SIGNS,
@@ -270,7 +271,15 @@ export function dailySky(input: {
     date,
     has_birth_time: asc !== null,
     personal_day: personalDay(birthDate, date),
-    moon: { sign: moon.sign, house: asc ? wholeSignHouse(moon.sign, asc.sign) : null },
+    // In the chart's own houses: Placidus, as Davraz reads it (owner, 28–30 Oct 2026).
+    moon: {
+      sign: moon.sign,
+      house: asc
+        ? chart.house_system === 'placidus' && chart.cusps
+          ? placidusHouse(moon.longitude, chart.cusps)
+          : wholeSignHouse(moon.sign, asc.sign)
+        : null,
+    },
     lord_of_year: lord,
     transits: scored.slice(0, MAX_TRANSITS).map((s) => s.transit),
   };

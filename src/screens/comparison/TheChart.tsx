@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { copy } from '@/i18n';
 import { TwoWheels, type WheelChart } from '@/design/TwoWheels';
-import { SIGNS, wholeSignHouse, type NatalChart, type Sign } from '@/lib/natal-chart';
+import { placidusHouse, SIGNS, wholeSignHouse, type NatalChart, type Sign } from '@/lib/natal-chart';
+import { getPreferences } from '@/store/preferences';
 import type { ComparisonResult } from '@/lib/schemas';
 import { Arrow, BodyGlyph } from './pieces';
 
@@ -24,10 +25,27 @@ function aspectName(type: string): string {
   return copy.astro.aspects[type.toLowerCase()] ?? type;
 }
 
+/**
+ * The houses as the reader chose to see them in the full chart (owner, 28–30
+ * Oct 2026): Placidus, or whole sign. A chart not yet in Placidus (or cast near
+ * a pole) is always by whole sign.
+ */
+function placidusOf(chart: NatalChart): number[] | null {
+  return getPreferences().house_view === 'placidus' && chart.house_system === 'placidus' && chart.cusps ? chart.cusps : null;
+}
+
+/** The house a sign and degree fall in, in a chart, as the reader sees houses. */
+function houseIn(chart: NatalChart, sign: Sign, degree: number): number | null {
+  if (!chart.ascendant) return null;
+  const cusps = placidusOf(chart);
+  return cusps ? placidusHouse(SIGNS.indexOf(sign) * 30 + degree, cusps) : wholeSignHouse(sign, chart.ascendant.sign);
+}
+
 /** A stored chart as the wheel draws it. */
 export function wheelChart(chart: NatalChart, name: string): WheelChart {
   const mc = chart.points.find((p) => p.name === 'Medium_Coeli');
   return {
+    cusps: placidusOf(chart),
     name,
     ascendant: chart.ascendant ? SIGNS.indexOf(chart.ascendant.sign) * 30 + chart.ascendant.degree : null,
     midheaven: chart.ascendant && mc ? mc.longitude : null,
@@ -35,13 +53,22 @@ export function wheelChart(chart: NatalChart, name: string): WheelChart {
   };
 }
 
-/** Where a body sits in a chart: its sign, degree and house, or null when the chart lacks it. */
-export function placeOf(chart: NatalChart, body: string): { sign: Sign; degree: number; house: number | null } | null {
+/**
+ * Where a body sits in a chart: its sign, degree and house, or null when the
+ * chart lacks it. The house as the reader sees houses, or (`chart`) in the
+ * chart's own system, Placidus — what the areas read (owner, 30 Oct 2026).
+ */
+export function placeOf(
+  chart: NatalChart,
+  body: string,
+  houses: 'reader' | 'chart' = 'reader',
+): { sign: Sign; degree: number; house: number | null } | null {
   if (body === 'Ascendant') {
     return chart.ascendant ? { sign: chart.ascendant.sign, degree: chart.ascendant.degree, house: 1 } : null;
   }
   const p = chart.points.find((x) => x.name === body);
-  return p ? { sign: p.sign, degree: p.degree, house: p.house } : null;
+  if (!p) return null;
+  return { sign: p.sign, degree: p.degree, house: houses === 'chart' ? p.house : houseIn(chart, p.sign, p.degree) };
 }
 
 /**
@@ -158,7 +185,7 @@ function Places({
   const myLine = text.placeMine(bodyName(myBody), signName(m.sign), Math.floor(m.degree), m.house);
   const theirLine = text.placeTheirs(bodyName(theirBody), friend, signName(t.sign), Math.floor(t.degree), t.house);
   const lines = askedByMe ? [myLine, theirLine] : [theirLine, myLine];
-  const falls = mine.ascendant && theirBody !== 'Ascendant' ? wholeSignHouse(t.sign, mine.ascendant.sign) : null;
+  const falls = theirBody !== 'Ascendant' ? houseIn(mine, t.sign, t.degree) : null;
   return (
     <small>
       {lines.join(' · ')}.

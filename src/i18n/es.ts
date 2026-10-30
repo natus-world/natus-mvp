@@ -1924,7 +1924,8 @@ export const es = {
         `${who} en ${sign} ${degree}°${house} · ${aspect} · ${who2} en ${sign2} ${degree2}°${house2}`,
       sourceHouse: (house: number, name: string) => ` (casa ${house} de ${name})`,
       noAspect: 'sin aspecto: los signos no se ven',
-      sourceFoot: 'Casas por signo entero. Sin la hora de nacimiento no hay casas ni Ascendente.',
+      // Approved by the owner, 28 Oct 2026: the areas read the houses in Placidus.
+      sourceFoot: 'Casas en Placidus. Sin la hora de nacimiento no hay casas ni Ascendente.',
       // Proposals (23 Oct 2026): a comparison made before the areas, and charts that are missing.
       older: 'Esta comparación es de antes de las áreas. Actualízala para leer sus dos cartas por áreas.',
       update: 'Actualizar',

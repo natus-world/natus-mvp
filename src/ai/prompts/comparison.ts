@@ -1,6 +1,6 @@
 import { COMPARISON_PROMPT_VERSION } from './versions.ts';
 import { JSON_DISCIPLINE, TONE_RULES, personText } from './shared.ts';
-import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
+import { HELLENISTIC_RULES, HOUSE_NUMBER_RULE, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
 import type { ComparisonPayload } from '@/lib/comparison-payload.ts';
 import { crossesToLabel, type Area, type AreaKey, type AreaPoint } from '@/lib/comparison-areas.ts';
 import type { GrammaticalGender } from '@/lib/model-input.ts';
@@ -54,6 +54,7 @@ LAS CINCO REGLAS DURAS
    una señal de riesgo en el pedido, devuelves solamente contención.
 
 ${HELLENISTIC_RULES}
+${HOUSE_NUMBER_RULE}
 
 ${PROPOSITIVE_RULES}
 
@@ -77,7 +78,7 @@ Para cada área escribes:
 - "reading": de 2 a 4 oraciones, en simple, con algo concreto del día a
   día. Se apoya en los cruces del área y los nombra con el nombre de cada
   persona ("la Venus de Ana en Tauro y el Marte de Luis en Tauro"). Si llega
-  una casa, puedes nombrarla con lo que significa. Lo que fluye se dice como lo que fluye naturalmente; lo que
+  una casa, nómbrala solo por lo que significa, nunca por su número. Lo que fluye se dice como lo que fluye naturalmente; lo que
   pide trabajo, con cómo pueden trabajarlo. Si el cruce principal es "sin
   aspecto", dices cómo lo vive cada uno a su manera y que se conocen
   preguntándose.
@@ -240,7 +241,8 @@ function describe(label: string, subject: ComparisonPayload['a'], gender: Gramma
     ? `camino de vida ${subject.numerology.life_path}, expresión ${subject.numerology.expression}, alma ${subject.numerology.soul_urge}, personalidad ${subject.numerology.personality}, cumpleaños ${subject.numerology.birthday}`
     : 'sin números';
 
-  const chart = subject.chart ? describeChart(subject.chart) : 'SIN CARTA. No completes posiciones.';
+  // No Lilith in the comparison (owner, 28 Oct 2026).
+  const chart = subject.chart ? describeChart(subject.chart, { lilith: false }) : 'SIN CARTA. No completes posiciones.';
 
   return [
     label,

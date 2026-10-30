@@ -406,7 +406,7 @@ function Detail({
 
 function AllPlanets({ mine, theirs, me, friend }: { mine: NatalChart; theirs: NatalChart; me: string; friend: string }) {
   const cell = (chart: NatalChart, body: string, left: boolean) => {
-    const p = placeOf(chart, body);
+    const p = placeOf(chart, body, 'chart');
     if (!p) return <td className={left ? 'lado izq' : 'lado'}>—</td>;
     const extra = p.house !== null && body !== 'Ascendant' ? ` · casa ${p.house}` : '';
     return (

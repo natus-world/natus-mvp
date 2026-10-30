@@ -1,5 +1,5 @@
 import { JSON_DISCIPLINE, TONE_RULES, addressLine, personText } from './shared.ts';
-import { HELLENISTIC_RULES, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
+import { HELLENISTIC_RULES, HOUSE_NUMBER_RULE, PROPOSITIVE_RULES, describeChart } from './chart-reading.ts';
 import { ChartParseError, buildNatalChart, type NatalChart } from '@/lib/natal-chart.ts';
 import type { Numerology } from '@/lib/schemas/index.ts';
 import type { GrammaticalGender, SoulMapDraft } from '@/lib/model-input.ts';
@@ -52,6 +52,7 @@ LAS TRES SECCIONES
   indicación clínica.
 
 ${HELLENISTIC_RULES}
+${HOUSE_NUMBER_RULE}
 
 ${PROPOSITIVE_RULES}
 
@@ -136,13 +137,13 @@ export function buildSoulMapUserMessage(input: {
   // plainly that it is missing, and told not to invent positions — the same
   // instruction that keeps the comparison prompt honest.
   // v1.2 A-02: the chart arrives read the Hellenistic way, calculated here,
-  // not as the provider's text with its Placidus houses.
+  // not as the provider's text. No Lilith in the Soul Map (owner, 28 Oct 2026).
   const chart = readChart(draft);
   blocks.push(
     chart
       ? [
           'CARTA NATAL (ya calculada; trátala como datos simbólicos dados, no como prueba)',
-          describeChart(chart),
+          describeChart(chart, { lilith: false }),
         ].join('\n')
       : [
           'CARTA NATAL',

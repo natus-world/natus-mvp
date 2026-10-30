@@ -1,4 +1,4 @@
-import { SIGNS, wholeSignHouse, type ChartAspect, type MainPoint, type NatalChart, type Sign } from './natal-chart.ts';
+import { placidusHouse, SIGNS, wholeSignHouse, type ChartAspect, type MainPoint, type NatalChart, type Sign } from './natal-chart.ts';
 import { AREA_KEYS, READ_LABELS } from './schemas/ai.ts';
 
 export { AREA_KEYS, READ_LABELS };
@@ -157,7 +157,11 @@ function overlaysOf(def: AreaDef, crosses: AreaCross[], a: NatalChart, b: NatalC
   const seen = new Set<string>();
   const add = (of: Side, point: AreaPoint, host: NatalChart) => {
     if (!host.ascendant || point.body === 'Ascendant') return;
-    const house = wholeSignHouse(point.sign, host.ascendant.sign);
+    // In the host's own system: Placidus, as Davraz reads it (owner, 28–30 Oct 2026).
+    const house =
+      host.house_system === 'placidus' && host.cusps
+        ? placidusHouse(SIGNS.indexOf(point.sign) * 30 + point.degree, host.cusps)
+        : wholeSignHouse(point.sign, host.ascendant.sign);
     const key = `${of}|${point.body}`;
     if (!def.houses.includes(house) || seen.has(key)) return;
     seen.add(key);

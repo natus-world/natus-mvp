@@ -1,16 +1,52 @@
-export const CHAT_PROMPT_VERSION = 'chat-v2.2';
+export const CHAT_PROMPT_VERSION = 'chat-v2.3';
 export const MEDITATION_PROMPT_VERSION = 'meditation-v1.2';
-export const MATCH_PROMPT_VERSION = 'match-v1.5';
+export const MATCH_PROMPT_VERSION = 'match-v1.6';
 export const ROUTINE_PROMPT_VERSION = 'routine-v1.1';
-export const COMPARISON_PROMPT_VERSION = 'comparison-v2.4';
-export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.8';
+export const COMPARISON_PROMPT_VERSION = 'comparison-v2.5';
+export const SOUL_MAP_PROMPT_VERSION = 'soul-map-v2.9';
 export const MEMORY_PROMPT_VERSION = 'memory-v1.0';
 export const ROUTINE_REVIEW_PROMPT_VERSION = 'routine-review-v1.1';
-export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.2';
-export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.1';
+export const CHART_POINTS_PROMPT_VERSION = 'chart-points-v1.3';
+export const DAILY_TIP_PROMPT_VERSION = 'daily-tip-v1.2';
 export const MEDITATION_VOICE_PROMPT_VERSION = 'meditation-voice-v1.0';
 
 export const PROMPT_HISTORY: readonly { version: string; date: string; change: string }[] = [
+  {
+    version: 'soul-map-v2.9',
+    date: '2026-10-30',
+    change:
+      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The Soul Map names a house by its area of life, never its number (HOUSE_NUMBER_RULE), and receives no Lilith (owner, 28 Oct 2026).',
+  },
+  {
+    version: 'comparison-v2.5',
+    date: '2026-10-30',
+    change:
+      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The comparison names a house only by what it means, never its number (HOUSE_NUMBER_RULE and its own line), and receives no Lilith.',
+  },
+  {
+    version: 'match-v1.6',
+    date: '2026-10-30',
+    change:
+      'Houses in Placidus (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the why of a therapy names a house by its area of life, never its number (HOUSE_NUMBER_RULE, from chart-reading.ts), and the chart line no longer says «casas por signo entero».',
+  },
+  {
+    version: 'chat-v2.3',
+    date: '2026-10-30',
+    change:
+      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The chat may say the house number. It receives the mean Lilith and names it only when the person asks about it (owner, 28 Oct 2026; the line is a proposal for his approval).',
+  },
+  {
+    version: 'chart-points-v1.3',
+    date: '2026-10-30',
+    change:
+      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The readings per point may say the house number, in Placidus, and include the mean Lilith (owner, 28 Oct 2026).',
+  },
+  {
+    version: 'daily-tip-v1.2',
+    date: '2026-10-30',
+    change:
+      'Houses in Placidus, whole sign one touch away on the screen (owner, 27–30 Oct 2026; wording approved by him on 28 Oct): the shared chart rules say the houses come in the system indicated (Placidus or whole sign) instead of «por signo entero», and the chart description says which («Casas: Placidus»). The Moon of the day comes with its Placidus house.',
+  },
   {
     version: 'meditation-voice-v1.0',
     date: '2026-10-29',

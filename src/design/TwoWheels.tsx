@@ -8,7 +8,8 @@ import { spreadApart } from '@/design/spread';
  * «La carta» of the comparison with both charts whole (owner, 23 Oct 2026;
  * mockup `las-dos-cartas/1-la-carta-dos-ruedas`, section 1, and option A of
  * `3-opciones-y-celular-dos-ruedas` for the phone): the mockup's own wheel at
- * its numbers — signs, whole-sign houses, the four axes, the ten planets —
+ * its numbers — signs, houses (Placidus or whole sign, as the reader chose in
+ * the full chart, owner 30 Oct 2026), the four axes, the ten planets —
  * side by side on desktop with each degree, one over the other on the phone.
  *
  * The aspect chosen in the list below lights its two points with a ring and
@@ -45,6 +46,8 @@ export type WheelChart = {
   /** Ecliptic longitude of the Ascendant and the Midheaven; null without the hour. */
   ascendant: number | null;
   midheaven: number | null;
+  /** The Placidus cusps, house 1 first, as longitudes. Null: houses by whole sign. */
+  cusps?: number[] | null;
   points: WheelChartPoint[];
 };
 
@@ -73,6 +76,7 @@ function oneWheel(
   const rp = R * 0.68;
   const esc = R / 200;
   const firstHouse = Math.floor(base / 30);
+  const cusps = withTime ? (chart.cusps ?? null) : null;
 
   const planets = chart.points.filter((p) => (WHEEL_PLANETS as readonly string[]).includes(p.id));
   const shown = spreadApart(
@@ -111,12 +115,12 @@ function oneWheel(
           return (
             <g key={sign}>
               <line
-                {...line(P(R, s * 30), P(withTime ? r0 : rS, s * 30))}
-                stroke={ink(withTime && s === firstHouse ? 0 : 0.16)}
+                {...line(P(R, s * 30), P(withTime && !cusps ? r0 : rS, s * 30))}
+                stroke={ink(withTime && !cusps && s === firstHouse ? 0 : 0.16)}
                 strokeWidth={0.6}
               />
               <Glyph d={glyph.d} advance={glyph.advance} x={x} y={y} size={15 * esc} fill={ink(0.8)} />
-              {withTime && (
+              {withTime && !cusps && (
                 <text
                   x={hx.toFixed(2)}
                   y={hy.toFixed(2)}
@@ -128,6 +132,26 @@ function oneWheel(
                   {((s - firstHouse + 12) % 12) + 1}
                 </text>
               )}
+            </g>
+          );
+        })}
+        {cusps?.map((c, h) => {
+          const next = cusps[(h + 1) % 12]!;
+          const [hx, hy] = P(rS - 11 * esc, c + ((((next - c) % 360) + 360) % 360) / 2);
+          return (
+            <g key={`c${h}`}>
+              {/* The first cusp is the Ascendant, drawn as an axis. */}
+              {h !== 0 && <line {...line(P(rS, c), P(r0, c))} stroke={ink(0.16)} strokeWidth={0.6} />}
+              <text
+                x={hx.toFixed(2)}
+                y={hy.toFixed(2)}
+                fontSize={8.5 * esc}
+                fill={ink(0.45)}
+                textAnchor="middle"
+                dominantBaseline="central"
+              >
+                {h + 1}
+              </text>
             </g>
           );
         })}

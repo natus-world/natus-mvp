@@ -116,6 +116,15 @@ describe('today\'s transits over the chart (v1.2 D-01)', () => {
     expect(today.personal_day).toBe(3);
   });
 
+  it('in a Placidus chart, the Moon falls in its Placidus house (owner, 30 Oct 2026)', () => {
+    // Twelve equal houses from the Ascendant at 20° Virgo: the 10th opens at 20° Gemini.
+    const cusps = Array.from({ length: 12 }, (_, i) => (170 + i * 30) % 360);
+    const placidus = dailySky({ chart: { ...chart, house_system: 'placidus', cusps }, sky, birthDate: '1990-06-04', date: '2026-10-18' });
+    expect(placidus.moon).toEqual({ sign: 'Gemini', house: 9 });
+    // The lord of the year still counts by whole sign.
+    expect(placidus.lord_of_year).toBe('Mercury');
+  });
+
   it('never a sign in aversion', () => {
     // Venus in Scorpio and the Sun in Gemini are seven signs apart: in aversion.
     expect(today.transits.some((t) => t.planet === 'Venus' && t.natal === 'Sun')).toBe(false);

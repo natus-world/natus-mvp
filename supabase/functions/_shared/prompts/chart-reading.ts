@@ -14,7 +14,7 @@ import type { ChartAspect, NatalChart } from '@/lib/natal-chart.ts';
 export const HELLENISTIC_RULES = `
 BASE HELENÍSTICA
 - Lees la carta desde la astrología helenística. Te llega ya calculada:
-  casas por signo entero, aspectos por signo, regencias tradicionales,
+  las casas en el sistema que se indica (Placidus o signo entero), aspectos por signo, regencias tradicionales,
   regente del Ascendente, si nació de día o de noche, y dignidades. No las
   recalcules ni las corrijas.
 - Los siete planetas visibles (Sol, Luna, Mercurio, Venus, Marte, Júpiter,
@@ -29,6 +29,17 @@ BASE HELENÍSTICA
 - Sin predicción: nada de profecciones ni pronósticos. La carta es una lente
   para conocerse, no un calendario.
 - Planetas, signos y aspectos, siempre en español.
+`.trim();
+
+/**
+ * Houses in Placidus, whole sign one touch away on the screen (owner, 28–30 Oct
+ * 2026, text approved by him): what is written once and kept — the Soul Map,
+ * the comparison, the why of a therapy — names a house by its area of life,
+ * never its number, so it never contradicts the wheel the person has chosen.
+ * The chat, the tip and the readings per point may say the number.
+ */
+export const HOUSE_NUMBER_RULE = `
+- Cuando hables de una casa, no digas su número: nombra el área de la vida que representa (por ejemplo, «en tu forma de estar en pareja» y no «en tu casa 7»). La persona puede estar mirando su carta con otro sistema de casas, y el número podría no coincidir.
 `.trim();
 
 /**
@@ -47,6 +58,8 @@ HABLAR PROPOSITIVAMENTE (lógica del espejo)
   No sentencias.
 `.trim();
 
+const LILITH = new Set(['Mean_Lilith', 'True_Lilith', 'Lilith']);
+
 const ASPECT_ES: Record<ChartAspect['type'], string> = {
   conjunction: 'conjunción',
   sextile: 'sextil',
@@ -60,10 +73,13 @@ const ASPECT_ES: Record<ChartAspect['type'], string> = {
  * houses, dignities, the Ascendant's ruler, the sect and the aspects by sign,
  * all given; the separation in degrees is left out, as the orb is never shown.
  */
-export function describeChart(chart: NatalChart): string {
+export function describeChart(chart: NatalChart, options: { lilith?: boolean } = {}): string {
   const lines: string[] = [];
+  // Lilith only where the owner put it (28 Oct 2026): the full chart and the chat.
+  const shown = (name: string) => options.lilith !== false || !LILITH.has(name);
   if (chart.has_birth_time && chart.ascendant) {
     lines.push(`Ascendente: ${chart.ascendant.sign} ${chart.ascendant.degree}°`);
+    lines.push(chart.house_system === 'placidus' ? 'Casas: Placidus' : 'Casas: signo entero');
     if (chart.ascendant_ruler) {
       const r = chart.ascendant_ruler;
       lines.push(`Regente del Ascendente: ${r.planet}, en ${r.sign}${r.house ? `, casa ${r.house}` : ''}`);
@@ -87,7 +103,7 @@ export function describeChart(chart: NatalChart): string {
     }
   }
   lines.push('Puntos:');
-  for (const p of chart.points) {
+  for (const p of chart.points.filter((q) => shown(q.name))) {
     // Without the hour the Moon's sign is certain, its degree is not.
     const parts = [!chart.has_birth_time && p.name === 'Moon' ? p.sign : `${p.sign} ${p.degree}°`];
     if (p.house) parts.push(`casa ${p.house}`);
@@ -98,7 +114,7 @@ export function describeChart(chart: NatalChart): string {
   lines.push('Aspectos por signo:');
   lines.push(
     ...(chart.aspects.length
-      ? chart.aspects.map((a) => `- ${a.a} ${ASPECT_ES[a.type]} ${a.b}`)
+      ? chart.aspects.filter((a) => shown(a.a) && shown(a.b)).map((a) => `- ${a.a} ${ASPECT_ES[a.type]} ${a.b}`)
       : ['- Ninguno.']),
   );
   return lines.join('\n');

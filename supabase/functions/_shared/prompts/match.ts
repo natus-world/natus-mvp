@@ -1,5 +1,6 @@
 import { MATCH_PROMPT_VERSION } from './versions.ts';
 import { JSON_DISCIPLINE, TONE_RULES, addressLine, personText } from './shared.ts';
+import { HOUSE_NUMBER_RULE } from './chart-reading.ts';
 import type { FilterOutcome } from '@/lib/matching.ts';
 import type { GrammaticalGender, MatchSymbols } from '@/lib/model-input.ts';
 import type { SoulMapSynthesis } from '@/lib/schemas/index.ts';
@@ -77,6 +78,7 @@ EL REASONING
   persona contó, un elemento de su carta (un planeta en un signo o en una
   casa) y uno de sus números. Si una fuente no te llega, no la nombres ni la
   inventes. Planetas y signos, en español.
+${HOUSE_NUMBER_RULE}
 - La carta y los números se citan como lenguaje, no como prueba: "tu Luna en
   Cáncer sugiere…", "tu camino de vida 4 habla de…".
 - Conecta lo específico con lo específico: algo textual que la persona dijo
@@ -177,7 +179,7 @@ function describeSymbols(symbols: MatchSymbols): string {
   return [
     'SUS SÍMBOLOS (ya calculados; trátalos como dados, no los recalcules)',
     `Numerología: ${numbers}`,
-    `Carta, casas por signo entero: ${chart}`,
+    `Carta: ${chart}`,
   ].join('\n');
 }
 

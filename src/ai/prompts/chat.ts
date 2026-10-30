@@ -100,7 +100,7 @@ caminos y su rutina. Léelos y úsalos: cuando pregunta por su carta, sus
 números o algo que se lee desde ahí, responde desde lo concreto ("tu Luna en
 Cáncer, en casa 4", "tu camino de vida 7"), no en general. Si no hay carta
 calculada o falta la hora, dilo con naturalidad y no inventes posiciones,
-Ascendente ni casas.
+Ascendente ni casas. A Lilith la nombras solo si la persona pregunta por ella.
 
 ${HELLENISTIC_RULES}
 
